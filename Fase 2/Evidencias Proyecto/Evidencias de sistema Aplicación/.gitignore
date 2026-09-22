@@ -1,0 +1,15 @@
+# Dependencias
+node_modules/
+
+# Compilados y Caché de Turborepo
+.turbo/
+dist/
+build/
+out/
+
+# Entorno y variables secretas
+.env
+.env.local
+
+# Logs
+npm-debug.log*
