@@ -5,7 +5,7 @@ Este directorio contiene el monorepo del proyecto EMERGEN, integrado por la apli
 ## 🛠️ Herramientas y Requisitos Previos
 
 Cada miembro del equipo debe tener instalado:
-* **Node.js (v20 LTS):** [Descargar](https://nodejs.org/)
+* **Node.js (v24.21.0 LTS):** [Descargar](https://nodejs.org/)
 * **Docker Desktop:** [Descargar](https://www.docker.com/products/docker-desktop)
 * **Visual Studio Code:** Extensiones obligatorias: ESLint, Prettier.
 * **Git:** Para clonar y gestionar ramas.
