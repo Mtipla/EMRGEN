@@ -45,3 +45,22 @@ Cada miembro del equipo debe tener instalado:
 Clona el repositorio, navega a esta carpeta e instala las dependencias del monorepo:
 ```bash
 npm install
+
+
+### 2. Levantar Base de Datos
+Se debe ejecutar Docker Desktop y dejar en segundo plano, y se utilizan los siguientes comandos en bash para su control:
+
+### 2.1 Para eliminar contenedor y volumen para un inicio LIMPIO: **ESTA OPCIÓN ELIMINAR LOS DATOS CONTENIDOS EN LAS TABLAS** 
+- docker-compose down -v
+
+### 2.2 Para apagar el contenedor y NO perder datos:
+- docker-compose down
+
+### 2.3 Para levantar contenedor y volumen nuevamente:**
+- docker-compose up --build -d
+
+Cualquier cambio realizado a los contenedores/volumenes debe seguir el siguiente orden:
+
+**Eliminar Contenedor -> Realizar modificaciones -> Levantar contenedor**
+
+
