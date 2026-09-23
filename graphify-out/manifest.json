@@ -1,0 +1,632 @@
+{
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/.oxlintrc.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569713,
+    "ast_hash": "71b98c39158b9a6ff3f275d45635c59c",
+    "semantic_hash": "71b98c39158b9a6ff3f275d45635c59c"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/jest.config.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569768,
+    "ast_hash": "8059dd16315c5cf48d7e0b6fad0c2e0e",
+    "semantic_hash": "8059dd16315c5cf48d7e0b6fad0c2e0e"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/nest-cli.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569794,
+    "ast_hash": "b6c9c4b64b7092bea720263a47b574cf",
+    "semantic_hash": "b6c9c4b64b7092bea720263a47b574cf"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/package.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.556981,
+    "ast_hash": "2ed5c40c5714d3d06012f548ed3d3733",
+    "semantic_hash": "2ed5c40c5714d3d06012f548ed3d3733"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/app.controller.spec.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569828,
+    "ast_hash": "4a1c0e1133dbda6f6e8f3e60d984eddf",
+    "semantic_hash": "4a1c0e1133dbda6f6e8f3e60d984eddf"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/app.controller.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569844,
+    "ast_hash": "3ab0e83b7d93b85ea489ab994ec79ea1",
+    "semantic_hash": "3ab0e83b7d93b85ea489ab994ec79ea1"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/app.module.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.556986,
+    "ast_hash": "c04a15e4b533d6ed3f26d17d17d061e9",
+    "semantic_hash": "c04a15e4b533d6ed3f26d17d17d061e9"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/app.service.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569878,
+    "ast_hash": "cd3fb7836f10de08a725ee1fd4ab36fe",
+    "semantic_hash": "cd3fb7836f10de08a725ee1fd4ab36fe"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/main.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569892,
+    "ast_hash": "d56c6bea525921f9e6e45f8ec93f2198",
+    "semantic_hash": "d56c6bea525921f9e6e45f8ec93f2198"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/app.e2e-spec.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569909,
+    "ast_hash": "91198fa8fc7e238ecc9dacec901d7a15",
+    "semantic_hash": "91198fa8fc7e238ecc9dacec901d7a15"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/jest-e2e.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569925,
+    "ast_hash": "9f2f5b0e1da31d7b04e205c944e85e8d",
+    "semantic_hash": "9f2f5b0e1da31d7b04e205c944e85e8d"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/tsconfig.build.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569942,
+    "ast_hash": "ec778f0251ce9c58bc38be504c852d39",
+    "semantic_hash": "ec778f0251ce9c58bc38be504c852d39"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/tsconfig.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.556996,
+    "ast_hash": "95ae6df4c5efcc2a0e6235ec994a6f13",
+    "semantic_hash": "95ae6df4c5efcc2a0e6235ec994a6f13"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/eslint.config.js": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569975,
+    "ast_hash": "0355276bc79439afe3c53e3a2470ca1e",
+    "semantic_hash": "0355276bc79439afe3c53e3a2470ca1e"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/package.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5569992,
+    "ast_hash": "b8f3201d875e89e61a952b9363b1485b",
+    "semantic_hash": "b8f3201d875e89e61a952b9363b1485b"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/App.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570006,
+    "ast_hash": "e4931f6d58500c8315d8198f9aa64ff0",
+    "semantic_hash": "e4931f6d58500c8315d8198f9aa64ff0"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/main.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557002,
+    "ast_hash": "787e5a07efeb2bf6209d5937195f2f68",
+    "semantic_hash": "787e5a07efeb2bf6209d5937195f2f68"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/tsconfig.app.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570037,
+    "ast_hash": "5f2dafd737dea8a4ddcbb10f5113ac5a",
+    "semantic_hash": "5f2dafd737dea8a4ddcbb10f5113ac5a"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/tsconfig.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570052,
+    "ast_hash": "a3d39fa780ebff65444de257f291ce6c",
+    "semantic_hash": "a3d39fa780ebff65444de257f291ce6c"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/tsconfig.node.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570066,
+    "ast_hash": "f9cb81ddcea69ffdab672fc8c48dca66",
+    "semantic_hash": "f9cb81ddcea69ffdab672fc8c48dca66"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/vite.config.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570078,
+    "ast_hash": "5d54447744c19ccd28638a5c668d15ea",
+    "semantic_hash": "5d54447744c19ccd28638a5c668d15ea"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/.vscode/extensions.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570095,
+    "ast_hash": "5495c55a87705561e031515581d085a9",
+    "semantic_hash": "5495c55a87705561e031515581d085a9"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/cypress.config.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570114,
+    "ast_hash": "5608573cc243d17a81e2e833e9cf5f7e",
+    "semantic_hash": "5608573cc243d17a81e2e833e9cf5f7e"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/cypress/e2e/test.cy.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557013,
+    "ast_hash": "fa929963d0ced622e3a64c79aa7085f6",
+    "semantic_hash": "fa929963d0ced622e3a64c79aa7085f6"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/cypress/fixtures/example.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570145,
+    "ast_hash": "1c0f81b6b542d5bc3972f4a4f97b63d6",
+    "semantic_hash": "1c0f81b6b542d5bc3972f4a4f97b63d6"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/cypress/support/commands.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570161,
+    "ast_hash": "bd153e3a38e890ea7a3b69c4a43652b7",
+    "semantic_hash": "bd153e3a38e890ea7a3b69c4a43652b7"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/cypress/support/e2e.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570176,
+    "ast_hash": "7bba757e2efad1ceafb94a37c700b34c",
+    "semantic_hash": "7bba757e2efad1ceafb94a37c700b34c"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/eslint.config.js": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557019,
+    "ast_hash": "c06ba986816a95a6ad6c078eb24581f3",
+    "semantic_hash": "c06ba986816a95a6ad6c078eb24581f3"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/ionic.config.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570204,
+    "ast_hash": "6b9f1e7bed0a3ae71c9998e7895f40d9",
+    "semantic_hash": "6b9f1e7bed0a3ae71c9998e7895f40d9"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/package.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570219,
+    "ast_hash": "322169cec66a66f49a475d6420221b40",
+    "semantic_hash": "322169cec66a66f49a475d6420221b40"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/public/manifest.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570235,
+    "ast_hash": "6f3a0add6e8d4158c2b525c8f6867b57",
+    "semantic_hash": "6f3a0add6e8d4158c2b525c8f6867b57"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/App.test.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557025,
+    "ast_hash": "6949ee46f7a3ece29f8e4ae57d1df008",
+    "semantic_hash": "6949ee46f7a3ece29f8e4ae57d1df008"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/App.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570264,
+    "ast_hash": "04c3ab5b7a4003633b3c3d9d7f918763",
+    "semantic_hash": "04c3ab5b7a4003633b3c3d9d7f918763"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/components/ExploreContainer.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557028,
+    "ast_hash": "c51a581af73e7e1577601d3a97ec65fc",
+    "semantic_hash": "c51a581af73e7e1577601d3a97ec65fc"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/main.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570295,
+    "ast_hash": "11985880b37885035da7a1f49041c8a0",
+    "semantic_hash": "11985880b37885035da7a1f49041c8a0"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/pages/Home.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557031,
+    "ast_hash": "acd18fb2c3de9c1cbc486f8b3b6514c2",
+    "semantic_hash": "acd18fb2c3de9c1cbc486f8b3b6514c2"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/setupTests.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570323,
+    "ast_hash": "a7a5afae432cd90b6dc0d61da561b0ea",
+    "semantic_hash": "a7a5afae432cd90b6dc0d61da561b0ea"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/vite-env.d.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557034,
+    "ast_hash": "0352474ba2918efe13895edbc3780d94",
+    "semantic_hash": "0352474ba2918efe13895edbc3780d94"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/tsconfig.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570354,
+    "ast_hash": "ef75e5af92305c996a6d3f448dae89c2",
+    "semantic_hash": "ef75e5af92305c996a6d3f448dae89c2"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/tsconfig.node.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557037,
+    "ast_hash": "42c71f3f9f64d94f8145887b59354846",
+    "semantic_hash": "42c71f3f9f64d94f8145887b59354846"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/vite.config.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570385,
+    "ast_hash": "b2ac7c2c9aaa48f3940d4876e50b20d7",
+    "semantic_hash": "b2ac7c2c9aaa48f3940d4876e50b20d7"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/eslint.config.js": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570402,
+    "ast_hash": "0355276bc79439afe3c53e3a2470ca1e",
+    "semantic_hash": "0355276bc79439afe3c53e3a2470ca1e"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/package.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570414,
+    "ast_hash": "4ae2964e5af2a3c1431cad84d4304413",
+    "semantic_hash": "4ae2964e5af2a3c1431cad84d4304413"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/App.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570438,
+    "ast_hash": "e4931f6d58500c8315d8198f9aa64ff0",
+    "semantic_hash": "e4931f6d58500c8315d8198f9aa64ff0"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/main.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557045,
+    "ast_hash": "787e5a07efeb2bf6209d5937195f2f68",
+    "semantic_hash": "787e5a07efeb2bf6209d5937195f2f68"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/tsconfig.app.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570464,
+    "ast_hash": "5f2dafd737dea8a4ddcbb10f5113ac5a",
+    "semantic_hash": "5f2dafd737dea8a4ddcbb10f5113ac5a"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/tsconfig.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557048,
+    "ast_hash": "a3d39fa780ebff65444de257f291ce6c",
+    "semantic_hash": "a3d39fa780ebff65444de257f291ce6c"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/tsconfig.node.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570495,
+    "ast_hash": "f9cb81ddcea69ffdab672fc8c48dca66",
+    "semantic_hash": "f9cb81ddcea69ffdab672fc8c48dca66"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/vite.config.ts": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570512,
+    "ast_hash": "5d54447744c19ccd28638a5c668d15ea",
+    "semantic_hash": "5d54447744c19ccd28638a5c668d15ea"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/init.sql": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570526,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/package.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557054,
+    "ast_hash": "ce8a2641c4cc018bc0d9223e715c90f7",
+    "semantic_hash": "ce8a2641c4cc018bc0d9223e715c90f7"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/eslint-config/base.js": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570555,
+    "ast_hash": "6a8601bf981ccc84b94c3a4681a7a357",
+    "semantic_hash": "6a8601bf981ccc84b94c3a4681a7a357"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/eslint-config/next.js": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570571,
+    "ast_hash": "d1d0df2d5a30e13256b60fbcea1ce603",
+    "semantic_hash": "d1d0df2d5a30e13256b60fbcea1ce603"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/eslint-config/package.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570586,
+    "ast_hash": "6d040370c7efd8403f1100e4c695e336",
+    "semantic_hash": "6d040370c7efd8403f1100e4c695e336"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/eslint-config/react-internal.js": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.55706,
+    "ast_hash": "1fba876f1347b0f215c94158d9788d2f",
+    "semantic_hash": "1fba876f1347b0f215c94158d9788d2f"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/typescript-config/base.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570617,
+    "ast_hash": "cba1ac504004ffd7a202c09b8fa58f09",
+    "semantic_hash": "cba1ac504004ffd7a202c09b8fa58f09"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/typescript-config/nextjs.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557063,
+    "ast_hash": "419d0717abcf3b97c7ec3638e55f8ec8",
+    "semantic_hash": "419d0717abcf3b97c7ec3638e55f8ec8"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/typescript-config/package.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570648,
+    "ast_hash": "1e99369b75db4546af4ac4a79eb5f2dd",
+    "semantic_hash": "1e99369b75db4546af4ac4a79eb5f2dd"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/typescript-config/react-library.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557066,
+    "ast_hash": "42fa007069bd205e7d2762f34a1545ae",
+    "semantic_hash": "42fa007069bd205e7d2762f34a1545ae"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/eslint.config.mjs": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570676,
+    "ast_hash": "c787dc302a8cbd0911ae8aaa979aa991",
+    "semantic_hash": "c787dc302a8cbd0911ae8aaa979aa991"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/package.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557069,
+    "ast_hash": "fadefe51de0dd4405b90e5e6107277f2",
+    "semantic_hash": "fadefe51de0dd4405b90e5e6107277f2"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/button.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570705,
+    "ast_hash": "7d9123e4a929c973692314670228d7b5",
+    "semantic_hash": "7d9123e4a929c973692314670228d7b5"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/card.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570722,
+    "ast_hash": "ca56fa8d993ddc64362abe2ef07481f2",
+    "semantic_hash": "ca56fa8d993ddc64362abe2ef07481f2"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/code.tsx": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570736,
+    "ast_hash": "dd8ba0d572b4682c869f343cc7cad209",
+    "semantic_hash": "dd8ba0d572b4682c869f343cc7cad209"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/tsconfig.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570753,
+    "ast_hash": "cd930e468869b06ed4f308a34c9cde9a",
+    "semantic_hash": "cd930e468869b06ed4f308a34c9cde9a"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/turbo.json": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570765,
+    "ast_hash": "e3040b2a288e6c0feceabc416e9bd0f8",
+    "semantic_hash": "e3040b2a288e6c0feceabc416e9bd0f8"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.4 Docker/README.md": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570781,
+    "ast_hash": "c3191b9263d77e5005418c65662a06df",
+    "semantic_hash": "c3191b9263d77e5005418c65662a06df"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.4 Docker/docker-compose.yml": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570796,
+    "ast_hash": "0756d1ffa0a46c21791d1d609afc0f58",
+    "semantic_hash": "0756d1ffa0a46c21791d1d609afc0f58"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/README.md": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557081,
+    "ast_hash": "e3e6e7378211834f8ea5feb127a5c63d",
+    "semantic_hash": "e3e6e7378211834f8ea5feb127a5c63d"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/README.md": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570827,
+    "ast_hash": "f7ed60f69bd80536365b8326a40139be",
+    "semantic_hash": "f7ed60f69bd80536365b8326a40139be"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/README.md": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570838,
+    "ast_hash": "b81d7c798d385d9081eafb0ab843e15c",
+    "semantic_hash": "b81d7c798d385d9081eafb0ab843e15c"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/index.html": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570855,
+    "ast_hash": "570e12e6a73959cd272a950e7d1fa15d",
+    "semantic_hash": "570e12e6a73959cd272a950e7d1fa15d"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/index.html": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557087,
+    "ast_hash": "d84bd630a8ac4fa3eac6d48d374b1487",
+    "semantic_hash": "d84bd630a8ac4fa3eac6d48d374b1487"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/README.md": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570884,
+    "ast_hash": "b81d7c798d385d9081eafb0ab843e15c",
+    "semantic_hash": "b81d7c798d385d9081eafb0ab843e15c"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/index.html": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570898,
+    "ast_hash": "c6b1f4abf65354674c35bfeba85f8ea4",
+    "semantic_hash": "c6b1f4abf65354674c35bfeba85f8ea4"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/docker-compose.yml": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570912,
+    "ast_hash": "7ddfc777c8bd787a4e52d89fbb73fc97",
+    "semantic_hash": "7ddfc777c8bd787a4e52d89fbb73fc97"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/eslint-config/README.md": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557093,
+    "ast_hash": "3f4915336e7c54df90f5b12b527b8b87",
+    "semantic_hash": "3f4915336e7c54df90f5b12b527b8b87"
+  },
+  "README.md": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570939,
+    "ast_hash": "3037f84549293b7a5627add1782f3f21",
+    "semantic_hash": "3037f84549293b7a5627add1782f3f21"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Caso de Uso/Caso de Uso.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570958,
+    "ast_hash": "f7cc2bb8f04db6269b64bb7775a594e1",
+    "semantic_hash": "f7cc2bb8f04db6269b64bb7775a594e1"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagrama de Componentes/Diagrama de Componentes.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570972,
+    "ast_hash": "c2fb1a0bcc12c3ff042a4b046e045423",
+    "semantic_hash": "c2fb1a0bcc12c3ff042a4b046e045423"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Aumentar Usuario Apadrinado.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5570989,
+    "ast_hash": "5af4594254a6b349d45732e4b6743f45",
+    "semantic_hash": "5af4594254a6b349d45732e4b6743f45"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Crear PIN para Apadrinado.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571003,
+    "ast_hash": "d828f97e3fd0896301cad33deb216667",
+    "semantic_hash": "d828f97e3fd0896301cad33deb216667"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Enviar Mensaje.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571017,
+    "ast_hash": "6daf21c75747a34ed91aec2da0e31bde",
+    "semantic_hash": "6daf21c75747a34ed91aec2da0e31bde"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Generar Alerta.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571034,
+    "ast_hash": "25de41138e32b1ee632e8dc4eeb06446",
+    "semantic_hash": "25de41138e32b1ee632e8dc4eeb06446"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Gestionar Compras.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571048,
+    "ast_hash": "0c51074bcdccfd000e1a89a1f682615a",
+    "semantic_hash": "0c51074bcdccfd000e1a89a1f682615a"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Gestionar Contacto Emergencia.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571065,
+    "ast_hash": "4a1a6c657623d876883ba35484200fc5",
+    "semantic_hash": "4a1a6c657623d876883ba35484200fc5"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Gestionar Credenciales.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571089,
+    "ast_hash": "be0c028f72ddb825eabc83c4615eafb6",
+    "semantic_hash": "be0c028f72ddb825eabc83c4615eafb6"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Gestionar Mensaje Emergencia.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571105,
+    "ast_hash": "2eda5be77b55c1cb8e8a2e5e61921d29",
+    "semantic_hash": "2eda5be77b55c1cb8e8a2e5e61921d29"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Gestionar Tipo Emergencia.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571122,
+    "ast_hash": "19040f49514e4465af39cde189cd03ec",
+    "semantic_hash": "19040f49514e4465af39cde189cd03ec"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Gestionar Trabajadores.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557114,
+    "ast_hash": "70e5155ce0cd4cafc0819a3745796fa1",
+    "semantic_hash": "70e5155ce0cd4cafc0819a3745796fa1"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Gestionar Usuario Apadrinado.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571153,
+    "ast_hash": "b2ef4deed66342c618d97825327641c6",
+    "semantic_hash": "b2ef4deed66342c618d97825327641c6"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Gestionar Usuarios.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571194,
+    "ast_hash": "7436c31f6e73a984402200a310b376c3",
+    "semantic_hash": "7436c31f6e73a984402200a310b376c3"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Ingresar PIN.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571213,
+    "ast_hash": "f396e07671b1fbfe2293f0faa7a14e9c",
+    "semantic_hash": "f396e07671b1fbfe2293f0faa7a14e9c"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Iniciar Sesi\u00f3n.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571227,
+    "ast_hash": "564d35d504202d5bc1f0507e05ba2f30",
+    "semantic_hash": "564d35d504202d5bc1f0507e05ba2f30"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Diagramas de Secuencia/Sequence diagram Ubicacion.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571241,
+    "ast_hash": "e52c7eccfdd5072cde05dd42366bbc79",
+    "semantic_hash": "e52c7eccfdd5072cde05dd42366bbc79"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.1 Diccionario de Datos - Modelo de Dominio/Diagrama ER.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571258,
+    "ast_hash": "1e6262e7f157c0ab26de3c13c85c2aee",
+    "semantic_hash": "1e6262e7f157c0ab26de3c13c85c2aee"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.3 Arquitectura/Diagrama de Arquitectura.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571275,
+    "ast_hash": "054b18102c27cd95b16ed94127c56d43",
+    "semantic_hash": "054b18102c27cd95b16ed94127c56d43"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/public/favicon.svg": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571287,
+    "ast_hash": "7e840862161341271697daa99a40d76b",
+    "semantic_hash": "7e840862161341271697daa99a40d76b"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/public/icons.svg": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571303,
+    "ast_hash": "3b4fcfcf393eca4d264dca4a4663bc37",
+    "semantic_hash": "3b4fcfcf393eca4d264dca4a4663bc37"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/assets/hero.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571318,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": "aead493361b27e7510691c5d7072dfc1"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/assets/vite.svg": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571332,
+    "ast_hash": "9960a24288958394ac50e57ff638b036",
+    "semantic_hash": "9960a24288958394ac50e57ff638b036"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/public/favicon.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571349,
+    "ast_hash": "988be98f12b400c41a22b59b82cfeab6",
+    "semantic_hash": "988be98f12b400c41a22b59b82cfeab6"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/public/favicon.svg": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571363,
+    "ast_hash": "7e840862161341271697daa99a40d76b",
+    "semantic_hash": "7e840862161341271697daa99a40d76b"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/assets/hero.png": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.557138,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": "aead493361b27e7510691c5d7072dfc1"
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/assets/react.svg": {
+    "mtime": 1790104524.0,
+    "seen": 1790107257.5571394,
+    "ast_hash": "f0402b67b6ce880f65666bb49e841696",
+    "semantic_hash": "f0402b67b6ce880f65666bb49e841696"
+  }
+}
