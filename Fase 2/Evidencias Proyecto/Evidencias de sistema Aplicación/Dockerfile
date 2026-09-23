@@ -1,10 +1,10 @@
 FROM node:24-alpine AS builder
 WORKDIR /app
-RUN npm install -g turbo
+RUN npm install -g npm@11.19.1 turbo
 COPY package*.json ./
 COPY turbo.json ./
 COPY apps/backend/package*.json ./apps/backend/
-RUN npm install
+RUN npm install 
 COPY . .
 RUN npx turbo run build --filter=backend...
 

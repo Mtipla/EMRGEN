@@ -50,7 +50,7 @@ npm install
 ### 2. Levantar Base de Datos
 Se debe ejecutar Docker Desktop y dejar en segundo plano, y se utilizan los siguientes comandos en bash para su control:
 
-### 2.1 Para eliminar contenedor y volumen para un inicio LIMPIO: **ESTA OPCIÓN ELIMINAR LOS DATOS CONTENIDOS EN LAS TABLAS** 
+### 2.1 Para eliminar contenedor y volumen para un inicio LIMPIO: **ESTA OPCIÓN ELIMINA LOS DATOS CONTENIDOS EN LAS TABLAS** 
 - docker-compose down -v
 
 ### 2.2 Para apagar el contenedor y NO perder datos:
