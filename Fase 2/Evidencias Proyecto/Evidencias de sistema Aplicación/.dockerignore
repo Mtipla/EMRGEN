@@ -1,0 +1,17 @@
+# Nunca copiar dependencias ni compilados del host (Windows) al contenedor Linux
+**/node_modules
+**/.turbo
+**/dist
+**/build
+**/out
+**/coverage
+
+# Secretos: se inyectan en tiempo de ejecución vía docker-compose
+.env
+.env.*
+
+# Varios
+.git
+**/*.log
+**/cypress/videos
+**/cypress/screenshots
