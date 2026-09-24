@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@ionic/react": "9.0.4",
+    "@repo/api-client": "*",
+    "@repo/ui": "*",
     "axios": "1.20.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",

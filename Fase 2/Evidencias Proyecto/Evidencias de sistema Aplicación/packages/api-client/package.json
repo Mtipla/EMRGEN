@@ -1,0 +1,17 @@
+{
+  "name": "@repo/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cliente del backend EMERGEN y cargadores de SDKs de navegador (Google Maps, PayPal) para web, mobile y desktop.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/api-types": "*",
+    "@repo/typescript-config": "*",
+    "typescript": "6.0.3"
+  }
+}
