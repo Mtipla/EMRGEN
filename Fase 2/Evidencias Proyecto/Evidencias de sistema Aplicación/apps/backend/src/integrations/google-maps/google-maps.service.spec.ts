@@ -1,4 +1,8 @@
-import { BadGatewayException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { GoogleMapsService } from './google-maps.service';
 
 const jsonResponse = (body: unknown) =>
@@ -11,11 +15,12 @@ describe('GoogleMapsService', () => {
   beforeEach(() => {
     process.env.GOOGLE_MAPS_API_KEY = 'maps-key';
     fetchMock = jest.spyOn(global, 'fetch');
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
     process.env = { ...originalEnv };
-    fetchMock.mockRestore();
+    jest.restoreAllMocks();
   });
 
   it('geocodifica una dirección', async () => {
@@ -63,4 +68,38 @@ describe('GoogleMapsService', () => {
       new GoogleMapsService().geocode('x y z'),
     ).rejects.toBeInstanceOf(BadGatewayException);
   });
+
+  it('envía latlng, idioma y región en la geocodificación inversa', async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ status: 'ZERO_RESULTS', results: [] }),
+    );
+    await new GoogleMapsService().reverseGeocode({ lat: -33.44, lng: -70.65 });
+
+    const url = new URL(fetchMock.mock.calls[0][0] as string);
+    expect(url.searchParams.get('latlng')).toBe('-33.44,-70.65');
+    expect(url.searchParams.get('language')).toBe('es');
+    expect(url.searchParams.get('region')).toBe('cl');
+  });
+
+  it('responde 503 sin llamar a Google si falta GOOGLE_MAPS_API_KEY', async () => {
+    delete process.env.GOOGLE_MAPS_API_KEY;
+    await expect(
+      new GoogleMapsService().geocode('Plaza de Armas'),
+    ).rejects.toBeInstanceOf(ServiceUnavailableException);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it.each(['OVER_QUERY_LIMIT', 'INVALID_REQUEST', 'UNKNOWN_ERROR'])(
+    'responde 502 con status %s sin filtrar la key en el mensaje',
+    async (status) => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ status, error_message: 'detalle', results: [] }),
+      );
+      const error = await new GoogleMapsService()
+        .geocode('x y z')
+        .catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(BadGatewayException);
+      expect((error as Error).message).not.toContain('maps-key');
+    },
+  );
 });

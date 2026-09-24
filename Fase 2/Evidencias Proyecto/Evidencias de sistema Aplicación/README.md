@@ -123,8 +123,8 @@ AUTH0_ISSUER_URL=
 AUTH0_AUDIENCE=
 PAYPAL_CLIENT_ID=
 PAYPAL_SECRET=
-SENDGRID_API_KEY=
 GOOGLE_MAPS_API_KEY=
+FIREBASE_PROJECT_ID=
 ```
 
 ### 4.4 Instalar dependencias
@@ -297,11 +297,10 @@ PAYPAL_MODE=sandbox
 PAYPAL_CLIENT_ID=<INSERT_YOUR_PAYPAL_CLIENT_ID_HERE>
 PAYPAL_SECRET=<INSERT_YOUR_PAYPAL_SECRET_HERE>
 
-# ---------- 2. Twilio SendGrid Email Validation ----------
-# Key con permiso "Email Address Validation". Si se deja vacía se usa SENDGRID_API_KEY.
-SENDGRID_VALIDATION_API_KEY=<INSERT_YOUR_SENDGRID_EMAIL_VALIDATION_API_KEY_HERE>
-# Key general de SendGrid (envío de correos con @sendgrid/mail).
-SENDGRID_API_KEY=<INSERT_YOUR_SENDGRID_API_KEY_HERE>
+
+# ---------- 2. Firebase Authentication ----------
+# Project ID de Firebase: el backend lo usa para verificar los ID tokens.
+FIREBASE_PROJECT_ID=<INSERT_YOUR_FIREBASE_PROJECT_ID_HERE>
 
 # ---------- 3. jsReport ----------
 # Backend fuera de Docker (npm run start:dev):
@@ -315,11 +314,22 @@ JSREPORT_PASSWORD=<INSERT_YOUR_JSREPORT_PASSWORD_HERE>
 # ---------- 4. Google Maps Platform (key de SERVIDOR: Geocoding API) ----------
 GOOGLE_MAPS_API_KEY=<INSERT_YOUR_GOOGLE_MAPS_SERVER_API_KEY_HERE>
 
+# ---------- 5. mindicador.cl (API pública, sin key) ----------
+MINDICADOR_API_URL=https://mindicador.cl/api
+
 # =====================================================================
 # VARIABLES PÚBLICAS DE FRONTEND (web, mobile, desktop)
 # Todo lo que empieza con VITE_ queda visible en el navegador.
 # =====================================================================
 VITE_API_URL=http://localhost:3000
+# Web API key de Firebase (pública; se protege con reglas y dominios autorizados).
+VITE_FIREBASE_API_KEY=<INSERT_YOUR_FIREBASE_API_KEY_HERE>
+VITE_FIREBASE_AUTH_DOMAIN=<INSERT_YOUR_FIREBASE_AUTH_DOMAIN_HERE>
+VITE_FIREBASE_PROJECT_ID=<INSERT_YOUR_FIREBASE_PROJECT_ID_HERE>
+VITE_FIREBASE_STORAGE_BUCKET=<INSERT_YOUR_FIREBASE_STORAGE_BUCKET_HERE>
+VITE_FIREBASE_MESSAGING_SENDER_ID=<INSERT_YOUR_FIREBASE_MESSAGING_SENDER_ID_HERE>
+VITE_FIREBASE_APP_ID=<INSERT_YOUR_FIREBASE_APP_ID_HERE>
+VITE_FIREBASE_MEASUREMENT_ID=<INSERT_YOUR_FIREBASE_MEASUREMENT_ID_HERE>
 # El Client ID de PayPal es público (el SECRET no).
 VITE_PAYPAL_CLIENT_ID=<INSERT_YOUR_PAYPAL_CLIENT_ID_HERE>
 # Key de NAVEGADOR, restringida por dominio (distinta de la key de servidor).

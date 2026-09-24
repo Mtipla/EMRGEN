@@ -1,13 +1,14 @@
 # EMERGEN: integración de APIs externas
 
-Guía para el equipo sobre las cuatro APIs externas del proyecto: para qué sirve cada una, cómo conseguir las credenciales, cómo configurarlas y cómo usar los servicios ya implementados.
+Guía para el equipo sobre las cinco APIs externas del proyecto: para qué sirve cada una, cómo conseguir las credenciales, cómo configurarlas y cómo usar los servicios ya implementados.
 
 | # | API | Uso en EMERGEN | Dónde vive el código |
 |---|---|---|---|
 | 1 | **PayPal REST API** (Orders v2) | Cobro de planes y suscripciones | `apps/backend/src/integrations/paypal/` |
-| 2 | **Twilio SendGrid Email Validation** | Verificar que un correo existe antes de guardarlo | `apps/backend/src/integrations/sendgrid/` |
+| 2 | **Firebase Authentication** | Registro e inicio de sesión; el backend verifica el ID token | `apps/backend/src/integrations/firebase-auth/` y `packages/api-client/src/firebase-auth.ts` |
 | 3 | **jsReport** | Generar reportes PDF (alertas, ventas, bitácora) | `apps/backend/src/integrations/jsreport/` |
 | 4 | **Google Maps Platform** | Mostrar mapas y convertir coordenadas GPS en direcciones | `apps/backend/src/integrations/google-maps/` y `packages/api-client/` |
+| 5 | **mindicador API** | Indicadores económicos de Chile (UF, dólar) para mostrar precios en CLP | `apps/backend/src/integrations/mindicador/` |
 
 > Todos los comandos se ejecutan en la raíz del monorepo (`Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/`), igual que en el [README principal](README.md).
 
@@ -18,7 +19,7 @@ Guía para el equipo sobre las cuatro APIs externas del proyecto: para qué sirv
 | Paquete / carpeta | Contenido |
 |---|---|
 | `packages/api-types` | Contratos (solo tipos) de requests y responses. |
-| `packages/api-client` | `createEmergenApi()` (cliente del backend), `downloadBlob()`, `createMap()`/`addMarker()` (Google Maps) y `renderPaypalButtons()` (PayPal JS SDK). |
+| `packages/api-client` | `createEmergenApi()` (cliente del backend), `downloadBlob()`, `createMap()`/`addMarker()` (Google Maps) y `renderPaypalButtons()` (PayPal JS SDK) y `createFirebaseAuth()` (Firebase Auth REST). |
 | `packages/ui` | Componentes React `MapView` y `PaypalButton`. |
 | `apps/{web,mobile,desktop}/src/lib/api.ts` | Instancia `api` y objeto `env` con las variables `VITE_*` de cada app. |
 | `apps/backend/src/config/env.ts` | Carga del `.env` y helpers `readEnv()`/`requireEnv()`. |
@@ -42,9 +43,9 @@ Si todavía no tienes `.env`:
 Copy-Item .env.example .env
 ```
 
-Si ya tienes uno, **no lo sobrescribas**. Abre `.env.example` y copia a tu `.env` las claves que te falten (`PAYPAL_MODE`, `SENDGRID_VALIDATION_API_KEY`, `JSREPORT_*`, `CORS_ORIGINS`, `VITE_*`).
+Si ya tienes uno, **no lo sobrescribas**. Abre `.env.example` y copia a tu `.env` las claves que te falten (`PAYPAL_MODE`, `FIREBASE_PROJECT_ID`, `JSREPORT_*`, `MINDICADOR_API_URL`, `CORS_ORIGINS`, `VITE_*`).
 
-Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 3 a 6). Si un valor se deja con el marcador, se trata igual que una variable vacía: la integración responde `503` en vez de enviar el texto del marcador al proveedor.
+Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 2 a 6). Si un valor se deja con el marcador, se trata igual que una variable vacía: la integración responde `503` en vez de enviar el texto del marcador al proveedor.
 
 ### 1.2 Referencia de variables
 
@@ -53,21 +54,22 @@ Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 3
 | `PAYPAL_MODE` | backend | no | `sandbox` (pruebas) o `live` (cobros reales). |
 | `PAYPAL_CLIENT_ID` | backend | no* | Client ID de la app de PayPal. |
 | `PAYPAL_SECRET` | backend | **sí** | Secret de la app de PayPal. |
-| `SENDGRID_VALIDATION_API_KEY` | backend | **sí** | Key con permiso *Email Address Validation*. Si falta, se usa `SENDGRID_API_KEY`. |
-| `SENDGRID_API_KEY` | backend | **sí** | Key general de SendGrid (envío de correos). |
+| `FIREBASE_PROJECT_ID` | backend | no | ID del proyecto Firebase; se usa para verificar los ID tokens. |
 | `JSREPORT_URL` | backend (local) | no | URL del servidor jsReport. Por defecto `http://localhost:5488`. |
 | `JSREPORT_URL_DOCKER` | backend (Docker) | no | URL de jsReport vista desde el contenedor. Por defecto `http://host.docker.internal:5488`. |
 | `JSREPORT_USERNAME` / `JSREPORT_PASSWORD` | backend | **sí** | Solo si jsReport tiene la autenticación activada. |
 | `GOOGLE_MAPS_API_KEY` | backend | **sí** | Key de **servidor** (Geocoding API). |
+| `MINDICADOR_API_URL` | backend | no | Opcional. Por defecto `https://mindicador.cl/api` (sin key). |
 | `CORS_ORIGINS` | backend | no | Orígenes de los frontends, separados por coma. |
 | `VITE_API_URL` | frontends | no | URL del backend: `http://localhost:3000` local, `http://localhost:3001` Docker. |
 | `VITE_PAYPAL_CLIENT_ID` | frontends | no | Mismo Client ID de PayPal (es público). |
 | `VITE_GOOGLE_MAPS_API_KEY` | frontends | no* | Key de **navegador**, restringida por dominio. |
 | `VITE_GOOGLE_MAPS_MAP_ID` | frontends | no | Map ID (opcional; por defecto `DEMO_MAP_ID`). |
+| `VITE_FIREBASE_API_KEY`, `_AUTH_DOMAIN`, `_PROJECT_ID`, `_STORAGE_BUCKET`, `_MESSAGING_SENDER_ID`, `_APP_ID`, `_MEASUREMENT_ID` | frontends | no* | Config web de Firebase (Consola → Configuración del proyecto → Tus apps). |
 
 \* Son públicas por diseño, pero igual se configuran por entorno y no se escriben en el código.
 
->  **Nunca pongas el prefijo `VITE_` a un secreto** (`PAYPAL_SECRET`, keys de SendGrid, key de servidor de Google). Todo lo que tiene `VITE_` queda dentro del JavaScript que descarga el navegador.
+>  **Nunca pongas el prefijo `VITE_` a un secreto** (`PAYPAL_SECRET`, key de servidor de Google). Todo lo que tiene `VITE_` queda dentro del JavaScript que descarga el navegador.
 
 ### 1.3 Aplicar los cambios
 
@@ -152,67 +154,91 @@ curl.exe -X POST http://localhost:3000/payments/paypal/orders -H "Content-Type: 
 
 ---
 
-## 3. Twilio SendGrid Email Validation
+## 3. Firebase Authentication
 
 ### 3.1 Para qué sirve
 
-Verifica, **antes de guardar un correo**, que la dirección existe y puede recibir mensajes. Detecta errores de tipeo (`gmial.com` → sugiere `gmail.com`), dominios inexistentes y correos desechables. Sirve para el registro de usuarios (`USUARIO.correo_usuario`), los contactos de emergencia y el formulario de contacto (`MENSAJE_CONTACTO.correo_remitente`). En un sistema de alertas, un correo mal escrito significa una alerta que nunca llega.
+Registro e inicio de sesión de usuarios con correo y contraseña. El frontend obtiene un **ID token** (JWT, dura 1 hora) de Firebase y lo envía al backend en `Authorization: Bearer <idToken>`. El backend lo verifica con las claves públicas de Google (sin `firebase-admin` ni cuenta de servicio) y así sabe qué usuario hace cada petición.
 
 ### 3.2 Obtener las credenciales
 
-1. Crea una cuenta en <https://sendgrid.com>. **Email Validation solo está disponible en los planes Pro o superiores**; confírmalo en la página de precios de SendGrid.
-2. En el panel ve a **Settings → API Keys → Create API Key**.
-3. Elige **Custom Access** y activa **Email Address Validation → Full Access**. Esta key es distinta de la key de envío de correos: SendGrid pide una key dedicada para validación.
-4. Copia la key (empieza con `SG.`). **SendGrid la muestra una sola vez.**
+1. Entra a <https://console.firebase.google.com> y crea un proyecto (ej. `emergen`).
+2. **Build → Authentication → Comenzar** y habilita el proveedor **Correo electrónico/contraseña**.
+3. **Configuración del proyecto (⚙️) → General**: copia el **ID del proyecto** y la **Clave de API web**.
+4. En **Authentication → Configuración → Dominios autorizados** agrega los dominios de los frontends.
 
 ```env
-SENDGRID_VALIDATION_API_KEY=<INSERT_YOUR_SENDGRID_EMAIL_VALIDATION_API_KEY_HERE>
+FIREBASE_PROJECT_ID=<INSERT_YOUR_FIREBASE_PROJECT_ID_HERE>          # backend
+VITE_FIREBASE_API_KEY=<INSERT_YOUR_FIREBASE_API_KEY_HERE>
+VITE_FIREBASE_AUTH_DOMAIN=<INSERT_YOUR_FIREBASE_AUTH_DOMAIN_HERE>
+VITE_FIREBASE_PROJECT_ID=<INSERT_YOUR_FIREBASE_PROJECT_ID_HERE>
+VITE_FIREBASE_STORAGE_BUCKET=<INSERT_YOUR_FIREBASE_STORAGE_BUCKET_HERE>
+VITE_FIREBASE_MESSAGING_SENDER_ID=<INSERT_YOUR_FIREBASE_MESSAGING_SENDER_ID_HERE>
+VITE_FIREBASE_APP_ID=<INSERT_YOUR_FIREBASE_APP_ID_HERE>
+VITE_FIREBASE_MEASUREMENT_ID=<INSERT_YOUR_FIREBASE_MEASUREMENT_ID_HERE>
 ```
 
-### 3.3 Endpoint
+### 3.3 Endpoint y piezas exportadas
 
-| Método | Ruta | Body | Respuesta |
+| Método | Ruta | Header | Respuesta |
 |---|---|---|---|
-| `POST` | `/email/validate` | `{ email, source?: "registro-web" }` | `{ email, verdict: "Valid" \| "Risky" \| "Invalid", score, isValid, suggestion? }` |
+| `GET` | `/auth/me` | `Authorization: Bearer <idToken>` | `{ uid, email?, emailVerified, name?, signInProvider? }` o `401` |
 
-El backend rechaza con `400` los correos con formato inválido **antes** de llamar a SendGrid. Así no se gastan créditos de validación.
+| Dónde | Export | Uso |
+|---|---|---|
+| backend | `FirebaseAuthModule`, `FirebaseAuthService.verifyIdToken()`, `FirebaseAuthGuard` | Proteger endpoints propios. |
+| `@repo/api-client` | `createFirebaseAuth(apiKey)` → `signUp`, `signIn`, `sendPasswordReset`, `refresh`; `FirebaseAuthError` | Login desde web, mobile y desktop (API REST de Firebase, sin instalar el SDK). |
+| `@repo/api-client` | `initFirebase(config)` → `{ app, auth }`, `initFirebaseAnalytics(app)` | SDK oficial `firebase` (Auth de `firebase/auth`, Analytics). |
+| `apps/*/src/lib/api.ts` | `firebase` (`firebase.auth`), `firebaseAuth`, `api.auth.me()` | Instancias listas para usar. |
 
 ### 3.4 Ejemplos
 
-**Frontend (formulario de registro):**
+**Con el SDK oficial (`firebase`):**
 
 ```ts
-import { api } from './lib/api'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { api, firebase } from './lib/api'
 
-const check = await api.email.validate({ email, source: 'registro-mobile' })
-if (check.verdict === 'Invalid') {
-  setError(check.suggestion ? `¿Quisiste decir ...@${check.suggestion}?` : 'Este correo no existe')
+const { user } = await signInWithEmailAndPassword(firebase.auth, email, password)
+const me = await api.auth.me(await user.getIdToken())
+```
+
+**Frontend (login):**
+
+```ts
+import { FirebaseAuthError } from '@repo/api-client'
+import { api, firebaseAuth } from './lib/api'
+
+try {
+  const session = await firebaseAuth.signIn(email, password)
+  const user = await api.auth.me(session.idToken)   // verificado por el backend
+} catch (e) {
+  if (e instanceof FirebaseAuthError && e.code === 'INVALID_LOGIN_CREDENTIALS') setError('Credenciales inválidas')
 }
 ```
 
-**Desde otro servicio del backend:**
+**Proteger un endpoint del backend:**
 
 ```ts
-// usuarios.module.ts
-@Module({ imports: [SendgridModule], providers: [UsuariosService] })
+// alertas.module.ts
+@Module({ imports: [FirebaseAuthModule], controllers: [AlertasController] })
 
-// usuarios.service.ts
-constructor(private readonly emailValidation: EmailValidationService) {}
-
-async registrar(dto: CrearUsuarioDto) {
-  const { verdict } = await this.emailValidation.validate({ email: dto.correo, source: 'registro' });
-  if (verdict === 'Invalid') throw new BadRequestException('El correo no existe');
-  // ...guardar usuario
+// alertas.controller.ts
+@Get('mias')
+@UseGuards(FirebaseAuthGuard)
+mias(@Req() req: FirebaseRequest) {
+  return this.alertas.porUsuario(req.firebaseUser!.uid)
 }
 ```
 
 **Probar (PowerShell):**
 
 ```powershell
-curl.exe -X POST http://localhost:3000/email/validate -H "Content-Type: application/json" -d '{\"email\":\"prueba@gmial.com\"}'
+curl.exe http://localhost:3000/auth/me -H "Authorization: Bearer <ID_TOKEN>"
 ```
 
 ---
+
 
 ## 4. jsReport
 
@@ -378,25 +404,87 @@ curl.exe "http://localhost:3000/maps/reverse-geocode?lat=-33.4378&lng=-70.6504"
 
 ---
 
-## 6. Errores comunes
+## 6. mindicador API
+
+### 6.1 Para qué sirve
+
+<https://mindicador.cl> entrega los indicadores económicos de Chile (UF, dólar, euro, UTM, IPC, etc.). Sirve para mostrar el equivalente en CLP de los planes que PayPal cobra en USD (PayPal no admite CLP).
+
+### 6.2 Credenciales
+
+**No requiere API key.** La URL es configurable (opcional):
+
+```env
+MINDICADOR_API_URL=https://mindicador.cl/api
+```
+
+### 6.3 Endpoints (backend)
+
+| Método | Ruta | Query | Respuesta |
+|---|---|---|---|
+| `GET` | `/indicators` | — | `[{ code, name, unit, series: [{ date, value }] }]` (valor del día) |
+| `GET` | `/indicators/:code` | `date=24-09-2026` (opcional, `dd-mm-yyyy`) | `{ code, name, unit, series }` (último mes o el día pedido) |
+
+Códigos válidos: `uf`, `ivp`, `dolar`, `dolar_intercambio`, `euro`, `ipc`, `utm`, `imacec`, `tpm`, `libra_cobre`, `tasa_desempleo`, `bitcoin`.
+
+### 6.4 Ejemplos
+
+**Frontend:**
+
+```ts
+import { api } from './lib/api'
+
+const dolar = await api.indicators.get('dolar')
+const precioClp = Math.round(9.99 * dolar.series[0].value)
+```
+
+**Desde el backend:**
+
+```ts
+@Module({ imports: [MindicadorModule], providers: [PlanesService] })
+
+constructor(private readonly mindicador: MindicadorService) {}
+const uf = await this.mindicador.get('uf');
+```
+
+**Probar (PowerShell):**
+
+```powershell
+curl.exe http://localhost:3000/indicators/uf
+```
+
+---
+
+
+## 7. Errores comunes
 
 | Respuesta / síntoma | Causa | Solución |
 |---|---|---|
-| `503` "… no está configurado: define X en el archivo .env" | Falta la variable o todavía tiene el marcador `<INSERT_…>` | Completa el `.env` y reinicia el backend (sección 2.3). |
+| `503` "… no está configurado: define X en el archivo .env" | Falta la variable o todavía tiene el marcador `<INSERT_…>` | Completa el `.env` y reinicia el backend (sección 1.3). |
 | `502` "… rechazó la solicitud (HTTP 401/403)" | Credencial incorrecta, vencida o sin permisos | Revisa el log del backend (`docker compose logs backend`), que muestra el detalle del proveedor. |
-| `502` "jsReport: no se pudo contactar al proveedor" | El servidor jsReport no está corriendo o la URL es incorrecta | Levanta jsReport (sección 5.2). Si el backend corre en Docker, revisa `JSREPORT_URL_DOCKER`. |
-| `502` "Google Maps rechazó la solicitud (REQUEST_DENIED)" | Geocoding API no habilitada, sin facturación o key restringida a otra IP | Revisa los pasos 2 a 4 de la sección 6.2. |
-| `400` con lista de mensajes | El body no cumple el DTO (formato de correo, monto, etc.) | Corrige el request; el mensaje indica el campo. |
+| `502` "jsReport: no se pudo contactar al proveedor" | El servidor jsReport no está corriendo o la URL es incorrecta | Levanta jsReport (sección 4.2). Si el backend corre en Docker, revisa `JSREPORT_URL_DOCKER`. |
+| `502` "Google Maps rechazó la solicitud (REQUEST_DENIED)" | Geocoding API no habilitada, sin facturación o key restringida a otra IP | Revisa los pasos 2 a 4 de la sección 5.2. |
+| `400` con lista de mensajes | El body no cumple el DTO (monto, código de indicador, fecha, etc.) | Corrige el request; el mensaje indica el campo. |
+| `401` "ID token de Firebase inválido o expirado" | Token vencido (1 h) o de otro proyecto | Llama `firebaseAuth.refresh(refreshToken)` y revisa `FIREBASE_PROJECT_ID`. |
 | Error de CORS en la consola del navegador | El origen del frontend no está en `CORS_ORIGINS` | Agrega la URL de Vite (ej. `http://localhost:5174`) y reinicia el backend. |
-| El mapa muestra "This page can't load Google Maps correctly" | Key de navegador sin el dominio/puerto actual en los referentes | Agrega el origen en la consola de Google (sección 6.2, paso 4). |
+| El mapa muestra "This page can't load Google Maps correctly" | Key de navegador sin el dominio/puerto actual en los referentes | Agrega el origen en la consola de Google (sección 5.2, paso 4). |
 | La app móvil en el teléfono no llega al backend | `localhost` en el teléfono es el propio teléfono | Usa `VITE_API_URL=http://<IP-de-tu-PC>:3000`. |
 
 ---
 
-## . Tests
+## 8. Tests
 
-Los servicios del backend tienen tests unitarios con `fetch` simulado. **No necesitan credenciales reales:**
+Los tests simulan `fetch`, así que **no necesitan credenciales reales**:
 
 ```powershell
-npm run test --workspace=backend
+npm run test                                  # todo: backend (Jest) + packages/api-client (Vitest)
+npm run test --workspace=backend              # servicios, http-client y Firebase (unitarios)
+npm run test:e2e --workspace=backend          # endpoints por HTTP: códigos 200/201/400/401/502/503
+npm run test --workspace=@repo/api-client     # cliente del frontend, Firebase REST y botones PayPal
+```
+
+Para probar contra los proveedores **reales** con las credenciales del `.env` (PayPal solo en sandbox y sin capturar; jsReport tiene que estar corriendo):
+
+```powershell
+$env:LIVE_APIS=1; npm run test:e2e --workspace=backend -- integrations.live; Remove-Item Env:LIVE_APIS
 ```

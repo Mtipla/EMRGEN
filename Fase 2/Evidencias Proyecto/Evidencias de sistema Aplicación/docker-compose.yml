@@ -34,9 +34,9 @@ services:
       - PAYPAL_MODE=${PAYPAL_MODE:-sandbox}
       - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}
       - PAYPAL_SECRET=${PAYPAL_SECRET:-}
-      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
-      - SENDGRID_VALIDATION_API_KEY=${SENDGRID_VALIDATION_API_KEY:-}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-}
+      - MINDICADOR_API_URL=${MINDICADOR_API_URL:-https://mindicador.cl/api}
       # Dentro del contenedor "localhost" es el propio contenedor: jsReport corre en el PC.
       - JSREPORT_URL=${JSREPORT_URL_DOCKER:-http://host.docker.internal:5488}
       - JSREPORT_USERNAME=${JSREPORT_USERNAME:-}

@@ -1,11 +1,12 @@
 import type {
   CapturePaypalOrderResponse,
   CreatePaypalOrderRequest,
-  EmailValidationRequest,
-  EmailValidationResponse,
+  EconomicIndicator,
+  FirebaseAuthUser,
   GenerateReportRequest,
   GeocodeResult,
   GeoPoint,
+  IndicatorCode,
   PaypalOrderResponse,
 } from '@repo/api-types';
 import { createHttpClient } from './http';
@@ -33,11 +34,11 @@ export function createEmergenApi(baseUrl: string) {
         ),
     },
 
-    email: {
-      validate: (request: EmailValidationRequest) =>
-        http.json<EmailValidationResponse>('/email/validate', {
-          method: 'POST',
-          body: JSON.stringify(request),
+    auth: {
+      /** Valida el ID token de Firebase en el backend y devuelve el usuario. */
+      me: (idToken: string) =>
+        http.json<FirebaseAuthUser>('/auth/me', {
+          headers: { Authorization: `Bearer ${idToken}` },
         }),
     },
 
@@ -53,6 +54,16 @@ export function createEmergenApi(baseUrl: string) {
       reverseGeocode: ({ lat, lng }: GeoPoint) =>
         http.json<GeocodeResult[]>(
           `/maps/reverse-geocode?${new URLSearchParams({ lat: String(lat), lng: String(lng) })}`,
+        ),
+    },
+
+    indicators: {
+      /** Valores del día de todos los indicadores (UF, dólar, euro, UTM, etc.). */
+      today: () => http.json<EconomicIndicator[]>('/indicators'),
+      /** Serie de un indicador; con `date` (dd-mm-yyyy) devuelve solo ese día. */
+      get: (code: IndicatorCode, date?: string) =>
+        http.json<EconomicIndicator>(
+          `/indicators/${code}${date ? `?${new URLSearchParams({ date })}` : ''}`,
         ),
     },
   };

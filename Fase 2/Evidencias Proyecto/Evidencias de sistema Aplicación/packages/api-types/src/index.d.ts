@@ -50,29 +50,6 @@ export interface CapturePaypalOrderResponse {
 }
 
 /* ------------------------------------------------------------------ */
-/* Twilio SendGrid Email Validation                                    */
-/* ------------------------------------------------------------------ */
-
-export interface EmailValidationRequest {
-  email: string;
-  /** Etiqueta opcional para identificar el origen en SendGrid (ej. "registro-web"). */
-  source?: string;
-}
-
-export type EmailValidationVerdict = 'Valid' | 'Risky' | 'Invalid';
-
-export interface EmailValidationResponse {
-  email: string;
-  verdict: EmailValidationVerdict;
-  /** Probabilidad (0 a 1) de que el correo sea válido. */
-  score: number;
-  /** true solo cuando el veredicto es "Valid". */
-  isValid: boolean;
-  /** Corrección sugerida por SendGrid para errores de tipeo (ej. "gmail.com"). */
-  suggestion?: string;
-}
-
-/* ------------------------------------------------------------------ */
 /* jsReport                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -98,4 +75,63 @@ export interface GeocodeResult {
   formattedAddress: string;
   location: GeoPoint;
   placeId: string;
+}
+
+/* ------------------------------------------------------------------ */
+/* Firebase Authentication                                             */
+/* ------------------------------------------------------------------ */
+
+/** Usuario autenticado según el ID token de Firebase verificado por el backend. */
+export interface FirebaseAuthUser {
+  uid: string;
+  email?: string;
+  emailVerified: boolean;
+  name?: string;
+  /** Proveedor usado para iniciar sesión (ej. "password", "google.com"). */
+  signInProvider?: string;
+}
+
+/** Sesión devuelta por la API REST de Firebase Auth al iniciar sesión o registrarse. */
+export interface FirebaseSession {
+  uid: string;
+  email: string;
+  /** ID token (JWT, dura 1 hora): enviarlo al backend como `Authorization: Bearer <idToken>`. */
+  idToken: string;
+  refreshToken: string;
+  /** Segundos hasta que expira el ID token. */
+  expiresIn: number;
+}
+
+/* ------------------------------------------------------------------ */
+/* mindicador.cl (indicadores económicos de Chile)                     */
+/* ------------------------------------------------------------------ */
+
+/** Códigos que acepta mindicador.cl. */
+export type IndicatorCode =
+  | 'uf'
+  | 'ivp'
+  | 'dolar'
+  | 'dolar_intercambio'
+  | 'euro'
+  | 'ipc'
+  | 'utm'
+  | 'imacec'
+  | 'tpm'
+  | 'libra_cobre'
+  | 'tasa_desempleo'
+  | 'bitcoin';
+
+export interface IndicatorValue {
+  /** Fecha ISO 8601 del valor. */
+  date: string;
+  value: number;
+}
+
+export interface EconomicIndicator {
+  code: IndicatorCode;
+  name: string;
+  /** Unidad de medida (ej. "Pesos", "Porcentaje"). */
+  unit: string;
+  /** Valores del más reciente al más antiguo. */
+  series: IndicatorValue[];
 }
