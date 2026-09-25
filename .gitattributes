@@ -1,0 +1,4 @@
+# Merge driver de Graphify: une (union-merge) dos versiones de graph.json en vez de generar conflicto
+graphify-out/graph.json merge=graphify
+# Contraer los archivos generados en los diffs de Pull Requests de GitHub
+graphify-out/** linguist-generated=true

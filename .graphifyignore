@@ -1,0 +1,13 @@
+# Exclusiones de indexación de Graphify (se suman a .gitignore)
+# Monorepo Turborepo: indexar el código fuente de apps/ y packages/, nunca artefactos generados
+node_modules/
+.turbo/
+dist/
+build/
+out/
+coverage/
+.git/
+
+# Variables de entorno y secretos
+.env
+.env.*
