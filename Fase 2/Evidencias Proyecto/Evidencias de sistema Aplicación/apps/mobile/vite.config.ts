@@ -10,6 +10,8 @@ export default defineConfig({
     react(),
     legacy()
   ],
+  // Un solo .env en la raíz del monorepo; Vite solo expone las variables VITE_*.
+  envDir: '../../',
   test: {
     globals: true,
     environment: 'jsdom',

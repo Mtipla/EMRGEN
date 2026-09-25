@@ -29,6 +29,20 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - PORT=3000
+      - CORS_ORIGINS=${CORS_ORIGINS:-}
+      # Integraciones externas (ver readme-apis.md)
+      - PAYPAL_MODE=${PAYPAL_MODE:-sandbox}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}
+      - PAYPAL_SECRET=${PAYPAL_SECRET:-}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-}
+      - MINDICADOR_API_URL=${MINDICADOR_API_URL:-https://mindicador.cl/api}
+      # Dentro del contenedor "localhost" es el propio contenedor: jsReport corre en el PC.
+      - JSREPORT_URL=${JSREPORT_URL_DOCKER:-http://host.docker.internal:5488}
+      - JSREPORT_USERNAME=${JSREPORT_USERNAME:-}
+      - JSREPORT_PASSWORD=${JSREPORT_PASSWORD:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "3001:3000"
     depends_on:

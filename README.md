@@ -17,9 +17,10 @@ El proyecto se aloja en un único repositorio gestionado con **Turborepo** para 
 * **App Móvil:** Capacitor (herramienta nativa de Ionic para exportar la app web a móvil).
 * **Servicios y APIs Externas:** 
   * PayPal REST API
-  * Twilio SendGrid Email Validation
   * jsReport API
   * Google Maps Platform API
+  * Firebase Authentication
+  * mindicador API
 
 ---
 
