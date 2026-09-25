@@ -1,0 +1,12 @@
+# Graphify: archivos locales de cada máquina (NO versionar)
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+graphify-out/.graphify_detect.json
+graphify-out/.graphify_extract.json
+graphify-out/.graphify_incremental.json
+graphify-out/memory/
+graphify-out/cache/last_query_stamp
+
+# Claude Code: configuración personal
+.claude/settings.local.json
+CLAUDE.local.md
