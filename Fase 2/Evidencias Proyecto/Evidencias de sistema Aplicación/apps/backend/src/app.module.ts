@@ -12,18 +12,6 @@ import { Usuario } from './usuarios/usuarios.entity';
 
 @Module({
   imports: [
-    PaypalModule,
-    FirebaseAuthModule,
-    JsreportModule,
-    GoogleMapsModule,
-    MindicadorModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
-
-
-@Module({
-  imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || 'db',
@@ -32,9 +20,16 @@ import { Usuario } from './usuarios/usuarios.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [Usuario],
-      synchronize: false, // Mantener en false al usar init.sql
+      synchronize: false,
     }),
     AdminModule,
+    PaypalModule,
+    FirebaseAuthModule,
+    JsreportModule,
+    GoogleMapsModule,
+    MindicadorModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
