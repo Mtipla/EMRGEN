@@ -5,13 +5,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsuariosService } from './usuarios.service';
+import { LoginService } from './login.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly usuariosService: UsuariosService,
+    private readonly loginService: LoginService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -27,12 +27,15 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<{ sub: number; email: string }>(token, {
+      const payload = await this.jwtService.verifyAsync<{
+        sub: number;
+        email: string;
+      }>(token, {
         algorithms: ['HS256'],
         issuer: 'emergen-api',
         audience: 'emergen-web',
       });
-      if (!Number.isInteger(payload.sub) || !this.usuariosService.existe(payload.sub)) {
+      if (!Number.isInteger(payload.sub) || !this.loginService.existe(payload.sub)) {
         throw new UnauthorizedException('La sesión no corresponde a un usuario activo');
       }
       request.user = payload;
