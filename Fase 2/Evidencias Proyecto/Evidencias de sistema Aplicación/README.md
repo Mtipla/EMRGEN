@@ -119,6 +119,7 @@ DB_USER=
 DB_PASSWORD=
 DB_NAME=
 PORT=3000
+JWT_SECRET=
 AUTH0_ISSUER_URL=
 AUTH0_AUDIENCE=
 PAYPAL_CLIENT_ID=
@@ -126,6 +127,16 @@ PAYPAL_SECRET=
 GOOGLE_MAPS_API_KEY=
 FIREBASE_PROJECT_ID=
 ```
+
+Genera `JWT_SECRET` con un valor aleatorio y privado. En PowerShell puedes generar uno con:
+
+```powershell
+node -e "console.log(require('node:crypto').randomBytes(64).toString('base64url'))"
+```
+
+Copia el resultado en `JWT_SECRET` del `.env`. No lo subas a Git ni lo compartas. El backend
+no inicia si falta esta clave o tiene menos de 32 bytes. Los tokens de acceso usan HS256,
+incluyen emisor y audiencia, y vencen en una hora.
 
 ### 4.4 Instalar dependencias
 
