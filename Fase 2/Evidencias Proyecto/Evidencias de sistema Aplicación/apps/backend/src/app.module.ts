@@ -9,6 +9,8 @@ import { PaypalModule } from './integrations/paypal/paypal.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/admin.module';
 import { Usuario } from './usuarios/usuarios.entity';
+import { LoginModule } from './login/login.module';
+
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { Usuario } from './usuarios/usuarios.entity';
       synchronize: false,
     }),
     AdminModule,
+    LoginModule,
     PaypalModule,
     FirebaseAuthModule,
     JsreportModule,
@@ -32,4 +35,4 @@ import { Usuario } from './usuarios/usuarios.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

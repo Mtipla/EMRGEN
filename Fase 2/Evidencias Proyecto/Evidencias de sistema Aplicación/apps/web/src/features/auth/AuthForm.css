@@ -1,0 +1,111 @@
+.auth-card,
+.welcome-card {
+  width: min(100%, 440px);
+  padding: 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgb(15 23 42 / 10%);
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: #e64b35;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.auth-card h1,
+.welcome-card h1 {
+  margin: 0;
+  color: #162235;
+  font-size: 2rem;
+}
+
+.auth-intro,
+.welcome-card > p:not(.eyebrow) {
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.auth-card form {
+  display: grid;
+  gap: 1.1rem;
+  margin-top: 1.75rem;
+}
+
+.auth-card label {
+  display: grid;
+  gap: 0.45rem;
+  color: #263449;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.auth-card input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  color: #162235;
+  font: inherit;
+}
+
+.auth-card input:focus {
+  border-color: #e64b35;
+  outline: 3px solid rgb(230 75 53 / 15%);
+}
+
+.auth-card small {
+  color: #64748b;
+  font-weight: 400;
+}
+
+.primary-button {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 0;
+  border-radius: 9px;
+  background: #e64b35;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.primary-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.form-message {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.success {
+  color: #18794e;
+}
+
+.failure {
+  color: #b42318;
+}
+
+.auth-switch {
+  margin: 1.4rem 0 0;
+  color: #64748b;
+  text-align: center;
+}
+
+.auth-switch button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #d43e2a;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}

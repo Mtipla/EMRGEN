@@ -29,6 +29,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - PORT=3000
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env}
       - CORS_ORIGINS=${CORS_ORIGINS:-}
       # Integraciones externas (ver readme-apis.md)
       - PAYPAL_MODE=${PAYPAL_MODE:-sandbox}
