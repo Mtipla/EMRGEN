@@ -1,54 +1,61 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { IsNull, QueryFailedError, Repository } from 'typeorm';
+import { Usuario } from '../usuarios/usuarios.entity';
+import { UsuariosService } from '../usuarios/usuarios.service';
 import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { LoginDto } from './dto/login.dto';
+import { ESTADO_BLOQUEADO } from './roles.decorator';
 
-type UsuarioEnMemoria = {
-  usuario_ID: number;
-  nombre_usuario: string;
-  correo_usuario: string;
-  passwordHash: string;
-};
+export type UsuarioPublico = Pick<
+  Usuario,
+  'usuario_ID' | 'nombre_usuario' | 'correo_usuario'
+>;
 
-export type UsuarioPublico = Omit<UsuarioEnMemoria, 'passwordHash'>;
+const BCRYPT_COSTO = 12;
+// Hash de relleno: si el correo no existe se compara igual, para que el tiempo de
+// respuesta no revele qué correos están registrados.
+const HASH_FICTICIO = bcrypt.hashSync('usuario-inexistente', BCRYPT_COSTO);
 
 @Injectable()
 export class LoginService {
-  // Prototipo temporal: los usuarios se pierden cuando se reinicia el backend.
-  private readonly usuarios: UsuarioEnMemoria[] = [];
-  private siguienteId = 1;
-
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly usuariosService: UsuariosService,
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
+  ) {}
 
   async crear(datos: CrearUsuarioDto): Promise<UsuarioPublico> {
     if (!this.passwordCabeEnBcrypt(datos.password)) {
       throw new BadRequestException('La contraseña supera el límite de 72 bytes');
     }
     const correo = datos.correo_usuario.trim().toLowerCase();
-    if (this.usuarios.some((usuario) => usuario.correo_usuario === correo)) {
+    if (await this.buscarPrincipalPorCorreo(correo)) {
       throw new ConflictException('Ya existe una cuenta con ese correo');
     }
 
-    const usuario: UsuarioEnMemoria = {
-      usuario_ID: this.siguienteId++,
-      nombre_usuario: datos.nombre_usuario.trim(),
-      correo_usuario: correo,
-      passwordHash: await bcrypt.hash(datos.password, 12),
-    };
-    if (this.usuarios.some((item) => item.correo_usuario === correo)) {
-      throw new ConflictException('Ya existe una cuenta con ese correo');
+    try {
+      // Reglas de cuenta principal (rol USUARIO, estado ACTIVO) de UsuariosService.
+      const usuario = await this.usuariosService.crearUsuarioPrincipal({
+        nombre_usuario: datos.nombre_usuario.trim(),
+        correo_usuario: correo,
+        contra_usuario: await bcrypt.hash(datos.password, BCRYPT_COSTO),
+      });
+      return this.sinPassword(usuario);
+    } catch (error) {
+      throw this.traducirCorreoDuplicado(error);
     }
-    this.usuarios.push(usuario);
-    console.log('Usuarios creados en memoria:', this.listar());
-    return this.sinPassword(usuario);
   }
 
   async iniciarSesion(datos: LoginDto) {
@@ -56,9 +63,21 @@ export class LoginService {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
     const correo = datos.correo_usuario.trim().toLowerCase();
-    const usuario = this.usuarios.find((item) => item.correo_usuario === correo);
-    if (!usuario || !(await bcrypt.compare(datos.password, usuario.passwordHash))) {
+    const usuario = await this.usuarioRepository
+      .createQueryBuilder('usuario')
+      .addSelect('usuario.contra_usuario')
+      .where('usuario.correo_usuario = :correo', { correo })
+      .andWhere('usuario.usuario_principal_ID IS NULL')
+      .getOne();
+    const passwordValida = await bcrypt.compare(
+      datos.password,
+      usuario?.contra_usuario ?? HASH_FICTICIO,
+    );
+    if (!usuario || !passwordValida) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
+    }
+    if (usuario.estado_ID === ESTADO_BLOQUEADO) {
+      throw new ForbiddenException('La cuenta está bloqueada');
     }
 
     const access_token = await this.jwtService.signAsync({
@@ -68,15 +87,18 @@ export class LoginService {
     return { access_token, usuario: this.sinPassword(usuario) };
   }
 
-  listar(): UsuarioPublico[] {
-    return this.usuarios.map((usuario) => this.sinPassword(usuario));
+  async listar(): Promise<UsuarioPublico[]> {
+    return this.usuarioRepository.find({
+      select: { usuario_ID: true, nombre_usuario: true, correo_usuario: true },
+      order: { usuario_ID: 'ASC' },
+    });
   }
 
   async actualizarPropio(
     id: number,
     cambios: ActualizarMiUsuarioDto,
   ): Promise<UsuarioPublico> {
-    const usuario = this.usuarios.find((item) => item.usuario_ID === id);
+    const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: id });
     if (!usuario) {
       throw new NotFoundException('No se encontró el usuario de la sesión');
     }
@@ -85,13 +107,11 @@ export class LoginService {
     }
 
     const nuevoCorreo = cambios.correo_usuario?.trim().toLowerCase();
-    if (
-      nuevoCorreo &&
-      this.usuarios.some(
-        (item) => item.usuario_ID !== id && item.correo_usuario === nuevoCorreo,
-      )
-    ) {
-      throw new ConflictException('Ya existe una cuenta con ese correo');
+    if (nuevoCorreo && nuevoCorreo !== usuario.correo_usuario) {
+      const otro = await this.buscarPrincipalPorCorreo(nuevoCorreo);
+      if (otro && otro.usuario_ID !== id) {
+        throw new ConflictException('Ya existe una cuenta con ese correo');
+      }
     }
     if (cambios.nombre_usuario !== undefined) {
       usuario.nombre_usuario = cambios.nombre_usuario.trim();
@@ -99,25 +119,61 @@ export class LoginService {
     if (nuevoCorreo) {
       usuario.correo_usuario = nuevoCorreo;
     }
+    try {
+      return this.sinPassword(await this.usuarioRepository.save(usuario));
+    } catch (error) {
+      throw this.traducirCorreoDuplicado(error);
+    }
+  }
+
+  /** Usuario vigente de una sesión: existe y no está bloqueado. */
+  async buscarActivo(id: number): Promise<Usuario | null> {
+    const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: id });
+    return usuario && usuario.estado_ID !== ESTADO_BLOQUEADO ? usuario : null;
+  }
+
+  async eliminar(id: number): Promise<UsuarioPublico> {
+    const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: id });
+    if (!usuario) {
+      throw new NotFoundException('No se encontró el usuario');
+    }
+    try {
+      await this.usuarioRepository.delete(id);
+    } catch (error) {
+      // 23503: otras tablas (apadrinados, bitácora, planes...) referencian al usuario.
+      if (this.codigoPostgres(error) === '23503') {
+        throw new ConflictException(
+          'El usuario tiene registros asociados; bloquéalo desde el panel de administración',
+        );
+      }
+      throw error;
+    }
     return this.sinPassword(usuario);
   }
 
-  existe(id: number): boolean {
-    return this.usuarios.some((usuario) => usuario.usuario_ID === id);
+  private buscarPrincipalPorCorreo(correo: string): Promise<Usuario | null> {
+    return this.usuarioRepository.findOneBy({
+      correo_usuario: correo,
+      usuario_principal_ID: IsNull(),
+    });
   }
 
-  eliminar(id: number): UsuarioPublico {
-    const indice = this.usuarios.findIndex((usuario) => usuario.usuario_ID === id);
-    if (indice === -1) {
-      throw new NotFoundException('No se encontró el usuario');
-    }
-    const [eliminado] = this.usuarios.splice(indice, 1);
-    return this.sinPassword(eliminado);
+  private traducirCorreoDuplicado(error: unknown): unknown {
+    // 23505: índice único ux_usuario_correo_principal (dos registros simultáneos).
+    return this.codigoPostgres(error) === '23505'
+      ? new ConflictException('Ya existe una cuenta con ese correo')
+      : error;
   }
 
-  private sinPassword(usuario: UsuarioEnMemoria): UsuarioPublico {
-    const { passwordHash: _passwordHash, ...publico } = usuario;
-    return publico;
+  private codigoPostgres(error: unknown): string | undefined {
+    return error instanceof QueryFailedError
+      ? (error.driverError as { code?: string }).code
+      : undefined;
+  }
+
+  private sinPassword(usuario: Usuario): UsuarioPublico {
+    const { usuario_ID, nombre_usuario, correo_usuario } = usuario;
+    return { usuario_ID, nombre_usuario, correo_usuario };
   }
 
   private passwordCabeEnBcrypt(password: string): boolean {

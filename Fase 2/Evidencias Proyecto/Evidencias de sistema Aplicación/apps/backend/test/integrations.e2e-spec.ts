@@ -1,10 +1,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import { generateKeyPairSync } from 'node:crypto';
 import { sign } from 'jsonwebtoken';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { createAppTestingModule } from './app-testing-module';
 import { FirebaseAuthService } from './../src/integrations/firebase-auth/firebase-auth.service';
 import { PaypalService } from './../src/integrations/paypal/paypal.service';
 
@@ -27,9 +26,7 @@ describe('Integraciones externas (HTTP)', () => {
   let http: () => ReturnType<typeof request>;
 
   beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    const moduleFixture = await createAppTestingModule().compile();
     app = moduleFixture.createNestApplication({ logger: false });
     app.useGlobalPipes(
       new ValidationPipe({

@@ -1,8 +1,8 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('bitacora_sistema') // Nombre exacto de la tabla en PostgreSQL
 export class BitacoraSistema {
-  @PrimaryColumn({ name: 'bitacora_sistema_id' })
+  @PrimaryGeneratedColumn({ name: 'bitacora_sistema_id' })
   bitacora_sistema_ID: number;
 
   @Column({ name: 'accion_realizada', length: 150 })

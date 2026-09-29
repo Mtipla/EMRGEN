@@ -8,8 +8,8 @@ import { MindicadorModule } from './integrations/mindicador/mindicador.module';
 import { PaypalModule } from './integrations/paypal/paypal.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/admin.module';
-import { Usuario } from './usuarios/usuarios.entity';
 import { LoginModule } from './login/login.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
 
 
 @Module({
@@ -21,10 +21,12 @@ import { LoginModule } from './login/login.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Usuario],
+      // Registra las entidades de cada TypeOrmModule.forFeature (Usuario, BitacoraSistema, PlanUsuario...).
+      autoLoadEntities: true,
       synchronize: false,
     }),
     AdminModule,
+    UsuariosModule,
     LoginModule,
     PaypalModule,
     FirebaseAuthModule,

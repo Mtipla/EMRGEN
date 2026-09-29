@@ -1,12 +1,18 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { readEnv } from '../config/env';
+import { Usuario } from '../usuarios/usuarios.entity';
+import { UsuariosModule } from '../usuarios/usuarios.module';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginController } from './login.controller';
 import { LoginService } from './login.service';
+import { RolesGuard } from './roles.guard';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Usuario]),
+    UsuariosModule,
     JwtModule.registerAsync({
       useFactory: () => {
         const secret = readEnv('JWT_SECRET');
@@ -28,6 +34,8 @@ import { LoginService } from './login.service';
     }),
   ],
   controllers: [LoginController],
-  providers: [LoginService, JwtAuthGuard],
+  providers: [LoginService, JwtAuthGuard, RolesGuard],
+  // Otros módulos (Admin) protegen sus rutas con los mismos guards.
+  exports: [JwtModule, LoginService, JwtAuthGuard, RolesGuard],
 })
 export class LoginModule {}

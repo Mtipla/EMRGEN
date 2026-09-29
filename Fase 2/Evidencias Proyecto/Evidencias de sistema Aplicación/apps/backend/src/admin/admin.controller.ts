@@ -1,30 +1,37 @@
-import { Controller, Get, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Param, Body, ParseIntPipe, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard, type UsuarioSesion } from '../login/jwt-auth.guard';
+import { ROL, Roles } from '../login/roles.decorator';
+import { RolesGuard } from '../login/roles.guard';
 import { AdminService } from './admin.service';
+import { ActualizarEstadoDto } from './dto/actualizar-estado.dto';
 
+// Todas las rutas exigen sesión válida y rol Administrador (RBAC leído desde la BD).
+// El admin_ID de la bitácora sale del token verificado, nunca del body.
 @Controller('admin/usuarios')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(ROL.ADMINISTRADOR)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get()
-  // @UseGuards(RolesGuard) -> Validará el RBAC requiriendo Rol Administrador[cite: 1]
   obtenerTodos() {
     return this.adminService.listarUsuarios();
   }
 
   @Put(':id/estado')
   actualizarEstado(
+    @Req() request: { user: UsuarioSesion },
     @Param('id', ParseIntPipe) id: number,
-    @Body('estado_ID', ParseIntPipe) estado_ID: number,
-    @Body('admin_ID', ParseIntPipe) admin_ID: number // Temporal hasta implementar JWT
+    @Body() { estado_ID }: ActualizarEstadoDto,
   ) {
-    return this.adminService.cambiarEstadoUsuario(id, estado_ID, admin_ID);
+    return this.adminService.cambiarEstadoUsuario(id, estado_ID, request.user.sub);
   }
 
   @Delete('apadrinado/:id')
   eliminarApadrinado(
+    @Req() request: { user: UsuarioSesion },
     @Param('id', ParseIntPipe) id: number,
-    @Body('admin_ID', ParseIntPipe) admin_ID: number
   ) {
-    return this.adminService.eliminarUsuarioApadrinado(id, admin_ID);
+    return this.adminService.eliminarUsuarioApadrinado(id, request.user.sub);
   }
 }

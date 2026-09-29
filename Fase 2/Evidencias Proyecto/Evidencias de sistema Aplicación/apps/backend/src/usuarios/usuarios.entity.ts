@@ -1,8 +1,8 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('usuario')
 export class Usuario {
-  @PrimaryColumn({ name: 'usuario_id' })
+  @PrimaryGeneratedColumn({ name: 'usuario_id' })
   usuario_ID: number;
 
   @Column({ name: 'nombre_usuario', length: 50 })
@@ -11,25 +11,27 @@ export class Usuario {
   @Column({ name: 'correo_usuario', length: 100 })
   correo_usuario: string;
 
-  @Column({ name: 'contra_usuario', length: 50 })
+  // Hash bcrypt. select: false => las consultas no lo cargan (ni lo devuelven por HTTP)
+  // salvo que lo pidan explícitamente, como hace el login.
+  @Column({ name: 'contra_usuario', length: 255, select: false })
   contra_usuario: string;
 
   @Column({ name: 'rol_id' })
   rol_ID: number;
 
-  @Column({ name: 'pin_id' })
-  PIN_ID: number;
+  @Column({ name: 'pin_id', type: 'int', nullable: true })
+  PIN_ID: number | null;
 
-  @Column({ name: 'suscripcion_id' })
-  suscripcion_ID: number;
+  @Column({ name: 'suscripcion_id', type: 'int', nullable: true })
+  suscripcion_ID: number | null;
 
-  @Column({ name: 'msj_personalizado_id' })
-  msj_personalizado_ID: number;
+  @Column({ name: 'msj_personalizado_id', type: 'int', nullable: true })
+  msj_personalizado_ID: number | null;
 
-  @Column({ name: 'prioridad_id' })
-  prioridad_ID: number;
+  @Column({ name: 'prioridad_id', type: 'int', nullable: true })
+  prioridad_ID: number | null;
 
-  @Column({ name: 'usuario_principal_id', nullable: true })
+  @Column({ name: 'usuario_principal_id', type: 'int', nullable: true })
   usuario_principal_ID: number | null;
 
   @Column({ name: 'estado_id' })

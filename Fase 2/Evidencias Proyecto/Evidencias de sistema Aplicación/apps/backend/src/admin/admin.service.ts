@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from '../usuarios/usuarios.entity';
@@ -51,12 +51,15 @@ export class AdminService {
   // DELETE: Eliminar un usuario apadrinado (Ejemplo de función destructiva)
   async eliminarUsuarioApadrinado(idUsuario: number, idAdmin: number): Promise<void> {
     const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: idUsuario });
-    
-    if (usuario && usuario.usuario_principal_ID !== null) {
+
+    if (!usuario) {
+      throw new NotFoundException('El usuario no existe en la base de datos');
+    }
+    if (usuario.usuario_principal_ID !== null) {
       await this.usuarioRepository.delete(idUsuario);
       await this.registrarBitacora(idAdmin, `Eliminación de usuario apadrinado ${idUsuario}`);
     } else {
-      throw new Error('No se puede eliminar una cuenta principal desde este método');
+      throw new BadRequestException('No se puede eliminar una cuenta principal desde este método');
     }
   }
 
