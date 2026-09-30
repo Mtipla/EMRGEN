@@ -1,11 +1,9 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { loadEnvFile, readEnv } from './config/env';
+import { readEnv } from './config/env';
 
 async function bootstrap() {
-  loadEnvFile();
-
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: (readEnv('CORS_ORIGINS') ?? 'http://localhost:5173')
