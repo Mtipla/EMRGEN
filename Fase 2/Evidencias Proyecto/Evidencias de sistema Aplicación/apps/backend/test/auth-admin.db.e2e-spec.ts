@@ -27,6 +27,7 @@ db('Login + Admin contra PostgreSQL (Docker)', () => {
   let http: () => ReturnType<typeof request>;
   let idAdmin: number;
   let idUsuario: number;
+  let idApadrinado: number;
   let tokenAdmin: string;
   let tokenUsuario: string;
 
@@ -48,8 +49,9 @@ db('Login + Admin contra PostgreSQL (Docker)', () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      const ids = [idAdmin, idUsuario].filter(Boolean);
+      const ids = [idAdmin, idUsuario, idApadrinado].filter(Boolean);
       if (ids.length) {
+        await dataSource.query('DELETE FROM contacto_emergencia WHERE usuario_id = ANY($1)', [ids]);
         await dataSource.query('DELETE FROM bitacora_sistema WHERE usuario_id = ANY($1)', [ids]);
         await dataSource.query('DELETE FROM usuario WHERE usuario_id = ANY($1)', [ids]);
       }
@@ -189,6 +191,126 @@ db('Login + Admin contra PostgreSQL (Docker)', () => {
       usuario_ID: idAdmin,
       nombre_usuario: 'Admin Renombrado',
       correo_usuario: correoAdmin,
+    });
+  });
+
+  it('el administrador no puede cambiar el estado de su propia cuenta', () =>
+    http()
+      .put(`/admin/usuarios/${idAdmin}/estado`)
+      .set('Authorization', `Bearer ${tokenAdmin}`)
+      .send({ estado_ID: 3 })
+      .expect(400));
+
+  describe('apadrinado con registros asociados', () => {
+    const idContacto = 900_000_000 + Math.floor(Math.random() * 99_999_999);
+    const accionesEliminacion = () =>
+      dataSource.query(
+        'SELECT accion_realizada FROM bitacora_sistema WHERE usuario_id = $1 AND accion_realizada LIKE $2',
+        [idAdmin, 'Eliminación de usuario apadrinado%'],
+      );
+
+    beforeAll(async () => {
+      [{ usuario_id: idApadrinado }] = await dataSource.query(
+        `INSERT INTO usuario (nombre_usuario, correo_usuario, contra_usuario, rol_id, estado_id, usuario_principal_id)
+         VALUES ('Apadrinado E2E', $1, 'sin-login', 3, 1, $2) RETURNING usuario_id`,
+        [correoUsuario, idUsuario],
+      );
+      await dataSource.query(
+        'INSERT INTO contacto_emergencia (contacto_emergencia_id, usuario_id, num_emergencia) VALUES ($1, $2, $3)',
+        [idContacto, idApadrinado, '912345678'],
+      );
+    });
+
+    it('responde 409 (no 500) y revierte la transacción: ni borrado ni bitácora', async () => {
+      await http()
+        .delete(`/admin/usuarios/apadrinado/${idApadrinado}`)
+        .set('Authorization', `Bearer ${tokenAdmin}`)
+        .expect(409);
+
+      const [fila] = await dataSource.query(
+        'SELECT usuario_id FROM usuario WHERE usuario_id = $1',
+        [idApadrinado],
+      );
+      expect(fila).toBeDefined();
+      expect(await accionesEliminacion()).toEqual([]);
+    });
+
+    it('sin registros asociados, elimina y registra la acción en la bitácora', async () => {
+      await dataSource.query('DELETE FROM contacto_emergencia WHERE contacto_emergencia_id = $1', [
+        idContacto,
+      ]);
+      await http()
+        .delete(`/admin/usuarios/apadrinado/${idApadrinado}`)
+        .set('Authorization', `Bearer ${tokenAdmin}`)
+        .expect(200);
+
+      expect(await accionesEliminacion()).toEqual([
+        { accion_realizada: `Eliminación de usuario apadrinado ${idApadrinado}` },
+      ]);
+    });
+  });
+
+  describe('auditoría (/admin/auditoria)', () => {
+    const auditoria = (ruta = '') =>
+      http().get(`/admin/auditoria${ruta}`).set('Authorization', `Bearer ${tokenAdmin}`);
+
+    it('exige sesión de administrador', () => http().get('/admin/auditoria').expect(401));
+
+    it('lista la bitácora con nombres y la hora en UTC', async () => {
+      const { body } = await auditoria(`?usuario_ID=${idAdmin}`).expect(200);
+
+      expect(body.length).toBeGreaterThanOrEqual(2);
+      expect(body[0]).toEqual({
+        bitacora_sistema_ID: expect.any(Number),
+        fecha_accion: expect.stringMatching(/Z$/),
+        accion_realizada: `Eliminación de usuario apadrinado ${idApadrinado}`,
+        usuario_ID: idAdmin,
+        nombre_usuario: 'Admin Renombrado',
+        aplicacion_ID: 3,
+        origen_aplicacion: 'ESCRITORIO',
+      });
+      // Misma hora sin importar si el backend corre en Docker (UTC) o en Windows (Chile).
+      expect(Math.abs(Date.parse(body[0].fecha_accion) - Date.now())).toBeLessThan(5 * 60_000);
+    });
+
+    it('filtra por fecha (hasta es inclusivo) y valida los filtros', async () => {
+      const hoy = new Date().toISOString().slice(0, 10);
+      const { body: deHoy } = await auditoria(`?usuario_ID=${idAdmin}&desde=${hoy}&hasta=${hoy}`).expect(200);
+      expect(deHoy.length).toBeGreaterThanOrEqual(2);
+
+      const { body: antiguos } = await auditoria(`?usuario_ID=${idAdmin}&hasta=2000-01-01`).expect(200);
+      expect(antiguos).toEqual([]);
+
+      await auditoria('?desde=30-09-2026').expect(400);
+      await auditoria('?limite=0').expect(400);
+      await auditoria('?admin=1').expect(400);
+    });
+
+    // jsReport es opcional en desarrollo: con el servidor levantado se valida el PDF;
+    // sin él, el backend responde 502 con un mensaje claro y sigue funcionando.
+    it('genera el PDF con jsReport o informa que jsReport no está disponible', async () => {
+      const respuesta = await auditoria(`/reporte?usuario_ID=${idAdmin}`)
+        .buffer(true)
+        .parse((res, callback) => {
+          const partes: Buffer[] = [];
+          res.on('data', (parte: Buffer) => partes.push(parte));
+          res.on('end', () => callback(null, Buffer.concat(partes)));
+        });
+
+      if (respuesta.status === 200) {
+        expect(respuesta.headers['content-type']).toContain('application/pdf');
+        expect((respuesta.body as Buffer).subarray(0, 4).toString()).toBe('%PDF');
+      } else {
+        expect(respuesta.status).toBe(502);
+        const { message } = JSON.parse((respuesta.body as Buffer).toString()) as {
+          message: string;
+        };
+        expect(message).toContain('jsReport');
+        expect(message).toContain('GET /admin/auditoria');
+      }
+
+      // El backend sigue respondiendo después del fallo (o éxito) de jsReport.
+      await auditoria('?limite=1').expect(200);
     });
   });
 });

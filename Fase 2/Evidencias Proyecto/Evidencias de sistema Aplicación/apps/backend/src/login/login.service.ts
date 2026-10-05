@@ -9,7 +9,12 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { IsNull, QueryFailedError, Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
+import {
+  codigoPostgres,
+  PG_FOREIGN_KEY_VIOLATION,
+  PG_UNIQUE_VIOLATION,
+} from '../config/postgres-error';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
@@ -140,8 +145,8 @@ export class LoginService {
     try {
       await this.usuarioRepository.delete(id);
     } catch (error) {
-      // 23503: otras tablas (apadrinados, bitácora, planes...) referencian al usuario.
-      if (this.codigoPostgres(error) === '23503') {
+      // Otras tablas (apadrinados, bitácora, planes...) referencian al usuario.
+      if (codigoPostgres(error) === PG_FOREIGN_KEY_VIOLATION) {
         throw new ConflictException(
           'El usuario tiene registros asociados; bloquéalo desde el panel de administración',
         );
@@ -159,16 +164,10 @@ export class LoginService {
   }
 
   private traducirCorreoDuplicado(error: unknown): unknown {
-    // 23505: índice único ux_usuario_correo_principal (dos registros simultáneos).
-    return this.codigoPostgres(error) === '23505'
+    // Índice único ux_usuario_correo_principal (dos registros simultáneos).
+    return codigoPostgres(error) === PG_UNIQUE_VIOLATION
       ? new ConflictException('Ya existe una cuenta con ese correo')
       : error;
-  }
-
-  private codigoPostgres(error: unknown): string | undefined {
-    return error instanceof QueryFailedError
-      ? (error.driverError as { code?: string }).code
-      : undefined;
   }
 
   private sinPassword(usuario: Usuario): UsuarioPublico {

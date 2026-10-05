@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsuariosController } from './usuarios.controller';
 import { UsuariosService } from './usuarios.service';
 import { Usuario } from './usuarios.entity';
 
+// Sin controlador propio: las rutas /usuarios las expone LoginController.
 @Module({
   imports: [TypeOrmModule.forFeature([Usuario])],
-  controllers: [UsuariosController],
   providers: [UsuariosService],
   exports: [UsuariosService],
 })
