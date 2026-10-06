@@ -6,6 +6,7 @@ export type AuthenticatedUser = {
   usuario_ID: number
   nombre_usuario: string
   correo_usuario: string
+  requiere_pin: boolean
 }
 
 type AuthFormProps = {
