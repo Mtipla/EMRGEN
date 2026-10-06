@@ -11,5 +11,8 @@ out/
 .env
 .env.local
 
+# Sesión de WhatsApp (Baileys): llaves de la cuenta emisora, equivalen a una contraseña
+auth_info_baileys/
+
 # Logs
 npm-debug.log*

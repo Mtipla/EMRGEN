@@ -1,6 +1,6 @@
 # EMERGEN: integración de APIs externas
 
-Guía para el equipo sobre las cinco APIs externas del proyecto: para qué sirve cada una, cómo conseguir las credenciales, cómo configurarlas y cómo usar los servicios ya implementados.
+Guía para el equipo sobre las seis integraciones externas del proyecto: para qué sirve cada una, cómo conseguir las credenciales, cómo configurarlas y cómo usar los servicios ya implementados.
 
 | # | API | Uso en EMERGEN | Dónde vive el código |
 |---|---|---|---|
@@ -9,6 +9,7 @@ Guía para el equipo sobre las cinco APIs externas del proyecto: para qué sirve
 | 3 | **jsReport** | Generar reportes PDF (alertas, ventas, bitácora) | `apps/backend/src/integrations/jsreport/` |
 | 4 | **Google Maps Platform** | Mostrar mapas y convertir coordenadas GPS en direcciones | `apps/backend/src/integrations/google-maps/` y `packages/api-client/` |
 | 5 | **mindicador API** | Indicadores económicos de Chile (UF, dólar) para mostrar precios en CLP | `apps/backend/src/integrations/mindicador/` |
+| 6 | **WhatsApp (Baileys)** | Notificaciones de emergencia a los contactos: mensaje, ubicación e información médica | `apps/backend/src/integrations/whatsapp/` |
 
 > Todos los comandos se ejecutan en la raíz del monorepo (`Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/`), igual que en el [README principal](README.md).
 
@@ -43,7 +44,7 @@ Si todavía no tienes `.env`:
 Copy-Item .env.example .env
 ```
 
-Si ya tienes uno, **no lo sobrescribas**. Abre `.env.example` y copia a tu `.env` las claves que te falten (`PAYPAL_MODE`, `FIREBASE_PROJECT_ID`, `JSREPORT_*`, `MINDICADOR_API_URL`, `CORS_ORIGINS`, `VITE_*`).
+Si ya tienes uno, **no lo sobrescribas**. Abre `.env.example` y copia a tu `.env` las claves que te falten (`PAYPAL_MODE`, `FIREBASE_PROJECT_ID`, `JSREPORT_*`, `MINDICADOR_API_URL`, `CORS_ORIGINS`, `WHATSAPP_*`, `VITE_*`).
 
 Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 2 a 6). Si un valor se deja con el marcador, se trata igual que una variable vacía: la integración responde `503` en vez de enviar el texto del marcador al proveedor.
 
@@ -61,6 +62,9 @@ Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 2
 | `GOOGLE_MAPS_API_KEY` | backend | **sí** | Key de **servidor** (Geocoding API). |
 | `MINDICADOR_API_URL` | backend | no | Opcional. Por defecto `https://mindicador.cl/api` (sin key). |
 | `CORS_ORIGINS` | backend | no | Orígenes de los frontends, separados por coma. |
+| `WHATSAPP_ENABLED` | backend | no | `true` conecta WhatsApp al arrancar. Por defecto `false` (la integración responde `503`). |
+| `WHATSAPP_AUTH_DIR` | backend (local) | **la carpeta sí** | Carpeta de la sesión. Por defecto `auth_info_baileys` (en `apps/backend/`). En Docker es un volumen. |
+| `WHATSAPP_DEFAULT_COUNTRY_CODE` | backend | no | Código de país para números sin `+` de 9 dígitos o menos. Por defecto `56` (Chile). |
 | `VITE_API_URL` | frontends | no | URL del backend: `http://localhost:3000` local, `http://localhost:3001` Docker. |
 | `VITE_PAYPAL_CLIENT_ID` | frontends | no | Mismo Client ID de PayPal (es público). |
 | `VITE_GOOGLE_MAPS_API_KEY` | frontends | no* | Key de **navegador**, restringida por dominio. |
@@ -455,8 +459,192 @@ curl.exe http://localhost:3000/indicators/uf
 
 ---
 
+## 7. WhatsApp (Baileys): notificaciones de emergencia
 
-## 7. Errores comunes
+### 7.1 Para qué sirve
+
+Envía la alerta de emergencia (HU-08) por WhatsApp a los contactos del usuario (1 a 5), con:
+
+- el **mensaje personalizado** del usuario;
+- la **ubicación**: dirección, link de Google Maps y un pin de ubicación nativo de WhatsApp;
+- la **información médica** (opcional): un resumen breve y/o un enlace a la ficha médica.
+
+Usa [Baileys](https://github.com/WhiskeySockets/Baileys) (`@whiskeysockets/baileys`), que se conecta a WhatsApp por WebSocket como un "dispositivo vinculado" de un número normal. No necesita navegador ni API key: **la credencial es la sesión del número emisor**.
+
+El módulo tiene tres piezas, cada una con una sola responsabilidad:
+
+| Pieza | Archivo | Responsabilidad |
+|---|---|---|
+| `WhatsappConnectionService` | `whatsapp-connection.service.ts` | Sesión: conexión en segundo plano, QR / código de emparejamiento, reconexión con backoff, envío de bajo nivel. |
+| `WhatsappAlertService` | `whatsapp-alert.service.ts` | **API pública para el resto del backend**: arma y envía la alerta a todos los contactos en paralelo, con reintentos (CA-08.1). |
+| `WhatsappAuthStateStore` | `whatsapp-auth-state.store.ts` | Dónde se guarda la sesión. Hoy en archivos (`MultiFileAuthStateStore`); se puede cambiar por PostgreSQL sin tocar lo demás. |
+
+> ⚠️ **Baileys no es una API oficial de WhatsApp.** Usa un **número dedicado** a EMERGEN (no uno personal): WhatsApp puede bloquear números que envían mensajes automáticos.
+
+> 🔒 **La carpeta `auth_info_baileys/` equivale a la contraseña del número emisor.** Está en `.gitignore` y `.dockerignore`: nunca la subas al repositorio ni la compartas.
+
+### 7.2 Configurar
+
+```env
+WHATSAPP_ENABLED=true
+# Opcionales:
+WHATSAPP_AUTH_DIR=auth_info_baileys
+WHATSAPP_DEFAULT_COUNTRY_CODE=56
+```
+
+Con `WHATSAPP_ENABLED` distinto de `true`, el backend arranca igual y los endpoints responden `503`, como las demás integraciones sin configurar.
+
+**La conexión no bloquea el arranque:** el backend levanta la API REST de inmediato y negocia la sesión de WhatsApp en segundo plano. Si WhatsApp se cae, reconecta solo (1 s, 2 s, 4 s… hasta 30 s).
+
+### 7.3 Vincular el número emisor (una sola vez)
+
+1. Arranca el backend con `WHATSAPP_ENABLED=true`. En el log aparece:
+   `Sin sesión: escanea el QR (GET /notifications/whatsapp/qr) o pide un código (POST /notifications/whatsapp/pairing-code).`
+2. Inicia sesión como **Administrador** para obtener un JWT (`POST /usuarios/login`).
+3. Elige una opción:
+   - **QR:** descarga `GET /notifications/whatsapp/qr` (PNG) y escanéalo desde el teléfono emisor: *WhatsApp → Dispositivos vinculados → Vincular un dispositivo*. El QR **cambia cada ~20 s**: si expira, vuelve a pedirlo.
+   - **Código de emparejamiento** (sin cámara): `POST /notifications/whatsapp/pairing-code` con `{ "phoneNumber": "+569XXXXXXXX" }` (el número emisor). En el teléfono: *Dispositivos vinculados → Vincular con número de teléfono* e ingresa el código de 8 caracteres.
+4. Confirma con `GET /notifications/whatsapp/status` → `"state": "open"`.
+
+La sesión queda guardada y **sobrevive a los reinicios**: no hay que volver a escanear.
+
+| Dónde corre el backend | Dónde queda la sesión |
+|---|---|
+| Local (`npm run start:dev --workspace=backend`) | `apps/backend/auth_info_baileys/` |
+| Docker Compose | Volumen `volumen_emergen_whatsapp_auth`. Para desvincular a mano: `docker compose down` + `docker volume rm volumen_emergen_whatsapp_auth` |
+
+Para **cambiar el número emisor**, usa `POST /notifications/whatsapp/logout`: borra la sesión y genera un QR nuevo. Si el número se desvincula desde el teléfono, el backend lo detecta, borra la sesión y también genera un QR nuevo.
+
+### 7.4 Endpoints
+
+Todos exigen `Authorization: Bearer <JWT>` de un usuario con rol **Administrador**.
+
+| Método | Ruta | Body | Respuesta |
+|---|---|---|---|
+| `GET` | `/notifications/whatsapp/status` | — | `{ enabled, state, qrAvailable, phoneNumber?, lastError? }` |
+| `GET` | `/notifications/whatsapp/qr` | — | PNG del QR, o `404` si no hay vinculación pendiente |
+| `POST` | `/notifications/whatsapp/pairing-code` | `{ phoneNumber }` | `{ code }` |
+| `POST` | `/notifications/whatsapp/logout` | — | Estado tras desvincular |
+| `POST` | `/notifications/whatsapp/alerts` | `SendEmergencyAlertRequest` (abajo) | `201` con `EmergencyAlertResult` |
+
+Estados (`state`): `disabled` · `connecting` · `waiting_for_link` (falta escanear el QR) · `open` (lista) · `closed` (detenida: sesión abierta en otra instancia o número bloqueado; revisar y reiniciar el backend).
+
+**Body de una alerta** (tipos en `@repo/api-types`):
+
+```jsonc
+{
+  "recipients": ["912345678", "+56987654321"],   // 1 a 5; 9 dígitos sin "+" → se antepone 56
+  "senderName": "Ana Pérez",                     // opcional
+  "message": "Me caí y no puedo levantarme",     // máx. 200 (USUARIO_MENSAJE_PERSONALIZADO)
+  "location": { "lat": -33.4378, "lng": -70.6504, "address": "Plaza de Armas, Santiago" },
+  "medicalInfo": {                               // opcional
+    "summary": "Diabética tipo 1. Alergia a la penicilina.",
+    "url": "https://emergen.cl/ficha/abc123"     // solo https
+  }
+}
+```
+
+**Respuesta:** un resultado por contacto. Si **un** contacto falla, los demás se envían igual:
+
+```json
+{
+  "sentAt": "2026-10-06T19:40:00.000Z",
+  "sent": 1,
+  "failed": 1,
+  "deliveries": [
+    { "phoneNumber": "912345678", "status": "sent", "messageIds": ["3EB0A1...", "3EB0A2..."] },
+    { "phoneNumber": "+56987654321", "status": "not_on_whatsapp", "messageIds": [] }
+  ]
+}
+```
+
+`status`: `sent` · `not_on_whatsapp` (el número no tiene WhatsApp) · `invalid_number` · `failed` (falló tras 3 intentos).
+
+Cada contacto recibe dos mensajes: el texto de la alerta (que ya trae el link de Maps) y el pin de ubicación. Si solo falla el pin, el contacto igual cuenta como `sent`.
+
+> 🩺 **Información médica:** todo lo que va en `summary` queda guardado en el chat del contacto y **no se puede revocar**. Para cumplir HU-12 (acceso solo mientras la emergencia está activa), prefiere enviar solo `url` con un enlace temporal y deja `summary` para datos mínimos que el usuario acepte compartir.
+
+### 7.5 Usar el servicio desde otro módulo del backend
+
+Así se integra en el flujo "Generar Alerta" (el futuro módulo de alertas). Se importa `WhatsappModule` y se inyecta `WhatsappAlertService`; no hace falta tocar la conexión:
+
+```ts
+// alertas.module.ts
+import { WhatsappModule } from '../integrations/whatsapp/whatsapp.module';
+
+@Module({ imports: [WhatsappModule /*, TypeOrmModule.forFeature([...]) */], providers: [AlertasService] })
+export class AlertasModule {}
+```
+
+```ts
+// alertas.service.ts
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { WhatsappAlertService } from '../integrations/whatsapp/whatsapp-alert.service';
+
+@Injectable()
+export class AlertasService {
+  private readonly logger = new Logger(AlertasService.name);
+
+  constructor(private readonly whatsapp: WhatsappAlertService) {}
+
+  async notificarContactos(alertaId: number) {
+    // 1. Leer de la BD: números de CONTACTO_EMERGENCIA, mensaje, ubicación y ficha médica.
+    const contactos = ['912345678', '987654321']; // CONTACTO_EMERGENCIA.num_emergencia
+
+    try {
+      const resultado = await this.whatsapp.sendEmergencyAlert({
+        recipients: contactos,
+        senderName: 'Ana Pérez',
+        message: 'Me caí y no puedo levantarme',
+        location: { lat: -33.4378, lng: -70.6504, address: 'Plaza de Armas, Santiago' },
+        medicalInfo: { url: `https://emergen.cl/ficha/${alertaId}` },
+      });
+
+      // 2. Registrar en BITACORA_SISTEMA los envíos fallidos (CA-08.1).
+      for (const envio of resultado.deliveries.filter((d) => d.status !== 'sent'))
+        this.logger.warn(`Alerta ${alertaId}: ${envio.phoneNumber} → ${envio.status}`);
+      return resultado;
+    } catch (error) {
+      // 503: WhatsApp deshabilitado o sin sesión → usar el respaldo por SMS (HU-08).
+      if (error instanceof ServiceUnavailableException) { /* fallback */ }
+      throw error;
+    }
+  }
+}
+```
+
+**Desde el panel de administración** (desktop/web), con `@repo/api-client`:
+
+```ts
+import { api } from './lib/api'
+
+const estado = await api.whatsapp.status(jwt)
+if (estado.state === 'waiting_for_link') {
+  const qr = await api.whatsapp.qr(jwt)                 // Blob PNG
+  imgElement.src = URL.createObjectURL(qr)             // volver a pedirlo cada ~20 s
+}
+
+// Alerta de prueba:
+const resultado = await api.whatsapp.sendAlert(jwt, {
+  recipients: ['912345678'],
+  message: 'Prueba de alerta EMERGEN',
+  location: { lat: -33.4378, lng: -70.6504 },
+})
+```
+
+**Probar (PowerShell):**
+
+```powershell
+$jwt = "<JWT_DE_ADMINISTRADOR>"
+curl.exe http://localhost:3000/notifications/whatsapp/status -H "Authorization: Bearer $jwt"
+curl.exe http://localhost:3000/notifications/whatsapp/qr -H "Authorization: Bearer $jwt" -o qr.png
+curl.exe -X POST http://localhost:3000/notifications/whatsapp/alerts -H "Authorization: Bearer $jwt" -H "Content-Type: application/json" -d '{\"recipients\":[\"912345678\"],\"message\":\"Prueba\",\"location\":{\"lat\":-33.4378,\"lng\":-70.6504}}'
+```
+
+---
+
+
+## 8. Errores comunes
 
 | Respuesta / síntoma | Causa | Solución |
 |---|---|---|
@@ -469,16 +657,21 @@ curl.exe http://localhost:3000/indicators/uf
 | Error de CORS en la consola del navegador | El origen del frontend no está en `CORS_ORIGINS` | Agrega la URL de Vite (ej. `http://localhost:5174`) y reinicia el backend. |
 | El mapa muestra "This page can't load Google Maps correctly" | Key de navegador sin el dominio/puerto actual en los referentes | Agrega el origen en la consola de Google (sección 5.2, paso 4). |
 | La app móvil en el teléfono no llega al backend | `localhost` en el teléfono es el propio teléfono | Usa `VITE_API_URL=http://<IP-de-tu-PC>:3000`. |
+| `503` "WhatsApp no está conectado (estado: waiting_for_link)" | El número emisor no está vinculado | Vincúlalo con el QR o el código de emparejamiento (sección 7.3). |
+| `404` en `/notifications/whatsapp/qr` | No hay QR pendiente: ya está vinculado (`open`) o todavía conectando | Revisa `GET /notifications/whatsapp/status`. |
+| `state: "closed"` y log "Conexión detenida (código 440)" | La misma sesión se abrió en otra instancia (ej. backend local y Docker a la vez) | Deja una sola instancia con WhatsApp habilitado y reinicia el backend. |
+| `state: "closed"` con código `403` | WhatsApp bloqueó el número emisor | Usa otro número dedicado y vuelve a vincular. |
+| Docker: `EACCES` al guardar la sesión | El volumen se creó antes de existir la carpeta en la imagen | `docker compose build backend` y luego `docker volume rm volumen_emergen_whatsapp_auth`. |
 
 ---
 
-## 8. Tests
+## 9. Tests
 
 Los tests simulan `fetch`, así que **no necesitan credenciales reales**:
 
 ```powershell
 npm run test                                  # todo: backend (Jest) + packages/api-client (Vitest)
-npm run test --workspace=backend              # servicios, http-client y Firebase (unitarios)
+npm run test --workspace=backend              # servicios, http-client, Firebase y WhatsApp (unitarios)
 npm run test:e2e --workspace=backend          # endpoints por HTTP: códigos 200/201/400/401/502/503
 npm run test --workspace=@repo/api-client     # cliente del frontend, Firebase REST y botones PayPal
 ```

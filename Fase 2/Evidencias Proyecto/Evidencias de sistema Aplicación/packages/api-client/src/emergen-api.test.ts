@@ -69,6 +69,33 @@ describe('createEmergenApi', () => {
     expect(lastCall().url).toBe('http://api.test/maps/reverse-geocode?lat=-33.4&lng=-70.6');
   });
 
+  it('whatsapp.sendAlert hace POST con el JWT del administrador', async () => {
+    fetchMock.mockResolvedValueOnce(json({ sent: 1, failed: 0, deliveries: [] }, 201));
+    const alert = {
+      recipients: ['912345678'],
+      message: 'Necesito ayuda',
+      location: { lat: -33.4, lng: -70.6 },
+    };
+
+    await expect(api.whatsapp.sendAlert('jwt', alert)).resolves.toMatchObject({ sent: 1 });
+    const { url, init, headers } = lastCall();
+    expect(url).toBe('http://api.test/notifications/whatsapp/alerts');
+    expect(init.method).toBe('POST');
+    expect(headers.get('Authorization')).toBe('Bearer jwt');
+    expect(JSON.parse(init.body as string)).toEqual(alert);
+  });
+
+  it('whatsapp.qr devuelve el PNG como Blob', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(new Uint8Array([137, 80, 78, 71]), {
+        headers: { 'Content-Type': 'image/png' },
+      }),
+    );
+    const png = await api.whatsapp.qr('jwt');
+    expect(png.type).toBe('image/png');
+    expect(lastCall().url).toBe('http://api.test/notifications/whatsapp/qr');
+  });
+
   it('reports.generate devuelve un Blob', async () => {
     fetchMock.mockResolvedValueOnce(
       new Response(new Uint8Array([37, 80, 68, 70]), {
