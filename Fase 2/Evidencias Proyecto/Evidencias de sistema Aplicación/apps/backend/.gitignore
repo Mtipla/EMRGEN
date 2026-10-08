@@ -45,6 +45,9 @@ lerna-debug.log*
 .env.production.local
 .env.local
 
+# WhatsApp (Baileys) session state: account keys, never commit
+auth_info_baileys/
+
 # temp directory
 .temp
 .tmp

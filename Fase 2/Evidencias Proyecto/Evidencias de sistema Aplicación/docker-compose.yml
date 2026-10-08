@@ -42,6 +42,11 @@ services:
       - JSREPORT_URL=${JSREPORT_URL_DOCKER:-http://host.docker.internal:5488}
       - JSREPORT_USERNAME=${JSREPORT_USERNAME:-}
       - JSREPORT_PASSWORD=${JSREPORT_PASSWORD:-}
+      # WhatsApp (Baileys): la sesión persiste en el volumen emergen_whatsapp_auth
+      - WHATSAPP_ENABLED=${WHATSAPP_ENABLED:-false}
+      - WHATSAPP_DEFAULT_COUNTRY_CODE=${WHATSAPP_DEFAULT_COUNTRY_CODE:-56}
+    volumes:
+      - emergen_whatsapp_auth:/app/apps/backend/auth_info_baileys
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -54,6 +59,8 @@ services:
 volumes:
   emergen_postgres_data:
     name: volumen_emergen_postgres_data
+  emergen_whatsapp_auth:
+    name: volumen_emergen_whatsapp_auth
 networks:
   emergen_network:
     driver: bridge
