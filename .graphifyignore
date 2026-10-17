@@ -11,3 +11,12 @@ coverage/
 # Variables de entorno y secretos
 .env
 .env.*
+
+# Duplicados y respaldos (evitan nodos redundantes en el grafo)
+**/respaldos/
+**/PLAZA_DIEGO_*
+**/Diagrama de secuencia/
+.claude/
+
+# Videos de mockups (requieren transcripción; no aportan al grafo)
+*.mp4
