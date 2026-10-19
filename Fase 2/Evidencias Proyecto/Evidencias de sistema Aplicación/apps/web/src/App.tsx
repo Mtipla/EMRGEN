@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AuthForm, type AuthenticatedUser } from './features/auth/AuthForm'
 import { UsersAdmin } from './features/auth/UsersAdmin'
+import { PremiumPurchase } from './features/compra/PremiumPurchase'
 
 const savedUser = localStorage.getItem('emergen.user')
 
@@ -16,14 +17,28 @@ function App() {
     }
   })
 
+  const [buying, setBuying] = useState(false)
+
   function closeSession() {
     localStorage.removeItem('emergen.user')
     localStorage.removeItem('emergen.token')
+    setBuying(false)
     setUser(null)
+  }
+
+  if (user && buying) {
+    return (
+      <main className="auth-page">
+        <PremiumPurchase onClose={() => setBuying(false)} />
+      </main>
+    )
   }
 
   return user ? (
     <main className="auth-page">
+      <button type="button" className="primary-button" onClick={() => setBuying(true)}>
+        Comprar Cuenta Premium
+      </button>
       <UsersAdmin
         user={user}
         onLogout={closeSession}

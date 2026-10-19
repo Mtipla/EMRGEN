@@ -45,8 +45,46 @@ export interface CapturePaypalOrderResponse {
   /** COMPLETED si el cobro se realizó. */
   status: string;
   captureId?: string;
+  /** Estado del cobro: COMPLETED, PENDING (en revisión en PayPal), DECLINED o FAILED. */
+  captureStatus?: string;
   amount?: { value: string; currency: string };
   payerEmail?: string;
+}
+
+/* ------------------------------------------------------------------ */
+/* Compra de cuentas apadrinadas (PayPal vía backend)                  */
+/* ------------------------------------------------------------------ */
+
+/** REVISION: PayPal cobró pero no se pudo habilitar la cuenta; lo resuelve soporte. */
+export type EstadoCompra = 'PENDIENTE' | 'PAGADO' | 'RECHAZADO' | 'CANCELADO' | 'REVISION';
+
+export interface ResumenCompraApadrinados {
+  /** Nombre de la cuenta principal que recibe los cupos (de la sesión). */
+  usuario: string;
+  plan: string;
+  /** Precio por cuenta en CLP, leído de la tabla PLAN. */
+  precioUnitario: number;
+  cuposAdquiridos: number;
+  /** Cuántas cuentas puede comprar ahora (0 si ya alcanzó el límite). */
+  maxCantidad: number;
+}
+
+export interface OrdenCompraResponse {
+  /** Número de boleta (VENTA.venta_ID). */
+  ventaId: number;
+  /** Id de la orden en PayPal, para los botones del SDK. */
+  orderId: string;
+  totalClp: number;
+  /** Monto que cobra PayPal (CLP convertido con el dólar del día). */
+  montoCobrado: string;
+  monedaCobrada: string;
+}
+
+export interface ResultadoCompraResponse {
+  ventaId: number;
+  estado: EstadoCompra;
+  /** Total de cupos del usuario después de la compra (solo si estado = PAGADO). */
+  cuposAdquiridos?: number;
 }
 
 /* ------------------------------------------------------------------ */

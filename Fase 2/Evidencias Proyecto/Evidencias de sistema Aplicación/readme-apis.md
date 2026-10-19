@@ -24,7 +24,7 @@ Guía para el equipo sobre las seis integraciones externas del proyecto: para qu
 | `packages/ui` | Componentes React `MapView` y `PaypalButton`. |
 | `apps/{web,mobile,desktop}/src/lib/api.ts` | Instancia `api` y objeto `env` con las variables `VITE_*` de cada app. |
 | `apps/backend/src/config/env.ts` | Carga del `.env` y helpers `readEnv()`/`requireEnv()`. |
-| `.env.example` | Plantilla con todas las variables y marcadores `<INSERT_..._HERE>`. |
+| `Fase 2/Evidencias Proyecto/Evidencias de documentación/4.4 Docker/.env` | Plantilla con todas las variables y marcadores `<INSERT_..._HERE>`. (No hay `.env.example` en la raíz del monorepo.) |
 
 ---
 
@@ -38,13 +38,13 @@ Hay **un solo `.env`**, en la raíz del monorepo. Lo leen:
 
 ### 1.1 Crear o completar el `.env`
 
-Si todavía no tienes `.env`:
+Si todavía no tienes `.env`, copia la plantilla (en la raíz del monorepo no existe `.env.example`):
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item "..\Evidencias de documentación\4.4 Docker\.env" .env
 ```
 
-Si ya tienes uno, **no lo sobrescribas**. Abre `.env.example` y copia a tu `.env` las claves que te falten (`PAYPAL_MODE`, `FIREBASE_PROJECT_ID`, `JSREPORT_*`, `MINDICADOR_API_URL`, `CORS_ORIGINS`, `WHATSAPP_*`, `VITE_*`).
+Si ya tienes uno, **no lo sobrescribas**. Abre la plantilla de `4.4 Docker` y copia a tu `.env` las claves que te falten (`PAYPAL_MODE`, `FIREBASE_PROJECT_ID`, `JSREPORT_*`, `MINDICADOR_API_URL`, `CORS_ORIGINS`, `WHATSAPP_*`, `VITE_*`).
 
 Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 2 a 6). Si un valor se deja con el marcador, se trata igual que una variable vacía: la integración responde `503` en vez de enviar el texto del marcador al proveedor.
 

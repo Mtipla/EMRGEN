@@ -1,0 +1,188 @@
+/* Colores de AuthForm.css (acento #e64b35). Estilos propios: la web aún no carga una hoja global. */
+.purchase {
+  width: min(100%, 640px);
+  text-align: left;
+}
+
+.purchase-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.purchase-nav strong {
+  margin-right: auto;
+  color: #e64b35;
+  letter-spacing: 0.12em;
+}
+
+.purchase-nav a {
+  color: #263449;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.purchase-card {
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgb(15 23 42 / 10%);
+  color: #263449;
+}
+
+.purchase-card h1 {
+  margin: 0 0 1.5rem;
+  color: #162235;
+  font-size: 1.8rem;
+}
+
+.purchase-details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1.5rem;
+}
+
+.purchase-details dt {
+  font-weight: 700;
+}
+
+.purchase-details dd {
+  margin: 0;
+}
+
+.purchase-details input {
+  width: 4.5rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.purchase-details small {
+  color: #64748b;
+}
+
+.purchase-price {
+  color: #162235;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.purchase-price small {
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.purchase-notice {
+  padding: 0.75rem 1rem;
+  border-radius: 9px;
+  background: #fff7ed;
+  color: #7c2d12;
+}
+
+.purchase-notice--error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.purchase-paypal {
+  min-height: 3rem;
+  margin-bottom: 1rem;
+}
+
+.purchase-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.purchase-primary {
+  padding: 0.85rem 1rem;
+  border: 0;
+  border-radius: 9px;
+  background: #e64b35;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.purchase-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.secondary-button {
+  padding: 0.85rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #fff;
+  color: #263449;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.purchase-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 55%);
+}
+
+.purchase-modal {
+  width: min(100%, 420px);
+  padding: 2rem;
+  border-top: 6px solid;
+  border-radius: 16px;
+  background: #fff;
+  color: #263449;
+  text-align: center;
+}
+
+.purchase-modal h2 {
+  margin-top: 0;
+}
+
+.purchase-modal--success {
+  border-color: #16a34a;
+}
+
+.purchase-modal--success h2 {
+  color: #15803d;
+}
+
+.purchase-modal--error {
+  border-color: #dc2626;
+}
+
+.purchase-modal--error h2 {
+  color: #b91c1c;
+}
+
+.purchase-modal-detail {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+@media (max-width: 520px) {
+  .purchase-card {
+    padding: 1.25rem;
+  }
+
+  .purchase-details,
+  .purchase-actions {
+    grid-template-columns: 1fr;
+  }
+}

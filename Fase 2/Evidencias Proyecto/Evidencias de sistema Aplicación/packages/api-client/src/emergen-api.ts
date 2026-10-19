@@ -8,7 +8,10 @@ import type {
   GeocodeResult,
   GeoPoint,
   IndicatorCode,
+  OrdenCompraResponse,
   PaypalOrderResponse,
+  ResultadoCompraResponse,
+  ResumenCompraApadrinados,
   SendEmergencyAlertRequest,
   WhatsappPairingCodeResponse,
   WhatsappStatusResponse,
@@ -37,6 +40,33 @@ export function createEmergenApi(baseUrl: string) {
         http.json<CapturePaypalOrderResponse>(
           `/payments/paypal/orders/${encodeURIComponent(orderId)}/capture`,
           { method: 'POST' },
+        ),
+    },
+
+    /**
+     * Compra de cuentas apadrinadas. Requiere el JWT del login. El precio y el usuario
+     * los decide el backend; el éxito solo vale si `capture` responde estado PAGADO.
+     */
+    compras: {
+      summary: (accessToken: string) =>
+        http.json<ResumenCompraApadrinados>('/compras/apadrinados', {
+          headers: bearer(accessToken),
+        }),
+      createOrder: (accessToken: string, cantidad: number) =>
+        http.json<OrdenCompraResponse>('/compras/apadrinados/ordenes', {
+          method: 'POST',
+          headers: bearer(accessToken),
+          body: JSON.stringify({ cantidad }),
+        }),
+      capture: (accessToken: string, orderId: string) =>
+        http.json<ResultadoCompraResponse>(
+          `/compras/apadrinados/ordenes/${encodeURIComponent(orderId)}/captura`,
+          { method: 'POST', headers: bearer(accessToken) },
+        ),
+      cancel: (accessToken: string, orderId: string) =>
+        http.json<ResultadoCompraResponse>(
+          `/compras/apadrinados/ordenes/${encodeURIComponent(orderId)}/cancelar`,
+          { method: 'POST', headers: bearer(accessToken) },
         ),
     },
 

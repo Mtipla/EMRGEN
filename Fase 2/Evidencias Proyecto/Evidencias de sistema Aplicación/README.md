@@ -194,8 +194,18 @@ Desde la raíz del monorepo:
 |---|---|---|
 | Web | `npx turbo run dev --filter=web` | la que indique Vite (por defecto `http://localhost:5173`) |
 | Móvil | `npx turbo run dev --filter=mobile` | la que indique Vite |
-| Escritorio | `npx turbo run dev --filter=desktop` | la que indique Vite |
-| Backend (sin Docker) | `npm run start:dev --workspace=backend` | `http://localhost:3000` |
+| Escritorio | `npx turbo run dev --filter=desktop` | la que indique Vite. Corre en el navegador: ningún script arranca la ventana de Electron todavía |
+| Backend (sin Docker) | ver nota abajo | `http://localhost:3000` |
+
+> **Backend sin Docker (estado actual):** `npm run start:dev --workspace=backend` **falla** con el `.env` tal como viene, por dos motivos:
+> 1. Fuera de Docker el host de la BD debe ser `localhost`. Pon `DB_HOST=localhost` en tu `.env` (el valor `DB_HOST=db` es solo para Docker, y `docker-compose.yml` ya lo fuerza dentro del contenedor).
+> 2. `app.module.ts` lee `DB_USER`/`DB_PASSWORD` antes de que `main.ts` cargue el `.env`, así que llega `SASL: client password must be a string`. Mientras no se corrija, arráncalo cargando el archivo desde Node, desde `apps/backend`:
+>
+> ```powershell
+> node --env-file=../../.env ../../node_modules/@nestjs/cli/bin/nest.js start
+> ```
+>
+> Verificado: con `DB_HOST=localhost` el backend queda en `Nest application successfully started`.
 
 Otros comandos útiles:
 
