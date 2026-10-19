@@ -5,15 +5,17 @@ import { AdminService } from './admin.service';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { PlanUsuario } from '../planes/plan-usuario.entity';
 import { LoginModule } from '../login/login.module';
+import { AuditoriaController } from '../auditoria/auditoria.controller';
 import { AuditoriaModule } from '../auditoria/auditoria.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Usuario, PlanUsuario]),
-    LoginModule, // JwtAuthGuard + RolesGuard
-    AuditoriaModule, // Bitácora (y sus rutas /admin/auditoria)
+    LoginModule, // JwtAuthGuard + RolesGuard + LoginService (reglas de cuentas)
+    AuditoriaModule, // Bitácora
   ],
-  controllers: [AdminController],
+  // AuditoriaController (/admin/auditoria) vive aquí porque necesita los guards de LoginModule.
+  controllers: [AdminController, AuditoriaController],
   providers: [AdminService],
   exports: [AdminService],
 })

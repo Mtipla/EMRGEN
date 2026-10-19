@@ -24,6 +24,13 @@ export class ConsultarBitacoraDto {
   @Min(1)
   usuario_ID?: number;
 
+  /** Usuario sobre el que recayó la acción. */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  usuario_afectado_ID?: number;
+
   // IDs de APLICACION: 1 web, 2 móvil, 3 escritorio.
   @IsOptional()
   @Type(() => Number)

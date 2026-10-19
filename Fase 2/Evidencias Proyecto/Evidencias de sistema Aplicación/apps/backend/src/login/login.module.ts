@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuditoriaModule } from '../auditoria/auditoria.module';
 import { readEnv } from '../config/env';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { UsuariosModule } from '../usuarios/usuarios.module';
@@ -13,6 +14,7 @@ import { RolesGuard } from './roles.guard';
   imports: [
     TypeOrmModule.forFeature([Usuario]),
     UsuariosModule,
+    AuditoriaModule, // Bitácora de las acciones de administrador (DELETE /usuarios/:id)
     JwtModule.registerAsync({
       useFactory: () => {
         const secret = readEnv('JWT_SECRET');

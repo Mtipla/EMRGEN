@@ -10,6 +10,8 @@ export interface InlineReportTemplate {
   content: string;
   engine?: 'handlebars' | 'jsrender' | 'none';
   recipe?: 'chrome-pdf' | 'html' | 'xlsx' | 'docx';
+  /** Opciones de la receta chrome-pdf (p. ej. hoja horizontal para tablas anchas). */
+  chrome?: { landscape?: boolean };
 }
 
 export interface RenderedReport {

@@ -4,34 +4,79 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EntityManager, QueryFailedError, Repository } from 'typeorm';
-import { AuditoriaService } from '../auditoria/auditoria.service';
+import {
+  AuditoriaService,
+  EventoAuditado,
+  ResultadoAuditado,
+} from '../auditoria/auditoria.service';
+import { LoginService } from '../login/login.service';
 import { PlanUsuario } from '../planes/plan-usuario.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { AdminService } from './admin.service';
 
 describe('AdminService', () => {
-  const ID_ADMIN = 1;
-  let usuarios: { findOneBy: jest.Mock; save: jest.Mock; delete: jest.Mock };
+  const ADMIN = { sub: 1, rol_ID: 1 };
+  let usuarios: {
+    findOneBy: jest.Mock;
+    findOne: jest.Mock;
+    find: jest.Mock;
+    countBy: jest.Mock;
+    create: jest.Mock;
+    save: jest.Mock;
+    delete: jest.Mock;
+  };
+  let planes: { findOne: jest.Mock; create: jest.Mock; merge: jest.Mock; save: jest.Mock };
   let manager: EntityManager;
-  let transaction: jest.Mock;
-  let registrar: jest.Mock;
+  let auditar: jest.Mock;
+  /** Lo que la operación entregó a la bitácora (cambios, tipo, etc.); `null` si falló. */
+  let auditado: ResultadoAuditado<unknown> | null;
+  let prepararCuentaPrincipal: jest.Mock;
+  let aplicarCambiosDePerfil: jest.Mock;
   let service: AdminService;
+
+  const evento = () => (auditar.mock.calls[0] as [EventoAuditado])[0];
 
   beforeEach(() => {
     usuarios = {
       findOneBy: jest.fn(),
+      findOne: jest.fn(),
+      find: jest.fn(),
+      countBy: jest.fn(),
+      create: jest.fn((usuario: Usuario) => usuario),
       save: jest.fn((usuario: Usuario) => Promise.resolve(usuario)),
       delete: jest.fn(),
     };
-    manager = { getRepository: () => usuarios } as unknown as EntityManager;
-    transaction = jest.fn((trabajo: (m: EntityManager) => Promise<unknown>) =>
-      trabajo(manager),
+    planes = {
+      findOne: jest.fn(),
+      create: jest.fn((plan: PlanUsuario) => plan),
+      merge: jest.fn((plan: PlanUsuario, datos: Partial<PlanUsuario>) => Object.assign(plan, datos)),
+      save: jest.fn((plan: PlanUsuario) => Promise.resolve(plan)),
+    };
+    manager = {
+      getRepository: (entidad: unknown) => (entidad === PlanUsuario ? planes : usuarios),
+    } as unknown as EntityManager;
+    auditado = null;
+    // Doble de AuditoriaService.auditar: ejecuta la operación con el manager de la transacción.
+    auditar = jest.fn(
+      async (
+        _evento: EventoAuditado,
+        operacion: (m: EntityManager) => Promise<ResultadoAuditado<unknown>>,
+      ) => {
+        auditado = await operacion(manager);
+        return auditado.valor;
+      },
     );
-    registrar = jest.fn();
+    prepararCuentaPrincipal = jest.fn();
+    aplicarCambiosDePerfil = jest.fn();
     service = new AdminService(
-      { manager: { transaction } } as unknown as Repository<Usuario>,
+      {} as Repository<Usuario>,
       {} as Repository<PlanUsuario>,
-      { registrar } as unknown as AuditoriaService,
+      { auditar } as unknown as AuditoriaService,
+      {
+        prepararCuentaPrincipal,
+        aplicarCambiosDePerfil,
+        traducirCorreoDuplicado: (error: unknown) => error,
+      } as unknown as LoginService,
     );
   });
 
@@ -45,53 +90,56 @@ describe('AdminService', () => {
   describe('cambiarEstadoUsuario', () => {
     it('rechaza con 400 que el administrador cambie su propio estado', async () => {
       await expect(
-        service.cambiarEstadoUsuario(ID_ADMIN, 3, ID_ADMIN),
+        service.cambiarEstadoUsuario(ADMIN.sub, 3, ADMIN),
       ).rejects.toBeInstanceOf(BadRequestException);
-      expect(transaction).not.toHaveBeenCalled();
+      expect(usuarios.save).not.toHaveBeenCalled();
     });
 
-    it('guarda el estado y la bitácora con el mismo manager de la transacción', async () => {
+    it('guarda el estado y entrega a la bitácora el actor, el afectado y el cambio', async () => {
       usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 7, estado_ID: 1 });
 
-      const usuario = await service.cambiarEstadoUsuario(7, 3, ID_ADMIN);
+      const usuario = await service.cambiarEstadoUsuario(7, 3, ADMIN);
 
       expect(usuario).toMatchObject({ usuario_ID: 7, estado_ID: 3 });
-      expect(transaction).toHaveBeenCalledTimes(1);
-      expect(registrar).toHaveBeenCalledWith(manager, {
-        usuario_ID: ID_ADMIN,
+      expect(evento()).toEqual({
+        actor: ADMIN,
         accion: 'Cambio de estado del usuario 7 a 3',
+        tipo: 'MODIFICACION',
+        entidad: 'USUARIO',
+        usuario_afectado_ID: 7,
       });
+      expect(auditado?.cambios).toEqual({ estado_ID: { antes: 1, despues: 3 } });
     });
 
-    it('propaga el fallo de la bitácora para que la transacción revierta el cambio', async () => {
-      usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 7, estado_ID: 1 });
-      registrar.mockRejectedValueOnce(new Error('bitácora caída'));
-
-      await expect(service.cambiarEstadoUsuario(7, 3, ID_ADMIN)).rejects.toThrow(
-        'bitácora caída',
-      );
-    });
-
-    it('responde 404 si el usuario no existe y no escribe en la bitácora', async () => {
+    it('responde 404 si el usuario no existe', async () => {
       usuarios.findOneBy.mockResolvedValueOnce(null);
 
       await expect(
-        service.cambiarEstadoUsuario(99, 3, ID_ADMIN),
+        service.cambiarEstadoUsuario(99, 3, ADMIN),
       ).rejects.toBeInstanceOf(NotFoundException);
-      expect(registrar).not.toHaveBeenCalled();
+      expect(auditado).toBeNull();
     });
   });
 
   describe('eliminarUsuarioApadrinado', () => {
-    it('elimina al apadrinado y registra la acción', async () => {
-      usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 8, usuario_principal_ID: 7 });
+    it('elimina al apadrinado y conserva en la bitácora quién era', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce({
+        usuario_ID: 8,
+        nombre_usuario: 'Hijo',
+        usuario_principal_ID: 7,
+      });
 
-      await service.eliminarUsuarioApadrinado(8, ID_ADMIN);
+      await service.eliminarUsuarioApadrinado(8, ADMIN);
 
       expect(usuarios.delete).toHaveBeenCalledWith(8);
-      expect(registrar).toHaveBeenCalledWith(manager, {
-        usuario_ID: ID_ADMIN,
+      expect(evento()).toMatchObject({
         accion: 'Eliminación de usuario apadrinado 8',
+        tipo: 'ELIMINACION',
+        usuario_afectado_ID: 8,
+      });
+      expect(auditado?.cambios).toEqual({
+        nombre_usuario: { antes: 'Hijo', despues: null },
+        usuario_principal_ID: { antes: 7, despues: null },
       });
     });
 
@@ -100,18 +148,224 @@ describe('AdminService', () => {
       usuarios.delete.mockRejectedValueOnce(errorLlaveForanea());
 
       await expect(
-        service.eliminarUsuarioApadrinado(8, ID_ADMIN),
+        service.eliminarUsuarioApadrinado(8, ADMIN),
       ).rejects.toBeInstanceOf(ConflictException);
-      expect(registrar).not.toHaveBeenCalled();
+      expect(auditado).toBeNull();
     });
 
     it('no elimina cuentas principales', async () => {
       usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 7, usuario_principal_ID: null });
 
       await expect(
-        service.eliminarUsuarioApadrinado(7, ID_ADMIN),
+        service.eliminarUsuarioApadrinado(7, ADMIN),
       ).rejects.toBeInstanceOf(BadRequestException);
       expect(usuarios.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('crearTrabajadorSoporte', () => {
+    const datos = {
+      nombre_usuario: 'Sofía Soporte',
+      correo_usuario: 'soporte@emergen.cl',
+      password: 'ClaveSegura123',
+    };
+
+    it('fuerza el rol SOPORTE y no expone la contraseña ni su hash', async () => {
+      prepararCuentaPrincipal.mockResolvedValueOnce({
+        nombre_usuario: datos.nombre_usuario,
+        correo_usuario: datos.correo_usuario,
+        contra_usuario: '$2b$12$hash',
+      });
+      usuarios.save.mockImplementationOnce((usuario: Usuario) =>
+        Promise.resolve(Object.assign(usuario, { usuario_ID: 9 })),
+      );
+
+      const cuenta = await service.crearTrabajadorSoporte(datos, ADMIN);
+
+      expect(cuenta).toEqual({
+        usuario_ID: 9,
+        nombre_usuario: datos.nombre_usuario,
+        correo_usuario: datos.correo_usuario,
+        rol_ID: 2,
+        estado_ID: 1,
+      });
+      expect(usuarios.save).toHaveBeenCalledWith(
+        expect.objectContaining({ contra_usuario: '$2b$12$hash', usuario_principal_ID: null }),
+      );
+      expect(evento()).toMatchObject({ actor: ADMIN, tipo: 'CREACION', entidad: 'USUARIO' });
+      expect(auditado).toMatchObject({
+        usuario_afectado_ID: 9,
+        accion: 'Registro de nueva cuenta de SOPORTE: soporte@emergen.cl',
+        cambios: { rol_ID: { antes: null, despues: 2 } },
+      });
+      expect(JSON.stringify(auditado)).not.toMatch(/hash|ClaveSegura|contra_usuario/);
+    });
+
+    it('no guarda nada si el correo ya existe', async () => {
+      prepararCuentaPrincipal.mockRejectedValueOnce(
+        new ConflictException('Ya existe una cuenta con ese correo'),
+      );
+
+      await expect(
+        service.crearTrabajadorSoporte(datos, ADMIN),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(usuarios.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('actualizarDatosUsuario', () => {
+    const juan = (extra: Partial<Usuario> = {}) =>
+      ({
+        usuario_ID: 7,
+        nombre_usuario: 'Juan',
+        correo_usuario: 'juan@correo.com',
+        rol_ID: 3,
+        estado_ID: 1,
+        usuario_principal_ID: null,
+        ...extra,
+      }) as Usuario;
+
+    it('aplica los cambios con las reglas de LoginService y registra antes y después', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce(juan());
+      aplicarCambiosDePerfil.mockResolvedValueOnce(juan({ nombre_usuario: 'Juan Pérez' }));
+
+      const usuario = await service.actualizarDatosUsuario(7, { nombre_usuario: 'Juan Pérez' }, ADMIN);
+
+      expect(aplicarCambiosDePerfil).toHaveBeenCalledWith(usuarios, 7, { nombre_usuario: 'Juan Pérez' });
+      expect(usuario).toEqual({
+        usuario_ID: 7,
+        nombre_usuario: 'Juan Pérez',
+        correo_usuario: 'juan@correo.com',
+        rol_ID: 3,
+        estado_ID: 1,
+      });
+      expect(evento()).toMatchObject({ tipo: 'MODIFICACION', entidad: 'USUARIO', usuario_afectado_ID: 7 });
+      expect(auditado?.cambios).toEqual({
+        nombre_usuario: { antes: 'Juan', despues: 'Juan Pérez' },
+      });
+    });
+
+    it('el estado del usuario no limita al administrador: también gestiona cuentas bloqueadas', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce(juan({ estado_ID: 3 }));
+      aplicarCambiosDePerfil.mockResolvedValueOnce(juan({ estado_ID: 3, nombre_usuario: 'Otro' }));
+
+      await expect(
+        service.actualizarDatosUsuario(7, { nombre_usuario: 'Otro' }, ADMIN),
+      ).resolves.toMatchObject({ nombre_usuario: 'Otro', estado_ID: 3 });
+    });
+
+    it('rechaza con 400 cambiar el correo de un apadrinado', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce(juan({ usuario_principal_ID: 2 }));
+
+      await expect(
+        service.actualizarDatosUsuario(7, { correo_usuario: 'otro@correo.com' }, ADMIN),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(aplicarCambiosDePerfil).not.toHaveBeenCalled();
+    });
+
+    it('responde 404 si el usuario no existe', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce(null);
+
+      await expect(
+        service.actualizarDatosUsuario(99, { nombre_usuario: 'Nadie' }, ADMIN),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('guardarPlanUsuario', () => {
+    const datos = { tiene_acceso_completo: true, cupos_apadrinados_adq: 3 };
+
+    it('asigna el plan a una cuenta principal y calcula los cupos utilizados', async () => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, usuario_principal_ID: null });
+      usuarios.countBy.mockResolvedValueOnce(1);
+      planes.findOne.mockResolvedValueOnce(null);
+
+      const plan = await service.guardarPlanUsuario(7, datos, ADMIN);
+
+      expect(plan).toEqual({
+        usuario_ID: 7,
+        tiene_acceso_completo: true,
+        cupos_apadrinados_adq: 3,
+        cupos_apadrinados_utili: 1,
+      });
+      expect(evento()).toMatchObject({ entidad: 'PLAN_USUARIO', usuario_afectado_ID: 7 });
+      expect(auditado).toMatchObject({
+        tipo: 'CREACION',
+        accion: 'Asignación de plan y cupos al usuario 7',
+        cambios: {
+          tiene_acceso_completo: { antes: null, despues: true },
+          cupos_apadrinados_adq: { antes: null, despues: 3 },
+          cupos_apadrinados_utili: { antes: null, despues: 1 },
+        },
+      });
+    });
+
+    it('al modificar un plan registra solo los campos que cambiaron', async () => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, usuario_principal_ID: null });
+      usuarios.countBy.mockResolvedValueOnce(1);
+      planes.findOne.mockResolvedValueOnce({
+        plan_usuario_ID: 4,
+        usuario_ID: 7,
+        tiene_acceso_completo: true,
+        cupos_apadrinados_adq: 2,
+        cupos_apadrinados_utili: 1,
+      });
+
+      const plan = await service.guardarPlanUsuario(7, datos, ADMIN);
+
+      expect(plan).toMatchObject({ plan_usuario_ID: 4, cupos_apadrinados_adq: 3 });
+      expect(auditado).toMatchObject({
+        tipo: 'MODIFICACION',
+        accion: 'Modificación del plan y cupos del usuario 7',
+      });
+      expect(auditado?.cambios).toEqual({ cupos_apadrinados_adq: { antes: 2, despues: 3 } });
+    });
+
+    it('rechaza con 400 dejar menos cupos que los apadrinados existentes', async () => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, usuario_principal_ID: null });
+      usuarios.countBy.mockResolvedValueOnce(4);
+
+      await expect(
+        service.guardarPlanUsuario(7, datos, ADMIN),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(planes.save).not.toHaveBeenCalled();
+    });
+
+    it('rechaza con 400 asignar un plan a un apadrinado', async () => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 8, usuario_principal_ID: 7 });
+
+      await expect(
+        service.guardarPlanUsuario(8, datos, ADMIN),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+  });
+
+  describe('obtenerExpedienteUsuario', () => {
+    it('reúne la cuenta, el plan y los apadrinados, y registra la consulta', async () => {
+      const usuario = { usuario_ID: 7, nombre_usuario: 'Juan' };
+      const apadrinados = [{ usuario_ID: 8, nombre_usuario: 'Hijo', estado_ID: 1 }];
+      usuarios.findOneBy.mockResolvedValueOnce(usuario);
+      planes.findOne.mockResolvedValueOnce(null);
+      usuarios.find.mockResolvedValueOnce(apadrinados);
+
+      const expediente = await service.obtenerExpedienteUsuario(7, ADMIN);
+
+      expect(expediente).toEqual({ usuario, plan: null, apadrinados });
+      expect(evento()).toEqual({
+        actor: ADMIN,
+        accion: 'Consulta del expediente del usuario 7',
+        tipo: 'CONSULTA',
+        entidad: 'USUARIO',
+        usuario_afectado_ID: 7,
+      });
+    });
+
+    it('responde 404 si el usuario no existe', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce(null);
+
+      await expect(
+        service.obtenerExpedienteUsuario(99, ADMIN),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });

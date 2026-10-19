@@ -17,6 +17,10 @@
       "cache": false,
       "persistent": true
     },
+    "dev:docker": {
+      "cache": false,
+      "persistent": true
+    },
     "test": {
       "dependsOn": ["^check-types"],
       "outputs": []
