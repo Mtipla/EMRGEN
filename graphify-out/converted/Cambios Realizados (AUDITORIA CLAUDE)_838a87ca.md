@@ -845,3 +845,172 @@ Privacidad (A-17). El Product Owner debe definir el plazo de retención del hist
 Diagramas (I-09). No se editaron los diagramas (.png y .drawio). Falta actualizar el diagrama ER con las tablas y columnas nuevas, y el diagrama de secuencia “Generar Alerta” con los estados de HU-14.
 HU “Could Have” de seguridad personal (A-21). No se crearon las HU de PIN de coacción, activación desde otro dispositivo, reporte de robo ni tutor como receptor de alertas: requieren una decisión del Product Owner.
 Entrada vacía en esta bitácora. En la sección “1.2.1 Hoja de ruta del proyecto” hay una entrada “(07/10/2026)” sin texto. No se modificó porque es un registro del equipo.
+Intervención ERR-08, categoría B.2 (18/10/2026): tipos, nombres y nulabilidad del diccionario alineados con init.sql
+Identificadores: ERR-08.06, ERR-08.07, ERR-08.08, ERR-08.18, ERR-08.19 y ERR-08.22. Categoría: ERR-08, Esquema y estructura (B).
+Fecha del cambio: 18/10/2026. Fuente principal de datos: init.sql.
+Problema original: 06: tipos de MySQL (nvarchar, integer (4)). 07: USUARIO.contra_usuario varchar(50). 08: columnas PIN_ID, suscripcion_ID, msj_personalizado_ID y prioridad_ID como NOT NULL. 18: NOTIFICACION_MOVIL.fecha_envio como date. 19: VENTA.fecha_venta como date. 22: BITACORA_SISTEMA.acción_realizada como text con tilde y fecha_accion como date.
+Causa raíz: El diccionario (4.1 BDD con tipos de datos.xlsx) no se actualizó después de los cambios registrados en la bitácora (AUDIT-017, AUDIT-179, AUDIT-180, AUDIT-192, AUDIT-193 y AUDIT-196), que sí están en init.sql.
+Archivos modificados: 4.1 BDD con tipos de datos.xlsx, 12 celdas: USUARIO (B9, C11 a C14, R7), CONTACTO (B8), NOTIFICACIÓN (B9), VENTA (B11) y AUDITORIA (A7, B7, B8). Matriz de verificación cruzada (filas 116 a 132). datos_agrupados_trazable.docx (resaltado verde de 08.07, 08.08, 08.19 y 08.22).
+Solución implementada: Se cambiaron los tipos, nombres y nulabilidad de esas celdas para que coincidan con init.sql. No se modificó init.sql, ni el código, ni la base de datos.
+Resultado de las pruebas: Comparación celda a celda del diccionario contra init.sql (L41, L43 a L46, L98 a L105, L116 a L122 y L221 a L224) y contra la entidad bitacora.entity.ts. Comparación del libro con su copia original: solo cambiaron las 12 celdas previstas, sin cambios de estilo ni de combinaciones. No se levantó la base de datos (sin prueba de arranque).
+Estado final: ERR-08.07, ERR-08.08, ERR-08.19 y ERR-08.22: RESUELTO (verificado). ERR-08.06 y ERR-08.18: PARCIAL.
+Observaciones y limitaciones pendientes: (1) 08.06: la hoja PROPUESTA DE MEJORA aún tiene nvarchar e int (PK/FK); está fuera de alcance según AUDIT-197. (2) 08.18: AUDIT-192 indica timestamptz, pero init.sql tiene TIMESTAMP; requiere decisión. (3) Diferencias detectadas y no registradas en ningún ERR-08, sin modificar: CONTACTO.fecha_contacto y RESPUESTA_CONTACTO.fecha_respuesta; NOTIFICACIÓN.titulo_mensaje y cuerpo_mensaje; MENSAJE_CONTACTO.mensaje; otros text frente a varchar(n) de init.sql.
+Actualización ERR-08, categoría B.2 (18/10/2026): decisión TIMESTAMP y alineación de todas las hojas activas con init.sql
+Identificadores: ERR-08.18 (cierre) y ERR-08.06 (sigue PARCIAL). Los 16 cambios adicionales no tienen fila propia en la matriz.
+Decisión: se usa TIMESTAMP para NOTIFICACION_MOVIL.fecha_envio, según init.sql (L81). AUDIT-192 mencionaba timestamptz; no se aplicó y el registro histórico no se modifica.
+Problema adicional encontrado: comparación de todas las hojas activas contra init.sql. 10 columnas en text en lugar de VARCHAR(n), 2 VARCHAR con longitud distinta, y 4 fechas en timestamptz o date en lugar de TIMESTAMP.
+Archivos modificados: 4.1 BDD con tipos de datos.xlsx: hojas APLICACIÓN (B7, F7), NOTIFICACIÓN (B7, B8, B9), PLANES (B7, B11), SOPORTE (B7, B8, B9, F7, N7), CONTACTO (B7, B9, B10, N7, N8), USUARIO (B9, R7) y VENTA (B11), AUDITORIA (B7, B8) en mayúsculas. datos_agrupados_trazable.docx: verde en ERR-08.18.
+Solución implementada: VARCHAR(n) y TIMESTAMP según init.sql. Las celdas de la intervención anterior se escribieron en mayúsculas para mantener un solo formato. No se modificó init.sql, ni el código, ni la base de datos.
+Resultado de las pruebas: comparación automática de las hojas activas contra init.sql: 0 discrepancias de tipo o nulabilidad (la hoja PROPUESTA DE MEJORA se excluye). Diferencia del libro contra la copia original: 28 celdas, todas previstas.
+Estado final: ERR-08.18: RESUELTO (verificado). ERR-08.06: PARCIAL, pendiente solo la hoja PROPUESTA DE MEJORA (fuera de alcance, AUDIT-197).
+Matriz actualizada (18/10/2026): las filas de ERR-08.06 (nota actualizada, estado PARCIAL) y ERR-08.18 (Verificado, verde) se guardaron tras cerrar Excel. Verificado al releer el archivo.
+Observaciones y limitaciones pendientes: (1) Columnas que no existen en init.sql y siguen en el diccionario: DETALLE_ALERTA.antecedente_medico_ID y SOPORTE.estado_ticket_ID; tablas ANTECEDENTE_MEDICO y otras de la migración pendiente (AUDIT-P02). (2) No se levantó la base de datos. (3) Las 16 correcciones adicionales no tienen ID propio: decidir si se registran como ERR-08.26 y siguientes.
+
+Intervención ERR-08, categoría E / B (18/10/2026): registro corregido (ERR-08.05 y ERR-08.20)
+Identificadores: ERR-08.05 y ERR-08.20. Categoría: ERR-08, Esquema y estructura (B.2) y Migración (E).
+Fecha del cambio: 18/10/2026. Decisión del equipo: solo corregir el registro, sin modificar el esquema.
+Problema original: datos_agrupados_trazable marcaba ERR-08.05 y ERR-08.20 como resueltos (AUDIT-014 y AUDIT-194), pero PLAN todavía tiene total_venta y fecha_venta.
+Causa raíz: el registro se escribió como resuelto sin verificar el archivo ni init.sql; el cambio no se aplicó.
+Archivos modificados: datos_agrupados_trazable.docx: texto de los registros de trazabilidad de ERR-08.05 y ERR-08.20 (de "Resolución documentada" a "Pendiente de resolución"). Sin cambios en init.sql ni en el diccionario.
+Solución implementada: corrección del registro. El esquema no se modifica.
+Resultado de las pruebas: verificación de init.sql (PLAN L112-113 con total_venta y fecha_venta; PLAN_USUARIO sin FK) y de la hoja PLANES (filas 10-11). No se levantó la BD.
+Estado final: ERR-08.05 y ERR-08.20: PENDIENTE (no resuelto). Pendiente de decisión sobre quitar las columnas de PLAN.
+Intervención ERR-08, categoría B.1 (18/10/2026): tipos MySQL convertidos a PostgreSQL en ALERTAS y PROPUESTA DE MEJORA (ERR-08.06)
+Identificadores: ERR-08.06. Categoría: ERR-08, Esquema y estructura (B.1).
+Fecha del cambio: 18/10/2026.
+Problema original: ALERTAS F7 (UBICACION_ALERTA.ubicacion) figuraba como "text" (init.sql: VARCHAR(150)). La hoja PROPUESTA DE MEJORA conservaba nvarchar e int (PK/FK).
+Causa raíz: el diccionario se actualizó solo en las hojas revisadas; ALERTAS no se incluyó en la comparación del 18/10 (P855), por lo que la afirmación de cero discrepancias era incorrecta.
+Archivos modificados: 4.1 BDD con tipos de datos.xlsx: ALERTAS F7 (text a VARCHAR(150)); PROPUESTA DE MEJORA, 29 celdas (nvarchar(n) a VARCHAR(n); int a integer). Matriz de verificación cruzada (fila 116, estado Verificado; fila 115, nota). datos_agrupados_trazable.docx: resaltado verde del registro ERR-08.06.
+Solución implementada: conversión de tipos al estilo PostgreSQL del resto del diccionario. No se modificó init.sql, el código ni la BD.
+Resultado de las pruebas: comparación celda a celda contra el respaldo: 30 celdas cambiadas (todas previstas); libro sin residuos nvarchar, int ni text en las hojas; 7 comentarios, validaciones y celdas combinadas conservados.
+Estado final: ERR-08.06: RESUELTO (verificado por revisión de tipos; sin prueba en BD).
+Observaciones: PROPUESTA DE MEJORA es una hoja fuera de alcance (AUDIT-197). Se convirtió por decisión del equipo. Pendiente en ERR-08.25 la migración real de init.sql.
+Intervención ERR-08, categoría B.1 (18/10/2026): catálogo cerrado de ROL documentado (ERR-08.09)
+Identificadores: ERR-08.09. Categoría: ERR-08, Esquema y estructura (B.1).
+Fecha del cambio: 18/10/2026.
+Problema original: la tabla ROL no tenía catálogo documentado en el diccionario (AUDIT-181).
+Causa raíz: el diccionario no recogía los valores de rol que el código ya usa. La lista de la matriz (ADMIN, SOPORTE, empleado, principal, apadrinado) no coincide con el código: el enum tiene tres roles y principal/apadrinado son tipos de cuenta (usuario_principal_ID), no roles.
+Archivos modificados: 4.1 BDD con tipos de datos.xlsx: hoja USUARIO, rango E10:F14 (catálogo). Matriz de verificación cruzada (fila 119). datos_agrupados_trazable.docx: resaltado verde del registro ERR-08.09 y trazabilidad.
+Solución implementada: catálogo cerrado documentado con los valores de roles.decorator.ts (1 ADMINISTRADOR, 2 SOPORTE, 3 USUARIO). No se modificó init.sql ni el código.
+Resultado de las pruebas: comparación de los valores con roles.decorator.ts. No se levantó la BD ni se probó el CHECK, que no existe en init.sql.
+Estado final: ERR-08.09: RESUELTO (documentación verificada contra el código).
+Observaciones: init.sql no restringe nombre_rol con CHECK; si el equipo lo quiere, es un cambio de esquema pendiente de autorización. La lista original de la matriz debe revisarse con el equipo.
+Revisión ERR-08.10, categoría B.1 (18/10/2026): pendiente (sin cambios en archivos)
+Identificadores: ERR-08.10. Categoría: ERR-08, Esquema y estructura (B.1).
+Decisión: dejar pendiente. El equipo debe definir la lista de tipos de emergencia.
+Motivo: el código no define valores de PRIORIDAD; los niveles Crítica/Alta/Media de los documentos son prioridades de HU, no de emergencias.
+Archivos modificados: datos_agrupados_trazable.docx: registro de ERR-08.10 corregido de "documentada" a "pendiente de resolución". Matriz (fila 120, nota).
+Estado final: ERR-08.10: PENDIENTE.
+Revisión ERR-08.11, categoría B.1 (18/10/2026): parcial, sin cambios en archivos
+Identificadores: ERR-08.11. Categoría: ERR-08, Esquema y estructura (B.1), con implicaciones de seguridad (G).
+Decisión: solo corregir el registro. El equipo decidirá después si agrega pin_hash e intentos_fallidos al diccionario o al esquema.
+Archivos modificados: datos_agrupados_trazable.docx: registro de ERR-08.11 de "documentada" a "parcial". Matriz (fila 121: estado Parcial, nota y evidencia).
+Estado final: ERR-08.11: PARCIAL. El tipo PIN VARCHAR(4) está aplicado; faltan pin_hash e intentos_fallidos (AUDIT-P02).
+Intervención ERR-08.12, categoría B.1 (18/10/2026): num_emergencia en E.164 y campos de contacto (parcial)
+Identificadores: ERR-08.12. Categoría: ERR-08, Esquema y estructura (B.1).
+Fecha del cambio: 18/10/2026.
+Problema original: num_emergencia VARCHAR(9) no admite el formato +56 (E.164); faltaban nombre y parentesco del contacto (AUDIT-184).
+Archivos modificados: 4.1 BDD con tipos de datos.xlsx: hoja USUARIO, J8 (VARCHAR(16)) y filas nuevas I9:K10 (nombre_contacto, parentesco; tipo VARCHAR(n) por definir). Matriz (fila 122). datos_agrupados_trazable.docx: registro de ERR-08.12 de "documentada" a "parcial".
+Solución implementada: cambio solo en el diccionario, según decisión del equipo. init.sql no se modificó.
+Resultado de las pruebas: verificación de celdas en el diccionario. init.sql L59 sigue VARCHAR(9): divergencia pendiente de migración. No se levantó la BD.
+Estado final: ERR-08.12: PARCIAL. Pendiente: definir longitud de nombre y parentesco, y migrar init.sql (AUDIT-P02).
+Revisión ERR-08.13, categoría E (18/10/2026): pendiente (sin cambios en archivos)
+Identificadores: ERR-08.13. Categoría: ERR-08, Migraciones y sincronización (E), con esquema (B).
+Decisión: solo corregir el registro. El equipo decidirá si ALERTA se documenta en el diccionario o en init.sql.
+Archivos modificados: datos_agrupados_trazable.docx: registro de ERR-08.13 de "documentada" a "pendiente de resolución". Matriz (fila 123, nota).
+Estado final: ERR-08.13: PENDIENTE.
+Intervención ERR-08.14, categoría E / B.1 (18/10/2026): campos de ubicación añadidos al diccionario (parcial)
+Identificadores: ERR-08.14. Categoría: ERR-08, Esquema (B.1) y migración pendiente (E).
+Problema original: UBICACION_ALERTA solo tenía ubicacion; faltaban latitud, longitud, precisión, fuente y hora de captura (AUDIT-187).
+Archivos modificados: 4.1 BDD con tipos de datos.xlsx: hoja ALERTAS, bloque nuevo U4:W10 (latitud, longitud, precision, fuente, hora_captura). Matriz (fila 124). datos_agrupados_trazable.docx: registro de ERR-08.14 de "documentada" a "parcial".
+Solución implementada: campos añadidos al diccionario. Los tipos son propuestas (marcadas "propuesto") y la nulabilidad está por definir. init.sql no se modificó.
+Resultado de las pruebas: verificación de celdas en el diccionario. init.sql L135-138 sigue sin esos campos.
+Estado final: ERR-08.14: PARCIAL. Pendiente: confirmar tipos y nulabilidad, y migrar init.sql (AUDIT-P02).
+Revisión ERR-08.15, categoría E (18/10/2026): pendiente (sin cambios en archivos)
+Identificadores: ERR-08.15. Categoría: ERR-08, Migraciones y sincronización (E), con esquema (B).
+Decisión: solo corregir el registro.
+Archivos modificados: datos_agrupados_trazable.docx: registro de ERR-08.15 de "documentada" a "pendiente de resolución". Matriz (fila 125, nota).
+Estado final: ERR-08.15: PENDIENTE.
+Revisión ERR-08.16, categoría E (18/10/2026): pendiente (sin cambios en archivos)
+Identificadores: ERR-08.16. Categoría: ERR-08, Migraciones y sincronización (E), con esquema (B).
+Decisión: solo corregir el registro.
+Archivos modificados: datos_agrupados_trazable.docx: registro de ERR-08.16 de "documentada" a "pendiente de resolución". Matriz (fila 126, nota).
+Estado final: ERR-08.16: PENDIENTE.
+Revisión ERR-08.17, categoría E (18/10/2026): pendiente (sin cambios en archivos)
+Identificadores: ERR-08.17. Categoría: ERR-08, Migraciones y sincronización (E), con esquema (B).
+Decisión: solo corregir el registro.
+Observación: el párrafo de Cambios Pendientes (A-01) que dice que ENVIO_ALERTA "ya quedó listo" no está respaldado: la tabla no aparece en las hojas activas ni en init.sql. No se edita el texto original; esta nota lo corrige.
+Archivos modificados: datos_agrupados_trazable.docx: registro de ERR-08.17 de "documentada" a "pendiente de resolución". Matriz (fila 127, nota).
+Estado final: ERR-08.17: PENDIENTE.
+Revisión ERR-08.21, categoría B.1 (18/10/2026): parcial (sin cambios en archivos)
+Identificadores: ERR-08.21. Categoría: ERR-08, Esquema y estructura (B.1).
+Decisión: solo corregir el registro.
+Hallazgos verificados: nvarchar ya no aparece en SOPORTE ni CONTACTO. Faltan notas de responsabilidad. Hay varchar (50) en minúsculas y con espacio (SOPORTE J7; CONTACTO F7, J7). SOPORTE.estado_ticket_ID (A11) no existe en init.sql.
+Archivos modificados: datos_agrupados_trazable.docx: registro de ERR-08.21 de "documentada" a "parcial". Matriz (fila 131: estado Parcial, evidencia y nota).
+Estado final: ERR-08.21: PARCIAL.
+Intervención ERR-08.23, categoría I (18/10/2026): hoja fuera de alcance identificada como anexo
+Identificadores: ERR-08.23. Categoría: ERR-08, Otros (I), por ser de alcance del modelo.
+Problema original: la hoja PROPUESTA DE MEJORA, con 13 tablas fuera de alcance, estaba mezclada con el modelo (AUDIT-197).
+Archivos modificados: 4.1 BDD con tipos de datos.xlsx: nombre de la hoja PROPUESTA DE MEJORA a ANEXO FUERA DE ALCANCE. Contenido sin cambios. Matriz (fila 133). datos_agrupados_trazable.docx: resaltado verde y trazabilidad de ERR-08.23.
+Solución implementada: renombrado de la hoja. No se eliminó contenido; eliminarla requeriría autorización.
+Resultado de las pruebas: comparación celda a celda del contenido antes y después del renombrado: idéntico. Ninguna fórmula ni validación referencia el nombre anterior.
+Estado final: ERR-08.23: RESUELTO.
+Observaciones: el registro anterior citaba "ANEXO FUERA DE ALCANCE" como nombre existente; ahora coincide. El contenido de la hoja incluye los tipos convertidos en ERR-08.06.
+Intervención ERR-08.24, categoría I (18/10/2026): precisión del conteo de tablas en la especificación 4.2
+Identificadores: ERR-08.24. Categoría: ERR-08, Otros (I): documentación de la capa de datos.
+Problema original: 4.2 fijaba "las 30 tablas normalizadas" sin mencionar init.sql ni el ORM (AUDIT-202).
+Archivos modificados: 4.2 Especificación de Herramientas y Servicios del Proyecto.docx: frase de PostgreSQL (se cita init.sql, 30 tablas y la migración pendiente). Matriz (fila 134). datos_agrupados_trazable.docx: resaltado verde y trazabilidad de ERR-08.24.
+Solución implementada: precisión del texto. El número 30 se mantiene porque coincide con los CREATE TABLE de init.sql.
+Resultado de las pruebas: conteo de CREATE TABLE en init.sql: 30. Verificación del texto del documento tras guardarlo.
+Estado final: ERR-08.24: RESUELTO.
+Observaciones: el diccionario y Cambios Pendientes añaden tablas (ANTECEDENTE_MEDICO, ENVIO_ALERTA, ENLACE_MEDICO). Esas tablas quedan para la migración (ERR-08.25).
+Revisión ERR-08.25, categoría E (18/10/2026): pendiente (sin cambios en archivos)
+Identificadores: ERR-08.25 (AUDIT-P02). Categoría: ERR-08, Migraciones y sincronización (E).
+Decisión: solo registrar pendiente. No se modificó init.sql ni el código.
+Dependencias: ERR-08.11 (pin_hash), 08.12 (init.sql), 08.13 a 08.17 (alertas, ENVIO_ALERTA) dependen de esta migración.
+Estado final: ERR-08.25: PENDIENTE.
+Intervención ERR-12, planificación (18/10/2026): decisiones aprobadas por el usuario y cambios aplicados.
+Criterio general: los documentos del proyecto y Cambios Pendientes (17/10) prevalecen sobre las entradas de esta bitácora que no coinciden con ellos. Trello.json se usa como referencia original para los cambios restantes, sin modificarlo.
+Identificadores: ERR-12.10 (AUDIT-078). Categoría: ERR-12, Fechas y cronología.
+Archivos modificados: 2.1.1 PRODUCT BACKLOG.docx, §3 y fecha de cierre del Sprint 4 en §7.
+Estado anterior / final: Pendiente (6 de septiembre) / Resuelto (14 de septiembre).
+Criterio aprobado: "14 de septiembre" como cierre de la Fase 1.
+Validación: el texto "al 14 de septiembre" está en §3 y "6 sept." ya no aparece en §7.
+Identificadores: ERR-12.05 (AUDIT-028). Categoría: ERR-12, Fechas y cronología.
+Archivos modificados: 1.2.1 Hoja de ruta del proyecto.docx, §7 (nuevo párrafo "Nota de fechas").
+Estado anterior / final: Pendiente / Resuelto.
+Criterio aprobado: texto de la nota propuesto en la bitácora (AUDIT-028), aprobado por el usuario.
+Validación: el párrafo "Nota de fechas" existe en §7 con el texto aprobado.
+Identificadores: ERR-12.18 (candidato nuevo). Categoría: ERR-12, Fechas y cronología.
+Descripción: periodos de los Sprints 1–3 en el Product Backlog §7 (10–16, 17–23 y 24–30 de agosto), alineados con la Hoja de ruta y Sprint-fase1 (10–14, 17–21 y 24–28 de agosto).
+Estado anterior / final: Pendiente (no registrado en la matriz) / Resuelto.
+Validación: periodos verificados en la tabla de Sprints del Backlog.
+Identificadores: ERR-12.19 (candidato nuevo). Categoría: ERR-12, Fechas y cronología.
+Descripción: hito académico del Sprint 4 en Sprint-fase1: "jueves 4" cambiado a "viernes 4" (4 de septiembre de 2026 es viernes). Criterio aprobado por el usuario.
+Estado anterior / final: Pendiente / Resuelto.
+Identificadores: ERR-12.03 (AUDIT-026). Categoría: ERR-12, Planificación de sprints.
+Archivos modificados: 1.2.1 Hoja de ruta del proyecto.docx, §7: "horizonte claro de 7 semanas" cambiado a 5 semanas (suma real de los Sprints 1–4). Criterio aprobado por el usuario.
+Estado anterior / final: Pendiente / Resuelto. La bitácora ya registraba el texto de 5 semanas como aplicado; el archivo no lo tenía hasta esta intervención.
+Identificadores: ERR-12.11 (AUDIT-104). Categoría: ERR-12, Planificación de sprints.
+Archivos modificados: 2.1.1 PRODUCT BACKLOG.docx, §7: "cuatro Sprints de una semana" cambiado a "los tres primeros de una semana y el Sprint 4 de dos semanas".
+Estado anterior / final: Pendiente / Resuelto.
+Identificadores: ERR-12.06 (AUDIT-029). Categoría: ERR-12, Backlog.
+Archivos modificados: 1.2.1 Hoja de ruta del proyecto.docx, §6: eliminada la lista de 6 ítems; se conserva la lista de 8 ítems con la frase "Esta Definition of Done es única para el proyecto".
+Criterio aprobado: DoD única de 8 ítems.
+Estado anterior / final: Pendiente de decisión / Resuelto. Pendiente de actualizar Cambios Pendientes (entrada AUDIT-029), ver incidencias.
+Identificadores: ERR-12.13 (AUDIT-106). Categoría: ERR-12, Backlog.
+Archivos modificados: 2.1.1 PRODUCT BACKLOG.docx, Definition of Done de la Fase 1: los 6 ítems se sustituyen por una remisión a la DoD única de la Hoja de ruta (§6).
+Estado anterior / final: Pendiente / Resuelto.
+Identificadores: ERR-12.14 (AUDIT-111). Categoría: ERR-12, Backlog.
+Archivos modificados: 2.1.1 PRODUCT BACKLOG.docx, §8: columna Sprint renumerada sumando 4 (HU-01 a HU-03 quedan en Sprints 5 a 7, igual que en 1.2.3 Sprint-fase2). HU, Story Points y dependencias no se modificaron.
+Estado anterior / final: Pendiente / Resuelto con observación: 1.2.3 no documenta los Sprints 8 a 15 ni HU-04 en el Sprint 7. Dato a confirmar.
+Identificadores: ERR-12.07 (AUDIT-030). Categoría: ERR-12, Trazabilidad documental.
+Archivos modificados: 1.2.2 Sprint-fase1.docx: 11 identificadores F1-01 a F1-11 cambiados a TD-01 a TD-11 (mapeo por título). Criterio aprobado por el usuario.
+Estado anterior / final: Pendiente / Resuelto.
+Identificadores: ERR-12.15 (AUDIT-115) y ERR-12.16 (AUDIT-124). Categoría: ERR-12, Trazabilidad documental.
+Archivos modificados: 2.1.2 TABLA MAESTRA DE PRODUCT BACKLOG.xlsx: 31 celdas F1-xx cambiadas a TD-xx en las hojas Maestro y Tareas F1 (solo filas TD; ninguna fila de HU). En Tareas F1, TD-05 y TD-06 pasan a prioridad Media, como en Maestro.
+Criterio aprobado: usar la hoja Maestro como referencia de prioridades.
+Estado anterior / final: Pendiente / Resuelto.
+Validación: no quedan F1-xx en la Tabla Maestra ni en Sprint-fase1; las prioridades de TD-01 a TD-11 coinciden entre hojas.
+Pendientes tras esta intervención: ERR-12.09 (AUDIT-066): nota de planificación por HU en el Informe ERS, pendiente de aprobación del texto. ERR-12.12 (AUDIT-105): TD-12 en el Sprint 4 del Backlog, decisión diferida por el usuario. ERR-12.17 (AUDIT-P08): HU-14 a HU-19, protegidas; solo decisión del equipo. ERR-12.20 a 12.24: discrepancias de Trello.json, sin modificar.
+Incidencias: (1) Cambios Pendientes (entrada AUDIT-029) sigue diciendo "pendiente de decisión"; hay que actualizarla. (2) 1.2.3 Sprint-fase2 no documenta Sprints 8 a 15. (3) La matriz y datos_agrupados_trazable se actualizan en esta misma intervención; ver registro en sus filas.

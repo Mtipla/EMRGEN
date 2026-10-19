@@ -54,7 +54,7 @@ Se utilizará el framework Electron para exportar la aplicación web desarrollad
 Gestor de Entorno:
 Se usará Turborepo 2.11 para alojar las 3 aplicaciones confeccionadas y el backend en un solo repositorio (workspaces de npm: apps/* y packages/*)
 Base de datos relacional:
-Se utilizará PostgreSQL para la gestión y confección de las 30 tablas normalizadas solicitadas para el sistema, garantizando la integridad de los datos
+Se utilizará PostgreSQL para la gestión de las 30 tablas normalizadas del esquema (script init.sql), garantizando la integridad de los datos. Las tablas de la migración pendiente (ANTECEDENTE_MEDICO, ENVIO_ALERTA, ENLACE_MEDICO) se agregarán en una fase posterior
 Entorno de Ejecución:
 Se utilizará Docker Desktop para el manejo del backend y la base de datos mediante un contenedor, con esto se garantiza la portabilidad del sistema, evitando problemas de compatibilidad o posibles errores en el despliegue de los datos.
 ## Versiones y Herramientas de Calidad

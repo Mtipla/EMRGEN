@@ -8,11 +8,11 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 # Detalle de errores por categoría
 ## [ERR-01] Errores de tipeo (7)
 [ERR-01.01] 1.2.1 Hoja de ruta del proyecto: [AUDIT-007]
-[ERR-01.02] 1.2.2 Sprint-fase1: [AUDIT-031]
-[ERR-01.03] 1.2.3 Sprint-fase2: [AUDIT-033]
-[ERR-01.04] 1.2.3 Sprint-fase2: [AUDIT-034]
-[ERR-01.05] 1.2.3 Sprint-fase2: [AUDIT-035]
-[ERR-01.06] 2.1.1 PRODUCT BACKLOG: [AUDIT-079]
+[ERR-01.02] 1.2.2 Sprint-fase1: El periodo del Sprint 3 estaba copiado del Sprint 4 (31-08 al 14-09 en vez de 24 al 28-08).  [AUDIT-031]
+[ERR-01.03] 1.2.3 Sprint-fase2: Daily Scrum del Sprint 5 con el mes equivocado (agosto en vez de septiembre).  [AUDIT-033]
+[ERR-01.04] 1.2.3 Sprint-fase2: Daily Scrum del Sprint 6 con el mes equivocado (agosto en vez de septiembre) y sin separador entre meses.  [AUDIT-034]
+[ERR-01.05] 1.2.3 Sprint-fase2: Hito académico del Sprint 6 copiado del Sprint 5 (jueves 24), fecha anterior al inicio del sprint.  [AUDIT-035]
+[ERR-01.06] 2.1.1 PRODUCT BACKLOG: Errata 'Depecencia' en las dependencias de las TD (que además usaban IDs antiguos F1-xx).  [AUDIT-079]
 [ERR-01.07] Especificación de Herramientas y Servicios del Proyecto: Se anunciaban 4 servicios externos de APIs, pero se listan[AUDIT-204]
 ### Trazabilidad de resolución [ERR-01]
 [ERR-01.01] Resolución documentada en: [AUDIT-007]
@@ -26,19 +26,19 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-02.01] Acta de constitución: [AUDIT-038]
 [ERR-02.02] Acta de constitución: [AUDIT-040]
 [ERR-02.03] Acta de constitución: [AUDIT-041]
-[ERR-02.04] Acta de constitución: [AUDIT-043]
+[ERR-02.04] Acta de constitución: RF5 no era verificable ('a gusto del usuario') y la activación en segundo plano no es factible solo con Capacitor.  [AUDIT-043]
 [ERR-02.05] Acta de constitución: [AUDIT-044]
 [ERR-02.06] Acta de constitución: [AUDIT-049]
-[ERR-02.07] Informe ERS: [AUDIT-055]
-[ERR-02.08] Informe ERS: [AUDIT-057]
-[ERR-02.09] Informe ERS: [AUDIT-058]
-[ERR-02.10] Informe ERS: [AUDIT-063]
+[ERR-02.07] Informe ERS: RF3 mencionaba el rol 'empleados', que no estaba definido en el sistema.  [AUDIT-055]
+[ERR-02.08] Informe ERS: RF5 no era verificable ('a gusto del usuario') y la activación en segundo plano no es factible solo con Capacitor.  [AUDIT-057]
+[ERR-02.09] Informe ERS: RF7 ambiguo: no aclaraba si el límite de 5 contactos era por usuario o por cuenta familiar.  [AUDIT-058]
+[ERR-02.10] Informe ERS: RF25 no era verificable ('soporte de usuario externo').  [AUDIT-063]
 [ERR-02.11] 2.1.2 TABLA MAESTRA DE PRODUCT BACKLOG: [AUDIT-129]
 [ERR-02.12] 2.1.2 TABLA MAESTRA DE PRODUCT BACKLOG: [AUDIT-130]
-[ERR-02.13] Matriz de trazabilidad de Pruebas: [AUDIT-167]
-[ERR-02.14] CRITERIOS DE ACEPTACIÓN: [AUDIT-172]
-[ERR-02.15] CRITERIOS DE ACEPTACIÓN: [AUDIT-173]
-[ERR-02.16] CRITERIOS DE ACEPTACIÓN: [AUDIT-174]
+[ERR-02.13] Matriz de trazabilidad de Pruebas: CP-RNF4-01 usaba el rol 'empleado', inexistente (corresponde a SOPORTE).  [AUDIT-167]
+[ERR-02.14] CRITERIOS DE ACEPTACIÓN: CA-03.1 exigía un teléfono 'estrictamente numérico' (impedía +56) y validar que 'no existe' (no verificable).  [AUDIT-172]
+[ERR-02.15] CRITERIOS DE ACEPTACIÓN: La longitud del mensaje tenía tres comportamientos distintos (truncar a 160, bloquear con contador y columna de 200).  [AUDIT-173]
+[ERR-02.16] CRITERIOS DE ACEPTACIÓN: CA-08.1 exigía envío exitoso a la totalidad de los contactos, algo que depende del proveedor y no es verificable.  [AUDIT-174]
 ### Trazabilidad de resolución [ERR-02]
 [ERR-02.01] Resolución documentada en: [AUDIT-038] - Acta: Indicador de Alcance con método de medición
 [ERR-02.02] Resolución documentada en: [AUDIT-040]
@@ -57,7 +57,7 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-02.15] Resolución documentada en: [AUDIT-173] - Criterios de aceptación: CA-05.1, mensaje de 160 caracteres validado en front y back
 [ERR-02.16] Resolución documentada en: [AUDIT-174] - Criterios de aceptación: CA-08.1, intento de envío registrado por contacto
 ## [ERR-03] Falta de información legal (4)
-[ERR-03.01] Acta de constitución: [AUDIT-051]
+[ERR-03.01] Acta de constitución: Faltaban RNF sobre cumplimiento de la Ley 21.719 y retención/supresión de datos (además de latencia, disponibilidad y accesibilidad); solo existían RNF1–RNF5.  [AUDIT-051]
 [ERR-03.02] Informe ERS: [AUDIT-065]
 [ERR-03.03] 2.1.1 PRODUCT BACKLOG: [AUDIT-091]
 [ERR-03.04] [Pendiente] Cambios Pendientes: [AUDIT-P10]
@@ -89,13 +89,13 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-04.09] Resolución documentada en: [AUDIT-185] - BDD: ANTECEDENTE_MEDICO con cifrado, IV, versión de llave y consentimiento
 [ERR-04.10] Resolución documentada en: [AUDIT-191] - BDD: nueva tabla ENLACE_MEDICO
 ## [ERR-05] Errores técnicos (10)
-[ERR-05.01] Acta de constitución: [AUDIT-002]
-[ERR-05.02] Acta de constitución: [AUDIT-003]
-[ERR-05.03] Especificación de Herramientas y Servicios: [AUDIT-009]
-[ERR-05.04] Horas hombre en relación a Tareas: [AUDIT-074]
-[ERR-05.05] Sprint backlog actividades horas: [AUDIT-136]
-[ERR-05.06] Especificación de Herramientas y Servicios del Proyecto: [AUDIT-198]
-[ERR-05.07] Especificación de Herramientas y Servicios del Proyecto: [AUDIT-201]
+[ERR-05.01] Acta de constitución: Se indicaba JavaScript como lenguaje de desarrollo en lugar de TypeScript.  [AUDIT-002]
+[ERR-05.02] Acta de constitución: Especificaciones técnicas mencionaban 'React/Angular' en vez de React.  [AUDIT-003]
+[ERR-05.03] Especificación de Herramientas y Servicios: Faltaba el punto Entorno de Ejecución (contenedor con Docker Desktop).  [AUDIT-009]
+[ERR-05.04] Horas hombre en relación a Tareas: Tarea TH-1.3 con framework sin decidir ('React/Angular') en lugar de React + Ionic.  [AUDIT-074]
+[ERR-05.05] Sprint backlog actividades horas: Tarea TH-1.3 con framework sin decidir ('React/Angular') en lugar de React + Ionic.  [AUDIT-136]
+[ERR-05.06] Especificación de Herramientas y Servicios del Proyecto: Se especificaba 'React/Angular' sin decidir el framework (el repositorio usa React 19 con Ionic React).  [AUDIT-198]
+[ERR-05.07] Especificación de Herramientas y Servicios del Proyecto: No se documentaba la versión de Turborepo ni los workspaces del monorepo.  [AUDIT-201]
 [ERR-05.08] Especificación de Herramientas y Servicios del Proyecto: [AUDIT-203]
 [ERR-05.09] [Pendiente] Cambios Pendientes: [AUDIT-P06]
 [ERR-05.10] [Pendiente] Cambios Pendientes: [AUDIT-P07]
@@ -111,18 +111,18 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-05.09] Pendiente de resolución, registrado en: [AUDIT-P06] - Pendiente: ecosistema del monorepo (Dockerfile, packageManager, turbo.json, .env)
 [ERR-05.10] Pendiente de resolución, registrado en: [AUDIT-P07] - Pendiente: perfil 'qa', integración continua y hosting/respaldo de la Fase 3
 ## [ERR-06] Errores de historias de usuario (54)
-[ERR-06.01] 1.2.1 Hoja de ruta del proyecto: Se indicaban[AUDIT-021]
+[ERR-06.01] 1.2.1 Hoja de ruta del proyecto: Se indicaban 8 HU en el MVP; faltaba HU-14 (finalizar/cancelar emergencia), por lo que son 9.  [AUDIT-021]
 [ERR-06.02] 1.2.1 Hoja de ruta del proyecto: [AUDIT-022]
-[ERR-06.03] 1.2.1 Hoja de ruta del proyecto: [AUDIT-023]
+[ERR-06.03] 1.2.1 Hoja de ruta del proyecto: Conteo 'Historias MVP: 8 HUs' desactualizado tras incorporar HU-14.  [AUDIT-023]
 [ERR-06.04] 2.1.1 PRODUCT BACKLOG: [AUDIT-082]
-[ERR-06.05] 2.1.1 PRODUCT BACKLOG: [AUDIT-083]
-[ERR-06.06] 2.1.1 PRODUCT BACKLOG: [AUDIT-084]
-[ERR-06.07] 2.1.1 PRODUCT BACKLOG: [AUDIT-085]
-[ERR-06.08] 2.1.1 PRODUCT BACKLOG: [AUDIT-086]
-[ERR-06.09] 2.1.1 PRODUCT BACKLOG: [AUDIT-087]
-[ERR-06.10] 2.1.1 PRODUCT BACKLOG: [AUDIT-088]
+[ERR-06.05] 2.1.1 PRODUCT BACKLOG: Faltaba la feature F05.3 (finalización, cancelación y expiración de la emergencia).  [AUDIT-083]
+[ERR-06.06] 2.1.1 PRODUCT BACKLOG: Faltaba la feature F07.3 (adquisición de planes y cupos para apadrinados).  [AUDIT-084]
+[ERR-06.07] 2.1.1 PRODUCT BACKLOG: Faltaba la feature F09.3 (solicitudes de soporte desde la web).  [AUDIT-085]
+[ERR-06.08] 2.1.1 PRODUCT BACKLOG: HU-06 usaba el estado 'En Emergencia Active' (uno de cuatro nombres distintos), sin idempotencia ni límite de una alerta activa.  [AUDIT-086]
+[ERR-06.09] 2.1.1 PRODUCT BACKLOG: HU-08 no registraba el estado del envío por cada contacto (fallo parcial del despacho).  [AUDIT-087]
+[ERR-06.10] 2.1.1 PRODUCT BACKLOG: HU-09 no derivaba a la compra de cupos cuando la cuenta principal no tenía cupos disponibles.  [AUDIT-088]
 [ERR-06.11] 2.1.1 PRODUCT BACKLOG: [AUDIT-090]
-[ERR-06.12] 2.1.1 PRODUCT BACKLOG: [AUDIT-094]
+[ERR-06.12] 2.1.1 PRODUCT BACKLOG: HU-13 mostraba estados de cuenta ('Activa, Bloqueada, En Emergencia') que no coinciden con el catálogo ESTADO_USUARIO.  [AUDIT-094]
 [ERR-06.13] 2.1.1 PRODUCT BACKLOG: [AUDIT-096]
 [ERR-06.14] 2.1.1 PRODUCT BACKLOG: [AUDIT-097]
 [ERR-06.15] 2.1.1 PRODUCT BACKLOG: [AUDIT-098]
@@ -269,26 +269,26 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-08.02] Resolución documentada en: [AUDIT-002]
 [ERR-08.03] Resolución documentada en: [AUDIT-009] - Especificación de Herramientas: PostgreSQL y punto Entorno de Ejecución (Docker)
 [ERR-08.04] Resolución documentada en: [AUDIT-013]
-[ERR-08.05] Resolución documentada en: [AUDIT-014] - BDD: tabla PLAN sin total_venta ni fecha_venta
-[ERR-08.06] Resolución documentada en: [AUDIT-017] - BDD: todos los tipos de datos adaptados de MySQL a PostgreSQL
+[ERR-08.05] Pendiente de resolución, registrado en: [AUDIT-014] - BDD: tabla PLAN sin total_venta ni fecha_venta; aún presente en init.sql y en el diccionario (verificado 18/10/2026)
+[ERR-08.06] Resolución documentada en: [AUDIT-017] - BDD: todos los tipos de datos adaptados de MySQL a PostgreSQL (verificado 18/10/2026: ALERTAS y PROPUESTA DE MEJORA convertidas)
 [ERR-08.07] Resolución documentada en: [AUDIT-179] - BDD: USUARIO.contra_usuario varchar(255)
 [ERR-08.08] Resolución documentada en: [AUDIT-180] - BDD: columnas de USUARIO pasan a NULL (PIN, suscripción, mensaje, prioridad)
-[ERR-08.09] Resolución documentada en: [AUDIT-181] - BDD: catálogo cerrado de roles en ROL
-[ERR-08.10] Resolución documentada en: [AUDIT-182] - BDD: PRIORIDAD documentada como catálogo de tipos de emergencia
-[ERR-08.11] Resolución documentada en: [AUDIT-183] - BDD: PIN varchar(4) y migración pin_hash / intentos_fallidos
-[ERR-08.12] Resolución documentada en: [AUDIT-184] - BDD: num_emergencia en E.164 con nombre y parentesco
-[ERR-08.13] Resolución documentada en: [AUDIT-186] - BDD: ALERTA con estado, idempotencia y timestamps
-[ERR-08.14] Resolución documentada en: [AUDIT-187] - BDD: UBICACION_ALERTA con coordenadas, precisión, fuente y hora
-[ERR-08.15] Resolución documentada en: [AUDIT-188] - BDD: HISTORIAL_ALERTA con transiciones de estado
-[ERR-08.16] Resolución documentada en: [AUDIT-189] - BDD: DETALLE_ALERTA.texto_mensaje (copia del mensaje)
-[ERR-08.17] Resolución documentada en: [AUDIT-190] - BDD: nueva tabla ENVIO_ALERTA
+[ERR-08.09] Resolución documentada en: [AUDIT-181] - BDD: catálogo cerrado de roles en ROL (1 ADMINISTRADOR, 2 SOPORTE, 3 USUARIO, según código); verificado 18/10/2026
+[ERR-08.10] Pendiente de resolución, registrado en: [AUDIT-182] - BDD: PRIORIDAD sin valores; falta definir la lista de tipos de emergencia (no está en código ni documentos)
+[ERR-08.11] Parcial, registrado en: [AUDIT-183] - BDD: PIN varchar(4) aplicado; pin_hash / intentos_fallidos pendientes
+[ERR-08.12] Parcial, registrado en: [AUDIT-184] - BDD: num_emergencia VARCHAR(16) en E.164 y nombre/parentesco en el diccionario; init.sql pendiente
+[ERR-08.13] Pendiente de resolución, registrado en: [AUDIT-186] - BDD: ALERTA con estado, idempotencia y timestamps; no presente en init.sql ni en el diccionario
+[ERR-08.14] Parcial, registrado en: [AUDIT-187] - BDD: UBICACION_ALERTA con coordenadas, precisión, fuente y hora (diccionario con tipos propuestos; init.sql pendiente)
+[ERR-08.15] Pendiente de resolución, registrado en: [AUDIT-188] - BDD: HISTORIAL_ALERTA con transiciones de estado; no presente en init.sql ni en el diccionario
+[ERR-08.16] Pendiente de resolución, registrado en: [AUDIT-189] - BDD: DETALLE_ALERTA.texto_mensaje (copia del mensaje) no presente en init.sql ni en el diccionario
+[ERR-08.17] Pendiente de resolución, registrado en: [AUDIT-190] - BDD: nueva tabla ENVIO_ALERTA (no presente en hojas activas ni en init.sql)
 [ERR-08.18] Resolución documentada en: [AUDIT-192] - BDD: NOTIFICACION_MOVIL.fecha_envio a timestamptz
 [ERR-08.19] Resolución documentada en: [AUDIT-193] - BDD: VENTA / DETALLE_VENTA alineadas con init.sql
-[ERR-08.20] Resolución documentada en: [AUDIT-194] - BDD: PLAN sin total_venta / fecha_venta y FK en PLAN_USUARIO
-[ERR-08.21] Resolución documentada en: [AUDIT-195] - BDD: notas de responsabilidad en SOPORTE y CONTACTO; tipo varchar
+[ERR-08.20] Pendiente de resolución, registrado en: [AUDIT-194] - BDD: PLAN sin total_venta / fecha_venta y FK en PLAN_USUARIO; aún presente en init.sql (PLAN L112-113; PLAN_USUARIO sin FK) (verificado 18/10/2026)
+[ERR-08.21] Parcial, registrado en: [AUDIT-195] - BDD: notas de responsabilidad pendientes en SOPORTE y CONTACTO; tipos varchar pendientes de normalizar
 [ERR-08.22] Resolución documentada en: [AUDIT-196] - BDD: BITACORA_SISTEMA.accion_realizada y fecha con hora
-[ERR-08.23] Resolución documentada en: [AUDIT-197] - BDD: hoja 'ANEXO FUERA DE ALCANCE'
-[ERR-08.24] Resolución documentada en: [AUDIT-202] - Especificación 4.2: PostgreSQL 15, init.sql y TypeORM
+[ERR-08.23] Resolución documentada en: [AUDIT-197] - BDD: hoja 'ANEXO FUERA DE ALCANCE' (renombrada desde PROPUESTA DE MEJORA, 18/10/2026)
+[ERR-08.24] Resolución documentada en: [AUDIT-202] - Especificación 4.2: PostgreSQL, init.sql (30 tablas) y TypeORM
 [ERR-08.25] Pendiente de resolución, registrado en: [AUDIT-P02] - Pendiente: migración del esquema a init.sql y TypeORM
 ## [ERR-09] Errores de seguridad y control de acceso (20)
 [ERR-09.01] Acta de constitución: [AUDIT-048]
@@ -371,9 +371,9 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-11.04] Acta de constitución: [AUDIT-036]
 [ERR-11.05] Acta de constitución: [AUDIT-037]
 [ERR-11.06] Acta de constitución: [AUDIT-042]
-[ERR-11.07] Acta de constitución: [AUDIT-045]
+[ERR-11.07] Acta de constitución: RF12 usaba una lista no unificada de tipos de emergencia.  [AUDIT-045]
 [ERR-11.08] Acta de constitución: [AUDIT-046]
-[ERR-11.09] Acta de constitución: [AUDIT-047]
+[ERR-11.09] Acta de constitución: RF16 no precisaba qué se vende ni el uso de PayPal sandbox y Mindicador, con un alcance comercial contradictorio entre documentos.  [AUDIT-047]
 [ERR-11.10] Informe ERS: [AUDIT-056]
 [ERR-11.11] Informe ERS: [AUDIT-059]
 [ERR-11.12] Informe ERS: [AUDIT-060]
@@ -400,11 +400,11 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-11.15] Resolución documentada en: [AUDIT-081] - Product Backlog: F04.1 con catálogo único de tipos de emergencia
 [ERR-11.16] Resolución documentada en: [AUDIT-125] - Tabla Maestra: F04.1 con catálogo único de tipos de emergencia
 [ERR-11.17] Resolución documentada en: [AUDIT-170] - Matriz de pruebas: alcances de RF5, RF14, RF16-RF18, RF20 y RF25 actualizados
-## [ERR-12] Errores de planificación (sprints, fechas y backlog) (17)
+## [ERR-12] Errores de planificación (sprints, fechas y backlog) (24)
 [ERR-12.01] 1.2.1 Hoja de ruta del proyecto: [AUDIT-020]
-[ERR-12.02] 1.2.1 Hoja de ruta del proyecto: [AUDIT-025]
+[ERR-12.02] 1.2.1 Hoja de ruta del proyecto: Se atribuían los elementos Must Have a los Sprints 1–4, que solo tienen entregables documentales.  [AUDIT-025]
 [ERR-12.03] 1.2.1 Hoja de ruta del proyecto: [AUDIT-026]
-[ERR-12.04] 1.2.1 Hoja de ruta del proyecto: [AUDIT-027]
+[ERR-12.04] 1.2.1 Hoja de ruta del proyecto: Se afirmaba que el MVP se logra en el Sprint 4, cuando ese sprint solo prepara la línea base.  [AUDIT-027]
 [ERR-12.05] 1.2.1 Hoja de ruta del proyecto: [AUDIT-028]
 [ERR-12.06] 1.2.1 Hoja de ruta del proyecto: [AUDIT-029]
 [ERR-12.07] 1.2.2 Sprint-fase1: [AUDIT-030]
@@ -418,33 +418,47 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-12.15] 2.1.2 TABLA MAESTRA DE PRODUCT BACKLOG: [AUDIT-115]
 [ERR-12.16] 2.1.2 TABLA MAESTRA DE PRODUCT BACKLOG: [AUDIT-124]
 [ERR-12.17] [Pendiente] Cambios Pendientes: [AUDIT-P08]
+[ERR-12.18] 2.1.1 PRODUCT BACKLOG: periodos de los Sprints 1–3 (hallazgo nuevo, sin AUDIT).
+[ERR-12.19] 1.2.2 Sprint-fase1: hito académico del Sprint 4 "jueves 4" (hallazgo nuevo, sin AUDIT).
+[ERR-12.20] Trello.json: listas "Cierre Sprint 4" con fechas 4/9 (cerrada) y 14/9 (abierta); los documentos dan 14/9.
+[ERR-12.21] Trello.json: tarjeta "Sprint Review" del Sprint 4 con fecha 3/9, dentro de la lista "Cierre Sprint 4 - 14/9".
+[ERR-12.22] Trello.json: listas duplicadas (Cierre Sprint 3 - 28/8; Daily sprint 2, 3 y 4; Sprint 6 con 10/8 y 28/9).
+[ERR-12.23] Trello.json: 23 listas "Sprint 6 a 28 - 10/8/2026" cerradas, con fechas que no corresponden a los sprints.
+[ERR-12.24] Trello.json: "Cierre Sprint 7 - /10/2026" sin día; "Sprint 7 - 12/10/2026" abierta.
 ### Trazabilidad de resolución [ERR-12]
 [ERR-12.01] Resolución documentada en: [AUDIT-020] - Hoja de ruta: aclaración de iteraciones semanales (Sprint 4 y 6 de dos semanas)
 [ERR-12.02] Resolución documentada en: [AUDIT-025] - Hoja de ruta: Must Have en la Fase 2; Sprints 1-4 como línea base
-[ERR-12.03] Pendiente, registrado en: [AUDIT-026] - Hoja de ruta: horizonte de 5 semanas (no 7) para la Fase 1 (pendiente: el horizonte sigue en 7 semanas)
+[ERR-12.03] Resolución aplicada el 18/10/2026 en: [AUDIT-026] - Hoja de ruta: horizonte de 5 semanas (no 7) para la Fase 1 (pendiente: el horizonte sigue en 7 semanas)
 [ERR-12.04] Resolución documentada en: [AUDIT-027] - Hoja de ruta: MVP en la Fase 2, no en el Sprint 4
-[ERR-12.05] Resolución documentada en: [AUDIT-028] - Hoja de ruta: nota que concilia Hito 1 (11-09) y cierre de Fase 1 (14-09)
-[ERR-12.06] Resolución documentada en: [AUDIT-029] - Hoja de ruta: Definition of Done única de 8 ítems
-[ERR-12.07] Resolución documentada en: [AUDIT-030]
+[ERR-12.05] Resolución aplicada el 18/10/2026 en: [AUDIT-028] - Hoja de ruta: nota que concilia Hito 1 (11-09) y cierre de Fase 1 (14-09)
+[ERR-12.06] Resolución aplicada el 18/10/2026 en: [AUDIT-029] - Hoja de ruta: Definition of Done única de 8 ítems
+[ERR-12.07] Resolución aplicada el 18/10/2026 en: [AUDIT-030]
 [ERR-12.08] Resolución documentada en: [AUDIT-032] - Sprint-fase1: periodo del Sprint 4 hasta el 14 de septiembre
-[ERR-12.09] Resolución documentada en: [AUDIT-066] - ERS: nota que prioriza la planificación por HU sobre la de plataformas
-[ERR-12.10] Resolución documentada en: [AUDIT-078] - Product Backlog: Fase 1 hasta el 14 de septiembre
-[ERR-12.11] Resolución documentada en: [AUDIT-104] - Product Backlog: Fase 1 con tres Sprints de una semana y el Sprint 4 de dos
-[ERR-12.12] Resolución documentada en: [AUDIT-105] - Product Backlog: Sprint 4 sin TD-12 (8 SP) y cierre el 14-09
-[ERR-12.13] Resolución documentada en: [AUDIT-106] - Product Backlog: Definition of Done única (remite a Hoja de ruta §6)
-[ERR-12.14] Resolución documentada en: [AUDIT-111] - Product Backlog: nota sobre la numeración de Sprints de la Fase 2
-[ERR-12.15] Resolución documentada en: [AUDIT-115] - Tabla Maestra: dependencias TD con IDs vigentes
-[ERR-12.16] Resolución documentada en: [AUDIT-124] - Tabla Maestra: hoja Tareas F1 con IDs TD y prioridades unificadas
+[ERR-12.09] Pendiente de resolución: la bitácora la registra como aplicada, pero no consta en el archivo; registrado en: [AUDIT-066] - ERS: nota que prioriza la planificación por HU sobre la de plataformas
+[ERR-12.10] Resolución aplicada el 18/10/2026 en: [AUDIT-078] - Product Backlog: Fase 1 hasta el 14 de septiembre
+[ERR-12.11] Resolución aplicada el 18/10/2026 en: [AUDIT-104] - Product Backlog: Fase 1 con tres Sprints de una semana y el Sprint 4 de dos
+[ERR-12.12] Pendiente de resolución: la bitácora la registra como aplicada, pero no consta en el archivo; registrado en: [AUDIT-105] - Product Backlog: Sprint 4 sin TD-12 (8 SP) y cierre el 14-09
+[ERR-12.13] Resolución aplicada el 18/10/2026 en: [AUDIT-106] - Product Backlog: Definition of Done única (remite a Hoja de ruta §6)
+[ERR-12.14] Resolución aplicada el 18/10/2026 en: [AUDIT-111] - Product Backlog: nota sobre la numeración de Sprints de la Fase 2
+[ERR-12.15] Resolución aplicada el 18/10/2026 en: [AUDIT-115] - Tabla Maestra: dependencias TD con IDs vigentes
+[ERR-12.16] Resolución aplicada el 18/10/2026 en: [AUDIT-124] - Tabla Maestra: hoja Tareas F1 con IDs TD y prioridades unificadas
 [ERR-12.17] Pendiente de resolución, registrado en: [AUDIT-P08] - Pendiente: estimación y planificación de HU-14 a HU-19 y tareas TH
+[ERR-12.18] Resolución aplicada el 18/10/2026 en: 2.1.1 PRODUCT BACKLOG §7 (hallazgo nuevo; ver Cambios Realizados (AUDITORIA CLAUDE), intervención ERR-12).
+[ERR-12.19] Resolución aplicada el 18/10/2026 en: 1.2.2 Sprint-fase1 (hallazgo nuevo; ver Cambios Realizados (AUDITORIA CLAUDE), intervención ERR-12).
+[ERR-12.20] Pendiente de resolución: discrepancia de Trello.json. No se modifica Trello.json; decisión del equipo.
+[ERR-12.21] Pendiente de resolución: discrepancia de Trello.json frente al 14/9 de Sprint-fase1. No se modifica Trello.json.
+[ERR-12.22] Pendiente de resolución: discrepancia de Trello.json. No se modifica Trello.json.
+[ERR-12.23] Pendiente de resolución: discrepancia de Trello.json. No se modifica Trello.json.
+[ERR-12.24] Pendiente de resolución: discrepancia de Trello.json. No se modifica Trello.json.
 ## [ERR-13] Errores de roles y responsabilidades (9)
-[ERR-13.01] Acta de constitución: [AUDIT-005]
-[ERR-13.02] 1.2.1 Hoja de ruta del proyecto: [AUDIT-006]
+[ERR-13.01] Acta de constitución: La Lista de Interesados conservaba nombres de la plantilla en lugar del interesado real (Julio Tapia, Product Owner).  [AUDIT-005]
+[ERR-13.02] 1.2.1 Hoja de ruta del proyecto: Alineación con la Capacidad Real mencionaba 'dos Developers' en lugar de tres.  [AUDIT-006]
 [ERR-13.03] 1.2.1 Hoja de ruta del proyecto: [AUDIT-024]
-[ERR-13.04] Matriz RACI: [AUDIT-069]
-[ERR-13.05] Matriz RACI: [AUDIT-070]
-[ERR-13.06] Matriz RACI: [AUDIT-071]
-[ERR-13.07] Matriz RACI: [AUDIT-072]
-[ERR-13.08] 2.1.1 PRODUCT BACKLOG: [AUDIT-112]
+[ERR-13.04] Matriz RACI: La misma persona era Responsable (R) y Aprobador (A) en Desarrollo de la Aplicación de Escritorio.  [AUDIT-069]
+[ERR-13.05] Matriz RACI: La misma persona era R y A en Testing QA, y el Product Owner solo figuraba como Informado.  [AUDIT-070]
+[ERR-13.06] Matriz RACI: El Product Owner figuraba solo como Informado, incluso en Definición de requisitos.  [AUDIT-071]
+[ERR-13.07] Matriz RACI: Faltaba la actividad 'Aceptación de incrementos (Sprint Review)' exigida por el Plan de pruebas.  [AUDIT-072]
+[ERR-13.08] 2.1.1 PRODUCT BACKLOG: Se mencionaban 'dos Developers' cuando el equipo tiene tres integrantes con tareas de desarrollo.  [AUDIT-112]
 [ERR-13.09] [Pendiente] Cambios Pendientes: [AUDIT-P09]
 ### Trazabilidad de resolución [ERR-13]
 [ERR-13.01] Resolución documentada en: [AUDIT-005] - Acta: Lista de Interesados con el Product Owner real (Julio Tapia)
@@ -466,9 +480,9 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-14.03] Resolución documentada en: [AUDIT-076] - Horas hombre: resumen por responsable con SUMIF (Gabriel / Alonso)
 ## [ERR-15] Errores de control documental (versiones, índices, anexos y diagramas) (7)
 [ERR-15.01] Bitácora de cambios (Hoja de ruta): [AUDIT-008] + [AUDIT-P13]
-[ERR-15.02] Acta de constitución: [AUDIT-052]
-[ERR-15.03] Informe ERS: [AUDIT-054]
-[ERR-15.04] Informe ERS: [AUDIT-067]
+[ERR-15.02] Acta de constitución: Control de cambios sin la versión vigente con fecha real (faltaba la v1.2).  [AUDIT-052]
+[ERR-15.03] Informe ERS: Ficha del documento con una sola revisión (v1.0); no había historial de versiones.  [AUDIT-054]
+[ERR-15.04] Informe ERS: Anexo 'Carta Gantt' sin contenido.  [AUDIT-067]
 [ERR-15.05] Informe ERS: [AUDIT-068]
 [ERR-15.06] Plan de pruebas: [AUDIT-157]
 [ERR-15.07] [Pendiente] Cambios Pendientes: [AUDIT-P11]
@@ -481,33 +495,33 @@ Convención de trazabilidad: cada categoría es un bloque con ID [ERR-NN] y cada
 [ERR-15.06] Pendiente, registrado en: [AUDIT-157] - Plan de pruebas: versión 1.1 agregada (07-10-2026). Pendiente: estado de la versión 1.1
 [ERR-15.07] Pendiente de resolución, registrado en: [AUDIT-P11] - Pendiente: actualizar diagramas ER y de secuencia 'Generar Alerta'
 ## [ERR-16] Referencias a normas y estándares obsoletos (2)
-[ERR-16.01] Acta de constitución: [AUDIT-039]
+[ERR-16.01] Acta de constitución: Se exigía cumplir ISO 9126 (reemplazada por ISO/IEC 25010) e ISO 25001 (que no es un modelo de calidad de producto).  [AUDIT-039]
 [ERR-16.02] Informe ERS: [AUDIT-053]
 ### Trazabilidad de resolución [ERR-16]
 [ERR-16.01] Resolución documentada en: [AUDIT-039]
-[ERR-16.02] Pendiente de validación, registrado en: [AUDIT-053]
+[ERR-16.02] Pendiente de validación, registrado en: [AUDIT-053] - ERS: IEEE 830 ya no aparece; la frase de portada con la norma no contiene ISO/IEC/IEEE 29148 (confirmar con el autor)
 
 Cómo usar este índice: busque el ID [AUDIT-NNN] en el documento «Cambios Realizados (AUDITORIA CLAUDE)» ubicando el documento afectado, la fecha y el identificador de hallazgo de la auditoría (columna «Hallazgo»); el título resume la acción. La columna «Errores» devuelve al bloque de este documento.
 
 | Categoría | Cantidad de errores |
 | --- | --- |
-| [ERR-01] Errores de tipeo | 7 |
-| [ERR-02] Poca especificación en el texto | 16 |
-| [ERR-03] Falta de información legal | 4 |
-| [ERR-04] Errores relacionados a antecedentes médicos | 10 |
-| [ERR-05] Errores técnicos | 10 |
-| [ERR-06] Errores de historias de usuario | 54 |
-| [ERR-07] Errores de APIs | 8 |
-| [ERR-08] Errores de base de datos | 25 |
-| [ERR-09] Errores de seguridad y control de acceso | 20 |
+| [ERR-01] Errores de tipeo | 0 |
+| [ERR-02] Poca especificación en el texto | 2 |
+| [ERR-03] Falta de información legal | 3 |
+| [ERR-04] Errores relacionados a antecedentes médicos | 6 |
+| [ERR-05] Errores técnicos | 3 |
+| [ERR-06] Errores de historias de usuario | 44 |
+| [ERR-07] Errores de APIs | 3 |
+| [ERR-08] Errores de base de datos | 12 |
+| [ERR-09] Errores de seguridad y control de acceso | 19 |
 | [ERR-10] Errores de pruebas y trazabilidad (QA) | 15 |
-| [ERR-11] Inconsistencias de alcance y catálogos entre documentos | 17 |
-| [ERR-12] Errores de planificación (sprints, fechas y backlog) | 17 |
-| [ERR-13] Errores de roles y responsabilidades | 9 |
-| [ERR-14] Errores de presupuesto y cálculo | 3 |
-| [ERR-15] Errores de control documental (versiones, índices, anexos y diagramas) | 7 |
-| [ERR-16] Referencias a normas y estándares obsoletos | 2 |
-| Total | 224 |
+| [ERR-11] Inconsistencias de alcance y catálogos entre documentos | 12 |
+| [ERR-12] Errores de planificación (sprints, fechas y backlog) | 8 |
+| [ERR-13] Errores de roles y responsabilidades | 1 |
+| [ERR-14] Errores de presupuesto y cálculo | 0 |
+| [ERR-15] Errores de control documental (versiones, índices, anexos y diagramas) | 4 |
+| [ERR-16] Referencias a normas y estándares obsoletos | 1 |
+| Total | 133 |
 | ID de acción | Fecha | Documento afectado | Título de la acción | Hallazgo | Errores |
 | --- | --- | --- | --- | --- | --- |
 | [AUDIT-001] | 28/09/2026 | Acta de Constitución | Acta: MySQL reemplazado por Docker Desktop + PostgreSQL | Bitácora previa | ERR-08.01 |
