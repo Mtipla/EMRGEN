@@ -194,18 +194,47 @@ Desde la raíz del monorepo:
 |---|---|---|
 | Web | `npx turbo run dev --filter=web` | la que indique Vite (por defecto `http://localhost:5173`) |
 | Móvil | `npx turbo run dev --filter=mobile` | la que indique Vite |
-| Escritorio | `npx turbo run dev --filter=desktop` | la que indique Vite. Corre en el navegador: ningún script arranca la ventana de Electron todavía |
-| Backend (sin Docker) | ver nota abajo | `http://localhost:3000` |
+| Escritorio | `npx turbo run dev --filter=desktop` | abre la ventana de Electron; Vite queda fijo en `http://localhost:5175` |
+| Backend (sin Docker) | `npm run start:dev --workspace=backend` | `http://localhost:3000` |
 
-> **Backend sin Docker (estado actual):** `npm run start:dev --workspace=backend` **falla** con el `.env` tal como viene, por dos motivos:
-> 1. Fuera de Docker el host de la BD debe ser `localhost`. Pon `DB_HOST=localhost` en tu `.env` (el valor `DB_HOST=db` es solo para Docker, y `docker-compose.yml` ya lo fuerza dentro del contenedor).
-> 2. `app.module.ts` lee `DB_USER`/`DB_PASSWORD` antes de que `main.ts` cargue el `.env`, así que llega `SASL: client password must be a string`. Mientras no se corrija, arráncalo cargando el archivo desde Node, desde `apps/backend`:
->
-> ```powershell
-> node --env-file=../../.env ../../node_modules/@nestjs/cli/bin/nest.js start
-> ```
->
-> Verificado: con `DB_HOST=localhost` el backend queda en `Nest application successfully started`.
+### 6.1 ¿Qué backend usa cada frontend? (puertos y URL de la API)
+
+Hay dos formas de tener el backend arriba y **cada una publica la API en un puerto distinto**. Pueden estar encendidas a la vez (comparten la misma base de datos), así que lo importante es saber a cuál apunta el frontend:
+
+| Componente | Puerto interno | Puerto en tu PC | URL |
+|---|---|---|---|
+| Backend local (`npm run start:dev --workspace=backend`) | — | `3000` (`PORT` del `.env`) | `http://localhost:3000` |
+| Backend Docker (`docker compose up --build -d`) | `3000` (dentro del contenedor) | `3001` (`"3001:3000"` en `docker-compose.yml`) | `http://localhost:3001` |
+| PostgreSQL Docker | `5432` | `5433` | `localhost:5433` |
+| Panel de escritorio (Vite + Electron) | — | `5175` (fijo) | `http://localhost:5175` |
+| Web / Móvil (Vite) | — | `5173` / `5174` (el primero libre) | la que indique Vite |
+
+La URL de la API no se edita a mano: la elige el **modo de Vite** con que se inicia el frontend.
+
+| Quiero usar | Comando del panel de escritorio | De dónde sale `VITE_API_URL` |
+|---|---|---|
+| Backend local (3000) | `npx turbo run dev --filter=desktop` | `.env` → `http://localhost:3000` |
+| Backend Docker (3001) | `npx turbo run dev:docker --filter=desktop` | `.env.docker` → `http://localhost:3001` |
+
+- `.env.docker` está versionado, solo contiene `VITE_API_URL` (pública) y se carga encima del `.env` al usar `--mode docker`. Docker Compose no lo lee.
+- Web y móvil aceptan el mismo modo: `npx turbo run dev --filter=web -- --mode docker`.
+- El panel muestra arriba la API y el modo en uso (`API: http://localhost:3001 (backend de Docker)`), y al arrancar la terminal imprime `➜ API: ...`. Si `VITE_API_URL` no está definida, el panel lo indica en vez de conectarse a un backend por defecto.
+- Tras cambiar código del backend, el contenedor sigue con la imagen anterior hasta que ejecutes `docker compose up --build -d`.
+- El backend local lee `apps/backend/.env.local` antes que el `.env` de la raíz (ahí van `DB_HOST=localhost` y `DB_PORT=5433`, porque `db:5432` solo existe dentro de la red de Docker). Son archivos distintos: no asumas que tienen los mismos valores.
+
+### 6.2 CORS: orígenes permitidos
+
+Los orígenes de los frontends se definen en **un solo lugar**: la variable `CORS_ORIGINS` del `.env` (lista separada por comas), que leen tanto el backend local como el de Docker. Si no está definida se usan `http://localhost:5173`, `5174` y `5175`. Al iniciar, el backend escribe en su log la lista vigente (`orígenes CORS: ...`).
+
+- El panel de escritorio usa **siempre** el puerto `5175` (`strictPort` en `apps/desktop/vite.config.ts`). Si está ocupado, Vite se detiene con `Port 5175 is already in use` en vez de saltar a otro puerto que el backend rechazaría con un «Sin respuesta del backend».
+- Web y móvil toman `5173` y `5174` en el orden en que se inicien; ambos están en la lista.
+- Para usar otro puerto u otro origen: agrégalo a `CORS_ORIGINS` y reinicia el backend (local: detén y vuelve a ejecutar `start:dev`; Docker: `docker compose up -d`). Si cambias el puerto del panel, cámbialo también en `apps/desktop/vite.config.ts`.
+
+### 6.3 Panel de administrador: datos de prueba y auditoría
+
+- Cuentas temporales para probar (admin, soporte y usuarios): [docs/cuentas-temporales-pruebas.md](docs/cuentas-temporales-pruebas.md).
+- Las acciones del administrador sobre un usuario quedan en `BITACORA_SISTEMA`; se consultan en `GET /admin/auditoria` y se exportan a PDF con jsReport en `GET /admin/auditoria/reporte` (requiere jsReport: `docker start jsreport`, ver `readme-apis.md`).
+- Si tu volumen de PostgreSQL es anterior a este cambio, aplica una vez [actualizar-bitacora-auditoria.sql](actualizar-bitacora-auditoria.sql) (el comando está en el encabezado del archivo).
 
 Otros comandos útiles:
 
@@ -260,6 +289,25 @@ Al recrear el volumen, `init.sql` vuelve a crear el esquema vacío. Para cargar 
 
 Si modificas contenedores o volúmenes, sigue este orden: **bajar el contenedor → hacer los cambios → levantar el contenedor**.
 
+#### Reinicio limpio de jsReport (opcional)
+
+jsReport no forma parte de `docker-compose.yml`: es un contenedor aparte (`jsreport`) con un volumen anónimo en `/jsreport`, donde guarda las plantillas creadas en jsReport Studio. `docker compose down -v` **no lo toca**. No es necesario reiniciarlo para limpiar la base de datos; hazlo solo si quieres dejarlo de fábrica.
+
+⚠️ Esto **elimina las plantillas guardadas en jsReport Studio** (las que usa `POST /reports` por nombre). El reporte de bitácora (`GET /admin/auditoria/reporte`) no se ve afectado, porque su plantilla vive en el código del backend.
+
+```powershell
+# Apagar y eliminar el contenedor junto con su volumen anónimo
+docker rm -f -v jsreport
+
+# Levantar uno nuevo, vacío
+docker run -d --name jsreport -p 5488:5488 jsreport/jsreport
+
+# Verificar: debe aparecer "Up" con el puerto 5488
+docker ps --filter "name=jsreport"
+```
+
+Si solo quieres apagarlo y encenderlo **sin perder nada**: `docker stop jsreport` y `docker start jsreport`.
+
 ### 7.5 Cómo está construida la imagen (para no romperla)
 
 - Todas las etapas usan `node:24.21.0-alpine`, la misma versión de Node del entorno local. Esa imagen ya trae npm 11.19.0.
@@ -302,6 +350,7 @@ DB_NAME=<INSERT_YOUR_DB_NAME_HERE>
 # ---------- Backend ----------
 PORT=3000
 # Orígenes de los frontends autorizados a llamar al backend (separados por coma).
+# Único lugar donde se configuran: 5173/5174 web y móvil, 5175 fijo del panel de escritorio.
 CORS_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:5175
 
 # ---------- Auth0 ----------
@@ -342,6 +391,8 @@ MINDICADOR_API_URL=https://mindicador.cl/api
 # VARIABLES PÚBLICAS DE FRONTEND (web, mobile, desktop)
 # Todo lo que empieza con VITE_ queda visible en el navegador.
 # =====================================================================
+# API del backend LOCAL (npm run start:dev, puerto 3000). Para el backend de Docker (3001)
+# no cambies este valor: inicia el frontend en modo docker, que usa .env.docker (sección 6.1).
 VITE_API_URL=http://localhost:3000
 # Web API key de Firebase (pública; se protege con reglas y dominios autorizados).
 VITE_FIREBASE_API_KEY=<INSERT_YOUR_FIREBASE_API_KEY_HERE>

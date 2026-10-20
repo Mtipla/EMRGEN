@@ -11,8 +11,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import {
+  FirebaseAuthGuard,
+  type FirebaseRequest,
+} from '../integrations/firebase-auth/firebase-auth.guard';
 import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
+import { CrearPinDto } from './dto/crear-pin.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard, type UsuarioSesion } from './jwt-auth.guard';
 import { LoginService } from './login.service';
@@ -24,14 +29,31 @@ import { RolesGuard } from './roles.guard';
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
+  // Exige el ID token de la cuenta recién creada en Firebase (Authorization: Bearer).
+  @UseGuards(FirebaseAuthGuard)
   @Post('registro')
-  registrar(@Body() datos: CrearUsuarioDto) {
-    return this.loginService.crear(datos);
+  registrar(@Req() request: FirebaseRequest, @Body() datos: CrearUsuarioDto) {
+    return this.loginService.crear(datos, request.firebaseUser!);
   }
 
   @Post('login')
   iniciarSesion(@Body() datos: LoginDto) {
     return this.loginService.iniciarSesion(datos);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/pin')
+  crearPin(
+    @Req() request: { user: UsuarioSesion },
+    @Body() datos: CrearPinDto,
+  ) {
+    return this.loginService.crearPinInicial(request.user.sub, datos.PIN);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  obtenerMiCuenta(@Req() request: { user: UsuarioSesion }) {
+    return this.loginService.obtenerPropio(request.user.sub);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -60,6 +82,6 @@ export class LoginController {
     if (id === request.user.sub) {
       throw new BadRequestException('No puedes eliminar tu propia cuenta');
     }
-    return this.loginService.eliminar(id);
+    return this.loginService.eliminar(id, request.user);
   }
 }

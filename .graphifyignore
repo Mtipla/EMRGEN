@@ -18,5 +18,16 @@ coverage/
 **/Diagrama de secuencia/
 .claude/
 
-# Videos de mockups (requieren transcripción; no aportan al grafo)
+# Video y audio: nunca leer/transcribir su contenido binario (ej. "3.2 Wireframes o Mockups/Videos Mockups/")
 *.mp4
+*.mkv
+*.mov
+*.avi
+*.webm
+*.wmv
+*.m4v
+*.mp3
+*.wav
+
+# Binarios de herramientas de diseño (Balsamiq)
+*.bmpr

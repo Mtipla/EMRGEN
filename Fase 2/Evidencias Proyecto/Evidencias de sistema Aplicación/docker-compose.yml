@@ -51,6 +51,9 @@ services:
       - emergen_whatsapp_auth:/app/apps/backend/auth_info_baileys
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    # PC:contenedor. Dentro del contenedor la API escucha en 3000 (PORT, arriba); en el PC se
+    # publica en 3001 para no chocar con el backend local (npm run start:dev, puerto 3000).
+    # Los frontends lo consumen con el modo docker de Vite (.env.docker -> localhost:3001).
     ports:
       - "3001:3000"
     depends_on:

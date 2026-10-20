@@ -1,17 +1,20 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { loadEnvFile, readEnv } from './config/env';
+import { readEnv } from './config/env';
+
+// Valor de CORS_ORIGINS cuando no está definida: los puertos de desarrollo de Vite
+// (5173 y 5174 para web/móvil, 5175 fijo para el panel de escritorio).
+const ORIGENES_DESARROLLO =
+  'http://localhost:5173,http://localhost:5174,http://localhost:5175';
 
 async function bootstrap() {
-  loadEnvFile();
-
   const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: (readEnv('CORS_ORIGINS') ?? 'http://localhost:5173')
-      .split(',')
-      .map((origin) => origin.trim()),
-  });
+  // Único lugar donde se definen los orígenes permitidos: la variable CORS_ORIGINS.
+  const origenes = (readEnv('CORS_ORIGINS') ?? ORIGENES_DESARROLLO)
+    .split(',')
+    .map((origin) => origin.trim());
+  app.enableCors({ origin: origenes });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -19,6 +22,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  await app.listen(process.env.PORT ?? 3000);
+  const puerto = process.env.PORT ?? 3000;
+  await app.listen(puerto);
+  // Si un frontend muestra "sin respuesta", su origen debe aparecer en esta lista.
+  new Logger('Bootstrap').log(`API en el puerto ${puerto}; orígenes CORS: ${origenes.join(', ')}`);
 }
 void bootstrap();

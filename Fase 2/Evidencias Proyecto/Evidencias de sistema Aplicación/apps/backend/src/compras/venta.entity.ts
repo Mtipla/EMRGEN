@@ -6,7 +6,7 @@ export class Venta {
   @PrimaryGeneratedColumn({ name: 'venta_id' })
   venta_ID: number;
 
-  @Column({ name: 'id_usuario' })
+  @Column({ name: 'usuario_id' })
   usuario_ID: number;
 
   @Column({ name: 'metodo_pago_id' })

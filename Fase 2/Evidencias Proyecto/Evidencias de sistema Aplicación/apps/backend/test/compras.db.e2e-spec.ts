@@ -119,10 +119,10 @@ db('Compra de cuentas apadrinadas con PayPal (Docker)', () => {
   afterAll(async () => {
     if (dataSource?.isInitialized && ids.length) {
       await dataSource.query(
-        'DELETE FROM detalle_venta WHERE venta_id IN (SELECT venta_id FROM venta WHERE id_usuario = ANY($1))',
+        'DELETE FROM detalle_venta WHERE venta_id IN (SELECT venta_id FROM venta WHERE usuario_id = ANY($1))',
         [ids],
       );
-      await dataSource.query('DELETE FROM venta WHERE id_usuario = ANY($1)', [ids]);
+      await dataSource.query('DELETE FROM venta WHERE usuario_id = ANY($1)', [ids]);
       await dataSource.query('DELETE FROM plan_usuario WHERE usuario_id = ANY($1)', [ids]);
       await dataSource.query('DELETE FROM usuario WHERE usuario_id = ANY($1)', [ids]);
     }

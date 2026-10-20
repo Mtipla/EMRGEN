@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('plan_usuario')
 export class PlanUsuario {
-  @PrimaryColumn({ name: 'plan_usuario_id' })
+  // IDENTITY en init.sql: el ID lo genera PostgreSQL al asignar el plan.
+  @PrimaryGeneratedColumn({ name: 'plan_usuario_id' })
   plan_usuario_ID: number;
 
   @Column({ name: 'tiene_acceso_completo' })
