@@ -9,7 +9,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { IsNull, Repository } from 'typeorm';
+import { DataSource , IsNull , Repository } from 'typeorm';
 import { APLICACION } from '../auditoria/aplicacion.entity';
 import { type ActorAuditoria, AuditoriaService } from '../auditoria/auditoria.service';
 import { ENTIDAD_AUDITADA, TIPO_ACCION } from '../auditoria/bitacora.entity';
@@ -44,6 +44,7 @@ export class LoginService {
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
     private readonly auditoriaService: AuditoriaService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async crear(datos: CrearUsuarioDto): Promise<UsuarioPublico> {
