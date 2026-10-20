@@ -26,17 +26,12 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
     try {
       const response = await fetch(`${API_URL}/usuarios/me`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token ?? ''}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token ?? ''}` },
         body: JSON.stringify({ nombre_usuario: nombre, correo_usuario: correo }),
       })
       const data = await response.json()
       if (!response.ok) {
-        const message = Array.isArray(data.message)
-          ? data.message.join(', ')
-          : data.message
+        const message = Array.isArray(data.message) ? data.message.join(', ') : data.message
         throw new Error(message ?? 'No se pudo actualizar el perfil')
       }
       setNombre(data.nombre_usuario)
@@ -56,18 +51,14 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
           headers: { Authorization: `Bearer ${token ?? ''}` },
         })
         const data = await response.json()
-        if (!response.ok) {
-          throw new Error(data.message ?? 'No se pudo cargar la lista')
-        }
+        if (!response.ok) throw new Error(data.message ?? 'No se pudo cargar la lista')
         setUsers(data as AuthenticatedUser[])
-        console.log('Usuarios actualmente en memoria:', data)
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : 'Error al cargar usuarios')
       } finally {
         setLoading(false)
       }
     }
-
     void loadUsers()
   }, [token])
 
@@ -75,87 +66,73 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
     setError('')
     try {
       const response = await fetch(`${API_URL}/usuarios/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token ?? ''}` },
+        method: 'DELETE', headers: { Authorization: `Bearer ${token ?? ''}` },
       })
       const data = await response.json()
-      if (!response.ok) {
-        throw new Error(data.message ?? 'No se pudo eliminar el usuario')
-      }
+      if (!response.ok) throw new Error(data.message ?? 'No se pudo eliminar el usuario')
       setUsers((current) => current.filter((item) => item.usuario_ID !== id))
-      console.log('Usuario eliminado:', data)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Error al eliminar usuario')
     }
   }
 
   return (
-    <>
-      <header className='header'>  </header>
-      <h1>Administración de usuarios</h1>
-      <p>Sesión iniciada como {user.nombre_usuario} ({user.correo_usuario})</p>
-      <button type="button" onClick={onLogout}>Cerrar sesión</button>
+    <div className="users-admin">
+      <header className="ua-navbar">
+        <a className="ua-brand" href="#usuarios" aria-label="Inicio">⌖ <span>FIND ME</span></a>
+        <nav className="ua-nav-links" aria-label="Navegación principal">
+          <a href="#como-funciona">¿Cómo funciona?</a>
+          <a href="#descargar">Descargar App</a>
+          <a href="#preguntas">Preguntas frecuentes</a>
+        </nav>
+        <div className="ua-account">
+          <span className="ua-account-icon" aria-hidden="true">●</span>
+          <span className="ua-account-name">{user.nombre_usuario}</span>
+          <button type="button" onClick={onLogout}>Cerrar sesión</button>
+        </div>
+      </header>
 
-      <h2>Modificar mi usuario</h2>
-      <form onSubmit={updateProfile}>
-        <label>
-          Nombre
-          <input
-            value={nombre}
-            onChange={(event) => setNombre(event.target.value)}
-            minLength={2}
-            maxLength={50}
-            required
-          />
-        </label>
-        <label>
-          Correo electrónico
-          <input
-            type="email"
-            value={correo}
-            onChange={(event) => setCorreo(event.target.value)}
-            maxLength={100}
-            required
-          />
-        </label>
-        <button type="submit">Guardar cambios</button>
-        {profileMessage && <p>{profileMessage}</p>}
-      </form>
+      <main className="ua-main" id="usuarios">
+        <section className="ua-users-panel" aria-labelledby="ua-title">
+          <div className="ua-panel-heading">
+            <div>
+              <p className="ua-eyebrow">PANEL DE ADMINISTRACIÓN</p>
+              <h1 id="ua-title">Usuarios registrados</h1>
+            </div>
+            <span className="ua-count">{users.length} usuarios</span>
+          </div>
+          {loading && <p className="ua-state">Cargando usuarios…</p>}
+          {error && <p className="ua-alert" role="alert">{error}</p>}
+          {!loading && users.length === 0 && <p className="ua-state">No hay usuarios registrados.</p>}
+          {users.length > 0 && (
+            <div className="ua-user-list">
+              {users.map((item) => (
+                <article className="ua-user-row" key={item.usuario_ID}>
+                  <div className="ua-avatar" aria-hidden="true"><span /></div>
+                  <div className="ua-user-name">{item.nombre_usuario}</div>
+                  <div className="ua-user-info">
+                    <span>{item.correo_usuario}</span>
+                    <small>ID de usuario: {item.usuario_ID}</small>
+                  </div>
+                  <button className="ua-delete" type="button" onClick={() => void deleteUser(item.usuario_ID)} aria-label={`Eliminar a ${item.nombre_usuario}`} title="Eliminar usuario">⌫</button>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
 
-      <h2>Usuarios creados en memoria</h2>
-      {loading && <p>Cargando usuarios…</p>}
-      {error && <p role="alert">{error}</p>}
-      {!loading && users.length === 0 && <p>No hay usuarios registrados.</p>}
-
-      {users.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((item) => (
-              <tr key={item.usuario_ID}>
-                <td>{item.usuario_ID}</td>
-                <td>{item.nombre_usuario}</td>
-                <td>{item.correo_usuario}</td>
-                <td>
-                  <button
-                    type="button"
-                    onClick={() => void deleteUser(item.usuario_ID)}
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </>
+        <section className="ua-profile-panel" aria-labelledby="ua-profile-title">
+          <div className="ua-panel-heading">
+            <div><p className="ua-eyebrow">TU CUENTA</p><h2 id="ua-profile-title">Modificar mi usuario</h2></div>
+          </div>
+          <form className="ua-profile-form" onSubmit={updateProfile}>
+            <label>Nombre<input value={nombre} onChange={(event) => setNombre(event.target.value)} minLength={2} maxLength={50} required /></label>
+            <label>Correo electrónico<input type="email" value={correo} onChange={(event) => setCorreo(event.target.value)} maxLength={100} required /></label>
+            <button className="ua-save" type="submit">Guardar cambios</button>
+            {profileMessage && <p className="ua-success">{profileMessage}</p>}
+          </form>
+        </section>
+      </main>
+    </div>
   )
 }
