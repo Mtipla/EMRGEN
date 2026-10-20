@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditoriaModule } from '../auditoria/auditoria.module';
 import { readEnv } from '../config/env';
+import { FirebaseAuthModule } from '../integrations/firebase-auth/firebase-auth.module';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { Pin } from '../usuarios/pin.entity';
 import { UsuariosModule } from '../usuarios/usuarios.module';
@@ -16,6 +17,7 @@ import { RolesGuard } from './roles.guard';
     TypeOrmModule.forFeature([Usuario, Pin]),
     UsuariosModule,
     AuditoriaModule, // Bitácora de las acciones de administrador (DELETE /usuarios/:id)
+    FirebaseAuthModule,
     JwtModule.registerAsync({
       useFactory: () => {
         const secret = readEnv('JWT_SECRET');

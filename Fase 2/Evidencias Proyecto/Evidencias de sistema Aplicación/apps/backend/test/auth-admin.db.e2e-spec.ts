@@ -6,6 +6,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from './../src/app.module';
+import { FirebaseAuthService } from './../src/integrations/firebase-auth/firebase-auth.service';
 
 /**
  * Login (JWT + bcrypt) y panel Admin contra la PostgreSQL REAL de docker-compose.
@@ -14,6 +15,7 @@ import { AppModule } from './../src/app.module';
  * Crea sus propios usuarios (correo único por ejecución) y los borra al terminar.
  */
 const db = process.env.DB_E2E === '1' ? describe : describe.skip;
+const SIN_VERIFICAR = 'sin-verificar:';
 
 db('Login + Admin contra PostgreSQL (Docker)', () => {
   jest.setTimeout(60_000);
@@ -36,11 +38,26 @@ db('Login + Admin contra PostgreSQL (Docker)', () => {
 
   const login = (correo_usuario: string, clave = password) =>
     http().post('/usuarios/login').send({ correo_usuario, password: clave });
+  const registro = (nombre_usuario: string, correo_usuario: string, firebaseEmail = correo_usuario) =>
+    http()
+      .post('/usuarios/registro')
+      .set('Authorization', `Bearer ${firebaseEmail.toLowerCase()}`)
+      .send({ nombre_usuario, correo_usuario, password });
 
   beforeAll(async () => {
+    // Firebase simulado: el ID token de prueba es el propio correo (ver `registro`);
+    // con el prefijo SIN_VERIFICAR es una cuenta que aún no confirma su correo.
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(FirebaseAuthService)
+      .useValue({
+        verifyIdToken: async (token: string) => {
+          const email = token.replace(SIN_VERIFICAR, '');
+          return { uid: `uid-${email}`, email, emailVerified: !token.startsWith(SIN_VERIFICAR) };
+        },
+      })
+      .compile();
     app = moduleFixture.createNestApplication({ logger: false });
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
@@ -64,14 +81,8 @@ db('Login + Admin contra PostgreSQL (Docker)', () => {
   });
 
   it('registra usuarios en la BD con la contraseña hasheada con bcrypt', async () => {
-    const admin = await http()
-      .post('/usuarios/registro')
-      .send({ nombre_usuario: 'Admin E2E', correo_usuario: correoAdmin.toUpperCase(), password })
-      .expect(201);
-    const usuario = await http()
-      .post('/usuarios/registro')
-      .send({ nombre_usuario: 'Usuario E2E', correo_usuario: correoUsuario, password })
-      .expect(201);
+    const admin = await registro('Admin E2E', correoAdmin.toUpperCase()).expect(201);
+    const usuario = await registro('Usuario E2E', correoUsuario).expect(201);
     idAdmin = admin.body.usuario_ID;
     idUsuario = usuario.body.usuario_ID;
 
@@ -89,10 +100,22 @@ db('Login + Admin contra PostgreSQL (Docker)', () => {
   });
 
   it('rechaza con 409 un correo ya registrado (sin distinguir mayúsculas)', () =>
-    http()
+    registro('Duplicado', correoUsuario.toUpperCase()).expect(409));
+
+  it('exige un ID token de Firebase del mismo correo para registrarse', async () => {
+    await http()
       .post('/usuarios/registro')
-      .send({ nombre_usuario: 'Duplicado', correo_usuario: correoUsuario.toUpperCase(), password })
-      .expect(409));
+      .send({ nombre_usuario: 'Sin token', correo_usuario: `otro.${sufijo}@e2e.test`, password })
+      .expect(401);
+    await registro('Otro correo', `otro.${sufijo}@e2e.test`, correoUsuario).expect(403);
+  });
+
+  it('no guarda en la BD una cuenta que aún no confirma su correo', async () => {
+    const correo = `sinverificar.${sufijo}@e2e.test`;
+    await registro('Sin verificar', correo, `${SIN_VERIFICAR}${correo}`).expect(403);
+    const filas = await dataSource.query('SELECT 1 FROM usuario WHERE correo_usuario = $1', [correo]);
+    expect(filas).toHaveLength(0);
+  });
 
   it('rechaza con 401 una contraseña incorrecta o un correo inexistente', async () => {
     await login(correoUsuario, 'OtraClave999').expect(401);

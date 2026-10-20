@@ -8,8 +8,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { FirebaseAuthUser } from '@repo/api-types';
 import * as bcrypt from 'bcrypt';
-import { DataSource , IsNull , Repository } from 'typeorm';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import { APLICACION } from '../auditoria/aplicacion.entity';
 import { type ActorAuditoria, AuditoriaService } from '../auditoria/auditoria.service';
 import { ENTIDAD_AUDITADA, TIPO_ACCION } from '../auditoria/bitacora.entity';
@@ -47,7 +48,21 @@ export class LoginService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async crear(datos: CrearUsuarioDto): Promise<UsuarioPublico> {
+  async crear(
+    datos: CrearUsuarioDto,
+    firebaseUser: FirebaseAuthUser,
+  ): Promise<UsuarioPublico> {
+    const correo = datos.correo_usuario.trim().toLowerCase();
+    // El ID token debe pertenecer a la cuenta de Firebase de ese mismo correo.
+    if (firebaseUser.email?.toLowerCase() !== correo) {
+      throw new ForbiddenException(
+        'El correo no coincide con la cuenta de Firebase Authentication',
+      );
+    }
+    // Solo se guarda en la BD cuando el usuario confirmó su correo con el enlace de Firebase.
+    if (!firebaseUser.emailVerified) {
+      throw new ForbiddenException('Debes confirmar tu correo antes de crear la cuenta');
+    }
     const cuenta = await this.prepararCuentaPrincipal(datos);
     try {
       // Reglas de cuenta principal (rol USUARIO, estado ACTIVO) de UsuariosService.

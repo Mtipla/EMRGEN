@@ -26,7 +26,9 @@ async function post<T>(url: string, apiKey: string, body: Record<string, unknown
     body: JSON.stringify(body),
   });
   const data = (await response.json().catch(() => ({}))) as T & { error?: { message?: string } };
-  if (!response.ok) throw new FirebaseAuthError(data.error?.message ?? `HTTP_${response.status}`);
+  // Algunos códigos traen detalle: "WEAK_PASSWORD : Password should be at least 6 characters".
+  const code = data.error?.message?.split(' : ')[0];
+  if (!response.ok) throw new FirebaseAuthError(code ?? `HTTP_${response.status}`);
   return data;
 }
 
@@ -72,6 +74,16 @@ export function createFirebaseAuth(apiKey: string) {
     /** Envía el correo de restablecimiento de contraseña. */
     sendPasswordReset: async (email: string) => {
       await post(`${IDENTITY_URL}:sendOobCode`, apiKey, { requestType: 'PASSWORD_RESET', email });
+    },
+
+    /** Envía el correo con el enlace que confirma que el email de la cuenta es real. */
+    sendEmailVerification: async (idToken: string) => {
+      await post(`${IDENTITY_URL}:sendOobCode`, apiKey, { requestType: 'VERIFY_EMAIL', idToken });
+    },
+
+    /** Elimina la cuenta dueña del ID token (deshace un registro que el backend rechazó). */
+    deleteAccount: async (idToken: string) => {
+      await post(`${IDENTITY_URL}:delete`, apiKey, { idToken });
     },
 
     /** Obtiene un ID token nuevo cuando el anterior expira (1 hora). */
