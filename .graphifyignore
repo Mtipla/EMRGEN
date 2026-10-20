@@ -12,6 +12,12 @@ coverage/
 .env
 .env.*
 
+# Duplicados y respaldos (evitan nodos redundantes en el grafo)
+**/respaldos/
+**/PLAZA_DIEGO_*
+**/Diagrama de secuencia/
+.claude/
+
 # Video y audio: nunca leer/transcribir su contenido binario (ej. "3.2 Wireframes o Mockups/Videos Mockups/")
 *.mp4
 *.mkv

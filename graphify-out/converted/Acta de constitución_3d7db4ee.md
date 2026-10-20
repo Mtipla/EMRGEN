@@ -57,10 +57,7 @@ Aprobaciones y control de cambios
 | Product Owner (Julio Tapia) | Métricas de aceptación |
 | Nombre | Tipo | Cargo | Departamento / División |
 | --- | --- | --- | --- |
-| Armando Casas | Usuario | Jefe de RRHH | Departamento de RRHH |
-| Samuel de Luque | Cliente | Gerente General | Gerencia |
-| Mario Castañeda | Proveedor | Gerente T.I | Departamento de informática |
-| Gabriel Valencia | Proveedor | Jefe de Proyecto | Departamento de informática |
+| Julio Tapia | Patrocinador | Product Owner | Dep. de informática |
 | Hito | Fecha tope |
 | --- | --- |
 | Hito N°1 | 11-09-2026 |
@@ -68,6 +65,7 @@ Aprobaciones y control de cambios
 | Hito N°3 | 04-12-2026 |
 | Construcción de un Aplicativo informático que ayude al usuario en caso de diferentes emergencias entregando información a sus contactos de emergencia:
 Urbano
+Emergencia
 Médico
 Adulto Mayor |
 | --- |
@@ -79,31 +77,38 @@ Al comparar el contexto con otras aplicaciones, podrían cumplir algunas de las 
 
 Con esa información le da la opción para los números vinculados al usuario auxiliarlo de forma más rápida, obteniendo a su vez información médica relevante la cual ayudaría al personal médico de ser necesario, y la tenencia de un historial del incidente esta le podría ayudar a facilitar procesos legales o de reposición de documentación que llegase a necesitar. |
 | --- |
-| El presupuesto estimado para este proyecto, considerando recursos tecnológicos y horas hombre es de $1.411.050 CLP, este se desglosa a continuación: |
+| El presupuesto estimado para este proyecto, considerando fondos de contingencia, ganancia y horas hombre es de $1.496.400 CLP, este se desglosa a continuación:
+
+Para la valorización se tomaron en cuenta los valores de la Guía Salarial Tech Chile 2026, y se ajustaron los valores considerando la calidad de Junior del equipo de desarrollo y en modalidad como consultoria independiente |
 | --- |
 | Construcción de un Aplicativo informático que ayude al usuario en caso de diferentes emergencias entregando información a sus contactos de emergencia:
-Urbano: enviar ubicación del afectado y un mensaje personalizado creado por el usuario.
+Urbano: Enviar ubicación del afectado y un mensaje personalizado creado por el usuario.
+Emergencia: Enviar ubicación del afectado y un mensaje personalizado creado por el usuario. 
 Médico: enviar ubicación del afectado, un mensaje personalizado creado por el usuario y un mensaje con la información médica relevante del usuario.
 Adulto Mayor: enviar ubicación del afectado, un mensaje personalizado creado por el usuario, un mensaje con la información médica relevante del usuario y configuración de la aplicación móvil reducida. |
 | --- |
 | Objetivo | Indicador de éxito |
 | --- | --- |
 | Alcance | Alcance |
-| “Emergen” busca solucionar los tiempos de espera en situaciones de emergencia, brindando una comunicación efectiva al círculo cercano de la persona y a los agentes de seguridad para el auxilio del usuario. | 100% |
+| “Emergen” busca solucionar los tiempos de espera en situaciones de emergencia, brindando una comunicación efectiva al círculo cercano de la persona y a los agentes de seguridad para el auxilio del usuario. | 100% de los RF en alcance, con al menos 1 caso de prueba P1/P2 aprobado |
 | Objetivo | Indicador de éxito |
 | --- | --- |
 | Calidad | Calidad |
-| El sistema tiene que cumplir con las normas de calidad definidas en la ISO 9126 y la ISO 25001. | 90% |
+| El sistema se evaluará según el modelo de calidad de producto ISO/IEC 25010 | 90% |
 | El sistema debe proveer:
 -Seguridad 
+
 -Usabilidad 
+
 -Funcionalidad 
+
 -Mantenibilidad
--Interoperabilidad | -98%
--98%
--98%
--100%
--100% |
+
+-Interoperabilidad | 98% de los casos de seguridad aprobados y 0 defectos críticos
+98% de los casos de usabilidad y responsividad aprobados
+98% de los casos funcionales aprobados
+100% del código funcional sin errores
+100% de los flujos de funcionamiento equivalentes en web, móvil y escritorio |
 | Objetivo | Indicador de éxito |
 | --- | --- |
 | Cronograma | Cronograma |
@@ -114,8 +119,8 @@ Adulto Mayor: enviar ubicación del afectado, un mensaje personalizado creado po
 | 18 semanas | 100% |
 | Construcción de un Aplicativo informático que ayude al usuario en caso de diferentes emergencias entregando información a sus contactos de emergencia que cumpla con lo siguiente:
 Ajustarse a los plazos de entrega.
-El lenguaje a desarrollar será JavaScript.
-Se utilizará una base de datos relacional de ORACLE.
+El lenguaje a desarrollar será TypeScript.
+Se utilizará una base de datos relacional de PostgreSQL.
 Las pruebas se llevarán a cabo con el cliente. 
 Para el desarrollo se utilizarán 3 ingenieros en informática junior. |
 | --- |
@@ -130,31 +135,31 @@ Funcionamiento Completo de los RF |
 | Módulo Usuario:
 RF1: El sistema debe permitir crear una cuenta al usuario
 RF2: El sistema debe permitir iniciar sesión al usuario con sus credenciales
-RF3: El sistema debe poder modificar las credenciales de los usuarios y empleados desde la página web / escritorio / móvil
-RF4: El sistema debe modificar las especificaciones y finalidad del usuario (médico, urbano, emergencias y adulto mayor)
-RF5: El sistema debe poder personalizarse a gusto del usuario considerando el formato de activación en segundo plano.
+RF3: El sistema debe poder modificar las credenciales de los usuarios y personal de soporte desde la página web / escritorio / móvil
+RF4: El sistema debe permitir al usuario modificar las especificaciones y finalidades del mismo según su tipo de emergencia (Urbano, Medico, Emergencias y Adulto mayor)
+RF5: El sistema debe permitir al usuario configurar el método de activación del SOS según su tipo de usuario. Para personas mayores o usuarios con acceso limitado, la configuración predeterminada requiere mantener pulsado el botón SOS durante 5 segundos. La activación con la aplicación en segundo plano o cerrada (acceso directo, widget o botón físico) se implementará solo donde el sistema operativo lo permita sin código nativo adicional y se clasifica como Could Have (prioridad pendiente de confirmación). El valor para el resto de perfiles queda pendiente de confirmar.
 RF6: El sistema debe tener al menos 1 contacto de emergencia ingresado dentro de un usuario/cuenta para su correcto uso.
-RF7: El sistema debe tener un límite de 5 contactos de emergencia por cuenta, considerando también cuentas apadrinadas.
+RF7: El sistema debe tener un máximo de 5 contactos de emergencia por usuario: la cuenta principal y cada usuario apadrinado deben poder administrar su límite de 5 contactos
 RF8: El sistema debe tener un máximo de 5 usuarios apadrinados posibles dentro de una cuenta
 RF9: El sistema debe tener los datos personales filtrados para cada cuenta y sus usuarios apadrinados
 RF10: El sistema debe poder filtrar información médica y que está solo sea compartida a las personas designadas por el usuario.
 Módulo Alertas:
 RF11: El sistema debe enviar un mensaje a los contactos de emergencia registrados por el usuario
-RF12: El sistema debe enviar un mensaje personalizado dependiendo de la finalidad del usuario (médico, urbano, emergencias y adulto mayor)
+RF12: El sistema debe enviar un mensaje personalizado dependiendo de la finalidad del usuario (Urbano, Medico, Emergencias y Adulto mayor)
 RF13: El sistema debe compartir la última ubicación ingresada desde el dispositivo a los contactos de emergencia del usuario.
 RF14: El sistema debe informar a las redes de seguridad más cercanas del usuario (números de emergencias)
 Sistema en General:
 RF15: Se debe tener una aplicación de escritorio la cual administre el software.
-RF16:	La aplicación web debe realizar ventas de cuentas de usuarios.
+RF16: La aplicación web debe realizar ventas de planes de cuentas de usuarios y de cupos para usuarios apadrinados.
 RF17: El sistema debe generar descuentos a usuarios que quisieran apadrinar otra cuenta dentro de ella.
 RF18: La aplicación web debe poder realizar contacto de soporte en caso de problemas de software de los usuarios.
 RF19: La aplicación de escritorio debe poder gestionar las cuentas vinculadas a los usuarios, sin perder el espacio apadrinado anteriormente.
-RF20: La aplicación de escritorio debe poder modificar la BBDD de la página web y aplicación móvil.
+RF20: La aplicación de escritorio debe permitir al usuario con rol ADMINISTRADOR, consultar y modificar los datos del sistema exclusivamente a través de los datos expuestos por la API del backend
 RF21: La aplicación de escritorio debe poder generar informes de seguimiento de los usuarios.
 RF22: La aplicación web y móvil deben poder generar informes de seguimiento personales de las cuentas.
 RF23: La aplicación web y móvil debe funcionar con un sistema de pin único que esté vinculado a la cuenta principal para el ingreso personal de los usuarios.
 RF24: La aplicación web y móvil el primer inicio de sesión debe estar vinculado a la cuenta principal.
-RF25: La aplicación web y móvil debe poder decidir el usuario principal, las personas que tiene apadrinadas en su cuenta y cómo son utilizadas con un soporte de usuario externo. |
+RF25: La aplicación web y móvil debe permitir al usuario principal definir sus usuarios apadrinados y el nivel de acceso de cada uno (acceso completo o parcial), y solicitar asistencia al personal de soporte en caso de ayuda para gestionarlo |
 | --- |
 | Algunas limitaciones que se han identificado a las que nos podemos enfrentar dentro del desarrollo del sistema y posiblemente durante su implementación son:
 
@@ -172,11 +177,12 @@ Atraso en los tiempos de entrega por enfermedades a nivel mundial. |
 | Desarrollo:
 TypeScript
 Node.js
-React/Angular
+React
 Capacitor
 Electron
 Turborepo
-MySQL |
+Docker Desktop
+PostgreSQL |
 | --- |
 | Web
 Móvil
@@ -186,8 +192,15 @@ Escritorio |
 RNF2: La aplicación web debe ser compatibles entre navegadores
 RNF3: El sistema debe garantizar la seguridad al gestionar correos y credenciales de ingreso
 RNF4: El backend debe ser el único encargado de procesar la seguridad mediante un modelo estricto de control de acceso basado en roles
-RNF5: El sistema debe garantizar la seguridad y confidencialidad de los datos proporcionados por el usuario |
+RNF5: El sistema debe garantizar la seguridad y confidencialidad de los datos proporcionados por el usuario
+RNF6: Al momento de emergencia, el sistema debe registrar la alerta e iniciar acción en un máximo de 3 segundos, y el primer intento de despacho a cada contacto en un máximo de 10 segundos desde la alerta.
+RNF7: El sistema debe garantizar la persistencia de las alertas ante fallos, y mantener una disponibilidad objetivo del 99% mensual 
+RNF8: El sistema debe proteger los datos de salud conforme a la Ley 21.719, exigiendo consentimiento explícito, aplicando cifrado y limitando el acceso a la ficha médica sólo durante emergencias activas 
+RNF9: Al eliminar una cuenta, el sistema debe suprimir la información personal y médica, conservando únicamente el historial de alertas para fines de auditoría/legales
+RNF10: Las interfaces de activación SOS y configuración de contactos deben cumplir con el estándar de accesibilidad WCAG 2.1 nivel AA |
 | --- |
 | Versión | Nombre | Rol | Fecha |
 | --- | --- | --- | --- |
 | 1.0 | Gabriel Valencia | Creación | 09-09-2026 |
+| 1.1 | Alonso González | Correcciones | 05-10-2026 |
+| 1.2 | Gabriel Valencia | Correcciones | 07-10-2026 |

@@ -87,13 +87,20 @@ export class PaypalService {
     };
   }
 
-  async captureOrder(orderId: string): Promise<CapturePaypalOrderResponse> {
+  /**
+   * @param requestId clave de idempotencia: reintentar con la misma clave devuelve la
+   * captura ya hecha en vez de cobrar de nuevo (ComprasService usa una por venta).
+   */
+  async captureOrder(
+    orderId: string,
+    requestId: string = randomUUID(),
+  ): Promise<CapturePaypalOrderResponse> {
     const order = await requestExternalJson<PaypalOrder>(
       INTEGRATION,
       `${this.baseUrl}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`,
       {
         method: 'POST',
-        headers: await this.headers({ 'PayPal-Request-Id': randomUUID() }),
+        headers: await this.headers({ 'PayPal-Request-Id': requestId }),
       },
     );
 
@@ -102,6 +109,7 @@ export class PaypalService {
       orderId: order.id,
       status: order.status,
       captureId: capture?.id,
+      captureStatus: capture?.status,
       amount: capture && {
         value: capture.amount.value,
         currency: capture.amount.currency_code,

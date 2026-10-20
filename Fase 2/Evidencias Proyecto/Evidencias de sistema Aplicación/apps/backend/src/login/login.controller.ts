@@ -11,6 +11,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import {
+  FirebaseAuthGuard,
+  type FirebaseRequest,
+} from '../integrations/firebase-auth/firebase-auth.guard';
 import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { CrearPinDto } from './dto/crear-pin.dto';
@@ -25,9 +29,11 @@ import { RolesGuard } from './roles.guard';
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
+  // Exige el ID token de la cuenta recién creada en Firebase (Authorization: Bearer).
+  @UseGuards(FirebaseAuthGuard)
   @Post('registro')
-  registrar(@Body() datos: CrearUsuarioDto) {
-    return this.loginService.crear(datos);
+  registrar(@Req() request: FirebaseRequest, @Body() datos: CrearUsuarioDto) {
+    return this.loginService.crear(datos, request.firebaseUser!);
   }
 
   @Post('login')

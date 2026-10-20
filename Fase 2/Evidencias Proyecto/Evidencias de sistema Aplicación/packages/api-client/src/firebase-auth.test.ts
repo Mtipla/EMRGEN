@@ -65,6 +65,20 @@ describe('createFirebaseAuth', () => {
     });
   });
 
+  it('sendEmailVerification: pide el correo de confirmación de la cuenta del ID token', async () => {
+    fetchMock.mockResolvedValueOnce(json({ email: 'ana@example.com' }));
+    await auth.sendEmailVerification('id-token');
+    expect(lastCall().url).toContain('accounts:sendOobCode?key=web-key');
+    expect(lastCall().body).toEqual({ requestType: 'VERIFY_EMAIL', idToken: 'id-token' });
+  });
+
+  it('deleteAccount: elimina la cuenta dueña del ID token', async () => {
+    fetchMock.mockResolvedValueOnce(json({}));
+    await auth.deleteAccount('id-token');
+    expect(lastCall().url).toContain('accounts:delete?key=web-key');
+    expect(lastCall().body).toEqual({ idToken: 'id-token' });
+  });
+
   it('refresh: renueva el ID token y traduce el formato snake_case', async () => {
     fetchMock.mockResolvedValueOnce(
       json({

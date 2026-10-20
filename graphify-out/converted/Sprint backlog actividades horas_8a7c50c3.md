@@ -7,7 +7,7 @@
 | Id Historia | Id Tarea | Tareas o actividad | Horas estimadas |  |
 | HU-01 | TH-1.1 | Modelado de BDD y desarrollo de API utilizando Nest.js para el registro de usuarios (endpoint de /Registro), con validación de correo | 4.0 |
 | HU-01 | TH-1.2 | Implementación de encriptación de contraseña en el backend | 2.0 |
-| HU-01 | TH-1.3 | Maquetado del UI para el formulario de registro usando React/Angular y la debida conexión con el backend | 3.0 |
+| HU-01 | TH-1.3 | Maquetado del UI para el formulario de registro usando React + Ionic y la debida conexión con el backend | 3.0 |
 | HU-02 | TH-2.1 | Desarrollo del endpoint de /Login en Nest.js para realizar la validación de credenciales y generación de JWT | 4.0 |
 | HU-02 | TH-2.2 | Creación de vista de Login y confirmación de almacenamiento seguro del token JWT | 3.0 |
 | HU-03 | TH-3.1 | Desarrollo del endpoint que gestiona los CONTACTOS, incluyendo la regla de negocio que bloquea el registro de mas de 5 contactos de emergencia | 3.0 |

@@ -93,6 +93,7 @@ describe('PaypalService', () => {
       orderId: 'ORDER1',
       status: 'COMPLETED',
       captureId: 'CAP1',
+      captureStatus: 'COMPLETED',
       amount: { value: '9.99', currency: 'USD' },
       payerEmail: 'comprador@example.com',
     });
