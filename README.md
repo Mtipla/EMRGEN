@@ -11,7 +11,7 @@ El proyecto se aloja en un único repositorio gestionado con **Turborepo** para 
 
 * **Lenguaje de Programación:** TypeScript (garantiza tipado unificado entre frontend y backend).
 * **Backend y API REST:** Node.js con el framework Nest.js para la confección de APIs internas.
-* **Base de Datos:** MySQL (Base de datos relacional con 30 tablas normalizadas para garantizar la integridad de los datos).
+* **Base de Datos:** PostgreSQL 15 (Base de datos relacional con 30 tablas normalizadas para garantizar la integridad de los datos).
 * **Frontend (App Web):** React / Angular con componentes base de Ionic.
 * **App de Escritorio (Administración):** Electron (exporta la app web como software ejecutable local para gestionar la plataforma).
 * **App Móvil:** Capacitor (herramienta nativa de Ionic para exportar la app web a móvil).
@@ -26,7 +26,7 @@ El proyecto se aloja en un único repositorio gestionado con **Turborepo** para 
 
 ## ⚙️ Instrucciones para ejecutar el proyecto localmente
 
-*[Espacio reservado: Detallar aquí los pasos de instalación, comandos como `npm install`, configuración de variables de entorno `.env`, scripts de ejecución de Turborepo y credenciales de la base de datos local]*
+La guía completa está en el README del monorepo: `Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README.md`. Ejecuta todos los comandos desde esa carpeta, no desde la raíz de este repositorio.
 
 ---
 

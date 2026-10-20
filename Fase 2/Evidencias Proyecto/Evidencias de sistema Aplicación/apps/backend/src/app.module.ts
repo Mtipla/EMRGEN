@@ -12,6 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/admin.module';
 import { LoginModule } from './login/login.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { ComprasModule } from './compras/compras.module';
 
 
 @Module({
@@ -42,6 +43,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     UsuariosModule,
     LoginModule,
     PaypalModule,
+    ComprasModule,
     FirebaseAuthModule,
     JsreportModule,
     GoogleMapsModule,

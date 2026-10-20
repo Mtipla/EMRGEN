@@ -80,20 +80,20 @@ Won't have (No tendrá): Son requisitos que no se abordarán en la versión actu
 | --- |
 | ID | Épica | Priorización |
 | --- | --- | --- |
-| EP-01 | Arquitectura y Inicio usuario | S |
-| EP-02 | Gestión de Cuentas y Usuarios Base | S |
+| EP-01 | Arquitectura y Inicio usuario | M |
+| EP-02 | Gestión de Cuentas y Usuarios Base | M |
 | EP-03 | Red de Contactos de Emergencia | M |
 | EP-04 | Parametrización y Contextos de Emergencia | M |
 | EP-05 | Motor de Activación SOS y Geolocalización | M |
 | EP-06 | Motor de Notificaciones y Distribución de Alertas | M |
 | EP-07 | Cuentas Vinculadas, Dependientes y PIN | S |
-| EP-08 | Gestión de Información Médica Controlada | C |
+| EP-08 | Gestión de Información Médica Controlada | S |
 | EP-09 | Plataforma Administrativa Web/Desktop | S |
 | EP-10 | Seguridad Avanzada, Auditoría y Calidad | S |
 | ID-EP | ID-HU | Historia de usuario |
 | --- | --- | --- |
-| EP-01 | HU-01 | Como nuevo usuario, quiero registrarme ingresando mi nombre, correo y contraseña, para crear una cuenta en la plataforma de emergencias. |
-| EP-02 | HU-02 | Como usuario registrado, quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones de la aplicación. |
+| EP-02 | HU-01 | Como nuevo usuario, quiero registrarme ingresando mi nombre, correo y contraseña, para crear una cuenta en la plataforma de emergencias. |
+| EP-01 | HU-02 | Como usuario registrado, quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones de la aplicación. |
 | EP-03 | HU-03 | Como usuario de la cuenta, quiero agregar un contacto indicando su nombre y teléfono, para asignarlo a mi red de recibimiento de alertas. |
 | EP-03 | HU-04 | Como usuario de la cuenta, quiero modificar o borrar un contacto de mi lista, para mantener actualizada mi red de auxilio. |
 | EP-04 | HU-05 | Como usuario, quiero seleccionar un tipo de emergencia (médica/urbana) y personalizar el texto predeterminado, para que mis contactos entiendan la situación de inmediato. |
@@ -105,3 +105,9 @@ Won't have (No tendrá): Son requisitos que no se abordarán en la versión actu
 | EP-08 | HU-11 | Como usuario o tutor, quiero ingresar datos de salud (grupo sanguíneo, alergias, enfermedades), para que estén disponibles en una emergencia. |
 | EP-08 | HU-12 | Como contacto de emergencia o personal autorizado, quiero visualizar la ficha médica del emisor de la alerta, para conocer sus condiciones de salud durante la crisis. |
 | EP-09 | HU-13 | Como administrador del sistema, quiero listar, filtrar y gestionar las cuentas registradas, para brindar soporte técnico y supervisar la plataforma. |
+| EP-05 | HU-14 | Como usuario que activó una alerta (o su tutor), quiero finalizar o cancelar la emergencia, para que mis contactos sepan que la situación terminó y se revoque el acceso a mi información médica. |
+| EP-02 | HU-15 | Como usuario registrado, quiero modificar mi correo y mi contraseña, para mantener mis credenciales de acceso actualizadas y seguras. |
+| EP-07 | HU-16 | Como usuario principal, quiero comprar un plan o cupos para usuarios apadrinados desde la aplicación web, para ampliar la protección a mis dependientes. |
+| EP-04 | HU-17 | Como usuario, quiero ver los números oficiales de emergencia con acceso directo a la llamada, para contactar rápidamente a los servicios públicos cuando lo necesite. |
+| EP-09 | HU-18 | Como usuario o visitante, quiero enviar una solicitud de soporte, para recibir ayuda ante problemas con la aplicación. |
+| EP-09 | HU-19 | Como usuario principal, quiero generar un informe de la actividad de mi cuenta y de mis apadrinados, para revisar el historial de alertas y acciones. |

@@ -120,6 +120,7 @@ Aquí documentamos lo que pasará al momento de ejecutar los casos de prueba de 
 | Versión | Fecha | Descripción | Estado |
 | --- | --- | --- | --- |
 | 1.0 | 08-09-2026 | Plan inicial trazable al ERS y alineado con Backlog y Sprints. | Para revisión |
+| 1.1 | 07-10-2026 | Correcciones de la auditoría técnica; registro de versiones con fechas reales | [pendiente de confirmar] |
 | ID del caso | Requisito relacionado | Descripción del caso | Resultado esperado |
 | --- | --- | --- | --- |
 | CP-RF1-01 | RF1 | Verificar la creación de una cuenta con datos válidos e inválidos. | La cuenta se crea con datos válidos. Los datos incompletos, incorrectos o duplicados son rechazados sin generar registros parciales. |

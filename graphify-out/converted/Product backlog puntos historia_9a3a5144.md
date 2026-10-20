@@ -17,3 +17,9 @@
 | HU-11 | Registrar Ficha Información Médica | 2.0 |
 | HU-12 | Acceso Restringido a Datos Médicos | 4.0 |
 | HU-13 | Panel Admin de Usuarios (Web/Desktop) | 3.0 |
+| HU-14 | Finalizar o Cancelar Emergencia |  |
+| HU-15 | Gestionar Perfil y Credenciales |  |
+| HU-16 | Adquirir Plan o Cupos (PayPal) |  |
+| HU-17 | Números Oficiales de Emergencia |  |
+| HU-18 | Enviar Solicitud de Soporte |  |
+| HU-19 | Informe Personal de Actividad |  |

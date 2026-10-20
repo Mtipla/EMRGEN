@@ -2,8 +2,6 @@
 
 
 
-
-
 # Índice
 
 Ficha del documento
@@ -24,11 +22,11 @@ Se detallan los requerimientos funcionales ordenados por módulos y los requerim
 Modulo Usuarios:
 RF1: El sistema debe permitir crear una cuenta al usuario
 RF2: El sistema debe permitir iniciar sesión al usuario con sus credenciales
-RF3: El sistema debe poder modificar las credenciales de los usuarios y empleados desde la página web / escritorio / móvil
+RF3: El sistema debe permitir modificar las credenciales (correo y contraseña) de los usuarios y del personal de soporte (rol SOPORTE, denominado anteriormente “empleados”) desde la página web / escritorio / móvil, previa verificación de identidad.
 RF4: El sistema debe modificar las especificaciones y finalidad del usuario (médico, urbano, emergencias y adulto mayor)
-RF5: El sistema debe poder personalizarse a gusto del usuario considerando el formato de activación en segundo plano.
+RF5: El sistema debe permitir al usuario configurar el método de activación del SOS según su tipo de usuario. Para personas mayores o usuarios con acceso limitado, la configuración predeterminada requiere mantener pulsado el botón SOS durante 5 segundos. La activación con la aplicación en segundo plano o cerrada (acceso directo, widget o botón físico) se implementará solo donde el sistema operativo lo permita sin código nativo adicional y se clasifica como Could Have (prioridad pendiente de confirmación). El valor para el resto de perfiles queda pendiente de confirmar.
 RF6: El sistema debe tener al menos 1 contacto de emergencia ingresado dentro de un usuario/cuenta para su correcto uso.
-RF7: El sistema debe tener un límite de 5 contactos de emergencia por cuenta, considerando también cuentas apadrinadas.
+RF7: El sistema debe permitir un máximo de 5 contactos de emergencia por usuario: la cuenta principal y cada usuario apadrinado administran su propio límite de 5 contactos. El límite se valida en el backend (CA-03.2).
 RF8: El sistema debe tener un máximo de 5 usuarios apadrinados posibles dentro de una cuenta
 RF9: El sistema debe tener los datos personales filtrados para cada cuenta y sus usuarios apadrinados
 RF10: El sistema debe poder filtrar información médica y que está solo sea compartida a las personas designadas por el usuario.
@@ -48,7 +46,7 @@ RF21: La aplicación de escritorio debe poder generar informes de seguimiento de
 RF22: La aplicación web y móvil deben poder generar informes de seguimiento personales de las cuentas.
 RF23: La aplicación web y móvil debe funcionar con un sistema de pin único que esté vinculado a la cuenta principal para el ingreso personal de los usuarios.
 RF24: La aplicación web y móvil el primer inicio de sesión debe estar vinculado a la cuenta principal.
-RF25: La aplicación web y móvil debe poder decidir el usuario principal, las personas que tiene apadrinadas en su cuenta y cómo son utilizadas con un soporte de usuario externo.
+RF25: La aplicación web y móvil debe permitir al usuario principal definir sus usuarios apadrinados y el nivel de acceso de cada uno (acceso completo o acceso parcial), y solicitar asistencia al personal de SOPORTE cuando requiera ayuda para gestionarlos.
 ## Requisitos no funcionales
 RNF1: Las aplicaciones deben ser responsivas
 RNF2: La aplicación web debe ser compatibles entre navegadores
@@ -94,6 +92,7 @@ Dificultades al configurar entornos de desarrollo y/o entornos de Monorepo
 
 # Anexos
 ## Carta Gantt
+La Carta Gantt se mantiene como documento externo, enlazado en la sección 2.3 (Hitos del Proyecto). Ante cualquier diferencia de fechas, prevalecen la Hoja de ruta del proyecto (1.2.1) y los Sprint Planning de la Fase 1 y la Fase 2 (1.2.2 y 1.2.3).
 
 | DUOC UC - Escuela de informática y telecomunicaciones |
 | --- |
@@ -102,12 +101,12 @@ Dificultades al configurar entornos de desarrollo y/o entornos de Monorepo
 |  |
 |  |
 |  |
-| Planificación y Especificación de Requisitos según estándares; IEEE 830, ISO9000 y PMI. |
+|  |
 | --- |
 | Fecha | Revisión | Autor | Modificación |
 | --- | --- | --- | --- |
 | 04/09 | 1.0 | Alonso González | Redacción inicial del documento |
-|  |  |  |  |
+| 07/10/2026 | 1.1 | Gabriel Valencia | Correcciones de la auditoría técnica (ver Cambios Realizados (AUDITORIA CLAUDE)) |
 |  |  |  |  |
 |  |  |  |  |
 | Nombre Integrante del Equipo | Rol Definido |
