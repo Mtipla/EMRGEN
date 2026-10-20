@@ -135,3 +135,86 @@ export interface EconomicIndicator {
   /** Valores del más reciente al más antiguo. */
   series: IndicatorValue[];
 }
+
+/* ------------------------------------------------------------------ */
+/* WhatsApp (Baileys): notificaciones de emergencia                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * - `disabled`: WHATSAPP_ENABLED no es `true`.
+ * - `connecting`: negociando con WhatsApp (o esperando para reintentar).
+ * - `waiting_for_link`: sin sesión; hay que escanear el QR o usar un código de emparejamiento.
+ * - `open`: sesión vinculada, lista para enviar.
+ * - `closed`: detenido (sesión reemplazada por otra instancia o número bloqueado); requiere intervención.
+ */
+export type WhatsappConnectionState =
+  | 'disabled'
+  | 'connecting'
+  | 'waiting_for_link'
+  | 'open'
+  | 'closed';
+
+export interface WhatsappStatusResponse {
+  enabled: boolean;
+  state: WhatsappConnectionState;
+  /** Hay un QR vigente en `GET /notifications/whatsapp/qr` (cambia cada ~20 s). */
+  qrAvailable: boolean;
+  /** Número emisor vinculado, solo con `state: "open"`. */
+  phoneNumber?: string;
+  lastError?: string;
+}
+
+export interface WhatsappPairingCodeRequest {
+  /** Número que se vinculará como emisor, con código de país (ej. "+56912345678"). */
+  phoneNumber: string;
+}
+
+export interface WhatsappPairingCodeResponse {
+  /** Código de 8 caracteres para WhatsApp → Dispositivos vinculados → Vincular con número. */
+  code: string;
+}
+
+export interface EmergencyAlertLocation extends GeoPoint {
+  /** Dirección legible (ej. resultado de `/maps/reverse-geocode`). */
+  address?: string;
+}
+
+export interface EmergencyAlertMedicalInfo {
+  /** Resumen breve (alergias, grupo sanguíneo...). Queda guardado en el chat del receptor. */
+  summary?: string;
+  /** Enlace HTTPS temporal a la ficha médica (HU-12), revocable al finalizar la emergencia. */
+  url?: string;
+}
+
+export interface SendEmergencyAlertRequest {
+  /** 1 a 5 números (CA-03.2). Sin "+" y con 9 dígitos o menos se asume el código de país por defecto (56). */
+  recipients: string[];
+  /** Nombre del usuario que emite la alerta. */
+  senderName?: string;
+  /** Mensaje personalizado del usuario (máx. 200, como USUARIO_MENSAJE_PERSONALIZADO). */
+  message: string;
+  location: EmergencyAlertLocation;
+  medicalInfo?: EmergencyAlertMedicalInfo;
+}
+
+export type EmergencyAlertDeliveryStatus =
+  | 'sent'
+  | 'not_on_whatsapp'
+  | 'invalid_number'
+  | 'failed';
+
+export interface EmergencyAlertDelivery {
+  phoneNumber: string;
+  status: EmergencyAlertDeliveryStatus;
+  /** Ids de los mensajes enviados (texto y ubicación). */
+  messageIds: string[];
+  error?: string;
+}
+
+export interface EmergencyAlertResult {
+  /** Fecha ISO 8601 del despacho. */
+  sentAt: string;
+  sent: number;
+  failed: number;
+  deliveries: EmergencyAlertDelivery[];
+}

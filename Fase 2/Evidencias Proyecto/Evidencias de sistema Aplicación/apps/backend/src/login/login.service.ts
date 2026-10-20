@@ -19,6 +19,7 @@ import {
   PG_UNIQUE_VIOLATION,
 } from '../config/postgres-error';
 import { Usuario } from '../usuarios/usuarios.entity';
+import { Pin } from '../usuarios/pin.entity';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
@@ -28,7 +29,7 @@ import { ESTADO_BLOQUEADO } from './roles.decorator';
 export type UsuarioPublico = Pick<
   Usuario,
   'usuario_ID' | 'nombre_usuario' | 'correo_usuario'
->;
+> & { requiere_pin: boolean };
 
 const BCRYPT_COSTO = 12;
 // Hash de relleno: si el correo no existe se compara igual, para que el tiempo de
@@ -106,11 +107,52 @@ export class LoginService {
     return { access_token, usuario: this.sinPassword(usuario) };
   }
 
+  async crearPinInicial(usuarioId: number, pinIngresado: string) {
+    return this.dataSource.transaction(async (manager) => {
+      const usuarioRepository = manager.getRepository(Usuario);
+      const pinRepository = manager.getRepository(Pin);
+      const usuario = await usuarioRepository.findOne({
+        where: { usuario_ID: usuarioId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!usuario || usuario.usuario_principal_ID !== null) {
+        throw new NotFoundException('No se encontró la cuenta principal');
+      }
+      if (usuario.PIN_ID !== null) {
+        throw new ConflictException('Esta cuenta ya tiene un PIN configurado');
+      }
+
+      const pin = pinRepository.create({ PIN: pinIngresado });
+      const pinGuardado = await pinRepository.save(pin);
+      usuario.PIN_ID = pinGuardado.PIN_ID;
+      await usuarioRepository.save(usuario);
+
+      return { mensaje: 'PIN creado correctamente', requiere_pin: false };
+    });
+  }
+
+  async obtenerPropio(usuarioId: number): Promise<UsuarioPublico> {
+    const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: usuarioId });
+    if (!usuario) {
+      throw new NotFoundException('No se encontró la cuenta');
+    }
+    if (usuario.estado_ID === ESTADO_BLOQUEADO) {
+      throw new ForbiddenException('La cuenta está bloqueada');
+    }
+    return this.sinPassword(usuario);
+  }
+
   async listar(): Promise<UsuarioPublico[]> {
     return this.usuarioRepository.find({
-      select: { usuario_ID: true, nombre_usuario: true, correo_usuario: true },
+      select: {
+        usuario_ID: true,
+        nombre_usuario: true,
+        correo_usuario: true,
+        PIN_ID: true,
+      },
       order: { usuario_ID: 'ASC' },
-    });
+    }).then((usuarios) => usuarios.map((usuario) => this.sinPassword(usuario)));
   }
 
   async actualizarPropio(
@@ -223,7 +265,12 @@ export class LoginService {
 
   private sinPassword(usuario: Usuario): UsuarioPublico {
     const { usuario_ID, nombre_usuario, correo_usuario } = usuario;
-    return { usuario_ID, nombre_usuario, correo_usuario };
+    return {
+      usuario_ID,
+      nombre_usuario,
+      correo_usuario,
+      requiere_pin: usuario.PIN_ID === null,
+    };
   }
 
   private passwordCabeEnBcrypt(password: string): boolean {

@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditoriaModule } from '../auditoria/auditoria.module';
 import { readEnv } from '../config/env';
 import { Usuario } from '../usuarios/usuarios.entity';
+import { Pin } from '../usuarios/pin.entity';
 import { UsuariosModule } from '../usuarios/usuarios.module';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginController } from './login.controller';
@@ -12,7 +13,7 @@ import { RolesGuard } from './roles.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Usuario]),
+    TypeOrmModule.forFeature([Usuario, Pin]),
     UsuariosModule,
     AuditoriaModule, // Bitácora de las acciones de administrador (DELETE /usuarios/:id)
     JwtModule.registerAsync({
