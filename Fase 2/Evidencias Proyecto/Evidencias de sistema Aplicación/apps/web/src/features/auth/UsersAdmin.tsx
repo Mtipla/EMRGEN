@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { AuthenticatedUser } from './AuthForm'
+import './UsersAdmin.css'
 
 type UsersAdminProps = {
   user: AuthenticatedUser
@@ -89,7 +90,8 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
   }
 
   return (
-    <section>
+    <>
+      <header className='header'>  </header>
       <h1>Administración de usuarios</h1>
       <p>Sesión iniciada como {user.nombre_usuario} ({user.correo_usuario})</p>
       <button type="button" onClick={onLogout}>Cerrar sesión</button>
@@ -154,6 +156,6 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
           </tbody>
         </table>
       )}
-    </section>
+    </>
   )
 }

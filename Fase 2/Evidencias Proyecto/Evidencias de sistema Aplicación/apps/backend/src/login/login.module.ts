@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { readEnv } from '../config/env';
+import { FirebaseAuthModule } from '../integrations/firebase-auth/firebase-auth.module';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { Pin } from '../usuarios/pin.entity';
 import { UsuariosModule } from '../usuarios/usuarios.module';
@@ -14,6 +15,7 @@ import { RolesGuard } from './roles.guard';
   imports: [
     TypeOrmModule.forFeature([Usuario, Pin]),
     UsuariosModule,
+    FirebaseAuthModule,
     JwtModule.registerAsync({
       useFactory: () => {
         const secret = readEnv('JWT_SECRET');

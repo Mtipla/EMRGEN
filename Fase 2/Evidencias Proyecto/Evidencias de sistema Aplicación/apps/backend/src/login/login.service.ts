@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { FirebaseAuthUser } from '@repo/api-types';
 import * as bcrypt from 'bcrypt';
 import { DataSource, IsNull, Repository } from 'typeorm';
 import {
@@ -43,11 +44,24 @@ export class LoginService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async crear(datos: CrearUsuarioDto): Promise<UsuarioPublico> {
+  async crear(
+    datos: CrearUsuarioDto,
+    firebaseUser: FirebaseAuthUser,
+  ): Promise<UsuarioPublico> {
     if (!this.passwordCabeEnBcrypt(datos.password)) {
       throw new BadRequestException('La contraseña supera el límite de 72 bytes');
     }
     const correo = datos.correo_usuario.trim().toLowerCase();
+    // El ID token debe pertenecer a la cuenta de Firebase de ese mismo correo.
+    if (firebaseUser.email?.toLowerCase() !== correo) {
+      throw new ForbiddenException(
+        'El correo no coincide con la cuenta de Firebase Authentication',
+      );
+    }
+    // Solo se guarda en la BD cuando el usuario confirmó su correo con el enlace de Firebase.
+    if (!firebaseUser.emailVerified) {
+      throw new ForbiddenException('Debes confirmar tu correo antes de crear la cuenta');
+    }
     if (await this.buscarPrincipalPorCorreo(correo)) {
       throw new ConflictException('Ya existe una cuenta con ese correo');
     }
