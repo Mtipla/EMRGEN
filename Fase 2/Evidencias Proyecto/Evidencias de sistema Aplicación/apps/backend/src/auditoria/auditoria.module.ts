@@ -1,21 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JsreportModule } from '../integrations/jsreport/jsreport.module';
-import { LoginModule } from '../login/login.module';
 import { Aplicacion } from './aplicacion.entity';
-import { AuditoriaController } from './auditoria.controller';
 import { AuditoriaService } from './auditoria.service';
 import { BitacoraSistema } from './bitacora.entity';
 
+// Sin controlador ni LoginModule: así LoginModule y AdminModule pueden importar este
+// módulo para auditar sus acciones sin crear una dependencia circular. Las rutas
+// /admin/auditoria (AuditoriaController) las registra AdminModule, que ya tiene los guards.
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([BitacoraSistema, Aplicacion]),
-    LoginModule, // JwtAuthGuard + RolesGuard
-    JsreportModule,
-  ],
-  controllers: [AuditoriaController],
+  imports: [TypeOrmModule.forFeature([BitacoraSistema, Aplicacion]), JsreportModule],
   providers: [AuditoriaService],
-  // Otros módulos registran sus acciones con AuditoriaService.registrar.
   exports: [AuditoriaService],
 })
 export class AuditoriaModule {}

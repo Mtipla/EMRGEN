@@ -9,7 +9,10 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { DataSource, IsNull, Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
+import { APLICACION } from '../auditoria/aplicacion.entity';
+import { type ActorAuditoria, AuditoriaService } from '../auditoria/auditoria.service';
+import { ENTIDAD_AUDITADA, TIPO_ACCION } from '../auditoria/bitacora.entity';
 import {
   codigoPostgres,
   PG_FOREIGN_KEY_VIOLATION,
@@ -40,10 +43,27 @@ export class LoginService {
     private readonly usuariosService: UsuariosService,
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
-    private readonly dataSource: DataSource,
+    private readonly auditoriaService: AuditoriaService,
   ) {}
 
   async crear(datos: CrearUsuarioDto): Promise<UsuarioPublico> {
+    const cuenta = await this.prepararCuentaPrincipal(datos);
+    try {
+      // Reglas de cuenta principal (rol USUARIO, estado ACTIVO) de UsuariosService.
+      const usuario = await this.usuariosService.crearUsuarioPrincipal(cuenta);
+      return this.sinPassword(usuario);
+    } catch (error) {
+      throw this.traducirCorreoDuplicado(error);
+    }
+  }
+
+  /**
+   * Valida y normaliza los datos de una cuenta principal nueva y hashea su contraseña.
+   * La comparten el registro público y la creación de cuentas de SOPORTE (AdminService).
+   */
+  async prepararCuentaPrincipal(
+    datos: CrearUsuarioDto,
+  ): Promise<Pick<Usuario, 'nombre_usuario' | 'correo_usuario' | 'contra_usuario'>> {
     if (!this.passwordCabeEnBcrypt(datos.password)) {
       throw new BadRequestException('La contraseña supera el límite de 72 bytes');
     }
@@ -51,18 +71,11 @@ export class LoginService {
     if (await this.buscarPrincipalPorCorreo(correo)) {
       throw new ConflictException('Ya existe una cuenta con ese correo');
     }
-
-    try {
-      // Reglas de cuenta principal (rol USUARIO, estado ACTIVO) de UsuariosService.
-      const usuario = await this.usuariosService.crearUsuarioPrincipal({
-        nombre_usuario: datos.nombre_usuario.trim(),
-        correo_usuario: correo,
-        contra_usuario: await bcrypt.hash(datos.password, BCRYPT_COSTO),
-      });
-      return this.sinPassword(usuario);
-    } catch (error) {
-      throw this.traducirCorreoDuplicado(error);
-    }
+    return {
+      nombre_usuario: datos.nombre_usuario.trim(),
+      correo_usuario: correo,
+      contra_usuario: await bcrypt.hash(datos.password, BCRYPT_COSTO),
+    };
   }
 
   async iniciarSesion(datos: LoginDto) {
@@ -146,7 +159,26 @@ export class LoginService {
     id: number,
     cambios: ActualizarMiUsuarioDto,
   ): Promise<UsuarioPublico> {
-    const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: id });
+    try {
+      return this.sinPassword(
+        await this.aplicarCambiosDePerfil(this.usuarioRepository, id, cambios),
+      );
+    } catch (error) {
+      throw this.traducirCorreoDuplicado(error);
+    }
+  }
+
+  /**
+   * Cambia nombre y/o correo con las reglas de la cuenta (correo único entre principales).
+   * Recibe el repositorio para poder ejecutarse dentro de la transacción del llamador
+   * (AdminService la usa junto con su entrada de bitácora).
+   */
+  async aplicarCambiosDePerfil(
+    usuarios: Repository<Usuario>,
+    id: number,
+    cambios: ActualizarMiUsuarioDto,
+  ): Promise<Usuario> {
+    const usuario = await usuarios.findOneBy({ usuario_ID: id });
     if (!usuario) {
       throw new NotFoundException('No se encontró el usuario de la sesión');
     }
@@ -167,11 +199,7 @@ export class LoginService {
     if (nuevoCorreo) {
       usuario.correo_usuario = nuevoCorreo;
     }
-    try {
-      return this.sinPassword(await this.usuarioRepository.save(usuario));
-    } catch (error) {
-      throw this.traducirCorreoDuplicado(error);
-    }
+    return usuarios.save(usuario);
   }
 
   /** Usuario vigente de una sesión: existe y no está bloqueado. */
@@ -180,23 +208,45 @@ export class LoginService {
     return usuario && usuario.estado_ID !== ESTADO_BLOQUEADO ? usuario : null;
   }
 
-  async eliminar(id: number): Promise<UsuarioPublico> {
-    const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: id });
-    if (!usuario) {
-      throw new NotFoundException('No se encontró el usuario');
-    }
-    try {
-      await this.usuarioRepository.delete(id);
-    } catch (error) {
-      // Otras tablas (apadrinados, bitácora, planes...) referencian al usuario.
-      if (codigoPostgres(error) === PG_FOREIGN_KEY_VIOLATION) {
-        throw new ConflictException(
-          'El usuario tiene registros asociados; bloquéalo desde el panel de administración',
-        );
-      }
-      throw error;
-    }
-    return this.sinPassword(usuario);
+  /** Eliminación hecha por un administrador: el borrado y su bitácora van en una transacción. */
+  async eliminar(id: number, actor: ActorAuditoria): Promise<UsuarioPublico> {
+    return this.auditoriaService.auditar(
+      {
+        actor,
+        accion: `Eliminación del usuario ${id}`,
+        tipo: TIPO_ACCION.ELIMINACION,
+        entidad: ENTIDAD_AUDITADA.USUARIO,
+        usuario_afectado_ID: id,
+        // DELETE /usuarios/:id es la ruta de administración que consume la web.
+        aplicacion_ID: APLICACION.WEB,
+      },
+      async (manager) => {
+        const usuarios = manager.getRepository(Usuario);
+        const usuario = await usuarios.findOneBy({ usuario_ID: id });
+        if (!usuario) {
+          throw new NotFoundException('No se encontró el usuario');
+        }
+        try {
+          await usuarios.delete(id);
+        } catch (error) {
+          // Otras tablas (apadrinados, bitácora, planes...) referencian al usuario.
+          if (codigoPostgres(error) === PG_FOREIGN_KEY_VIOLATION) {
+            throw new ConflictException(
+              'El usuario tiene registros asociados; bloquéalo desde el panel de administración',
+            );
+          }
+          throw error;
+        }
+        return {
+          valor: this.sinPassword(usuario),
+          cambios: {
+            nombre_usuario: { antes: usuario.nombre_usuario, despues: null },
+            correo_usuario: { antes: usuario.correo_usuario, despues: null },
+            rol_ID: { antes: usuario.rol_ID, despues: null },
+          },
+        };
+      },
+    );
   }
 
   private buscarPrincipalPorCorreo(correo: string): Promise<Usuario | null> {
@@ -206,7 +256,7 @@ export class LoginService {
     });
   }
 
-  private traducirCorreoDuplicado(error: unknown): unknown {
+  traducirCorreoDuplicado(error: unknown): unknown {
     // Índice único ux_usuario_correo_principal (dos registros simultáneos).
     return codigoPostgres(error) === PG_UNIQUE_VIOLATION
       ? new ConflictException('Ya existe una cuenta con ese correo')

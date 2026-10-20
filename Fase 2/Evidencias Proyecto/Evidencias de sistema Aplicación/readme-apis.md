@@ -62,10 +62,7 @@ Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 2
 | `GOOGLE_MAPS_API_KEY` | backend | **sí** | Key de **servidor** (Geocoding API). |
 | `MINDICADOR_API_URL` | backend | no | Opcional. Por defecto `https://mindicador.cl/api` (sin key). |
 | `CORS_ORIGINS` | backend | no | Orígenes de los frontends, separados por coma. |
-| `WHATSAPP_ENABLED` | backend | no | `true` conecta WhatsApp al arrancar. Por defecto `false` (la integración responde `503`). |
-| `WHATSAPP_AUTH_DIR` | backend (local) | **la carpeta sí** | Carpeta de la sesión. Por defecto `auth_info_baileys` (en `apps/backend/`). En Docker es un volumen. |
-| `WHATSAPP_DEFAULT_COUNTRY_CODE` | backend | no | Código de país para números sin `+` de 9 dígitos o menos. Por defecto `56` (Chile). |
-| `VITE_API_URL` | frontends | no | URL del backend: `http://localhost:3000` local, `http://localhost:3001` Docker. |
+| `VITE_API_URL` | frontends | no | URL del backend. En `.env`: `http://localhost:3000` (backend local). Para el backend de Docker (`3001`) no se edita: se inicia el frontend en modo docker, que usa `.env.docker` (README, sección 6.1). |
 | `VITE_PAYPAL_CLIENT_ID` | frontends | no | Mismo Client ID de PayPal (es público). |
 | `VITE_GOOGLE_MAPS_API_KEY` | frontends | no* | Key de **navegador**, restringida por dominio. |
 | `VITE_GOOGLE_MAPS_MAP_ID` | frontends | no | Map ID (opcional; por defecto `DEMO_MAP_ID`). |
@@ -654,7 +651,7 @@ curl.exe -X POST http://localhost:3000/notifications/whatsapp/alerts -H "Authori
 | `502` "Google Maps rechazó la solicitud (REQUEST_DENIED)" | Geocoding API no habilitada, sin facturación o key restringida a otra IP | Revisa los pasos 2 a 4 de la sección 5.2. |
 | `400` con lista de mensajes | El body no cumple el DTO (monto, código de indicador, fecha, etc.) | Corrige el request; el mensaje indica el campo. |
 | `401` "ID token de Firebase inválido o expirado" | Token vencido (1 h) o de otro proyecto | Llama `firebaseAuth.refresh(refreshToken)` y revisa `FIREBASE_PROJECT_ID`. |
-| Error de CORS en la consola del navegador | El origen del frontend no está en `CORS_ORIGINS` | Agrega la URL de Vite (ej. `http://localhost:5174`) y reinicia el backend. |
+| Error de CORS en la consola del navegador | El origen del frontend no está en `CORS_ORIGINS` | Agrega la URL de Vite (ej. `http://localhost:5174`) y reinicia el backend. El log de arranque del backend muestra la lista vigente; el panel de escritorio usa siempre `5175` (README, sección 6.2). |
 | El mapa muestra "This page can't load Google Maps correctly" | Key de navegador sin el dominio/puerto actual en los referentes | Agrega el origen en la consola de Google (sección 5.2, paso 4). |
 | La app móvil en el teléfono no llega al backend | `localhost` en el teléfono es el propio teléfono | Usa `VITE_API_URL=http://<IP-de-tu-PC>:3000`. |
 | `503` "WhatsApp no está conectado (estado: waiting_for_link)" | El número emisor no está vinculado | Vincúlalo con el QR o el código de emparejamiento (sección 7.3). |

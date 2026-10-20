@@ -76,6 +76,6 @@ export class LoginController {
     if (id === request.user.sub) {
       throw new BadRequestException('No puedes eliminar tu propia cuenta');
     }
-    return this.loginService.eliminar(id);
+    return this.loginService.eliminar(id, request.user);
   }
 }

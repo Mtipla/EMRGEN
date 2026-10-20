@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from './usuarios.entity';
 
+/** Límite estricto de cuentas apadrinadas (y de cupos) por cuenta principal. */
+export const MAX_APADRINADOS = 5;
+
 @Injectable()
 export class UsuariosService {
   constructor(
@@ -44,8 +47,8 @@ export class UsuariosService {
       where: { usuario_principal_ID: idPadre }
     });
 
-    if (cantidadApadrinados >= 5) {
-      throw new BadRequestException('Ha alcanzado el límite máximo de 5 cuentas apadrinadas.');
+    if (cantidadApadrinados >= MAX_APADRINADOS) {
+      throw new BadRequestException(`Ha alcanzado el límite máximo de ${MAX_APADRINADOS} cuentas apadrinadas.`);
     }
 
     // Crear el apadrinado vinculando el correo y la cuenta gestora
