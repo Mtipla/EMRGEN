@@ -1,0 +1,133 @@
+/* Reutiliza nav, tarjeta, botones y modal de PremiumPurchase.css; aquí solo el layout público. */
+.public-page {
+  box-sizing: border-box;
+  width: min(100%, 1080px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  color: #263449;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.public-nav button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.public-nav .public-logo {
+  margin-right: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #e64b35;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.public-nav .public-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #263449;
+  font-weight: 600;
+}
+
+.public-nav .purchase-primary {
+  padding: 0.55rem 1rem;
+}
+
+.public-nav a:hover,
+.public-link:hover {
+  color: #e64b35;
+}
+
+.public-nav :focus-visible,
+.public-page .purchase-primary:focus-visible,
+.public-page .secondary-button:focus-visible {
+  outline: 3px solid rgb(230 75 53 / 35%);
+  outline-offset: 2px;
+}
+
+.public-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.public-hero h1 {
+  margin: 0 0 0.5rem;
+  color: #162235;
+  font-size: 2.5rem;
+}
+
+.public-subtitle {
+  margin: 0 0 1rem;
+  color: #e64b35;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.public-actions,
+.public-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.public-actions a {
+  text-decoration: none;
+}
+
+.public-image {
+  display: grid;
+  place-items: center;
+  min-height: 280px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 20px;
+  background: #f8fafc;
+  color: #64748b;
+  text-align: center;
+}
+
+.public-section {
+  padding: 2rem 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.public-section h2 {
+  margin-top: 0;
+  color: #162235;
+}
+
+.public-pending {
+  color: #64748b;
+  font-style: italic;
+}
+
+.public-buy {
+  width: 100%;
+}
+
+.public-modal-actions {
+  justify-content: center;
+}
+
+@media (max-width: 720px) {
+  .public-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .public-hero h1 {
+    font-size: 2rem;
+  }
+
+  .public-image {
+    min-height: 180px;
+  }
+}
