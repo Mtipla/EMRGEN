@@ -1696,5 +1696,137 @@
     "seen": 1792527929.8079402,
     "ast_hash": "28431b204fcfe0189d446c7f0712b471",
     "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/__init__.py": {
+    "mtime": 1792528762.6699474,
+    "seen": 1792528885.6003685,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/api/routes/__init__.py": {
+    "mtime": 1792529559.8205156,
+    "seen": 1792529732.360777,
+    "ast_hash": "bf47eb01f9ce81fe3d748f96ea8b84c7",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/core/config.py": {
+    "mtime": 1792529550.0285301,
+    "seen": 1792529732.3607872,
+    "ast_hash": "d6e4f998f5a8bea95203b23c06b2b0f6",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/core/errors.py": {
+    "mtime": 1792529603.6096025,
+    "seen": 1792529732.3607922,
+    "ast_hash": "7b2636cec1629b4ecb54396149a859ce",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/main.py": {
+    "mtime": 1792528766.949945,
+    "seen": 1792528885.600379,
+    "ast_hash": "2f7f5efca6c5bca49c1bd0ab8b37d1c2",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/test_health.py": {
+    "mtime": 1792528768.0196202,
+    "seen": 1792528885.6003811,
+    "ast_hash": "feac40ddb4c2ca23803435ec083b6389",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/readme.apis.internas.md": {
+    "mtime": 1792529709.6586547,
+    "seen": 1792529732.363693,
+    "ast_hash": "7760b1674af08e942c9af5768f05cddf",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/README.md": {
+    "mtime": 1792529720.5636446,
+    "seen": 1792529732.363696,
+    "ast_hash": "7fd57a1d845ba4b3b36a95f09fcab25e",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/requirements.txt": {
+    "mtime": 1792529604.6742272,
+    "seen": 1792529732.3636985,
+    "ast_hash": "b6fdcc6a05869bb87d94bdd398c35ac9",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/api/routes/alertas.py": {
+    "mtime": 1792529557.6856487,
+    "seen": 1792529732.3607814,
+    "ast_hash": "28c2fd94a0eca6babff5882491c2b4aa",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/api/routes/tickets_soporte.py": {
+    "mtime": 1792529558.749248,
+    "seen": 1792529732.3607843,
+    "ast_hash": "ca825c9415a3b173021ede30313c977c",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/core/db.py": {
+    "mtime": 1792529551.1592162,
+    "seen": 1792529732.36079,
+    "ast_hash": "63f01c1ddc219aa4b67b3a4f36ad2338",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/dependencies/auth.py": {
+    "mtime": 1792529552.2374966,
+    "seen": 1792529732.3607945,
+    "ast_hash": "683a2b18f5f3ac78c6a1acba59880e2c",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/schemas/alertas.py": {
+    "mtime": 1792529553.3087685,
+    "seen": 1792529732.3609536,
+    "ast_hash": "552356ef119a6544a16b46c053c681fb",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/schemas/tickets.py": {
+    "mtime": 1792529554.4203637,
+    "seen": 1792529732.3609564,
+    "ast_hash": "e7dd0197ecc2b92f37cf7d1f9754fd6d",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/services/alertas.py": {
+    "mtime": 1792529555.5004358,
+    "seen": 1792529732.360959,
+    "ast_hash": "c31b56cd9c9a1e19baa2d6b5c53f395d",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/services/tickets.py": {
+    "mtime": 1792529556.5728104,
+    "seen": 1792529732.3609612,
+    "ast_hash": "6b7880e99b073bd0d8f7a93bb7f73e61",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/sql/001_catalogos_soporte.sql": {
+    "mtime": 1792529560.8804412,
+    "seen": 1792529732.3609633,
+    "ast_hash": "66f2b01d499d412e73c704ffc1f9c319",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/conftest.py": {
+    "mtime": 1792529606.8561585,
+    "seen": 1792529732.3609655,
+    "ast_hash": "c5560bd461f2b089cd46b67409d2812d",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/test_alertas.py": {
+    "mtime": 1792529609.0038238,
+    "seen": 1792529732.3609676,
+    "ast_hash": "ab6ecc5fabc4fb46bfec714d87549e30",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/test_auth.py": {
+    "mtime": 1792529607.9229286,
+    "seen": 1792529732.3609698,
+    "ast_hash": "d79f49b4596ee3acdc338790de171e34",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/test_tickets_soporte.py": {
+    "mtime": 1792529610.079696,
+    "seen": 1792529732.3611348,
+    "ast_hash": "02d62e2220c1d1abff36d9536307ed12",
+    "semantic_hash": ""
   }
 }
