@@ -1,0 +1,31 @@
+import logging
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.routes import internal_v1
+from app.core.config import settings
+from app.core.errors import register_error_handlers
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
+
+docs = settings.docs_enabled
+app = FastAPI(
+    title="EMERGEN internal-api",
+    version="0.1.0",
+    description="APIs internas de EMERGEN. Ver readme.apis.internas.md en la raíz del monorepo.",
+    docs_url="/docs" if docs else None,
+    redoc_url="/redoc" if docs else None,
+    openapi_url="/openapi.json" if docs else None,
+)
+
+if settings.cors_list:
+    app.add_middleware(CORSMiddleware, allow_origins=settings.cors_list, allow_methods=["*"], allow_headers=["*"])
+
+register_error_handlers(app)
+app.include_router(internal_v1)
+
+
+@app.get("/health", tags=["técnico"])
+def health() -> dict[str, str]:
+    return {"status": "ok"}
