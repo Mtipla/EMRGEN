@@ -1,14 +1,12 @@
-# Graph Report - EMRGEN  (2026-10-19)
+# Graph Report - EMRGEN  (2026-10-20)
 
 ## Corpus Check
-- 225 files · ~276,944 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 38 file(s) not represented in the graph (top: (none) 25, .css 9, .bmpr 2)
+- cluster-only mode — file stats not available
 
 ## Summary
-- 2341 nodes · 3961 edges · 157 communities (128 shown, 29 thin omitted)
+- 2341 nodes · 3961 edges · 150 communities (120 shown, 30 thin omitted)
 - Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 315 edges (avg confidence: 0.85)
-- Token cost: 0 input · 0 output
+- Token cost: 72,120 input · 3,203 output
 
 ## Graph Freshness
 - Built from commit: `1139f626`
@@ -18,7 +16,7 @@
 ## Community Hubs (Navigation)
 - Guia Estudiante Fase 1: Definicion Proyecto APT (EMERGEN)
 - backend Service (nestjs_emergen_backend)
-- web/src/App.tsx
+- App Bootstrap
 - eslint-config/package.json
 - Alonso Fabian Gonzalez Jara
 - backend/package.json
@@ -26,8 +24,8 @@
 - Matriz de trazabilidad de Pruebas
 - mobile/package.json
 - index.d.ts
-- Tabla Maestra de Product Backlog
-- Acta de Constitución EMERGEN
+- Product Backlog Sprint
+- Scrum Framework Methodology
 - BDD con tipos de datos
 - google-maps.service.ts
 - init.sql
@@ -39,7 +37,7 @@
 - firebase-auth.guard.ts
 - EMERGEN: integración de APIs externas
 - DevDeps Backend NestJS
-- compras.service.ts
+- Purchase Constants
 - desktop/package.json
 - index.ts
 - web/package.json
@@ -50,16 +48,16 @@
 - Reporte de Auditoría de Errores (datos_agrupados_trazable)
 - integrations.live.e2e-spec.ts
 - google-maps.ts
-- Usuario
+- User Management
 - devDependencies
 - dependencies
-- UsuarioSesion
+- Payment Processing API
 - compilerOptions
 - whatsapp.controller.ts
 - compilerOptions
 - compilerOptions
 - emergen-api.ts
-- Hoja de ruta del proyecto
+- Project Governance Requirements
 - Cambios Realizados
 - send-emergency-alert.dto.ts
 - Diagrama de Componentes
@@ -67,7 +65,7 @@
 - WhatsappConnectionService
 - compilerOptions
 - whatsapp-connection.service.ts
-- mindicador.service.ts
+- Indicator Query API
 - tasks
 - compilerOptions
 - compilerOptions
@@ -77,43 +75,41 @@
 - @nestjs/common
 - devDependencies
 - dependencies
-- Cambios Pendientes
+- Technical Audit Report
 - Diagrama de Arquitectura
 - api-client/package.json
 - scripts
-- mobile/src/App.tsx
+- Infrastructure Architecture
 - Evidencias de sistema Aplicación/package.json
 - ui/package.json
-- ref_react
+- Purchase Payment Testing
 - Sprint Backlog con estimación de horas (88 h)
-- firebase-auth.ts
+- Account Linking Testing
 - BaileysLoggerAdapter
 - devDependencies
 - Especificación de Herramientas y Servicios del Proyecto (4.2)
 - http.ts
-- usePremiumPurchase
+- Premium Checkout Flow
 - compilerOptions
-- Archivos principales
+- Security Testing
 - Trello Sprint Board Screenshot (Fase 1)
 - Sprint 4 (31/8/2026)
-- index.d.ts
+- Emergency Alert DTOs
 - dependencies
 - 2.1.1 Product Backlog
 - Informe ERS
-- Sprint 4: Dejar preparada y verificable la línea base para iniciar la Fase 2 (31 ago–14 sep 2026)
 - firebase-auth.service.ts
 - dependencies
 - manifest.json
 - api-client/tsconfig.json
 - jest.config.ts
 - ui/tsconfig.json
-- PremiumPurchase.tsx
 - .oxlintrc.json
 - tsconfig.build.json
 - ref_vite
 - scripts
 - compilerOptions
-- WhatsappAlertService
+- WhatsApp Notifications
 - api-types/package.json
 - typescript-config/package.json
 - HU-01: Registro de usuarios (Nest.js /Registro, encriptación, UI React+Ionic)
@@ -121,9 +117,7 @@
 - obj_cl_Gestionar_Usuario_Apadrinado : Clase
 - obj_cl_Gestionar_Compras : Clase
 - nest-cli.json
-- desktop/src/App.tsx
 - react-library.json
-- http-client.ts
 - obj_cl_Gestionar_Usuario : Clase
 - obj_c_Gestionar_Usuario : Controlador
 - obj_cl_enviar_mensaje : Clase
@@ -138,10 +132,8 @@
 - obj_cl_ubicacion : Clase
 - scripts
 - scripts
-- usePremiumPurchase.ts
 - RF13: Ubicación en emergencia
-- Caso de prueba CP-RF21-01
-- Caso de prueba CP-RF9-01
+- Data Separation Testing
 - RNF6-RNF10 (latencia SOS, tolerancia a fallos, Ley 21.719, retención, WCAG 2.1 AA)
 - Informe Técnico de Recursos (TEC)
 - HU-11: Cifrado AES-256 de datos médicos
@@ -156,7 +148,6 @@
 - db (postgres:15-alpine) Service
 - Backend NestJS Starter README
 - @testing-library/jest-dom
-- Caso de prueba CP-RNF5-01
 - Scrum Methodology
 - Mobile App Favicon
 - 4.4 Docker docker-compose Configuration
@@ -189,10 +180,10 @@
   graphify-out/converted/Horas hombre en relación a Tareas_c7bcb968.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/package.json
 - `Twilio` --semantically_similar_to--> `WhatsApp (Baileys) Emergency Notifications`  [INFERRED] [semantically similar]
   README.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme-apis.md
+- `5.1 Para qué sirve` --references--> `MapView()`  [INFERRED]
+  Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme-apis.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/packages/ui/src/map-view.tsx
 - `Especificación de Herramientas y Servicios del Proyecto (4.2)` --references--> `typeorm`  [EXTRACTED]
   graphify-out/converted/Especificación de Herramientas y Servicios del Proyecto_55e759a4.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/package.json
-- `Especificación de Herramientas y Servicios del Proyecto (4.2)` --references--> `electron`  [EXTRACTED]
-  graphify-out/converted/Especificación de Herramientas y Servicios del Proyecto_55e759a4.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/package.json
 
 ## Import Cycles
 - None detected.
@@ -230,7 +221,7 @@
 - **Reglas de límite de contactos/apadrinados** — graphify_out_converted_sprint_backlog_actividades_horas_8a7c50c3_regla_max_5_contactos, graphify_out_converted_sprint_backlog_actividades_horas_8a7c50c3_regla_min_1_contacto, graphify_out_converted_sprint_backlog_actividades_horas_8a7c50c3_regla_max_5_secundarios, graphify_out_converted_matriz_de_trazabilidad_de_pruebas_1d0421cd_rf6, graphify_out_converted_matriz_de_trazabilidad_de_pruebas_1d0421cd_rf7, graphify_out_converted_matriz_de_trazabilidad_de_pruebas_1d0421cd_rf8 [INFERRED 0.85]
 - **Sprint 4 Scrum cycle (planning, dailies, closure)** — fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_2__sprint_4, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_2__daily_sprint_4, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_2__cierre_sprint_4 [INFERRED 0.85]
 
-## Communities (157 total, 29 thin omitted)
+## Communities (150 total, 30 thin omitted)
 
 ### Community 0 - "Guia Estudiante Fase 1: Definicion Proyecto APT (EMERGEN)"
 Cohesion: 0.05
@@ -240,9 +231,9 @@ Nodes (75): Formativa Definicion Proyecto APT (Evaluacion Fase 1), Competencia: 
 Cohesion: 0.06
 Nodes (54): No-secrets policy (.env, MySQL, PayPal, Twilio, Google Maps credentials), backend Service (evidence copy, without WhatsApp), db Service (postgres:15-alpine, evidence copy), EMERGEN Monorepo Dev Guide (Docker evidence copy), EMERGEN docker-compose Configuration, backend Service (nestjs_emergen_backend), backend Service (nestjs_emergen_backend, 3001->3000), db Service (postgres:15-alpine) (+46 more)
 
-### Community 2 - "web/src/App.tsx"
-Cohesion: 0.18
-Nodes (8): App(), savedUser, AuthenticatedUser, AuthForm(), AuthFormProps, Mode, UsersAdmin(), UsersAdminProps
+### Community 2 - "App Bootstrap"
+Cohesion: 0.06
+Nodes (17): App(), App(), ContainerProps, ExploreContainer(), container, root, Home(), App() (+9 more)
 
 ### Community 3 - "eslint-config/package.json"
 Cohesion: 0.07
@@ -262,23 +253,23 @@ Nodes (39): Rol Product Owner, [ERR-10] Errores de pruebas y trazabilidad (QA), 
 
 ### Community 7 - "Matriz de trazabilidad de Pruebas"
 Cohesion: 0.05
-Nodes (39): RF3: Modificar credenciales, Clasificación de alcance MVP/Post-MVP/Condicionado/Futuro/Aclarar, Caso de prueba CP-RF12-01, Caso de prueba CP-RF14-01, Caso de prueba CP-RF16-01, Caso de prueba CP-RF17-01, Caso de prueba CP-RF18-01, Caso de prueba CP-RF19-01 (+31 more)
+Nodes (37): RF3: Modificar credenciales, Clasificación de alcance MVP/Post-MVP/Condicionado/Futuro/Aclarar, Caso de prueba CP-RF12-01, Caso de prueba CP-RF14-01, Caso de prueba CP-RF17-01, Caso de prueba CP-RF18-01, Caso de prueba CP-RF20-01, Caso de prueba CP-RF21-01 (+29 more)
 
 ### Community 8 - "mobile/package.json"
 Cohesion: 0.05
 Nodes (36): description, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @ionic/react, @ionic/react-router (+28 more)
 
 ### Community 9 - "index.d.ts"
-Cohesion: 0.10
-Nodes (9): CreatePaypalOrderDto, PaypalController, BASE_URLS, PaypalLink, PaypalOrder, PaypalService, CapturePaypalOrderResponse, PaypalOrderResponse (+1 more)
+Cohesion: 0.13
+Nodes (5): CreatePaypalOrderDto, PaypalController, PaypalService, CreatePaypalOrderRequest, PaypalOrderResponse
 
-### Community 10 - "Tabla Maestra de Product Backlog"
+### Community 10 - "Product Backlog Sprint"
 Cohesion: 0.09
-Nodes (46): Trabajo en paralelo HU-04 y HU-05, Sprint 6 (28 sep-9 oct 2026): Autenticación JWT, Cifrado AES-256 de datos sensibles, HU-01: Registro de Usuario en el Sistema, HU-02: Autenticación de Usuario (Login JWT), HU-03: Registrar Contacto de Emergencia, HU-04: Editar y Eliminar Contacto de Emergencia, HU-05: Configurar Tipo de Emergencia y Mensaje (+38 more)
+Nodes (44): Trabajo en paralelo HU-04 y HU-05, Sprint 6 (28 sep-9 oct 2026): Autenticación JWT, Cifrado AES-256 de datos sensibles, HU-01: Registro de Usuario en el Sistema, HU-02: Autenticación de Usuario (Login JWT), HU-03: Registrar Contacto de Emergencia, HU-04: Editar y Eliminar Contacto de Emergencia, HU-05: Configurar Tipo de Emergencia y Mensaje (+36 more)
 
-### Community 11 - "Acta de Constitución EMERGEN"
-Cohesion: 0.09
-Nodes (33): Historias de alto riesgo HU-07/HU-08, Consumo de APIs externas, HU-07: Obtener y Adjuntar Geolocalización GPS, HU-12: Visualización Restringida de Datos Médicos en Emergencia, HU-14: Estados de alerta, Acta de Constitución EMERGEN, Duoc UC, Tipos de emergencia (Urbano, Emergencia, Médico, Adulto Mayor) (+25 more)
+### Community 11 - "Scrum Framework Methodology"
+Cohesion: 0.12
+Nodes (23): Hoja de ruta del proyecto, Historias de alto riesgo HU-07/HU-08, Rubin (2012) Essential Scrum, Eventos Scrum (Planning, Review, Retrospectiva, Daily), Consumo de APIs externas, Cohn (2004) User Stories Applied, HU-07: Obtener y Adjuntar Geolocalización GPS, HU-12: Visualización Restringida de Datos Médicos en Emergencia (+15 more)
 
 ### Community 12 - "BDD con tipos de datos"
 Cohesion: 0.18
@@ -286,23 +277,19 @@ Nodes (34): Diagrama ER Actualizado (EMRGEN), BDD con tipos de datos, Propuesta 
 
 ### Community 13 - "google-maps.service.ts"
 Cohesion: 0.12
-Nodes (7): GeocodeQueryDto, ReverseGeocodeQueryDto, GoogleMapsController, GoogleMapsModule, GoogleMapsService, GeocodeResult, class-transformer
+Nodes (8): GeocodeQueryDto, ReverseGeocodeQueryDto, GoogleMapsController, GoogleMapsModule, GoogleMapsService, GeocodeResult, class-transformer, class-validator
 
 ### Community 14 - "init.sql"
 Cohesion: 0.11
 Nodes (33): ACCESO_APLICACION, ALERTA, APLICACION, BITACORA_SISTEMA, CATEGORIA_SOPORTE, CONTACTO_EMERGENCIA, DETALLE_ALERTA, DETALLE_VENTA (+25 more)
 
 ### Community 15 - "mindicador.service.ts"
-Cohesion: 0.13
-Nodes (8): readEnv(), JsreportController, JsreportModule, InlineReportTemplate, JsreportService, RenderedReport, defaultCountryCode(), 4.4 Endpoint
-
-### Community 16 - "LoginService"
-Cohesion: 0.07
-Nodes (5): ActualizarMiUsuarioDto, CrearUsuarioDto, LoginDto, LoginController, LoginService
+Cohesion: 0.11
+Nodes (10): ExternalRequestInit, logger, requestExternal(), requestExternalJson(), JsreportController, JsreportModule, InlineReportTemplate, JsreportService (+2 more)
 
 ### Community 17 - "TD-04: Especificar requisitos funcionales y no funcionales"
-Cohesion: 0.10
-Nodes (25): Sprints Planning de la Fase 1, F1-01: Problema, alcance, objetivos e interesados, F1-02: Acta de Constitución, F1-03: Roles, eventos, artefactos y Definition of Done, Sprint 1 (10-14 ago 2026): Definir proyecto y marco Scrum, Tablero Trello de Sprints, Sprints Planning de la Fase 2, Sprint 5 (21-25 sep 2026): Preparación inicial y registro de usuario (+17 more)
+Cohesion: 0.09
+Nodes (31): Sprints Planning de la Fase 1, F1-01: Problema, alcance, objetivos e interesados, F1-02: Acta de Constitución, F1-03: Roles, eventos, artefactos y Definition of Done, F1-10: Repositorio y entorno base, F1-11: Modelo de datos y diccionario inicial, Sprint 1 (10-14 ago 2026): Definir proyecto y marco Scrum, Sprint 4 (31 ago-14 sep 2026): Línea base para Fase 2 (+23 more)
 
 ### Community 18 - "USUARIO"
 Cohesion: 0.08
@@ -313,28 +300,28 @@ Cohesion: 0.14
 Nodes (21): CONTRIBUTING.md, graphify-out Knowledge Graph, Graphify Usage Rules, Branch Architecture (main, graphify, alonso, diego, gabriel), GitHub branch protection rules, Claude Code, CLAUDE.md graphify section and PreToolUse hook, Conventional Commits message format (+13 more)
 
 ### Community 20 - "firebase-auth.guard.ts"
-Cohesion: 0.15
-Nodes (9): requireEnv(), FirebaseAuthController, FirebaseAuthGuard, FirebaseRequest, FirebaseAuthModule, FirebaseAuthService, FirebaseTokenPayload, FirebaseAuthUser (+1 more)
+Cohesion: 0.11
+Nodes (12): requireEnv(), FirebaseAuthController, FirebaseAuthGuard, FirebaseRequest, FirebaseAuthModule, FirebaseAuthService, FirebaseTokenPayload, attacker (+4 more)
 
 ### Community 21 - "EMERGEN: integración de APIs externas"
-Cohesion: 0.07
-Nodes (29): 1.1 Crear o completar el `.env`, 1.2 Referencia de variables, 1.3 Aplicar los cambios, 1. Configurar las variables de entorno, 2.1 Para qué sirve, 2.2 Obtener las credenciales, 2.3 Endpoints, 2. PayPal REST API (+21 more)
+Cohesion: 0.06
+Nodes (30): 1.1 Crear o completar el `.env`, 1.2 Referencia de variables, 1.3 Aplicar los cambios, 1. Configurar las variables de entorno, 2.2 Obtener las credenciales, 2.3 Endpoints, 2.4 Ejemplos, 2. PayPal REST API (+22 more)
 
 ### Community 22 - "DevDeps Backend NestJS"
 Cohesion: 0.08
 Nodes (25): devDependencies, jest, @nestjs/cli, @nestjs/mau, @nestjs/schematics, @nestjs/testing, oxlint, oxlint-tsgolint (+17 more)
 
-### Community 23 - "compras.service.ts"
-Cohesion: 0.09
-Nodes (12): clpAUsd(), ESTADO_PAGO, MAX_APADRINADOS, METODO_PAGO_PAYPAL, MONEDA_PAYPAL, nombreEstado(), PLAN_CUENTA_APADRINADA, ComprasService (+4 more)
+### Community 23 - "Purchase Constants"
+Cohesion: 0.08
+Nodes (15): clpAUsd(), ESTADO_PAGO, MAX_APADRINADOS, METODO_PAGO_PAYPAL, MONEDA_PAYPAL, nombreEstado(), PLAN_CUENTA_APADRINADA, ComprasService (+7 more)
 
 ### Community 24 - "desktop/package.json"
 Cohesion: 0.08
 Nodes (24): axios, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @ionic/react, react (+16 more)
 
 ### Community 25 - "index.ts"
-Cohesion: 0.13
-Nodes (17): api, env, firebase, firebaseAuth, api, env, firebase, firebaseAuth (+9 more)
+Cohesion: 0.09
+Nodes (23): api, env, firebase, firebaseAuth, api, env, firebase, firebaseAuth (+15 more)
 
 ### Community 26 - "web/package.json"
 Cohesion: 0.08
@@ -344,29 +331,29 @@ Nodes (24): axios, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-
 Cohesion: 0.12
 Nodes (24): Actor: Administrador, Use Case: Aumentar Usuarios Apadrinados, Actor: Contacto de Emergencia, Use Case: Crear PIN Usuario Apadrinado, Use Case: Enviar Mensaje Personalizado, Use Case: Enviar Ubicacion, Use Case: Generar Alerta, Use Case: Gestionar Compras (+16 more)
 
+### Community 28 - "AdminService"
+Cohesion: 0.08
+Nodes (5): AdminController, AdminService, ActualizarEstadoDto, BitacoraSistema, PlanUsuario
+
 ### Community 29 - "WhatsappController"
-Cohesion: 0.16
-Nodes (4): isWhatsappEnabled(), WhatsappController, WhatsappPairingCodeResponse, WhatsappStatusResponse
+Cohesion: 0.17
+Nodes (3): WhatsappController, WhatsappPairingCodeResponse, WhatsappStatusResponse
 
 ### Community 30 - "Historias de Usuario con Criterios de Aceptación"
-Cohesion: 0.17
-Nodes (24): Historias de Usuario con Criterios de Aceptación, CRUD de usuarios, apadrinados y datos de compra, Validación de mensaje vacío y límite de caracteres, Regla: mínimo 1 contacto de emergencia registrado, PIN con o sin acceso completo (control del tutor), Encolado y reintento automático de notificaciones fallidas, Alerta SOS sin Internet: SMS de respaldo (fallback), Última ubicación conocida si GPS no disponible (+16 more)
+Cohesion: 0.12
+Nodes (41): Product Backlog del Proyecto Emergen, Emergen (plataforma multiplataforma de emergencias), Product Goal, TD-12 (referenciado en tabla Sprint 4, no definido), Verheyen (2019) Scrum: A Pocket Guide, Historias de Usuario con Criterios de Aceptación, CRUD de usuarios, apadrinados y datos de compra, Validación de mensaje vacío y límite de caracteres (+33 more)
 
 ### Community 31 - "Reporte de Auditoría de Errores (datos_agrupados_trazable)"
 Cohesion: 0.11
 Nodes (21): Cambios Pendientes (AUDIT-P01 a P13), Bitácora Cambios Realizados (AUDITORIA CLAUDE, 208 acciones), [ERR-01] Errores de tipeo, [ERR-02] Poca especificación en el texto, [ERR-03] Falta de información legal, [ERR-04] Errores de antecedentes médicos, [ERR-05] Errores técnicos, [ERR-07] Errores de APIs (+13 more)
 
-### Community 32 - "integrations.live.e2e-spec.ts"
-Cohesion: 0.26
-Nodes (5): loadEnvFile(), bootstrap(), file, jwks-rsa, @nestjs/core
-
 ### Community 33 - "google-maps.ts"
-Cohesion: 0.17
+Cohesion: 0.18
 Nodes (16): GeocodeApiResponse, addMarker(), createMap(), CreateMapOptions, GoogleMap, GoogleMapsNamespace, GoogleMarker, loadGoogleMaps() (+8 more)
 
-### Community 34 - "Usuario"
-Cohesion: 0.10
-Nodes (7): BitacoraSistema, PlanUsuario, UsuariosController, Usuario, UsuariosService, @nestjs/typeorm, typeorm
+### Community 34 - "User Management"
+Cohesion: 0.13
+Nodes (4): UsuariosController, Usuario, UsuariosService, @nestjs/typeorm
 
 ### Community 35 - "devDependencies"
 Cohesion: 0.09
@@ -376,8 +363,8 @@ Nodes (22): devDependencies, @capacitor/cli, cypress, eslint, @eslint/js, eslint
 Cohesion: 0.10
 Nodes (21): dependencies, bcrypt, class-transformer, class-validator, jsonwebtoken, jwks-rsa, @nestjs/common, @nestjs/core (+13 more)
 
-### Community 37 - "UsuarioSesion"
-Cohesion: 0.16
+### Community 37 - "Payment Processing API"
+Cohesion: 0.18
 Nodes (3): ComprasController, CrearOrdenCompraDto, UsuarioSesion
 
 ### Community 38 - "compilerOptions"
@@ -385,8 +372,8 @@ Cohesion: 0.10
 Nodes (20): compilerOptions, allowSyntheticDefaultImports, declaration, emitDecoratorMetadata, esModuleInterop, experimentalDecorators, incremental, isolatedModules (+12 more)
 
 ### Community 39 - "whatsapp.controller.ts"
-Cohesion: 0.13
-Nodes (16): ActualizarEstadoDto, PairingCodeDto, PHONE_NUMBER, JwtAuthGuard, SolicitudAutenticada, HASH_FICTICIO, UsuarioPublico, ESTADO_BLOQUEADO (+8 more)
+Cohesion: 0.09
+Nodes (15): ActualizarMiUsuarioDto, CrearUsuarioDto, LoginDto, JwtAuthGuard, SolicitudAutenticada, LoginModule, HASH_FICTICIO, UsuarioPublico (+7 more)
 
 ### Community 40 - "compilerOptions"
 Cohesion: 0.10
@@ -397,43 +384,43 @@ Cohesion: 0.10
 Nodes (19): compilerOptions, allowArbitraryExtensions, allowImportingTsExtensions, erasableSyntaxOnly, jsx, lib, module, moduleDetection (+11 more)
 
 ### Community 42 - "emergen-api.ts"
-Cohesion: 0.26
-Nodes (8): EmergenApi, loadScript(), pending, loadPaypalSdk(), PaypalButtonsOptions, RenderPaypalButtonsOptions, ButtonsOptions, CreatePaypalOrderRequest
+Cohesion: 0.14
+Nodes (14): EmergenApi, loadScript(), pending, loadPaypalSdk(), PaypalButtons, PaypalButtonsOptions, PaypalNamespace, renderPaypalButtons() (+6 more)
 
-### Community 43 - "Hoja de ruta del proyecto"
-Cohesion: 0.29
-Nodes (7): Hoja de ruta del proyecto, Rubin (2012) Essential Scrum, Eventos Scrum (Planning, Review, Retrospectiva, Daily), Cohn (2004) User Stories Applied, MVP (Producto Mínimo Viable), Schwaber & Sutherland (2020) La Guía de Scrum, Metodología Scrum
+### Community 43 - "Project Governance Requirements"
+Cohesion: 0.12
+Nodes (21): HU-13: Panel de Administración de Usuarios (Web/Desktop), ROLE_ADMIN, Acta de Constitución EMERGEN, Duoc UC, Tipos de emergencia (Urbano, Emergencia, Médico, Adulto Mayor), Hito N°2 (20-11-2026), Hito N°3 (04-12-2026), Modelo de calidad ISO/IEC 25010 (+13 more)
 
 ### Community 44 - "Cambios Realizados"
-Cohesion: 0.18
-Nodes (13): AUDIT-P05 Seguridad de ventana Electron, React 19 + Ionic React, Informe TEC (1.6), Capacitor, Horas hombre en relación a Tareas, Resumen de Costos por Responsable, TH-11.1 Cifrado AES-256 de datos médicos, TH-13.1 Panel admin y empaquetado Electron (+5 more)
+Cohesion: 0.14
+Nodes (16): AUDIT-P05 Seguridad de ventana Electron, React 19 + Ionic React, Informe TEC (1.6), Capacitor, Horas hombre en relación a Tareas, Resumen de Costos por Responsable, TH-11.1 Cifrado AES-256 de datos médicos, TH-13.1 Panel admin y empaquetado Electron (+8 more)
 
 ### Community 45 - "send-emergency-alert.dto.ts"
-Cohesion: 0.13
-Nodes (8): EmergencyAlertLocationDto, EmergencyAlertMedicalInfoDto, SendEmergencyAlertDto, INTEGRATION, MAX_RECIPIENTS, whatsappAuthDir(), EmergencyAlertLocation, EmergencyAlertMedicalInfo
+Cohesion: 0.15
+Nodes (6): EmergencyAlertLocationDto, EmergencyAlertMedicalInfoDto, SendEmergencyAlertDto, MAX_RECIPIENTS, EmergencyAlertLocation, EmergencyAlertMedicalInfo
 
 ### Community 46 - "Diagrama de Componentes"
 Cohesion: 0.27
 Nodes (19): Aplicación de Escritorio, Aplicación Móvil, Aplicación WEB, Backend (capa), Base de Datos, Capa de acceso a Datos, Control Principal, Diagrama de Componentes (+11 more)
 
 ### Community 47 - "whatsapp-alert.service.ts"
-Cohesion: 0.17
-Nodes (15): buildEmergencyAlertText(), buildLocationMessage(), googleMapsLink(), location, maskPhoneNumber(), normalizePhoneNumber(), toUserJid(), sleep() (+7 more)
+Cohesion: 0.14
+Nodes (16): buildEmergencyAlertText(), buildLocationMessage(), googleMapsLink(), location, maskPhoneNumber(), normalizePhoneNumber(), toUserJid(), sleep() (+8 more)
 
 ### Community 48 - "WhatsappConnectionService"
-Cohesion: 0.17
-Nodes (4): errorMessage(), statusCodeOf(), WhatsappConnectionService, WhatsappConnectionState
+Cohesion: 0.22
+Nodes (3): errorMessage(), WhatsappConnectionService, WhatsappConnectionState
 
 ### Community 49 - "compilerOptions"
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, allowSyntheticDefaultImports, forceConsistentCasingInFileNames, isolatedModules, jsx, lib, module (+10 more)
 
 ### Community 50 - "whatsapp-connection.service.ts"
-Cohesion: 0.26
-Nodes (6): BaileysLib, loadBaileys(), MultiFileAuthStateStore, WhatsappAuthState, WhatsappAuthStateStore, @whiskeysockets/baileys
+Cohesion: 0.15
+Nodes (12): readEnv(), BaileysLib, loadBaileys(), MultiFileAuthStateStore, WhatsappAuthState, WhatsappAuthStateStore, statusCodeOf(), defaultCountryCode() (+4 more)
 
-### Community 51 - "mindicador.service.ts"
-Cohesion: 0.13
+### Community 51 - "Indicator Query API"
+Cohesion: 0.14
 Nodes (9): INDICATOR_CODES, IndicatorParamDto, IndicatorQueryDto, MindicadorController, MindicadorDaily, MindicadorSerie, MindicadorService, EconomicIndicator (+1 more)
 
 ### Community 52 - "tasks"
@@ -453,16 +440,16 @@ Cohesion: 0.12
 Nodes (16): compilerOptions, declaration, declarationMap, esModuleInterop, incremental, isolatedModules, lib, module (+8 more)
 
 ### Community 56 - "Product Backlog del Proyecto Emergen"
-Cohesion: 0.26
-Nodes (17): Product Backlog del Proyecto Emergen, Emergen (plataforma multiplataforma de emergencias), Product Goal, TD-12 (referenciado en tabla Sprint 4, no definido), Verheyen (2019) Scrum: A Pocket Guide, Documento de Épicas e Historias de Usuario, EP-01: Arquitectura y Inicio usuario, EP-02: Gestión de Cuentas y Usuarios Base (+9 more)
+Cohesion: 0.15
+Nodes (14): Alcance de RF14 (notificación automática vs números oficiales), Alonso González, AUDIT-P07 Perfil qa, CI, hosting y respaldo Fase 3, AUDIT-P12 HU Could Have de seguridad personal (PIN de coacción), AUDIT-P13 Entrada vacía en la Hoja de ruta, Diagrama de Arquitectura conserva caja React / Angular, Cambios Pendientes, Horizonte de 5 semanas de la Fase 1 (+6 more)
 
 ### Community 57 - "Sprint 3: Diseñar la solución y decidir las tecnologías de implementación (24–28 ago 2026)"
 Cohesion: 0.13
-Nodes (21): F1-04: Requisitos funcionales y no funcionales, F1-05: Product Backlog priorizado y estimado, F1-06: Matriz de trazabilidad, F1-07: Arquitectura y componentes, F1-08: Mockups y flujo de emergencia, F1-09: Selección de tecnologías, Sprint 2 (17-21 ago 2026): Requisitos y trazabilidad, Sprint 3 (24-28 ago 2026): Diseño y tecnologías (+13 more)
+Nodes (22): F1-04: Requisitos funcionales y no funcionales, F1-05: Product Backlog priorizado y estimado, F1-06: Matriz de trazabilidad, F1-07: Arquitectura y componentes, F1-08: Mockups y flujo de emergencia, F1-09: Selección de tecnologías, Sprint 2 (17-21 ago 2026): Requisitos y trazabilidad, Sprint 3 (24-28 ago 2026): Diseño y tecnologías (+14 more)
 
 ### Community 58 - "@nestjs/common"
-Cohesion: 0.11
-Nodes (9): AdminModule, AppController, AppService, ComprasModule, MindicadorModule, PaypalModule, WhatsappModule, LoginModule (+1 more)
+Cohesion: 0.13
+Nodes (7): AdminModule, AppController, AppService, ComprasModule, MindicadorModule, PaypalModule, UsuariosModule
 
 ### Community 59 - "devDependencies"
 Cohesion: 0.13
@@ -472,9 +459,9 @@ Nodes (15): devDependencies, electron, electron-builder, eslint, @eslint/js, esl
 Cohesion: 0.13
 Nodes (15): dependencies, @capacitor/app, @capacitor/core, @capacitor/haptics, @capacitor/keyboard, @capacitor/status-bar, @ionic/react, @ionic/react-router (+7 more)
 
-### Community 61 - "Cambios Pendientes"
-Cohesion: 0.09
-Nodes (28): Julio Tapia (Product Owner), Alcance de RF14 (notificación automática vs números oficiales), Alonso González, AUDIT-P02 Migración del esquema a init.sql y TypeORM, AUDIT-P04 Refresh token rotativo y revocable, AUDIT-P07 Perfil qa, CI, hosting y respaldo Fase 3, AUDIT-P09 Rebalanceo RACI de Alonso, AUDIT-P12 HU Could Have de seguridad personal (PIN de coacción) (+20 more)
+### Community 61 - "Technical Audit Report"
+Cohesion: 0.15
+Nodes (15): Julio Tapia (Product Owner), AUDIT-P02 Migración del esquema a init.sql y TypeORM, AUDIT-P04 Refresh token rotativo y revocable, AUDIT-P09 Rebalanceo RACI de Alonso, Auditoría Técnica EMERGEN (05/10/2026), BDD con tipos de datos (4.1), Cambios Realizados (AUDITORIA CLAUDE), Hallazgo I-05 Catálogo único de tipos de emergencia (+7 more)
 
 ### Community 62 - "Diagrama de Arquitectura"
 Cohesion: 0.26
@@ -488,9 +475,9 @@ Nodes (21): dependencies, firebase, description, devDependencies, jsdom, @repo/a
 Cohesion: 0.14
 Nodes (14): scripts, build, deploy, format, lint, start, start:debug, start:dev (+6 more)
 
-### Community 65 - "mobile/src/App.tsx"
-Cohesion: 0.23
-Nodes (5): App(), ContainerProps, ExploreContainer(), Home(), @testing-library/react
+### Community 65 - "Infrastructure Architecture"
+Cohesion: 0.17
+Nodes (13): AUDIT-P01 Canal y proveedor de despacho de alertas, AUDIT-P06 Ecosistema del monorepo (Node 24.21.0, turbo.json, .env), CA-03.1 Validación de teléfono E.164, CA-06.1 Confirmación SOS, Cambios Realizados, ISO/IEC 25010 en Objetivos de Calidad, RF5 pulsación sostenida 5 s (perfil personas mayores), Servicio Mensajería (integración WhatsApp/Baileys) (+5 more)
 
 ### Community 66 - "Evidencias de sistema Aplicación/package.json"
 Cohesion: 0.06
@@ -500,17 +487,9 @@ Nodes (34): devDependencies, prettier, turbo, typescript, devEngines, packageMan
 Cohesion: 0.06
 Nodes (30): dependencies, react, react-dom, @repo/api-client, devDependencies, eslint, @repo/eslint-config, @repo/typescript-config (+22 more)
 
-### Community 68 - "ref_react"
-Cohesion: 0.17
-Nodes (3): container, root, ButtonProps
-
 ### Community 69 - "Sprint Backlog con estimación de horas (88 h)"
-Cohesion: 0.12
-Nodes (16): [ERR-06] Errores de historias de usuario, [ERR-12] Errores de planificación, Caso de prueba CP-RF11-01, Caso de prueba CP-RF15-01, Caso de prueba CP-RF23-01, RF11: Envío de alerta a contactos, RF15: Aplicación de escritorio administradora, RF23: PIN vinculado a cuenta principal (+8 more)
-
-### Community 70 - "firebase-auth.ts"
-Cohesion: 0.24
-Nodes (8): AccountResponse, createFirebaseAuth(), FirebaseAuth, FirebaseAuthError, post(), account, toSession(), FirebaseSession
+Cohesion: 0.15
+Nodes (13): [ERR-06] Errores de historias de usuario, [ERR-12] Errores de planificación, Caso de prueba CP-RF11-01, Caso de prueba CP-RF23-01, RF11: Envío de alerta a contactos, RF23: PIN vinculado a cuenta principal, HU-05: Mensaje y tipo de emergencia (160 caracteres), HU-06: Botón SOS y endpoint /Alertas (+5 more)
 
 ### Community 71 - "BaileysLoggerAdapter"
 Cohesion: 0.23
@@ -521,24 +500,20 @@ Cohesion: 0.15
 Nodes (13): devDependencies, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @types/node, @types/react (+5 more)
 
 ### Community 73 - "Especificación de Herramientas y Servicios del Proyecto (4.2)"
-Cohesion: 0.10
-Nodes (27): typescript, AUDIT-P01 Canal y proveedor de despacho de alertas, AUDIT-P06 Ecosistema del monorepo (Node 24.21.0, turbo.json, .env), CA-03.1 Validación de teléfono E.164, CA-06.1 Confirmación SOS, CA-08.1 Registro de intento de envío por contacto, Cambios Realizados, ISO/IEC 25010 en Objetivos de Calidad (+19 more)
+Cohesion: 0.18
+Nodes (14): typescript, CA-08.1 Registro de intento de envío por contacto, API Integrada de Alertas, API Integrada de Usuarios, Baileys (@whiskeysockets/baileys), Docker Desktop, Especificación de Herramientas y Servicios del Proyecto (4.2), Google Maps Platform API (+6 more)
 
 ### Community 74 - "http.ts"
-Cohesion: 0.24
-Nodes (5): ApiError, createHttpClient(), send(), HttpClient, ApiErrorResponse
+Cohesion: 0.23
+Nodes (8): bearer(), createEmergenApi(), downloadBlob(), ApiError, createHttpClient(), send(), HttpClient, ApiErrorResponse
 
-### Community 75 - "usePremiumPurchase"
-Cohesion: 0.24
-Nodes (7): errorMessage(), specificMessage(), usePremiumPurchase(), confirm(), createOrder(), load(), paymentFailed()
+### Community 75 - "Premium Checkout Flow"
+Cohesion: 0.12
+Nodes (17): clp, PaypalCheckout(), PaypalCheckoutProps, PremiumPurchase(), PremiumPurchaseProps, ResultModal(), ResultModalProps, api (+9 more)
 
 ### Community 76 - "compilerOptions"
 Cohesion: 0.18
 Nodes (10): compilerOptions, allowJs, jsx, module, moduleResolution, noEmit, plugins, extends (+2 more)
-
-### Community 77 - "Archivos principales"
-Cohesion: 0.22
-Nodes (7): downloadBlob(), PaypalButtons, PaypalNamespace, renderPaypalButtons(), PaypalButton(), PaypalButtonProps, Archivos principales
 
 ### Community 78 - "Trello Sprint Board Screenshot (Fase 1)"
 Cohesion: 0.24
@@ -548,9 +523,9 @@ Nodes (10): Daily Sprints (daily logs 10/8-21/8/2026), Scrum Weekly Sprint Caden
 Cohesion: 0.27
 Nodes (10): Cierre Sprint 3 (28/8/2026), Cierre Sprint 4 (14/9/2026), Creacion del repositorio de GitHub, Daily Sprint 3 (24-28/8/2026), Daily Sprint 4 (11 dailies), Daily Sprint 4 date inconsistency (1/8-11/8 after 31/8), 4.1 Diccionario de Datos / Modelo de Dominio, 4.4 Docker (+2 more)
 
-### Community 80 - "index.d.ts"
-Cohesion: 0.24
-Nodes (5): GenerateReportDto, EmergencyAlertDeliveryStatus, EstadoCompra, GenerateReportRequest, IndicatorValue
+### Community 80 - "Emergency Alert DTOs"
+Cohesion: 0.19
+Nodes (7): GenerateReportDto, PairingCodeDto, PHONE_NUMBER, EmergencyAlertDeliveryStatus, GenerateReportRequest, IndicatorValue, WhatsappPairingCodeRequest
 
 ### Community 81 - "dependencies"
 Cohesion: 0.20
@@ -564,13 +539,9 @@ Nodes (10): AUDIT-P08 Estimación HU-14 a HU-19, AUDIT-P11 Diagramas ER y secuen
 Cohesion: 0.13
 Nodes (17): AUDIT-P03 Worker outbox ENVIO_ALERTA y pruebas IDOR, Hallazgo R-01/A-04 RBAC con verificación de propiedad (IDOR), 1.2.1 Hoja de ruta del proyecto, MVP de 9 HU (HU-01 a HU-08 y HU-14), RF20 Escritorio opera solo vía API, Carta Gantt (documento externo), Informe ERS, Gabriel Valencia (Scrum Master) (+9 more)
 
-### Community 84 - "Sprint 4: Dejar preparada y verificable la línea base para iniciar la Fase 2 (31 ago–14 sep 2026)"
-Cohesion: 0.29
-Nodes (10): F1-10: Repositorio y entorno base, F1-11: Modelo de datos y diccionario inicial, Sprint 4 (31 ago-14 sep 2026): Línea base para Fase 2, TD-11: Crear modelo de datos y diccionario inicial, Alonso González (Desarrollo web, móvil y BDD), Hito N°1 (11-09-2026), Diccionario de Datos / Modelo de Dominio (usuarios, cuentas, contactos, emergencias, ubicaciones, alertas), Configuración Docker (+2 more)
-
 ### Community 85 - "firebase-auth.service.ts"
-Cohesion: 0.18
-Nodes (9): AppModule, attacker, google, createAppTestingModule(), json(), paypalToken(), jsonwebtoken, @nestjs/testing (+1 more)
+Cohesion: 0.13
+Nodes (12): AppModule, loadEnvFile(), BASE_URLS, PaypalLink, PaypalOrder, bootstrap(), createAppTestingModule(), json() (+4 more)
 
 ### Community 86 - "dependencies"
 Cohesion: 0.25
@@ -592,10 +563,6 @@ Nodes (4): config, { config: tsconfig }, jest, ts-jest
 Cohesion: 0.25
 Nodes (7): compilerOptions, outDir, strictNullChecks, exclude, extends, include, @repo/typescript-config/react-library.json
 
-### Community 91 - "PremiumPurchase.tsx"
-Cohesion: 0.28
-Nodes (7): clp, PaypalCheckout(), PaypalCheckoutProps, PremiumPurchase(), PremiumPurchaseProps, ResultModal(), ResultModalProps
-
 ### Community 92 - ".oxlintrc.json"
 Cohesion: 0.29
 Nodes (6): env, node, rules, typescript/no-explicit-any, typescript/no-floating-promises, $schema
@@ -612,9 +579,9 @@ Nodes (7): scripts, build, dev, lint, preview, test.e2e, test.unit
 Cohesion: 0.29
 Nodes (6): compilerOptions, allowSyntheticDefaultImports, composite, module, moduleResolution, include
 
-### Community 97 - "WhatsappAlertService"
+### Community 97 - "WhatsApp Notifications"
 Cohesion: 0.29
-Nodes (6): WhatsappAlertService, 7.1 Para qué sirve, 7.2 Configurar, 7.3 Vincular el número emisor (una sola vez), 7.5 Usar el servicio desde otro módulo del backend, 7. WhatsApp (Baileys): notificaciones de emergencia
+Nodes (6): WhatsappModule, 7.1 Para qué sirve, 7.2 Configurar, 7.3 Vincular el número emisor (una sola vez), 7.5 Usar el servicio desde otro módulo del backend, 7. WhatsApp (Baileys): notificaciones de emergencia
 
 ### Community 98 - "api-types/package.json"
 Cohesion: 0.29
@@ -647,10 +614,6 @@ Nodes (5): collection, compilerOptions, deleteOutDir, $schema, sourceRoot
 ### Community 106 - "react-library.json"
 Cohesion: 0.33
 Nodes (5): compilerOptions, jsx, extends, ./base.json, $schema
-
-### Community 107 - "http-client.ts"
-Cohesion: 0.53
-Nodes (4): ExternalRequestInit, logger, requestExternal(), requestExternalJson()
 
 ### Community 108 - "obj_cl_Gestionar_Usuario : Clase"
 Cohesion: 0.40
@@ -708,10 +671,6 @@ Nodes (5): scripts, build, dev, lint, preview
 Cohesion: 0.40
 Nodes (5): scripts, build, dev, lint, preview
 
-### Community 122 - "usePremiumPurchase.ts"
-Cohesion: 0.40
-Nodes (4): api, PurchaseModal, OrdenCompraResponse, ResumenCompraApadrinados
-
 ### Community 123 - "RF13: Ubicación en emergencia"
 Cohesion: 0.40
 Nodes (5): Caso de prueba CP-RF13-01, Caso de prueba CP-RF13-02 (sin ubicación / fallback), RF13: Ubicación en emergencia, Plugin de geolocalización Capacitor, HU-07: Geolocalización Capacitor con fallback
@@ -761,7 +720,7 @@ Nodes (3): Desktop App React + TypeScript + Vite Template README, Web App React 
   Fase 2/Evidencias Proyecto/Evidencias de documentación/3.3 Diagrama UML/Caso de Uso/Caso de Uso.png · relation: references
 - `HU-05: Seleccionar tipo de emergencia y personalizar mensaje` → `HU-11: Ingresar ficha de datos de salud`  [AMBIGUOUS]
   graphify-out/converted/Historias Usuario con instructivo_fa506d1a.md · relation: conceptually_related_to
-- `CA-06.1 Confirmación SOS` → `TH-6.1 Botón SOS con confirmación de 2 s`  [AMBIGUOUS]
+- `TH-6.1 Botón SOS con confirmación de 2 s` → `CA-06.1 Confirmación SOS`  [AMBIGUOUS]
   graphify-out/converted/Horas hombre en relación a Tareas_c7bcb968.md · relation: conceptually_related_to
 - `TD-12 (referenciado en tabla Sprint 4, no definido)` → `Product Backlog del Proyecto Emergen`  [AMBIGUOUS]
   graphify-out/converted/2.1.1 PRODUCT BACKLOG_b8d86969.md · relation: references
@@ -769,23 +728,23 @@ Nodes (3): Desktop App React + TypeScript + Vite Template README, Web App React 
   Fase 2/Evidencias Proyecto/Evidencias de documentación/1.2 Sprint Planning/Evidencias de Sprints,Daily Sprints Fase 1 (Captura 2).png · relation: references
 
 ## Knowledge Gaps
-- **347 isolated node(s):** `@nestjs/passport`, `@nestjs/platform-express`, `@paypal/checkout-server-sdk`, `passport`, `passport-jwt` (+342 more)
+- **347 isolated node(s):** `Apadrinamiento de cuentas (descuentos; max 5 usuarios por cuenta)`, `Aviso a redes de seguridad cercanas (numeros de emergencia)`, `Compartir ultima ubicacion con contactos de emergencia`, `Diseno UI/UX (Mockups/Wireframes, modelos de datos)`, `Documentacion de requisitos y alcance (Caso de Negocio, Acta de Constitucion, ERS, Casos de Uso, Matriz de Trazabilidad)` (+342 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1044 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **29 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **30 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Especificación de Herramientas y Servicios del Proyecto (4.2)` connect `Especificación de Herramientas y Servicios del Proyecto (4.2)` to `backend Service (nestjs_emergen_backend)`, `Usuario`, `Cambios Realizados`?**
-  _High betweenness centrality (0.294) - this node is a cross-community bridge._
+- **Why does `Especificación de Herramientas y Servicios del Proyecto (4.2)` connect `Especificación de Herramientas y Servicios del Proyecto (4.2)` to `Infrastructure Architecture`, `Cambios Realizados`, `backend Service (nestjs_emergen_backend)`, `Purchase Constants`?**
+  _High betweenness centrality (0.289) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `Acta de Constitución EMERGEN` (e.g. with `F1-02: Acta de Constitución` and `TD-02: Elaborar y validar el Acta de Constitución`) actually correct?**
   _`Acta de Constitución EMERGEN` has 3 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `@nestjs/passport`, `@nestjs/platform-express`, `@paypal/checkout-server-sdk` to the rest of the system?**
+- **What connects `Apadrinamiento de cuentas (descuentos; max 5 usuarios por cuenta)`, `Aviso a redes de seguridad cercanas (numeros de emergencia)`, `Compartir ultima ubicacion con contactos de emergencia` to the rest of the system?**
   _347 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Guia Estudiante Fase 1: Definicion Proyecto APT (EMERGEN)` be split into smaller, more focused modules?**
   _Cohesion score 0.05087719298245614 - nodes in this community are weakly interconnected._
-- **Why does `typeorm` connect `Usuario` to `backend/package.json`, `whatsapp.controller.ts`, `Especificación de Herramientas y Servicios del Proyecto (4.2)`, `firebase-auth.service.ts`, `compras.service.ts`?**
-  _High betweenness centrality (0.259) - this node is a cross-community bridge._
+- **Why does `typeorm` connect `Purchase Constants` to `User Management`, `backend/package.json`, `whatsapp.controller.ts`, `Especificación de Herramientas y Servicios del Proyecto (4.2)`, `firebase-auth.service.ts`, `AdminService`?**
+  _High betweenness centrality (0.273) - this node is a cross-community bridge._
 
 ### Low-confidence Hints
 _AMBIGUOUS edges — the extractor was unsure. Verify before acting on these._
