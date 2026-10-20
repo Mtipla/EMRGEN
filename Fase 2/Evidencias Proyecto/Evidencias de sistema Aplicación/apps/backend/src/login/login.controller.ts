@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
+import { CrearPinDto } from './dto/crear-pin.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard, type UsuarioSesion } from './jwt-auth.guard';
 import { LoginService } from './login.service';
@@ -32,6 +33,21 @@ export class LoginController {
   @Post('login')
   iniciarSesion(@Body() datos: LoginDto) {
     return this.loginService.iniciarSesion(datos);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/pin')
+  crearPin(
+    @Req() request: { user: UsuarioSesion },
+    @Body() datos: CrearPinDto,
+  ) {
+    return this.loginService.crearPinInicial(request.user.sub, datos.PIN);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  obtenerMiCuenta(@Req() request: { user: UsuarioSesion }) {
+    return this.loginService.obtenerPropio(request.user.sub);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

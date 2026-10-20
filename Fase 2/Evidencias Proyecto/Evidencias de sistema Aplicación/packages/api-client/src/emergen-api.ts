@@ -2,14 +2,20 @@ import type {
   CapturePaypalOrderResponse,
   CreatePaypalOrderRequest,
   EconomicIndicator,
+  EmergencyAlertResult,
   FirebaseAuthUser,
   GenerateReportRequest,
   GeocodeResult,
   GeoPoint,
   IndicatorCode,
   PaypalOrderResponse,
+  SendEmergencyAlertRequest,
+  WhatsappPairingCodeResponse,
+  WhatsappStatusResponse,
 } from '@repo/api-types';
 import { createHttpClient } from './http';
+
+const bearer = (accessToken: string) => ({ Authorization: `Bearer ${accessToken}` });
 
 /**
  * Cliente tipado de los endpoints de integraciones del backend.
@@ -65,6 +71,34 @@ export function createEmergenApi(baseUrl: string) {
         http.json<EconomicIndicator>(
           `/indicators/${code}${date ? `?${new URLSearchParams({ date })}` : ''}`,
         ),
+    },
+
+    /** Administración de la sesión de WhatsApp. Requiere el JWT de un Administrador. */
+    whatsapp: {
+      status: (accessToken: string) =>
+        http.json<WhatsappStatusResponse>('/notifications/whatsapp/status', {
+          headers: bearer(accessToken),
+        }),
+      /** QR vigente como PNG (404 si no hay vinculación pendiente). Caduca cada ~20 s. */
+      qr: (accessToken: string) =>
+        http.blob('/notifications/whatsapp/qr', { headers: bearer(accessToken) }),
+      requestPairingCode: (accessToken: string, phoneNumber: string) =>
+        http.json<WhatsappPairingCodeResponse>('/notifications/whatsapp/pairing-code', {
+          method: 'POST',
+          headers: bearer(accessToken),
+          body: JSON.stringify({ phoneNumber }),
+        }),
+      logout: (accessToken: string) =>
+        http.json<WhatsappStatusResponse>('/notifications/whatsapp/logout', {
+          method: 'POST',
+          headers: bearer(accessToken),
+        }),
+      sendAlert: (accessToken: string, request: SendEmergencyAlertRequest) =>
+        http.json<EmergencyAlertResult>('/notifications/whatsapp/alerts', {
+          method: 'POST',
+          headers: bearer(accessToken),
+          body: JSON.stringify(request),
+        }),
     },
   };
 }

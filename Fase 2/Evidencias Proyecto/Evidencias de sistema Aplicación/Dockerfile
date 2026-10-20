@@ -37,6 +37,9 @@ COPY --from=prod-deps --chown=node:node /app/apps/backend/node_modules ./apps/ba
 COPY --from=builder --chown=node:node /app/apps/backend/package.json ./apps/backend/package.json
 COPY --from=builder --chown=node:node /app/apps/backend/dist ./apps/backend/dist
 WORKDIR /app/apps/backend
+# Carpeta de la sesión de WhatsApp (volumen en docker-compose). Debe existir con dueño
+# "node" en la imagen; si no, Docker crea el punto de montaje como root y no se puede escribir.
+RUN mkdir -p auth_info_baileys && chown node:node auth_info_baileys
 USER node
 EXPOSE 3000
 CMD ["node", "dist/main.js"]
