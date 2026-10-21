@@ -27,9 +27,11 @@ import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { LoginDto } from './dto/login.dto';
 
+// rol_ID, estado_ID y usuario_principal_ID solo deciden la navegación del frontend;
+// la autorización sigue en JwtAuthGuard + RolesGuard, que releen la BD en cada petición.
 export type UsuarioPublico = Pick<
   Usuario,
-  'usuario_ID' | 'nombre_usuario' | 'correo_usuario'
+  'usuario_ID' | 'nombre_usuario' | 'correo_usuario' | 'rol_ID' | 'estado_ID' | 'usuario_principal_ID'
 > & { requiere_pin: boolean };
 
 const BCRYPT_COSTO = 12;
@@ -278,11 +280,14 @@ export class LoginService {
   }
 
   private sinPassword(usuario: Usuario): UsuarioPublico {
-    const { usuario_ID, nombre_usuario, correo_usuario } = usuario;
+    const { usuario_ID, nombre_usuario, correo_usuario, rol_ID, estado_ID, usuario_principal_ID } = usuario;
     return {
       usuario_ID,
       nombre_usuario,
       correo_usuario,
+      rol_ID,
+      estado_ID,
+      usuario_principal_ID,
       requiere_pin: usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
     };
   }

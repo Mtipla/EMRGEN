@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react'
+import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import { adminApi, API_URL, describirError, MODO_API, setToken, type Sesion } from './api'
 import { SeccionBitacora } from './SeccionBitacora'
 import { SeccionSoporte } from './SeccionSoporte'
 import { SeccionUsuarios } from './SeccionUsuarios'
+import { VistaCompras, VistaCuentas, VistaTrabajadores } from './VistasWireframe'
 
 /** Panel de pruebas del administrador: cada sección consume sus endpoints con Axios. */
 export function PanelAdmin() {
@@ -82,9 +84,29 @@ export function PanelAdmin() {
               Cerrar sesión
             </button>
           </p>
-          <SeccionUsuarios />
-          <SeccionSoporte />
-          <SeccionBitacora />
+          {/* Las vistas de los wireframes viven dentro de la sesión: el token está solo en memoria. */}
+          <nav style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
+            <Link to="/">Panel de pruebas</Link>
+            <Link to="/administracion/cuentas">Administrar cuentas</Link>
+            <Link to="/administracion/compras">Administrar compras</Link>
+            <Link to="/administracion/trabajadores">Administrar trabajadores</Link>
+          </nav>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  <SeccionUsuarios />
+                  <SeccionSoporte />
+                  <SeccionBitacora />
+                </>
+              }
+            />
+            <Route path="/administracion/cuentas" element={<VistaCuentas />} />
+            <Route path="/administracion/compras" element={<VistaCompras />} />
+            <Route path="/administracion/trabajadores" element={<VistaTrabajadores />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </>
       )}
     </div>

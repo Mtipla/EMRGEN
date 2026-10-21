@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { AuthForm, type AuthenticatedUser } from './features/auth/AuthForm'
@@ -7,6 +7,16 @@ import { PinSetupForm } from './features/auth/PinSetupForm'
 import { UsersAdmin } from './features/auth/UsersAdmin'
 import { PremiumPurchase } from './features/compra/PremiumPurchase'
 import { PublicSite, type PublicView } from './features/inicio/PublicSite'
+import { perfilDe, puede, type Accion } from '@repo/ui/permisos'
+import { AppShell, SinPermiso } from './features/cuenta/AppShell'
+import { AccountsPage, HomePage, ProfilePage, SoportePage } from './features/cuenta/CuentaPages'
+import {
+  AdminAlertasPage,
+  AdminComprasPage,
+  AdminCuentasPage,
+  AdminTicketsPage,
+  AdminTrabajadoresPage,
+} from './features/administracion/AdminPages'
 
 const savedUser = localStorage.getItem('emergen.user')
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
@@ -74,7 +84,7 @@ function App() {
     setUser(authenticatedUser)
 
     navigate(
-      authenticatedUser.requiere_pin ? '/login' : '/usuarios',
+      authenticatedUser.requiere_pin ? '/login' : '/inicio',
       { replace: true },
     )
   }
@@ -86,7 +96,7 @@ function App() {
 
     localStorage.setItem('emergen.user', JSON.stringify(updatedUser))
     setUser(updatedUser)
-    navigate('/usuarios', { replace: true })
+    navigate('/inicio', { replace: true })
   }
 
   function renderPublicSite(view: PublicView) {
@@ -95,9 +105,21 @@ function App() {
         view={view}
         isAuthenticated={user !== null}
         onNavigate={(next) => navigate(next === 'premium' ? '/premium' : '/')}
-        onAccount={() => navigate(user ? '/usuarios' : '/login')}
+        onAccount={() => navigate(user ? '/inicio' : '/login')}
         onBuy={() => navigate(hasSession ? '/comprar' : '/login')}
       />
+    )
+  }
+
+  const perfil = user && perfilDe(user)
+
+  /** Páginas de los wireframes: exigen sesión con PIN y, si se indica, un permiso de la matriz. */
+  function privatePage(page: ReactNode, accion?: Accion) {
+    if (!user || !hasSession) return <Navigate to="/login" replace />
+    return (
+      <AppShell user={user} onLogout={closeSession}>
+        {!accion || puede(perfil, accion) ? page : <SinPermiso />}
+      </AppShell>
     )
   }
 
@@ -125,7 +147,7 @@ function App() {
                 />
               </main>
             ) : (
-              <Navigate to="/usuarios" replace />
+              <Navigate to="/inicio" replace />
             )
           ) : (
             <main className="auth-page">
@@ -168,13 +190,39 @@ function App() {
         element={
           hasSession ? (
             <main className="auth-page">
-              <PremiumPurchase onClose={() => navigate('/usuarios')} />
+              <PremiumPurchase onClose={() => navigate('/inicio')} />
             </main>
           ) : (
             <Navigate to="/login" replace />
           )
         }
       />
+
+      {/* Wireframes: home, perfil y cuentas del usuario; administración (rol Administrador en backend) */}
+      <Route path="/inicio" element={privatePage(user && <HomePage user={user} />)} />
+      <Route
+        path="/perfil"
+        element={privatePage(user && <ProfilePage user={user} onUserUpdated={setUser} />)}
+      />
+      <Route path="/cuentas" element={privatePage(<AccountsPage />, 'cuentas.apadrinadas')} />
+      <Route path="/soporte" element={privatePage(<SoportePage />, 'soporte.solicitar')} />
+      <Route
+        path="/administracion/cuentas"
+        element={privatePage(<AdminCuentasPage perfil={perfil} />, 'admin.cuentas.ver')}
+      />
+      <Route
+        path="/administracion/compras"
+        element={privatePage(<AdminComprasPage perfil={perfil} />, 'admin.compras.ver')}
+      />
+      <Route
+        path="/administracion/trabajadores"
+        element={privatePage(<AdminTrabajadoresPage />, 'admin.trabajadores')}
+      />
+      <Route
+        path="/administracion/tickets"
+        element={privatePage(<AdminTicketsPage />, 'soporte.gestionarTickets')}
+      />
+      <Route path="/administracion/alertas" element={privatePage(<AdminAlertasPage />, 'alertas.verTodas')} />
 
       {/* Redirigir rutas inexistentes */}
       <Route path="*" element={<Navigate to="/" replace />} />
