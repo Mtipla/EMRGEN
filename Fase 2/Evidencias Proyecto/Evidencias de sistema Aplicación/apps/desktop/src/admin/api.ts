@@ -36,7 +36,8 @@ export const ESTADOS: Record<number, string> = {
 
 export type Sesion = {
   access_token: string
-  usuario: { usuario_ID: number; nombre_usuario: string; correo_usuario: string }
+  // rol_ID/estado_ID: los devuelve el login desde el bloque 2 del changelog (ausentes en backends anteriores).
+  usuario: { usuario_ID: number; nombre_usuario: string; correo_usuario: string; rol_ID?: number; estado_ID?: number }
 }
 
 export type UsuarioAdmin = {
@@ -105,6 +106,8 @@ const sinVacios = (campos: Record<string, string>) =>
 export const adminApi = {
   login: (correo_usuario: string, password: string) =>
     datos(http.post<Sesion>('/usuarios/login', { correo_usuario, password })),
+  actualizarMiUsuario: (nombre_usuario: string, correo_usuario: string) =>
+    datos(http.patch<Sesion['usuario']>('/usuarios/me', { nombre_usuario, correo_usuario })),
 
   // Usuarios
   listarUsuarios: () => datos(http.get<UsuarioAdmin[]>('/admin/usuarios')),

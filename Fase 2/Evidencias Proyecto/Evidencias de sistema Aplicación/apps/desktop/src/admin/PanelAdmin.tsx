@@ -1,10 +1,13 @@
 import { useState, type FormEvent } from 'react'
+import { Link, Navigate, Route, Routes } from 'react-router-dom'
+import { perfilDe, puede, type Perfil } from '@repo/ui/permisos'
 import { adminApi, API_URL, describirError, MODO_API, setToken, type Sesion } from './api'
 import { SeccionBitacora } from './SeccionBitacora'
 import { SeccionSoporte } from './SeccionSoporte'
 import { SeccionUsuarios } from './SeccionUsuarios'
+import { VistaCompras, VistaCuentas, VistaPerfil, VistaTrabajadores } from './VistasWireframe'
 
-/** Panel de pruebas del administrador: cada sección consume sus endpoints con Axios. */
+/** Panel de pruebas del administrador (y vistas del Trabajador/SOPORTE): cada sección consume sus endpoints con Axios. */
 export function PanelAdmin() {
   const [sesion, setSesion] = useState<Sesion | null>(null)
   const [correo, setCorreo] = useState('')
@@ -17,8 +20,9 @@ export function PanelAdmin() {
     try {
       const nueva = await adminApi.login(correo, password)
       setToken(nueva.access_token)
-      // El login no informa el rol: se comprueba con una ruta exclusiva del administrador.
-      await adminApi.listarUsuarios()
+      // SOPORTE (= Trabajador) entra con su menú reducido; el resto se comprueba con una
+      // ruta exclusiva del administrador, como antes.
+      if (perfilDe(nueva.usuario) !== 'SOPORTE') await adminApi.listarUsuarios()
       setSesion(nueva)
       setPassword('')
     } catch (causa) {
@@ -26,6 +30,10 @@ export function PanelAdmin() {
       setError(await describirError(causa))
     }
   }
+
+  // Quien no es SOPORTE superó la comprobación de GET /admin/usuarios: es ADMINISTRADOR.
+  const perfil: Perfil = sesion && perfilDe(sesion.usuario) === 'SOPORTE' ? 'SOPORTE' : 'ADMINISTRADOR'
+  const esSoporte = perfil === 'SOPORTE'
 
   function cerrarSesion() {
     setToken('')
@@ -82,9 +90,38 @@ export function PanelAdmin() {
               Cerrar sesión
             </button>
           </p>
-          <SeccionUsuarios />
-          <SeccionSoporte />
-          <SeccionBitacora />
+          {/* Las vistas de los wireframes viven dentro de la sesión: el token está solo en memoria. */}
+          <nav style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
+            {!esSoporte && <Link to="/">Panel de pruebas</Link>}
+            <Link to="/perfil">Modificar usuario</Link>
+            <Link to="/administracion/cuentas">Administrar cuentas</Link>
+            <Link to="/administracion/compras">Administrar compras</Link>
+            {puede(perfil, 'admin.trabajadores') && (
+              <Link to="/administracion/trabajadores">Administrar trabajadores</Link>
+            )}
+          </nav>
+          {/* Las rutas que el Trabajador no tiene ni se registran: la URL cae en el redirect. */}
+          <Routes>
+            {!esSoporte && (
+              <Route
+                path="/"
+                element={
+                  <>
+                    <SeccionUsuarios />
+                    <SeccionSoporte />
+                    <SeccionBitacora />
+                  </>
+                }
+              />
+            )}
+            <Route path="/perfil" element={<VistaPerfil sesion={sesion} onActualizado={setSesion} />} />
+            <Route path="/administracion/cuentas" element={<VistaCuentas perfil={perfil} />} />
+            <Route path="/administracion/compras" element={<VistaCompras perfil={perfil} />} />
+            {puede(perfil, 'admin.trabajadores') && (
+              <Route path="/administracion/trabajadores" element={<VistaTrabajadores />} />
+            )}
+            <Route path="*" element={<Navigate to={esSoporte ? '/administracion/cuentas' : '/'} replace />} />
+          </Routes>
         </>
       )}
     </div>

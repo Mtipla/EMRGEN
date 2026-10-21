@@ -2,6 +2,13 @@ import { Navigate, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home';
+import Login from './pages/Login';
+import Registro from './pages/Registro';
+import Pin from './pages/Pin';
+import Perfil from './pages/Perfil';
+import Cuentas from './pages/Cuentas';
+import { perfilDe, puede, type Accion } from '@repo/ui/permisos';
+import { getUser } from './lib/session';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -35,11 +42,23 @@ import './theme/variables.css';
 
 setupIonicReact();
 
+/** Pantallas que exigen sesión con PIN creado (y un permiso si se indica); se evalúa al montar. */
+const Privada: React.FC<{ children: React.ReactElement; accion?: Accion }> = ({ children, accion }) => {
+  const user = getUser();
+  if (user?.requiere_pin !== false) return <Navigate to="/login" replace />;
+  return !accion || puede(perfilDe(user), accion) ? children : <Navigate to="/home" replace />;
+};
+
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/pin" element={<Pin />} />
+        <Route path="/home" element={<Privada><Home /></Privada>} />
+        <Route path="/perfil" element={<Privada><Perfil /></Privada>} />
+        <Route path="/cuentas" element={<Privada accion="cuentas.apadrinadas"><Cuentas /></Privada>} />
         <Route path="/" element={<Navigate to="/home" replace />} />
       </IonRouterOutlet>
     </IonReactRouter>

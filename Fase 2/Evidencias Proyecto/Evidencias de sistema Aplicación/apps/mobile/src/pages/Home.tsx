@@ -1,22 +1,85 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
+import { useState } from 'react';
+import {
+  IonButton,
+  IonButtons,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonList,
+  IonPage,
+  IonPopover,
+  IonTitle,
+  IonToolbar,
+  useIonRouter,
+} from '@ionic/react';
+import { perfilDe, puede } from '@repo/ui/permisos';
+import { NumerosEmergencia } from '@repo/ui/wireframe';
+import AlertaSos from '../components/AlertaSos';
+import ConfigurarAlerta from '../components/ConfigurarAlerta';
+import { clearSession, getUser } from '../lib/session';
 import './Home.css';
 
+/** Home con sesión: alerta rápida, alerta en segundo plano y menú de usuario. */
 const Home: React.FC = () => {
+  const router = useIonRouter();
+  const user = getUser();
+  // Menú según la matriz de permisos; el backend sigue autorizando cada llamada.
+  const perfil = user && perfilDe(user);
+  const [modal, setModal] = useState<'sos' | 'configurar' | null>(null);
+
+  function cerrarSesion() {
+    clearSession();
+    router.push('/login', 'root', 'replace');
+  }
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Blank</IonTitle>
+          <IonTitle>{user?.nombre_usuario ?? 'FIND ME'}</IonTitle>
+          <IonButtons slot="end">
+            <IonButton id="menu-usuario">Menú ▾</IonButton>
+          </IonButtons>
+          <IonPopover trigger="menu-usuario" dismissOnSelect>
+            <IonList>
+              <IonItem button detail={false} routerLink="/perfil">
+                Modificar usuario
+              </IonItem>
+              {puede(perfil, 'cuentas.apadrinadas') && (
+                <IonItem button detail={false} routerLink="/cuentas">
+                  Administrar cuentas
+                </IonItem>
+              )}
+              <IonItem button detail={false} onClick={cerrarSesion}>
+                Cerrar sesión
+              </IonItem>
+            </IonList>
+          </IonPopover>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Blank</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <ExploreContainer />
+      <IonContent className="ion-padding">
+        <IonButton expand="block" color="danger" size="large" onClick={() => setModal('sos')}>
+          Alerta rápida en la APP
+        </IonButton>
+
+        <IonCard>
+          <IonCardHeader>
+            <IonCardTitle>Configurar alerta en segundo plano</IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            <p>Realiza una secuencia de botones determinada por usted en un tiempo de 20 segundos.</p>
+            <IonButton onClick={() => setModal('configurar')}>Configurar alerta</IonButton>
+          </IonCardContent>
+        </IonCard>
+
+        <NumerosEmergencia />
+
+        {modal === 'sos' && <AlertaSos onClose={() => setModal(null)} />}
+        {modal === 'configurar' && <ConfigurarAlerta onClose={() => setModal(null)} />}
       </IonContent>
     </IonPage>
   );

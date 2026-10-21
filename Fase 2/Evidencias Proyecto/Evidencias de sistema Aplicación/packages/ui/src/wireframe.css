@@ -1,0 +1,271 @@
+/* UI base de los wireframes (web, escritorio y móvil). Acento #e64b35 como AuthForm.css de la web. */
+.wf-shell {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  color: #263449;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.wf-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.wf-header a,
+.wf-link {
+  color: #263449;
+  font-weight: 600;
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.wf-brand {
+  margin-right: auto;
+  color: #e64b35 !important;
+  letter-spacing: 0.12em;
+}
+
+.wf-menu {
+  position: relative;
+}
+
+.wf-menu-list {
+  position: absolute;
+  right: 0;
+  z-index: 10;
+  display: grid;
+  min-width: 220px;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgb(15 23 42 / 12%);
+}
+
+.wf-menu-list a,
+.wf-menu-list button {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.wf-menu-list a:hover,
+.wf-menu-list button:hover {
+  background: #f1f5f9;
+}
+
+.wf-card {
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgb(15 23 42 / 6%);
+}
+
+.wf-card h1,
+.wf-card h2,
+.wf-card h3 {
+  margin-top: 0;
+  color: #162235;
+}
+
+.wf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.wf-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.wf-form label {
+  display: grid;
+  gap: 0.3rem;
+  font-weight: 600;
+}
+
+.wf-form input,
+.wf-form select,
+.wf-form textarea,
+.wf-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font: inherit;
+  background: #fff;
+  color: #162235;
+}
+
+.wf-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wf-row > input {
+  flex: 1 1 160px;
+  width: auto;
+}
+
+.wf-button {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  text-decoration: none;
+  border: 1px solid #e64b35;
+  border-radius: 10px;
+  background: #e64b35;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wf-button--secondary {
+  background: #fff;
+  color: #e64b35;
+}
+
+.wf-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.wf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.wf-pending {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.85rem;
+}
+
+.wf-message {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.wf-message--error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.wf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(15 23 42 / 45%);
+}
+
+.wf-modal {
+  width: min(100%, 420px);
+  padding: 1.5rem;
+  border-top: 6px solid #64748b;
+  border-radius: 16px;
+  background: #fff;
+  color: #263449;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.wf-modal h2 {
+  margin-top: 0;
+  color: #162235;
+  font-size: 1.25rem;
+}
+
+.wf-modal--success {
+  border-top-color: #16a34a;
+}
+
+.wf-modal--error {
+  border-top-color: #dc2626;
+}
+
+.wf-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.wf-table th,
+.wf-table td {
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.wf-table th {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.wf-table tbody tr {
+  cursor: pointer;
+}
+
+.wf-table tbody tr:hover,
+.wf-table tbody tr[aria-selected="true"] {
+  background: #fff1ee;
+}
+
+.wf-search {
+  max-width: 360px;
+  margin-bottom: 0.75rem;
+}
+
+.wf-muted {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .wf-header {
+    gap: 0.5rem 0.9rem;
+  }
+
+  .wf-card {
+    padding: 1rem;
+  }
+
+  .wf-actions .wf-button {
+    flex: 1 1 auto;
+  }
+}

@@ -20,6 +20,10 @@ export type AuthenticatedUser = {
   nombre_usuario: string
   correo_usuario: string
   requiere_pin: boolean
+  /** Opcionales: el backend los añadió el 2026-10-21; las sesiones guardadas antes no los traen. */
+  rol_ID?: number
+  estado_ID?: number
+  usuario_principal_ID?: number | null
 }
 
 type AuthFormProps = {

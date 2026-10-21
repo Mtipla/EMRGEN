@@ -36,15 +36,15 @@
 - init.sql
 - USUARIO
 - Team Workflow Guide (Claude Code + Graphify + Git)
-- firebase-auth.guard.ts
+- firebase-auth.service.ts
 - EMERGEN: integración de APIs externas
 - DevDeps Backend NestJS
 - ComprasService
 - desktop/package.json
-- index.ts
+- admin-views.tsx
 - web/package.json
 - Sistema EMERGEN (system boundary)
-- AdminService
+- AuditoriaService
 - WhatsappController
 - usuarios.service.ts
 - scheduler.py
@@ -93,7 +93,7 @@
 - http.ts
 - usePremiumPurchase
 - compilerOptions
-- Archivos principales
+- PublicSite.tsx
 - Trello Sprint Board Screenshot (Fase 1)
 - Sprint 4 (31/8/2026)
 - public.venta
@@ -107,13 +107,13 @@
 - api-client/tsconfig.json
 - jest.config.ts
 - ui/tsconfig.json
-- PremiumPurchase.tsx
+- AuthForm
 - .oxlintrc.json
 - tsconfig.build.json
-- ref_vite
+- init.sql
 - scripts
 - compilerOptions
-- WhatsappAlertService
+- http.ts
 - api-types/package.json
 - typescript-config/package.json
 - backend Service (nestjs_emergen_backend)
@@ -251,7 +251,7 @@ Nodes (4): AuditoriaController, AuditoriaService, ConsultarBitacoraDto, Rendered
 
 ### Community 8 - "mobile/package.json"
 Cohesion: 0.05
-Nodes (36): description, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @ionic/react, @ionic/react-router (+28 more)
+Nodes (37): description, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @ionic/react, @ionic/react-router (+29 more)
 
 ### Community 9 - "index.d.ts"
 Cohesion: 0.12
@@ -305,9 +305,9 @@ Nodes (16): AdminController, ActualizarEstadoDto, clpAUsd(), ESTADO_PAGO, MAX_AP
 Cohesion: 0.08
 Nodes (25): axios, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @ionic/react, react (+17 more)
 
-### Community 25 - "index.ts"
+### Community 25 - "admin-views.tsx"
 Cohesion: 0.13
-Nodes (17): api, env, firebase, firebaseAuth, api, env, firebase, firebaseAuth (+9 more)
+Nodes (24): acceso(), AdminCompras(), AdminComprasProps, AdminCuentas(), eliminar(), guardar(), AdminCuentasProps, AdminTrabajadores() (+16 more)
 
 ### Community 26 - "web/package.json"
 Cohesion: 0.08
@@ -477,9 +477,9 @@ Nodes (30): dependencies, react, react-dom, @repo/api-client, devDependencies, e
 Cohesion: 0.20
 Nodes (14): AuthForm(), completeRegistration(), describeError(), handleSubmit(), postUsuarios(), run(), startRegistration(), AuthFormProps (+6 more)
 
-### Community 70 - "firebase-auth.ts"
-Cohesion: 0.24
-Nodes (8): AccountResponse, createFirebaseAuth(), FirebaseAuth, FirebaseAuthError, post(), account, toSession(), FirebaseSession
+### Community 70 - "2026-10-21 — Roles, permisos, soporte y funcionalidades documentadas (bloque 2)"
+Cohesion: 0.06
+Nodes (33): 2026-10-21 — Roles, permisos, soporte y funcionalidades documentadas (bloque 2), 2026-10-21 — Rutas y UI base de los wireframes (bloque 1), 2026-10-21 — SOPORTE = "Trabajador" de documentos y mockups (bloque 3), Antes / después, Archivos, Archivos, Archivos, Cambios (+25 more)
 
 ### Community 71 - "BaileysLoggerAdapter"
 Cohesion: 0.23
@@ -493,9 +493,9 @@ Nodes (13): devDependencies, eslint, @eslint/js, eslint-plugin-react-hooks, esli
 Cohesion: 0.13
 Nodes (15): emergen_00_ultimo_admin, emergen_usuario_borrado, emergen_usuario_limpieza, emergen_usuario_vinculo, ix_usuario_estado_id, ix_usuario_msj_personalizado_id, ix_usuario_pin_id, ix_usuario_principal (+7 more)
 
-### Community 74 - "http.ts"
-Cohesion: 0.24
-Nodes (5): ApiError, createHttpClient(), send(), HttpClient, ApiErrorResponse
+### Community 74 - "Cambios Realizados (AUDITORIA CLAUDE)"
+Cohesion: 0.18
+Nodes (13): AUDIT-P04 Refresh token rotativo y revocable, Auditoría Técnica EMERGEN (05/10/2026), Cambios Realizados (AUDITORIA CLAUDE), Hallazgo I-05 Catálogo único de tipos de emergencia, Hallazgo I-08 Alcance de comunicación a servicios de emergencia, Hallazgo R-09 Dos proveedores de identidad (Firebase y JWT propio), Informe TEC (1.6), ISO/IEC/IEEE 29148:2018 (+5 more)
 
 ### Community 75 - "usePremiumPurchase"
 Cohesion: 0.18
@@ -572,6 +572,10 @@ Nodes (6): env, node, rules, typescript/no-explicit-any, typescript/no-floating-
 ### Community 93 - "tsconfig.build.json"
 Cohesion: 0.29
 Nodes (6): compilerOptions, rootDir, exclude, extends, include, ./tsconfig.json
+
+### Community 94 - "init.sql"
+Cohesion: 0.13
+Nodes (16): ix_mensaje_contacto_estado_contacto_id, ix_mensaje_contacto_tipo_contacto_id, ix_respuesta_contacto_mensaje_contacto_id, ix_respuesta_contacto_usuario_id, ix_soporte_ticket_soporte_id, ix_ticket_estado, ix_ticket_soporte_categoria_soporte_id, ix_ticket_soporte_usuario_id (+8 more)
 
 ### Community 95 - "scripts"
 Cohesion: 0.29
