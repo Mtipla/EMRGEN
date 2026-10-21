@@ -5,12 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import internal_v1
 from app.core.config import settings
+from app.core.scheduler import lifespan
 from app.core.errors import register_error_handlers
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
 
 docs = settings.docs_enabled
 app = FastAPI(
+    lifespan=lifespan,
     title="EMERGEN internal-api",
     version="0.1.0",
     description="APIs internas de EMERGEN. Ver readme.apis.internas.md en la raíz del monorepo.",

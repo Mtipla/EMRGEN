@@ -2,7 +2,7 @@ import { IsOptional, IsString, Length, Matches } from 'class-validator';
 import type { CreatePaypalOrderRequest } from '@repo/api-types';
 
 export class CreatePaypalOrderDto implements CreatePaypalOrderRequest {
-  @Matches(/^\d{1,7}(\.\d{1,2})?$/, {
+  @Matches(/^(?!0+(?:\.0+)?$)\d{1,7}(\.\d{1,2})?$/, {
     message:
       'amount debe ser un monto positivo con hasta 2 decimales, ej. "9.99"',
   })

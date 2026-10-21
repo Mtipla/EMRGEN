@@ -1,6 +1,9 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { transaction } from '../config/transaction';
+import { Pin } from './pin.entity';
 import { Usuario } from './usuarios.entity';
 
 /** Límite estricto de cuentas apadrinadas (y de cupos) por cuenta principal. */
@@ -16,14 +19,14 @@ export class UsuariosService {
   // CREAR USUARIO PRINCIPAL
   async crearUsuarioPrincipal(datosUsuario: Partial<Usuario>): Promise<Usuario> {
     const existe = await this.usuarioRepository.findOneBy({ correo_usuario: datosUsuario.correo_usuario });
-    if (existe && existe.usuario_principal_ID === null) {
-      throw new BadRequestException('El correo ya está registrado como cuenta principal.');
+    if (existe) {
+      throw new BadRequestException('El correo ya está registrado.');
     }
 
     const nuevoUsuario = this.usuarioRepository.create({
       ...datosUsuario,
       rol_ID: 3, // Rol USUARIO
-      estado_ID: 1, // ACTIVO
+      estado_ID: 2, // Completa la configuración del PIN antes de habilitar acceso completo
       usuario_principal_ID: null,
     } as Usuario);
 
@@ -31,37 +34,21 @@ export class UsuariosService {
   }
 
   // CREAR USUARIO APADRINADO
-  async crearUsuarioApadrinado(idPadre: number, datosApadrinado: Partial<Usuario>): Promise<Usuario> {
-    const padre = await this.usuarioRepository.findOneBy({ usuario_ID: idPadre });
-    
-    if (!padre) {
-      throw new NotFoundException('La cuenta principal no existe.');
-    }
-    
-    if (padre.usuario_principal_ID !== null) {
-      throw new BadRequestException('Un usuario apadrinado no puede apadrinar a otras cuentas.');
-    }
-
-    // Validar límite estricto de 5 cuentas apadrinadas
-    const cantidadApadrinados = await this.usuarioRepository.count({
-      where: { usuario_principal_ID: idPadre }
+  async crearUsuarioApadrinado(idPadre: number, datos: { nombre_usuario: string; correo_usuario: string; password: string; estado_ID: 1 | 2; pin?: string }): Promise<Usuario> {
+    if (!datos.correo_usuario || !datos.password || Buffer.byteLength(datos.password, 'utf8') > 72) throw new BadRequestException('Correo y contraseña propios requeridos; contraseña máximo 72 bytes');
+    if (datos.estado_ID === 1 && !/^\d{4}$/.test(datos.pin ?? '')) throw new BadRequestException('El perfil completo requiere PIN propio de cuatro dígitos');
+    if (datos.pin !== undefined && !/^\d{4}$/.test(datos.pin)) throw new BadRequestException('PIN inválido');
+    const password = await bcrypt.hash(datos.password, 12);
+    const pinHash = datos.pin ? await bcrypt.hash(datos.pin, 12) : undefined;
+    return transaction(this.usuarioRepository.manager.connection, async (manager) => {
+      const usuarios = manager.getRepository(Usuario);
+      const padre = await usuarios.findOne({ where: { usuario_ID: idPadre }, lock: { mode: 'pessimistic_write' } });
+      if (!padre) throw new NotFoundException('La cuenta principal no existe');
+      if (padre.usuario_principal_ID !== null) throw new BadRequestException('Un apadrinado no puede apadrinar');
+      const pin = pinHash ? await manager.save(Pin, manager.create(Pin, { pin_hash: pinHash })) : null;
+      return usuarios.save(usuarios.create({ nombre_usuario: datos.nombre_usuario.trim(), correo_usuario: datos.correo_usuario.trim().toLowerCase(), contra_usuario: password,
+        rol_ID: 3, estado_ID: datos.estado_ID, usuario_principal_ID: idPadre, PIN_ID: pin?.PIN_ID ?? null }));
     });
-
-    if (cantidadApadrinados >= MAX_APADRINADOS) {
-      throw new BadRequestException(`Ha alcanzado el límite máximo de ${MAX_APADRINADOS} cuentas apadrinadas.`);
-    }
-
-    // Crear el apadrinado vinculando el correo y la cuenta gestora
-    const nuevoApadrinado = this.usuarioRepository.create({
-      ...datosApadrinado,
-      correo_usuario: padre.correo_usuario,
-      suscripcion_ID: padre.suscripcion_ID,
-      rol_ID: 3,
-      estado_ID: 1,
-      usuario_principal_ID: padre.usuario_ID,
-    } as Usuario);
-
-    return await this.usuarioRepository.save(nuevoApadrinado);
   }
 
   // OBTENER PERFIL Y SUS DEPENDIENTES

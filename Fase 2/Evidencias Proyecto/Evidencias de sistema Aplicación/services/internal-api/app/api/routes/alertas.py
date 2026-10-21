@@ -1,9 +1,9 @@
 import psycopg
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.core.db import get_db
+from app.core.db import get_db, transaction
 from app.dependencies.auth import UsuarioSesion, usuario_actual
-from app.schemas.alertas import Alerta, AlertaCrear
+from app.schemas.alertas import Alerta, AlertaCrear, AlertaCerrar
 from app.services import alertas
 
 router = APIRouter(prefix="/alertas", tags=["Alertas de emergencia"])
@@ -15,12 +15,16 @@ def crear_alerta(
     usuario: UsuarioSesion = Depends(usuario_actual),
     db: psycopg.Connection = Depends(get_db),
 ):
-    msj_id = None
-    if datos.mensaje is None:
-        msj_id = alertas.mensaje_por_defecto(db, usuario.id)
-        if msj_id is None:
-            raise HTTPException(400, "Escribe un mensaje: no tienes un mensaje de emergencia personalizado")
-    return alertas.crear(db, usuario.id, datos.ubicacion, datos.mensaje, msj_id)
+    return transaction(db, lambda: alertas.crear(db, usuario.id, datos))
+
+
+@router.post("/{alerta_id}/cerrar", response_model=Alerta, summary="Finalizar SOS con PIN efectivo")
+def cerrar_alerta(alerta_id: int, datos: AlertaCerrar,
+    usuario: UsuarioSesion = Depends(usuario_actual), db: psycopg.Connection = Depends(get_db)):
+    result = transaction(db, lambda: alertas.cerrar(db, usuario.id, alerta_id, datos.pin))
+    if isinstance(result, HTTPException):
+        raise result
+    return result
 
 
 @router.get("", response_model=list[Alerta], summary="Historial de alertas")

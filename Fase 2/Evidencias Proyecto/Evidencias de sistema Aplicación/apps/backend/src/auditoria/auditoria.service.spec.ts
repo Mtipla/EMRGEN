@@ -15,7 +15,7 @@ describe('AuditoriaService', () => {
 
   const evento: EventoAuditado = {
     actor: ADMIN,
-    accion: 'Cambio de estado del usuario 7 a 3',
+    accion: 'Cambio de estado del usuario 7 a 2',
     tipo: 'MODIFICACION',
     entidad: 'USUARIO',
     usuario_afectado_ID: 7,
@@ -25,11 +25,11 @@ describe('AuditoriaService', () => {
     bitacora_sistema_ID: 5,
     // 15:00 UTC = 12:00 en Chile (horario de verano, UTC-3).
     fecha_accion: new Date('2026-09-30T15:00:00.000Z'),
-    accion_realizada: 'Cambio de estado del usuario 7 a 3',
+    accion_realizada: 'Cambio de estado del usuario 7 a 2',
     tipo_accion: 'MODIFICACION',
     entidad_afectada: 'USUARIO',
     resultado: 'EXITOSA',
-    cambios: { estado_ID: { antes: 1, despues: 3 } },
+    cambios: { estado_ID: { antes: 1, despues: 2 } },
     usuario_ID: 1,
     nombre_usuario: 'Admin',
     rol_actor_ID: 1,
@@ -45,7 +45,7 @@ describe('AuditoriaService', () => {
     transaction = jest.fn((trabajo: (m: EntityManager) => Promise<unknown>) =>
       trabajo(managerTransaccion),
     );
-    managerBase = { transaction } as unknown as EntityManager;
+    managerBase = { connection: { transaction } } as unknown as EntityManager;
     service = new AuditoriaService(
       { manager: managerBase } as unknown as Repository<BitacoraSistema>,
       { renderInline } as unknown as JsreportService,
@@ -53,7 +53,7 @@ describe('AuditoriaService', () => {
   });
 
   describe('registrar', () => {
-    it('inserta actor, rol, afectado y cambios con la hora UTC de PostgreSQL y la acción recortada a 150', async () => {
+    it('inserta actor, rol, afectado y cambios con la hora UTC de PostgreSQL y la acción completa', async () => {
       const insert = {
         insert: () => insert,
         into: () => insert,
@@ -66,7 +66,7 @@ describe('AuditoriaService', () => {
       await service.registrar(manager, {
         ...evento,
         accion: 'x'.repeat(200),
-        cambios: { estado_ID: { antes: 1, despues: 3 } },
+        cambios: { estado_ID: { antes: 1, despues: 2 } },
       });
 
       const [fila] = values.mock.calls[0] as [Record<string, unknown>];
@@ -78,10 +78,10 @@ describe('AuditoriaService', () => {
         entidad_afectada: 'USUARIO',
         resultado: 'EXITOSA',
         aplicacion_ID: 3,
-        cambios: { estado_ID: { antes: 1, despues: 3 } },
+        cambios: { estado_ID: { antes: 1, despues: 2 } },
       });
-      expect(fila.accion_realizada).toHaveLength(150);
-      expect((fila.fecha_accion as () => string)()).toBe("timezone('UTC', now())");
+      expect(fila.accion_realizada).toHaveLength(200);
+      expect((fila.fecha_accion as () => string)()).toBe("now()");
       expect(insert.execute).toHaveBeenCalled();
     });
   });
@@ -96,7 +96,7 @@ describe('AuditoriaService', () => {
     it('registra la acción con el manager de la misma transacción que la aplica', async () => {
       const operacion = jest.fn().mockResolvedValue({
         valor: 'ok',
-        cambios: { estado_ID: { antes: 1, despues: 3 } },
+        cambios: { estado_ID: { antes: 1, despues: 2 } },
       });
 
       await expect(service.auditar(evento, operacion)).resolves.toBe('ok');
@@ -105,7 +105,7 @@ describe('AuditoriaService', () => {
       expect(registrar).toHaveBeenCalledTimes(1);
       expect(registrar).toHaveBeenCalledWith(managerTransaccion, {
         ...evento,
-        cambios: { estado_ID: { antes: 1, despues: 3 } },
+        cambios: { estado_ID: { antes: 1, despues: 2 } },
       });
     });
 
@@ -128,8 +128,9 @@ describe('AuditoriaService', () => {
       expect(registrar).toHaveBeenCalledTimes(1);
       expect(registrar).toHaveBeenCalledWith(managerBase, {
         ...evento,
-        accion: 'Cambio de estado del usuario 7 a 3: El usuario no existe en la base de datos',
+        accion: 'Cambio de estado del usuario 7 a 2: El usuario no existe en la base de datos',
         resultado: 'FALLIDA',
+        usuario_afectado_ID: null,
       });
     });
 
@@ -141,7 +142,7 @@ describe('AuditoriaService', () => {
       expect(registrar).toHaveBeenCalledWith(
         managerBase,
         expect.objectContaining({
-          accion: 'Cambio de estado del usuario 7 a 3: error interno',
+          accion: 'Cambio de estado del usuario 7 a 2: error interno',
           resultado: 'FALLIDA',
         }),
       );
@@ -181,7 +182,7 @@ describe('AuditoriaService', () => {
         aplicacion: 'ESCRITORIO',
         resultado: 'EXITOSA',
         fallida: false,
-        cambios: ['estado_ID: 1 → 3'],
+        cambios: ['estado_ID: 1 → 2'],
       });
       expect(datos.entradas[0].fecha).toContain('12:00:00');
     });

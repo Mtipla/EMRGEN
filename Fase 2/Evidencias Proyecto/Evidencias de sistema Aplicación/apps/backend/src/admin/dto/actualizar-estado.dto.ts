@@ -1,8 +1,8 @@
 import { IsIn, IsInt } from 'class-validator';
 
 export class ActualizarEstadoDto {
-  // IDs de ESTADO_USUARIO: 1 acceso completo, 2 acceso parcial, 3 bloqueado/inactivo.
+  // IDs de ESTADO_USUARIO: 1 acceso completo, 2 acceso parcial.
   @IsInt()
-  @IsIn([1, 2, 3])
+  @IsIn([1, 2])
   estado_ID!: number;
 }

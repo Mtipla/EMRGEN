@@ -1,42 +1,35 @@
-from collections.abc import Iterator
-
+from collections.abc import Callable, Iterator
+from time import sleep
+from typing import TypeVar
 import psycopg
 from fastapi import HTTPException
-from psycopg import sql
 from psycopg.rows import dict_row
-
 from app.core.config import settings
 
+T = TypeVar("T")
+
+def connect() -> psycopg.Connection:
+    return psycopg.connect(host=settings.db_host, port=settings.db_port, user=settings.db_user,
+        password=settings.db_password, dbname=settings.db_name, row_factory=dict_row,
+        connect_timeout=5, autocommit=True)
 
 def get_db() -> Iterator[psycopg.Connection]:
-    """Una conexión y una transacción por petición: commit al terminar, rollback si hay error."""
     try:
-        conn = psycopg.connect(
-            host=settings.db_host,
-            port=settings.db_port,
-            user=settings.db_user,
-            password=settings.db_password,
-            dbname=settings.db_name,
-            row_factory=dict_row,
-            connect_timeout=5,
-        )
+        conn = connect()
     except psycopg.OperationalError as exc:
         raise HTTPException(503, "Base de datos no disponible") from exc
-    # shortcut: conexión por petición, sin pool; usar psycopg_pool si la carga crece.
     with conn:
         yield conn
 
-
-def siguiente_id(conn: psycopg.Connection, tabla: str, columna: str) -> int:
-    """MAX+1 bajo bloqueo de tabla hasta el commit: dos inserciones simultáneas no repiten ID.
-
-    shortcut: estas tablas de init.sql no son IDENTITY; cuando se agregue una migración como
-    apps/backend/migrations/20261006_pin_identity.sql, reemplazar por el autoincremento.
-    """
-    conn.execute(sql.SQL("LOCK TABLE {} IN EXCLUSIVE MODE").format(sql.Identifier(tabla)))
-    fila = conn.execute(
-        sql.SQL("SELECT COALESCE(MAX({}), 0) + 1 AS id FROM {}").format(
-            sql.Identifier(columna), sql.Identifier(tabla)
-        )
-    ).fetchone()
-    return fila["id"]
+def transaction(conn: psycopg.Connection, action: Callable[[], T]) -> T:
+    """Commit antes de responder; reintenta la transacción completa, sin efectos externos."""
+    for attempt in range(3):
+        try:
+            with conn.transaction():
+                result = action()
+            return result
+        except psycopg.Error as exc:
+            if exc.sqlstate not in ("40001", "40P01") or attempt == 2:
+                raise
+            sleep(0.025 * (2 ** attempt))
+    raise AssertionError("unreachable")

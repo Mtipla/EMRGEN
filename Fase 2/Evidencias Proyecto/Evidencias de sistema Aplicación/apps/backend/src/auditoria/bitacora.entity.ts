@@ -35,15 +35,15 @@ export class BitacoraSistema {
   @PrimaryGeneratedColumn({ name: 'bitacora_sistema_id' })
   bitacora_sistema_ID: number;
 
-  @Column({ name: 'accion_realizada', length: 150 })
+  @Column({ name: 'accion_realizada', type: 'text' })
   accion_realizada: string;
 
-  @Column({ name: 'fecha_accion', type: 'timestamp' })
+  @Column({ name: 'fecha_accion', type: 'timestamptz' })
   fecha_accion: Date;
 
   // Actor: quien ejecutó la acción (el administrador), nunca el usuario afectado.
-  @Column({ name: 'usuario_id' })
-  usuario_ID: number;
+  @Column({ name: 'usuario_id', type: 'int', nullable: true })
+  usuario_ID: number | null;
 
   @Column({ name: 'aplicacion_id' })
   aplicacion_ID: number;
@@ -52,7 +52,7 @@ export class BitacoraSistema {
   @Column({ name: 'rol_actor_id', type: 'int', nullable: true })
   rol_actor_ID: number | null;
 
-  // Sin llave foránea: el registro se conserva aunque el usuario afectado se elimine.
+  // FK SET NULL: se conserva el registro cuando se elimina el afectado.
   @Column({ name: 'usuario_afectado_id', type: 'int', nullable: true })
   usuario_afectado_ID: number | null;
 

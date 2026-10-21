@@ -1,3 +1,4 @@
+-- HISTÓRICO: no ejecutar después del init consolidado. Instalación nueva: init.sql + fixtures.
 -- Compra de cuentas apadrinadas con PayPal, para una BD creada con un init.sql anterior.
 -- init.sql solo corre al crear el volumen; este script lleva una BD existente al mismo
 -- esquema. Solo agrega (no borra ni modifica datos) y puede ejecutarse más de una vez.
@@ -50,8 +51,8 @@ INSERT INTO estado_pago (estado_pago_id, descripcion_estado) VALUES
 (5, 'PAGADO SIN HABILITAR (REQUIERE REVISION)')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO plan (plan_id, nombre_plan, precio_actual, limite_compra_max, total_venta, fecha_venta) VALUES
-(1, 'CUENTA APADRINADA ADICIONAL', 1000, 5, 0, NOW())
+INSERT INTO plan (plan_id, nombre_plan, precio_actual, limite_compra_max) VALUES
+(1, 'CUENTA APADRINADA ADICIONAL', 1000, 5)
 ON CONFLICT DO NOTHING;
 
 COMMIT;

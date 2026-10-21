@@ -6,8 +6,8 @@ export class Venta {
   @PrimaryGeneratedColumn({ name: 'venta_id' })
   venta_ID: number;
 
-  @Column({ name: 'usuario_id' })
-  usuario_ID: number;
+  @Column({ name: 'usuario_id', type: 'int', nullable: true })
+  usuario_ID: number | null;
 
   @Column({ name: 'metodo_pago_id' })
   metodo_pago_ID: number;
@@ -19,7 +19,7 @@ export class Venta {
   @Column({ name: 'total_venta' })
   total_venta: number;
 
-  @Column({ name: 'fecha_venta', type: 'timestamp' })
+  @Column({ name: 'fecha_venta', type: 'timestamptz' })
   fecha_venta: Date;
 
   @Column({ name: 'orden_paypal_id', type: 'varchar', length: 36, nullable: true })

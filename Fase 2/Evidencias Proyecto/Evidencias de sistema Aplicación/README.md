@@ -49,7 +49,7 @@ Evidencias de sistema Aplicación/
 ├── Dockerfile          → Imagen del backend (multi-stage, node:24.21.0-alpine).
 ├── docker-compose.yml  → PostgreSQL 15 + backend.
 ├── init.sql            → Esquema inicial de la BD (se ejecuta al crear el volumen).
-├── README_BDD.md       → Datos de prueba para poblar la BD.
+├── README_BDD.md       → Contrato BDD, fixtures y pruebas de la integración.
 ├── .npmrc              → save-exact=true (las dependencias nuevas se guardan sin ^ ni ~).
 └── .nvmrc              → 24.21.0
 ```
@@ -285,7 +285,7 @@ docker compose down -v
 docker compose up --build -d
 ```
 
-Al recrear el volumen, `init.sql` vuelve a crear el esquema vacío. Para cargar datos de prueba, sigue [README_BDD.md](README_BDD.md).
+Al recrear el volumen, `init.sql` vuelve a crear el esquema y los catálogos. Para cargar datos de prueba, sigue [README_BDD.md](README_BDD.md).
 
 Si modificas contenedores o volúmenes, sigue este orden: **bajar el contenedor → hacer los cambios → levantar el contenedor**.
 
@@ -408,3 +408,5 @@ VITE_PAYPAL_CLIENT_ID=<INSERT_YOUR_PAYPAL_CLIENT_ID_HERE>
 VITE_GOOGLE_MAPS_API_KEY=<INSERT_YOUR_GOOGLE_MAPS_BROWSER_API_KEY_HERE>
 # Map ID de Google Cloud (opcional; si falta se usa DEMO_MAP_ID).
 VITE_GOOGLE_MAPS_MAP_ID=<INSERT_YOUR_GOOGLE_MAPS_MAP_ID_HERE>
+
+La integración BDD consolidada y sus validaciones se documentan en [ESTADO_INTEGRACION_BDD.md](ESTADO_INTEGRACION_BDD.md) y [el informe de integración](docs/INTEGRACION_BDD_2026-10-21.md). Reemplazar init.sql no migra un volumen existente.

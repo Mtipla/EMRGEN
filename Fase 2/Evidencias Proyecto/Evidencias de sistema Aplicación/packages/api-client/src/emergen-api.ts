@@ -1,5 +1,6 @@
 import type {
   CapturePaypalOrderResponse,
+  CompraPendiente,
   CreatePaypalOrderRequest,
   EconomicIndicator,
   EmergencyAlertResult,
@@ -48,6 +49,7 @@ export function createEmergenApi(baseUrl: string) {
      * los decide el backend; el éxito solo vale si `capture` responde estado PAGADO.
      */
     compras: {
+      pending: (accessToken: string) => http.json<CompraPendiente[]>('/compras/apadrinados/ventas/pendientes', { headers: bearer(accessToken) }),
       summary: (accessToken: string) =>
         http.json<ResumenCompraApadrinados>('/compras/apadrinados', {
           headers: bearer(accessToken),
@@ -63,6 +65,8 @@ export function createEmergenApi(baseUrl: string) {
           `/compras/apadrinados/ordenes/${encodeURIComponent(orderId)}/captura`,
           { method: 'POST', headers: bearer(accessToken) },
         ),
+      reconcile: (accessToken: string, ventaId: number) =>
+        http.json<ResultadoCompraResponse | OrdenCompraResponse>(`/compras/apadrinados/ventas/${ventaId}/conciliar`, { method: 'POST', headers: bearer(accessToken) }),
       cancel: (accessToken: string, orderId: string) =>
         http.json<ResultadoCompraResponse>(
           `/compras/apadrinados/ordenes/${encodeURIComponent(orderId)}/cancelar`,
