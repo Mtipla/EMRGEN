@@ -5,22 +5,23 @@
 .DESCRIPTION
   1. Inicia sesion como administrador.
   2. Lista usuarios (GET /admin/usuarios).
-  3. Opcional (-UsuarioId): bloquea y reactiva a ese usuario; ambas acciones quedan en la bitacora.
+  3. Opcional (-UsuarioId): cambia a acceso parcial y completo a ese usuario; ambas acciones quedan en la bitacora.
   4. Lista la bitacora (GET /admin/auditoria).
   5. Descarga el PDF de la bitacora generado por jsReport (GET /admin/auditoria/reporte).
      Si jsReport no esta levantado, informa el error 502 y el resto de la prueba sigue valida.
 
-  Requiere un usuario con rol 1 (ver README_BDD.md: admin@emergen.cl / Admin12345).
+  El usuario objetivo debe tener PIN propio configurado para habilitar acceso completo.
+  Requiere un usuario con rol 1 (ver README_BDD.md: admin@emergen.test / EmergenDev123!).
 
 .EXAMPLE
   .\probar-auditoria.ps1                                   # backend local (npm run start:dev)
   .\probar-auditoria.ps1 -ApiUrl http://localhost:3001     # backend en Docker
-  .\probar-auditoria.ps1 -UsuarioId 2                      # ademas bloquea y reactiva al usuario 2
+  .\probar-auditoria.ps1 -UsuarioId 2                      # ademas cambia a acceso parcial y completo al usuario 2
 #>
 param(
   [string]$ApiUrl = 'http://localhost:3000',
-  [string]$Correo = 'admin@emergen.cl',
-  [string]$Password = 'Admin12345',
+  [string]$Correo = 'admin@emergen.test',
+  [string]$Password = 'EmergenDev123!',
   [int]$UsuarioId = 0,
   [string]$Salida = (Get-Location).Path
 )
@@ -39,8 +40,8 @@ Invoke-RestMethod -Uri "$ApiUrl/admin/usuarios" -Headers $headers |
   Format-Table usuario_ID, nombre_usuario, correo_usuario, rol_ID, estado_ID -AutoSize | Out-Host
 
 if ($UsuarioId -gt 0) {
-  Paso "Bloquear (3) y reactivar (1) al usuario $UsuarioId (PUT /admin/usuarios/:id/estado)"
-  foreach ($estado in 3, 1) {
+  Paso "Acceso parcial (2) y completo (1) al usuario $UsuarioId (PUT /admin/usuarios/:id/estado)"
+  foreach ($estado in 2, 1) {
     $cuerpo = @{ estado_ID = $estado } | ConvertTo-Json
     Invoke-RestMethod -Method Put -Uri "$ApiUrl/admin/usuarios/$UsuarioId/estado" -Headers $headers -ContentType 'application/json' -Body $cuerpo |
       Format-Table usuario_ID, nombre_usuario, estado_ID -AutoSize | Out-Host

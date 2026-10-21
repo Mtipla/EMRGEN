@@ -52,5 +52,9 @@ export async function requestExternalJson<T>(
   init?: ExternalRequestInit,
 ): Promise<T> {
   const response = await requestExternal(integration, url, init);
-  return (await response.json()) as T;
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new BadGatewayException(`${integration}: respuesta JSON inválida del proveedor.`);
+  }
 }

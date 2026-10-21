@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Post,
   Req,
   UseGuards,
@@ -23,6 +24,9 @@ export class ComprasController {
     return this.comprasService.resumen(request.user.sub);
   }
 
+  @Get('ventas/pendientes')
+  pendientes(@Req() request: { user: UsuarioSesion }) { return this.comprasService.pendientes(request.user.sub); }
+
   @Post('ordenes')
   crearOrden(
     @Req() request: { user: UsuarioSesion },
@@ -38,6 +42,12 @@ export class ComprasController {
     @Param('orderId') orderId: string,
   ) {
     return this.comprasService.capturar(request.user.sub, orderId);
+  }
+
+  @Post('ventas/:ventaId/conciliar')
+  @HttpCode(200)
+  conciliar(@Req() request: { user: UsuarioSesion }, @Param('ventaId', ParseIntPipe) ventaId: number) {
+    return this.comprasService.conciliar(request.user.sub, ventaId);
   }
 
   @Post('ordenes/:orderId/cancelar')

@@ -53,15 +53,15 @@ export class PaypalService {
 
   async createOrder(
     request: CreatePaypalOrderRequest,
+    requestId: string = randomUUID(),
   ): Promise<PaypalOrderResponse> {
-    // TODO: cuando existan las entidades TypeORM, calcular el monto desde la tabla PLAN
-    // en vez de aceptarlo del cliente, para que nadie pueda pagar un precio alterado.
+    // ComprasService calcula el importe y proporciona una clave durable por venta.
     const order = await requestExternalJson<PaypalOrder>(
       INTEGRATION,
       `${this.baseUrl}/v2/checkout/orders`,
       {
         method: 'POST',
-        headers: await this.headers({ 'PayPal-Request-Id': randomUUID() }),
+        headers: await this.headers({ 'PayPal-Request-Id': requestId }),
         body: JSON.stringify({
           intent: 'CAPTURE',
           purchase_units: [
@@ -104,7 +104,18 @@ export class PaypalService {
       },
     );
 
-    const capture = order.purchase_units?.[0]?.payments?.captures?.[0];
+    return this.resultadoOrden(order);
+  }
+
+  async getOrder(orderId: string): Promise<CapturePaypalOrderResponse> {
+    const order = await requestExternalJson<PaypalOrder>(INTEGRATION, `${this.baseUrl}/v2/checkout/orders/${encodeURIComponent(orderId)}`, { method: 'GET', headers: await this.headers() });
+    return this.resultadoOrden(order);
+  }
+
+  private resultadoOrden(order: PaypalOrder): CapturePaypalOrderResponse {
+    const captures = order.purchase_units?.flatMap((unit) => unit.payments?.captures ?? []) ?? [];
+    if (captures.length > 1) throw new Error('La orden requiere conciliación de capturas múltiples');
+    const capture = captures[0];
     return {
       orderId: order.id,
       status: order.status,

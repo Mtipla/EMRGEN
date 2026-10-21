@@ -22,9 +22,6 @@ export class Usuario {
   @Column({ name: 'pin_id', type: 'int', nullable: true })
   PIN_ID: number | null;
 
-  @Column({ name: 'suscripcion_id', type: 'int', nullable: true })
-  suscripcion_ID: number | null;
-
   @Column({ name: 'msj_personalizado_id', type: 'int', nullable: true })
   msj_personalizado_ID: number | null;
 

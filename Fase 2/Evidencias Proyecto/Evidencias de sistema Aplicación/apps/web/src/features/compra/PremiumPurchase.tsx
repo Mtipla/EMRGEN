@@ -83,7 +83,7 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
 
             {soldOut && (
               <p className="purchase-notice">
-                Ya tienes el máximo de cuentas apadrinadas ({summary.cuposAdquiridos}).
+                No hay cupos disponibles para una nueva compra. Revisa tus compras pendientes.
               </p>
             )}
             {purchase.notice && (
@@ -93,6 +93,17 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
             )}
             {processing && <p role="status">Procesando pago, no cierres esta ventana…</p>}
 
+            {purchase.pending.length > 0 && (
+              <div aria-label="Compras pendientes">
+                <p>Compras pendientes</p>
+                {purchase.pending.map((sale) => (
+                  <button key={sale.ventaId} type="button" disabled={processing || checkoutOpen}
+                    onClick={() => void purchase.recover(sale)}>
+                    {sale.puedeRetomar ? 'Retomar' : 'Verificar'} compra {sale.ventaId}
+                  </button>
+                ))}
+              </div>
+            )}
             {checkoutOpen && (
               <PaypalCheckout
                 createOrder={purchase.createOrder}

@@ -89,8 +89,7 @@ describe('requestExternal', () => {
       expect(String(message)).not.toContain('CLAVE-SECRETA');
   });
 
-  // Falla con el código actual: `response.json()` queda fuera del try de
-  // requestExternal, así que un 200 con HTML/JSON roto termina en un 500 genérico.
+  // Un 200 con HTML/JSON roto sigue siendo un fallo del proveedor.
   it('responde 502 si el proveedor devuelve 200 con un cuerpo que no es JSON', async () => {
     fetchMock.mockResolvedValueOnce(
       new Response('<html>Mantenimiento</html>', { status: 200 }),

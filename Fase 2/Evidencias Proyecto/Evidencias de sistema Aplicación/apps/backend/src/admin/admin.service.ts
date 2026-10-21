@@ -31,7 +31,7 @@ export type ResumenUsuario = Pick<
 /** Todo lo que el backend gestiona de un usuario: su cuenta, su plan y sus apadrinados. */
 export interface ExpedienteUsuario {
   usuario: Usuario;
-  plan: PlanUsuario | null;
+  plan: (PlanUsuario & { cupos_ocupados: number; cupos_disponibles: number }) | null;
   apadrinados: Pick<Usuario, 'usuario_ID' | 'nombre_usuario' | 'estado_ID'>[];
 }
 
@@ -51,7 +51,7 @@ function diferencias<C extends string>(
   return cambios;
 }
 
-// Las facultades del administrador dependen solo de su rol (RolesGuard). El estado
+// El actor requiere rol administrador y acceso completo (RolesGuard). El estado
 // (ESTADO_USUARIO) del usuario gestionado nunca decide si una operación está permitida.
 // Toda operación sobre un usuario pasa por AuditoriaService.auditar: se aplica junto con
 // su entrada de bitácora o no se aplica.
@@ -110,7 +110,7 @@ export class AdminService {
           select: { usuario_ID: true, nombre_usuario: true, estado_ID: true },
           order: { usuario_ID: 'ASC' },
         });
-        return { valor: { usuario, plan, apadrinados } };
+        return { valor: { usuario, plan: plan && { ...plan, cupos_ocupados: apadrinados.length, cupos_disponibles: plan.cupos_apadrinados_adq - apadrinados.length }, apadrinados } };
       },
     );
   }
@@ -136,12 +136,6 @@ export class AdminService {
         if (!anterior) {
           throw new NotFoundException('El usuario no existe en la base de datos');
         }
-        // Los apadrinados comparten el correo de su cuenta principal (ver init.sql).
-        if (datos.correo_usuario && anterior.usuario_principal_ID !== null) {
-          throw new BadRequestException(
-            'El correo de un apadrinado es el de su cuenta principal; modifica la cuenta principal',
-          );
-        }
 
         let actualizado: Usuario;
         try {
@@ -157,7 +151,7 @@ export class AdminService {
     );
   }
 
-  // UPDATE: Modificar el estado de una cuenta (Soft Delete / Bloqueo).
+  // UPDATE: Modificar el estado de una cuenta (Acceso completo / parcial).
   async cambiarEstadoUsuario(idUsuario: number, nuevoEstadoId: number, actor: ActorAuditoria): Promise<Usuario> {
     return this.auditoriaService.auditar(
       {
@@ -168,7 +162,7 @@ export class AdminService {
         usuario_afectado_ID: idUsuario,
       },
       async (manager) => {
-        // Igual que al eliminar: un administrador no puede bloquearse a sí mismo.
+        // Igual que al eliminar: un administrador no puede cambiar su propio nivel de acceso.
         if (idUsuario === actor.sub) {
           throw new BadRequestException('No puedes cambiar el estado de tu propia cuenta');
         }
@@ -179,6 +173,9 @@ export class AdminService {
           throw new NotFoundException('El usuario no existe en la base de datos');
         }
 
+        if (nuevoEstadoId === 1 && usuario.PIN_ID === null) {
+          throw new BadRequestException('Configura el PIN propio antes de habilitar acceso completo');
+        }
         const estadoAnterior = usuario.estado_ID;
         usuario.estado_ID = nuevoEstadoId;
         return {
@@ -191,7 +188,7 @@ export class AdminService {
 
   // CREATE/UPDATE: Asignar el plan de una cuenta principal o modificar el que tiene,
   // incluidos sus cupos de apadrinados (0 los quita).
-  async guardarPlanUsuario(idUsuario: number, datos: GuardarPlanDto, actor: ActorAuditoria): Promise<PlanUsuario> {
+  async guardarPlanUsuario(idUsuario: number, datos: GuardarPlanDto, actor: ActorAuditoria): Promise<PlanUsuario & { cupos_ocupados: number; cupos_disponibles: number }> {
     return this.auditoriaService.auditar(
       {
         actor,
@@ -227,22 +224,20 @@ export class AdminService {
         const planes = manager.getRepository(PlanUsuario);
         const existente = await planes.findOne({ where: { usuario_ID: idUsuario } });
         const nuevo = {
-          tiene_acceso_completo: datos.tiene_acceso_completo,
+          plan_ID: datos.plan_ID,
           cupos_apadrinados_adq: datos.cupos_apadrinados_adq,
-          cupos_apadrinados_utili: utilizados,
         };
         // Se calcula antes de guardar: `merge` modifica `existente`.
         const cambios = diferencias(existente, nuevo, [
-          'tiene_acceso_completo',
+          'plan_ID',
           'cupos_apadrinados_adq',
-          'cupos_apadrinados_utili',
         ]);
         const plan = await planes.save(
           planes.merge(existente ?? planes.create({ usuario_ID: idUsuario }), nuevo),
         );
 
         return {
-          valor: plan,
+          valor: { ...plan, cupos_ocupados: utilizados, cupos_disponibles: plan.cupos_apadrinados_adq - utilizados },
           cambios,
           tipo: existente ? TIPO_ACCION.MODIFICACION : TIPO_ACCION.CREACION,
           accion: existente
@@ -275,18 +270,20 @@ export class AdminService {
         }
 
         try {
+          await this.auditoriaService.registrar(manager, { actor, accion: `Eliminación de usuario apadrinado ${idUsuario}`, tipo: TIPO_ACCION.ELIMINACION, entidad: ENTIDAD_AUDITADA.USUARIO, usuario_afectado_ID: idUsuario });
           await usuarios.delete(idUsuario);
         } catch (error) {
           // Otras tablas (contactos, alertas, planes...) referencian al apadrinado.
           if (codigoPostgres(error) === PG_FOREIGN_KEY_VIOLATION) {
             throw new ConflictException(
-              'El usuario apadrinado tiene registros asociados; bloquéalo en vez de eliminarlo',
+              'Resuelve los registros pendientes antes de eliminar el apadrinado',
             );
           }
           throw error;
         }
         return {
           valor: undefined,
+          auditoriaRegistrada: true,
           // El usuario deja de existir: la bitácora conserva quién era y de quién dependía.
           cambios: {
             nombre_usuario: { antes: usuario.nombre_usuario, despues: null },
@@ -316,7 +313,7 @@ export class AdminService {
         try {
           // Se fuerza el rol SOPORTE para el personal interno, inicializado como ACTIVO
           usuarioGuardado = await usuarios.save(
-            usuarios.create({ ...cuenta, rol_ID: ROL.SOPORTE, estado_ID: 1, usuario_principal_ID: null }),
+            usuarios.create({ ...cuenta, rol_ID: ROL.SOPORTE, estado_ID: 2, usuario_principal_ID: null }),
           );
         } catch (error) {
           throw this.loginService.traducirCorreoDuplicado(error);
@@ -334,7 +331,7 @@ export class AdminService {
   }
 
   // READ: Visualización de Planes y Cupos
-  async obtenerEstadoPlanUsuario(idUsuarioPrincipal: number): Promise<PlanUsuario> {
+  async obtenerEstadoPlanUsuario(idUsuarioPrincipal: number): Promise<PlanUsuario & { cupos_ocupados: number; cupos_disponibles: number }> {
     // Extrae el control de cupos adquiridos y utilizados desde la tabla PLAN_USUARIO
     const plan = await this.planUsuarioRepository.findOne({
       where: { usuario_ID: idUsuarioPrincipal }
@@ -344,7 +341,8 @@ export class AdminService {
       throw new NotFoundException(`El usuario principal ${idUsuarioPrincipal} no cuenta con un registro de plan activo.`);
     }
 
-    return plan;
+    const ocupados = await this.usuarioRepository.countBy({ usuario_principal_ID: idUsuarioPrincipal });
+    return { ...plan, cupos_ocupados: ocupados, cupos_disponibles: plan.cupos_apadrinados_adq - ocupados };
   }
 
   private resumir({ usuario_ID, nombre_usuario, correo_usuario, rol_ID, estado_ID }: Usuario): ResumenUsuario {

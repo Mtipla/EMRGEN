@@ -9,7 +9,8 @@ export function SeccionUsuarios() {
   const [id, setId] = useState('')
   const [nombre, setNombre] = useState('')
   const [correo, setCorreo] = useState('')
-  const [accesoCompleto, setAccesoCompleto] = useState(false)
+  const [planId, setPlanId] = useState('')
+  const [ocupacion, setOcupacion] = useState<{ usados: number; disponibles: number }>()
   const [cupos, setCupos] = useState('0')
   const [estado, setEstado] = useState('1')
 
@@ -25,8 +26,9 @@ export function SeccionUsuarios() {
     setNombre(expediente.usuario.nombre_usuario)
     setCorreo(expediente.usuario.correo_usuario)
     setEstado(String(expediente.usuario.estado_ID))
-    setAccesoCompleto(expediente.plan?.tiene_acceso_completo ?? false)
+    setPlanId(String(expediente.plan?.plan_ID ?? ''))
     setCupos(String(expediente.plan?.cupos_apadrinados_adq ?? 0))
+    setOcupacion({ usados: expediente.plan?.cupos_ocupados ?? 0, disponibles: expediente.plan?.cupos_disponibles ?? 0 })
   }
 
   /** Ejecuta una acción sobre el usuario indicado y, si resulta, refresca la tabla. */
@@ -83,11 +85,11 @@ export function SeccionUsuarios() {
       <p>
         <label>
           <input
-            type="checkbox"
-            checked={accesoCompleto}
-            onChange={(e) => setAccesoCompleto(e.target.checked)}
+            type="number" min={1}
+            value={planId}
+            onChange={(e) => setPlanId(e.target.value)}
           />{' '}
-          Plan con acceso completo
+          Plan vigente (ID)
         </label>{' '}
         <label>
           Cupos de apadrinados (0-5){' '}
@@ -101,11 +103,11 @@ export function SeccionUsuarios() {
         </label>{' '}
         <button
           type="button"
-          disabled={!id || cupos === ''}
+          disabled={!id || !planId || cupos === ''}
           onClick={() =>
             void accion('Guardar plan y cupos', () =>
               adminApi.guardarPlan(Number(id), {
-                tiene_acceso_completo: accesoCompleto,
+                plan_ID: Number(planId),
                 cupos_apadrinados_adq: Number(cupos),
               }),
             )
@@ -146,6 +148,7 @@ export function SeccionUsuarios() {
         </button>
       </p>
 
+      <p>Última consulta: ocupados {ocupacion?.usados ?? "—"}; disponibles {ocupacion?.disponibles ?? "—"}. Usa «Ver expediente» para actualizar.</p>
       <pre>{salida}</pre>
 
       {usuarios.length > 0 && (

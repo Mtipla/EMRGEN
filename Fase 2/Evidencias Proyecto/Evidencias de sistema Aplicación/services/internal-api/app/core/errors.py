@@ -5,6 +5,7 @@ así que los frontends pueden consumir esta API sin cambios.
 """
 
 import logging
+import psycopg
 from http import HTTPStatus
 
 from fastapi import FastAPI, Request
@@ -40,7 +41,17 @@ async def _unhandled_error(request: Request, exc: Exception) -> JSONResponse:
     return _body(500, "Internal server error")
 
 
+async def _postgres_error(_: Request, exc: psycopg.Error) -> JSONResponse:
+    if exc.sqlstate in ("23503", "23505", "23514", "23001", "23502", "22001", "22P02"):
+        return _body(409, "La operación contradice una regla de integridad o referencia")
+    if exc.sqlstate in ("40001", "40P01") or isinstance(exc, psycopg.OperationalError):
+        return _body(503, "La operación no se completó; vuelve a intentarlo")
+    logger.error("Error PostgreSQL: %s", exc.sqlstate)
+    return _body(500, "Internal server error")
+
+
 def register_error_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(psycopg.Error, _postgres_error)
     app.add_exception_handler(HTTPException, _http_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
     app.add_exception_handler(Exception, _unhandled_error)

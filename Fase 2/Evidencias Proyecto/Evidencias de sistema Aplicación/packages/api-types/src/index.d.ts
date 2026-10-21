@@ -55,7 +55,7 @@ export interface CapturePaypalOrderResponse {
 /* Compra de cuentas apadrinadas (PayPal vía backend)                  */
 /* ------------------------------------------------------------------ */
 
-/** REVISION: PayPal cobró pero no se pudo habilitar la cuenta; lo resuelve soporte. */
+/** REVISION: resultado incierto o discrepancia; requiere conciliación, no acredita un cobro. */
 export type EstadoCompra = 'PENDIENTE' | 'PAGADO' | 'RECHAZADO' | 'CANCELADO' | 'REVISION';
 
 export interface ResumenCompraApadrinados {
@@ -255,4 +255,11 @@ export interface EmergencyAlertResult {
   sent: number;
   failed: number;
   deliveries: EmergencyAlertDelivery[];
+}
+
+/** Compras propias pendientes; permiten recuperarse tras perder la respuesta o reiniciar. */
+export interface CompraPendiente extends Omit<OrdenCompraResponse, 'orderId'> {
+  orderId: string | null;
+  cantidad: number;
+  puedeRetomar: boolean;
 }

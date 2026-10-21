@@ -22,7 +22,7 @@ class TicketActualizar(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     estado: str | None = Field(None, min_length=1, max_length=50, description="Nombre de ESTADO_TICKET.")
-    solucion: str | None = Field(None, max_length=500)
+    solucion: str | None = Field(None, min_length=1, max_length=500)
 
     @model_validator(mode="after")
     def al_menos_un_campo(self):
@@ -36,6 +36,6 @@ class Ticket(BaseModel):
     usuario_id: int
     descripcion: str
     estado: str
-    solucion: str
+    solucion: str | None
     categoria_id: int
     categoria: str

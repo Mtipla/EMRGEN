@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginService } from './login.service';
 
 /** Datos de la sesión. `rol_ID` se lee de la BD en cada petición, no del token. */
-export type UsuarioSesion = { sub: number; email: string; rol_ID: number };
+export type UsuarioSesion = { sub: number; email: string; rol_ID: number; estado_ID: number };
 
 export type SolicitudAutenticada = {
   headers: { authorization?: string };
@@ -56,6 +56,7 @@ export class JwtAuthGuard implements CanActivate {
       sub: usuario.usuario_ID,
       email: usuario.correo_usuario,
       rol_ID: usuario.rol_ID,
+      estado_ID: usuario.estado_ID,
     };
     return true;
   }

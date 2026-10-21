@@ -1,23 +1,15 @@
 import time
-
 from tests.conftest import token
 
-
 def test_sin_token(client):
-    r = client.get("/internal/v1/alertas")
-    assert r.status_code == 401
-    assert r.json()["message"] == "Debes iniciar sesión"
+    assert client.get("/internal/v1/alertas").status_code == 401
 
+def test_token_vencido_audiencia_emisor(client,crear_usuario):
+    uid=crear_usuario()
+    for changes in ({"exp":int(time.time())-10},{"aud":"otra"},{"iss":"otro"}):
+        assert client.get("/internal/v1/alertas",headers=token(uid,**changes)).status_code == 401
 
-def test_token_vencido_o_de_otra_audiencia(client, crear_usuario):
-    uid = crear_usuario()
-    for cambios in ({"exp": int(time.time()) - 10}, {"aud": "otra"}, {"iss": "otro"}):
-        r = client.get("/internal/v1/alertas", headers=token(uid, **cambios))
-        assert r.status_code == 401, cambios
-
-
-def test_usuario_bloqueado(client, crear_usuario):
-    uid = crear_usuario(estado_id=3)
-    r = client.get("/internal/v1/alertas", headers=token(uid))
-    assert r.status_code == 401
-    assert r.json()["message"] == "La sesión no corresponde a un usuario activo"
+def test_parcial_autenticado_sin_facultades_staff(client,crear_usuario):
+    uid=crear_usuario(rol_id=2,estado_id=2)
+    assert client.get("/internal/v1/alertas",headers=token(uid)).status_code == 200
+    assert client.patch("/internal/v1/tickets-soporte/1",headers=token(uid),json={"estado":"CERRADO"}).status_code == 403

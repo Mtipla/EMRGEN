@@ -1,7 +1,7 @@
 """Misma sesión que el backend NestJS (apps/backend/src/login/jwt-auth.guard.ts).
 
 Verifica el JWT HS256 que emite POST /usuarios/login y relee el usuario desde la BD en cada
-petición: un usuario bloqueado o con rol cambiado pierde el acceso sin esperar a que venza el token.
+petición: los permisos se actualizan sin esperar a que venza el token.
 """
 
 from dataclasses import dataclass
@@ -16,7 +16,6 @@ from app.core.db import get_db
 # IDs fijos de ROL y ESTADO_USUARIO (init.sql; apps/backend/src/login/roles.decorator.ts).
 ROL_ADMINISTRADOR = 1
 ROL_SOPORTE = 2
-ESTADO_BLOQUEADO = 3
 
 
 @dataclass(frozen=True)
@@ -24,10 +23,11 @@ class UsuarioSesion:
     id: int
     email: str
     rol_id: int
+    estado_id: int
 
     @property
     def es_staff(self) -> bool:
-        return self.rol_id in (ROL_ADMINISTRADOR, ROL_SOPORTE)
+        return self.estado_id == 1 and self.rol_id in (ROL_ADMINISTRADOR, ROL_SOPORTE)
 
 
 def usuario_actual(
@@ -60,9 +60,9 @@ def usuario_actual(
             "SELECT usuario_id, correo_usuario, rol_id, estado_id FROM usuario WHERE usuario_id = %s",
             (sub,),
         ).fetchone()
-    if not usuario or usuario["estado_id"] == ESTADO_BLOQUEADO:
+    if not usuario:
         raise HTTPException(401, "La sesión no corresponde a un usuario activo")
-    return UsuarioSesion(usuario["usuario_id"], usuario["correo_usuario"], usuario["rol_id"])
+    return UsuarioSesion(usuario["usuario_id"], usuario["correo_usuario"], usuario["rol_id"], usuario["estado_id"])
 
 
 def solo_staff(usuario: UsuarioSesion = Depends(usuario_actual)) -> UsuarioSesion:

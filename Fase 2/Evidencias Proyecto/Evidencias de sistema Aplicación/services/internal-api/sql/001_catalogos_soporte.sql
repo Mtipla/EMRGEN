@@ -1,3 +1,4 @@
+-- HISTORICO: no ejecutar sobre el init integrado 2026-10-21. Ver README_BDD.md.
 -- Catálogos que init.sql crea vacíos y que necesita la API de tickets de soporte.
 -- Solo inserta filas (no cambia tablas) y se puede ejecutar varias veces.
 -- Desde la raíz del monorepo (PowerShell):

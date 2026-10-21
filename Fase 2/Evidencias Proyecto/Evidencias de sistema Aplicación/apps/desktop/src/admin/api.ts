@@ -32,7 +32,6 @@ export const ROLES: Record<number, string> = { 1: 'ADMINISTRADOR', 2: 'SOPORTE',
 export const ESTADOS: Record<number, string> = {
   1: 'ACCESO COMPLETO',
   2: 'ACCESO PARCIAL',
-  3: 'BLOQUEADO/INACTIVO',
 }
 
 export type Sesion = {
@@ -54,12 +53,13 @@ export type DatosSoporte = { nombre_usuario: string; correo_usuario: string; pas
 export type PlanUsuario = {
   plan_usuario_ID: number
   usuario_ID: number
-  tiene_acceso_completo: boolean
+  plan_ID: number
   cupos_apadrinados_adq: number
-  cupos_apadrinados_utili: number
+  cupos_ocupados: number
+  cupos_disponibles: number
 }
 
-export type DatosPlan = Pick<PlanUsuario, 'tiene_acceso_completo' | 'cupos_apadrinados_adq'>
+export type DatosPlan = Pick<PlanUsuario, 'plan_ID' | 'cupos_apadrinados_adq'>
 
 export type Expediente = {
   usuario: UsuarioAdmin
@@ -77,7 +77,7 @@ export type EntradaBitacora = {
   entidad_afectada: string | null
   resultado: 'EXITOSA' | 'FALLIDA'
   cambios: Record<string, { antes: Valor; despues: Valor }> | null
-  usuario_ID: number
+  usuario_ID: number | null
   nombre_usuario: string | null
   rol_actor_ID: number | null
   usuario_afectado_ID: number | null

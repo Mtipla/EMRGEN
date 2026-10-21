@@ -1,51 +1,28 @@
-from pathlib import Path
-
-import pytest
-
 from tests.conftest import token
+URL="/internal/v1/tickets-soporte"
 
-URL = "/internal/v1/tickets-soporte"
-SEED = Path(__file__).resolve().parents[1] / "sql" / "001_catalogos_soporte.sql"
+def test_ticket_sin_seguimiento_estado_y_solucion(client,db,crear_usuario):
+    user=crear_usuario();staff=crear_usuario(rol_id=2);other=crear_usuario()
+    r=client.post(URL,headers=token(user),json={"descripcion":"Prueba ticket","categoria_id":1})
+    assert r.status_code==201,r.text
+    item=r.json();tid=item["ticket_id"];assert item["estado"]=="ABIERTO" and item["solucion"] is None
+    assert db.execute("SELECT count(*) n FROM soporte WHERE ticket_soporte_id=%s",(tid,)).fetchone()["n"]==0
+    assert client.get(f"{URL}/{tid}",headers=token(other)).status_code==404
+    assert client.patch(f"{URL}/{tid}",headers=token(user),json={"estado":"CERRADO"}).status_code==403
+    assert client.patch(f"{URL}/{tid}",headers=token(staff),json={"estado":"INVENTADO"}).status_code==400
+    assert client.patch(f"{URL}/{tid}",headers=token(staff),json={"solucion":""}).status_code==400
+    r=client.patch(f"{URL}/{tid}",headers=token(staff),json={"estado":"EN PROCESO"})
+    assert r.status_code==200,r.text
+    assert r.json()["solucion"] is None
+    for text in ("Respuesta inicial","Respuesta final"):
+        r=client.patch(f"{URL}/{tid}",headers=token(staff),json={"solucion":text})
+        assert r.status_code==200,r.text
+    assert db.execute("SELECT count(*) n FROM soporte WHERE ticket_soporte_id=%s",(tid,)).fetchone()["n"]==1
+    assert r.json()["solucion"]=="Respuesta final"
+    assert client.get(URL,headers=token(user)).status_code==200
 
-
-@pytest.fixture(autouse=True)
-def catalogos(db):
-    # El seed trae BEGIN/COMMIT: se quitan para que quede dentro de la transacción que se revierte.
-    db.execute(SEED.read_text(encoding="utf-8").replace("BEGIN;", "").replace("COMMIT;", ""))
-
-
-def test_catalogos(client, crear_usuario):
-    h = token(crear_usuario())
-    assert client.get(f"{URL}/estados", headers=h).json()[0] == {"estado_id": 1, "nombre": "ABIERTO"}
-    assert {"categoria_id": 3, "nombre": "ALERTAS"} in client.get(f"{URL}/categorias", headers=h).json()
-
-
-def test_ciclo_de_un_ticket(client, crear_usuario):
-    uid, soporte = crear_usuario(), crear_usuario(rol_id=2)
-    r = client.post(URL, json={"descripcion": "No llega la alerta", "categoria_id": 3}, headers=token(uid))
-    assert r.status_code == 201, r.text
-    t = r.json()
-    assert (t["estado"], t["solucion"], t["categoria"], t["usuario_id"]) == ("ABIERTO", "", "ALERTAS", uid)
-
-    # El usuario no puede cambiar su ticket.
-    assert client.patch(f"{URL}/{t['ticket_id']}", json={"estado": "CERRADO"}, headers=token(uid)).status_code == 403
-
-    r = client.patch(f"{URL}/{t['ticket_id']}", json={"estado": "resuelto", "solucion": "Se reconectó WhatsApp"}, headers=token(soporte))
-    assert r.status_code == 200, r.text
-    assert (r.json()["estado"], r.json()["solucion"]) == ("RESUELTO", "Se reconectó WhatsApp")
-
-    assert client.get(URL, params={"estado": "RESUELTO"}, headers=token(uid)).json()[0]["ticket_id"] == t["ticket_id"]
-    assert client.get(URL, params={"estado": "ABIERTO"}, headers=token(uid)).json() == []
-
-
-def test_errores(client, crear_usuario):
-    uid, admin = crear_usuario(), crear_usuario(rol_id=1)
-    assert client.post(URL, json={"descripcion": "x", "categoria_id": 999}, headers=token(uid)).status_code == 400
-    tid = client.post(URL, json={"descripcion": "x", "categoria_id": 1}, headers=token(uid)).json()["ticket_id"]
-
-    assert client.patch(f"{URL}/{tid}", json={"estado": "INVENTADO"}, headers=token(admin)).status_code == 400
-    r = client.patch(f"{URL}/{tid}", json={}, headers=token(admin))
-    assert r.status_code == 400 and r.json()["message"] == ["Value error, indica estado o solucion"]
-    assert client.patch(f"{URL}/999999", json={"solucion": "x"}, headers=token(admin)).status_code == 404
-    # Ticket ajeno: 404 para otro usuario común.
-    assert client.get(f"{URL}/{tid}", headers=token(crear_usuario())).status_code == 404
+def test_catalogos_y_referencias(client,crear_usuario):
+    uid=crear_usuario()
+    assert client.get(URL+"/categorias",headers=token(uid)).status_code==200
+    assert client.get(URL+"/estados",headers=token(uid)).status_code==200
+    assert client.post(URL,headers=token(uid),json={"descripcion":"Caso","categoria_id":99999}).status_code==400

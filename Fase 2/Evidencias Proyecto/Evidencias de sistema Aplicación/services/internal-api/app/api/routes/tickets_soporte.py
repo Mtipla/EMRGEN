@@ -1,7 +1,7 @@
 import psycopg
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.core.db import get_db
+from app.core.db import get_db, transaction
 from app.dependencies.auth import UsuarioSesion, solo_staff, usuario_actual
 from app.schemas.tickets import Categoria, Estado, Ticket, TicketActualizar, TicketCrear
 from app.services import tickets
@@ -28,10 +28,7 @@ def crear_ticket(
 ):
     if not tickets.existe_categoria(db, datos.categoria_id):
         raise HTTPException(400, "La categoría no existe")
-    estado = tickets.estado_inicial(db)
-    if estado is None:
-        raise HTTPException(503, "Falta el catálogo ESTADO_TICKET: aplica sql/001_catalogos_soporte.sql")
-    return tickets.crear(db, usuario.id, datos.descripcion, datos.categoria_id, estado)
+    return transaction(db, lambda: tickets.crear(db, usuario.id, datos.descripcion, datos.categoria_id))
 
 
 @router.get("", response_model=list[Ticket], summary="Listar tickets")
@@ -66,12 +63,4 @@ def actualizar_ticket(
     _: UsuarioSesion = Depends(solo_staff),
     db: psycopg.Connection = Depends(get_db),
 ):
-    estado = None
-    if datos.estado is not None:
-        estado = tickets.estado_canonico(db, datos.estado)
-        if estado is None:
-            raise HTTPException(400, "El estado no existe en ESTADO_TICKET")
-    ticket = tickets.actualizar(db, ticket_id, estado, datos.solucion)
-    if not ticket:
-        raise HTTPException(404, "El ticket no existe")
-    return ticket
+    return transaction(db, lambda: tickets.actualizar(db, ticket_id, datos.estado, datos.solucion))

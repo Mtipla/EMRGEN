@@ -1,57 +1,32 @@
 # internal-api (FastAPI)
 
-Servicio Python independiente para las APIs internas de EMERGEN. Contrato, convenciones y estado de cada API: [../../readme.apis.internas.md](../../readme.apis.internas.md).
+Servicio separado del Compose: SOS y soporte en `/internal/v1`, puerto 8000, sobre el mismo PostgreSQL de Docker. Contrato: [readme.apis.internas.md](../../readme.apis.internas.md).
 
-Está **fuera** de `apps/*` y `packages/*` a propósito: npm workspaces, Turborepo, `turbo prune` y el `Dockerfile` del backend no lo ven, así que `npm ci`, `npx turbo run build` y `docker compose up` siguen igual.
+Requiere Python 3.12+ (verificado 3.12.10), las versiones exactas de requirements.txt y Node 24.21.0 con las dependencias del monorepo instaladas. La verificación PIN invoca `scripts/pin-bcrypt.cjs` con JSON por stdin para reutilizar bcrypt 6.0.0 del backend; no pasa PIN por argumentos ni usa shell.
 
-## Requisitos
-
-Python 3.12 o superior (probado con 3.14.7). No necesita Node.
-
-## Primera vez (PowerShell, desde esta carpeta)
+Desde esta carpeta, si el entorno virtual aún no existe:
 
 ```powershell
-Set-Location -LiteralPath ".\services\internal-api"   # desde la raíz del monorepo
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements.txt
-Copy-Item .env.example .env                           # opcional: los valores por defecto sirven en desarrollo
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-## Ejecutar
+Arranque local sobre el Compose existente:
 
 ```powershell
-.\.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
+$env:DB_HOST = 'localhost'
+$env:DB_PORT = '5433'
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-| URL | Qué es |
-|---|---|
-| `http://localhost:8000/health` | Estado del servicio → `{"status":"ok"}` |
-| `http://localhost:8000/docs` | Swagger UI |
-| `http://localhost:8000/redoc` | ReDoc |
-| `http://localhost:8000/openapi.json` | Esquema OpenAPI 3.1 |
+DB_USER/DB_PASSWORD/DB_NAME/JWT_SECRET se leen de la configuración local existente. No copiarlos a código ni registros. `GET /health` comprueba el proceso; una petición autenticada comprueba además la conexión a BD. `/docs`, `/redoc` y `/openapi.json` se pueden desactivar con INTERNAL_API_DOCS_ENABLED=false.
 
-Necesita el PostgreSQL de `docker compose` encendido (`localhost:5433`) y los catálogos de soporte cargados una vez (comando en `sql/001_catalogos_soporte.sql`).
-
-## Pruebas
+El ciclo de vida de FastAPI ejecuta el cierre de alertas vencidas al arrancar y cada 30 segundos. INTERNAL_API_INTERVALO_CIERRE_SEGUNDOS permite 1–300 segundos; el cierre usa 24 horas transcurridas y hora real, no temporizadores del navegador. Varias instancias usan bloqueos de fila/SKIP LOCKED; en desarrollo se mantiene una sola.
 
 ```powershell
-.\.venv\Scripts\python -m pytest -q
+.\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Corren contra el PostgreSQL real dentro de una transacción que se revierte: no dejan datos. Si la BD está apagada, los tests que la usan se omiten.
+Las pruebas requieren PostgreSQL y los fixtures base de README_BDD. Usan transacciones reales y cuentas temporales; la falta de BD es fallo. Ejecutarlas secuencialmente respecto de las suites Nest; la prueba del último administrador restaura roles en finally. No cargar `sql/001_catalogos_soporte.sql`: es histórico, el init vigente contiene los catálogos.
 
-## Estructura
-
-```
-app/
-├── main.py                    → crea la app, CORS opcional, /health, monta /internal/v1
-├── core/config.py             → variables (propias INTERNAL_API_* y compartidas DB_*, JWT_SECRET)
-├── core/db.py                 → conexión/transacción por petición y generación de IDs
-├── core/errors.py             → errores con el formato de NestJS {statusCode, message, error}
-├── dependencies/auth.py       → sesión: JWT de NestJS + usuario y rol desde la BD
-├── schemas/                   → modelos Pydantic de entrada y salida
-├── services/                  → SQL de cada API
-└── api/routes/                → alertas.py, tickets_soporte.py (montados en __init__.py)
-sql/001_catalogos_soporte.sql  → catálogos ESTADO_TICKET y CATEGORIA_SOPORTE
-tests/                         → health, auth, alertas, tickets
-```
+El arranque manual local no añade un servicio a Docker. Para disponibilidad de cierre automático, este proceso debe permanecer encendido; al volver a iniciarlo recupera las vencidas.

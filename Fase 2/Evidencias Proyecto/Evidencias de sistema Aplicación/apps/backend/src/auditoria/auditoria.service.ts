@@ -1,3 +1,4 @@
+import { transaction } from '../config/transaction';
 import { BadGatewayException, HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
@@ -23,7 +24,6 @@ import { ConsultarBitacoraDto } from './dto/consultar-bitacora.dto';
 import { PLANTILLA_BITACORA } from './plantilla-bitacora';
 
 /** Largo de BITACORA_SISTEMA.accion_realizada (VARCHAR(150)). */
-const LARGO_ACCION = 150;
 const LIMITE_POR_DEFECTO = 100;
 
 const FORMATO_CHILE = new Intl.DateTimeFormat('es-CL', {
@@ -53,7 +53,7 @@ export interface EntradaBitacora {
   resultado: ResultadoAccion;
   cambios: CambiosAuditoria | null;
   /** Actor. */
-  usuario_ID: number;
+  usuario_ID: number | null;
   nombre_usuario: string | null;
   rol_actor_ID: number | null;
   usuario_afectado_ID: number | null;
@@ -80,6 +80,7 @@ export type EventoAuditado = Omit<NuevaEntradaBitacora, 'cambios' | 'resultado'>
 /** Resultado de una operación auditada; los opcionales completan o precisan el evento. */
 export interface ResultadoAuditado<T> {
   valor: T;
+  auditoriaRegistrada?: boolean;
   cambios?: CambiosAuditoria;
   accion?: string;
   tipo?: TipoAccion;
@@ -106,9 +107,9 @@ export class AuditoriaService {
     operacion: (manager: EntityManager) => Promise<ResultadoAuditado<T>>,
   ): Promise<T> {
     try {
-      return await this.bitacoraRepository.manager.transaction(async (manager) => {
-        const { valor, cambios, accion, tipo, usuario_afectado_ID } = await operacion(manager);
-        await this.registrar(manager, {
+      return await transaction(this.bitacoraRepository.manager.connection, async (manager) => {
+        const { valor, cambios, accion, tipo, usuario_afectado_ID, auditoriaRegistrada } = await operacion(manager);
+        if (!auditoriaRegistrada) await this.registrar(manager, {
           ...evento,
           accion: accion ?? evento.accion,
           tipo: tipo ?? evento.tipo,
@@ -125,7 +126,7 @@ export class AuditoriaService {
 
   /**
    * Inserta la entrada usando el `manager` de la transacción del llamador.
-   * `fecha_accion` es TIMESTAMP sin zona: se guarda la hora UTC que calcula PostgreSQL,
+   * `fecha_accion` es timestamptz: PostgreSQL conserva el instante,
    * así la hora no depende de si el backend corre en Docker (UTC) o en Windows (Chile).
    */
   async registrar(
@@ -141,6 +142,9 @@ export class AuditoriaService {
       aplicacion_ID = APLICACION.ESCRITORIO,
     }: NuevaEntradaBitacora,
   ): Promise<void> {
+    if (cambios && Object.keys(cambios).some((key) => /password|contra|pin|hash|token|secret/i.test(key))) {
+      throw new Error('La auditoría no admite campos de credenciales');
+    }
     await manager
       .createQueryBuilder()
       .insert()
@@ -154,8 +158,8 @@ export class AuditoriaService {
         entidad_afectada: entidad,
         resultado,
         cambios: cambios && Object.keys(cambios).length > 0 ? cambios : null,
-        accion_realizada: accion.slice(0, LARGO_ACCION),
-        fecha_accion: () => "timezone('UTC', now())",
+        accion_realizada: accion,
+        fecha_accion: () => 'now()',
       })
       .execute();
   }
@@ -173,7 +177,7 @@ export class AuditoriaService {
       )
       .select('bitacora.bitacora_sistema_ID', 'bitacora_sistema_ID')
       // TIMESTAMP guardado en UTC -> TIMESTAMPTZ, para que pg lo lea como instante UTC.
-      .addSelect("bitacora.fecha_accion AT TIME ZONE 'UTC'", 'fecha_accion')
+      .addSelect('bitacora.fecha_accion', 'fecha_accion')
       .addSelect('bitacora.accion_realizada', 'accion_realizada')
       .addSelect('bitacora.tipo_accion', 'tipo_accion')
       .addSelect('bitacora.entidad_afectada', 'entidad_afectada')
@@ -292,6 +296,7 @@ export class AuditoriaService {
       await this.registrar(this.bitacoraRepository.manager, {
         ...evento,
         accion: `${evento.accion}: ${motivo}`,
+        usuario_afectado_ID: null,
         resultado: RESULTADO_ACCION.FALLIDA,
       });
     } catch (falloBitacora) {
