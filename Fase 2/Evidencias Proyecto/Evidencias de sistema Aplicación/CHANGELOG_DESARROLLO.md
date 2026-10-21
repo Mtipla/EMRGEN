@@ -144,3 +144,46 @@ PENDIENTE BACKEND
 ### Pendiente
 - Que el equipo habilite en el backend las rutas que correspondan para SOPORTE y actualice el e2e.
 - Endpoint para validar el PIN de trabajador; endpoints para crear cuentas de usuario desde el personal y para gestionar ventas; eliminar trabajador.
+
+---
+
+## 2026-10-21 — Auditoría y corrección de rutas del Trabajador/SOPORTE (bloque 4)
+
+### Módulo
+Roles y permisos · Administración
+
+### Plataformas
+Web · Escritorio · Compartido (móvil sin cambios: sus mockups no tienen pantallas de Trabajador)
+
+### Tipo
+MODIFICADO
+
+### Archivos
+- `packages/ui/src/admin-views.tsx`
+- `apps/web/src/App.tsx`, `apps/web/src/features/cuenta/AppShell.tsx`
+- `apps/desktop/src/admin/{api.ts, PanelAdmin.tsx, VistasWireframe.tsx}`
+
+### Cambios
+- Web: SOPORTE ya no entra a `/usuarios` (panel "Usuarios registrados") ni a `/comprar` escribiendo la URL; ve "Sin permisos". El menú del mockup (pág. 11) no los incluye.
+- Web: la entrada del menú pasa a llamarse "Administrar cuentas" (mockup pág. 11).
+- Escritorio: SOPORTE puede iniciar sesión (antes lo rechazaba la comprobación `GET /admin/usuarios`) y ve solo Modificar usuario, Administrar cuentas y Administrar compras. "Administrar trabajadores" y el panel de pruebas no se registran para SOPORTE.
+- Escritorio: nueva ruta `/perfil` ("Modificar usuario", `PerfilForm` + `PATCH /usuarios/me`) para SOPORTE y ADMINISTRADOR.
+- Cuentas: nueva columna "Cuentas apadrinadas" (mockup pág. 13), calculada a partir de `GET /admin/usuarios`.
+- Cuentas: después del "PIN Trabajador" ya NO se llama a `DELETE`. Se muestra "PENDIENTE IMPLEMENTACIÓN BACKEND" porque el PIN no se valida en ningún sitio, así que antes se podía saltar.
+
+### Antes / después
+- `AdminCuentas` — ANTES: PIN (cualquier valor) → `DELETE /admin/usuarios/apadrinado/:id`. DESPUÉS: PIN → aviso de endpoint pendiente, sin eliminar. El ADMINISTRADOR (sin PIN) elimina igual que antes.
+- `PanelAdmin` — ANTES: solo ADMINISTRADOR. DESPUÉS: ADMINISTRADOR igual que antes, más SOPORTE con menú reducido. Si el login no trae `rol_ID` (backend antiguo), se mantiene el comportamiento anterior.
+
+### Impacto
+BAJO
+
+### Compatibilidad
+Web · Desktop · módulo compartido. Sin cambios de backend.
+
+### Estado
+PENDIENTE BACKEND
+
+### Pendiente
+- El contenedor Docker del backend sigue sin exponer `rol_ID` (verificado 2026-10-21 en `POST /usuarios/login` :3001). Mientras no se reconstruya, la web no reconoce a SOPORTE ni a ADMINISTRADOR.
+- Endpoint requerido: validar el PIN de trabajador (p. ej. `POST /admin/pin-trabajador/validar {pin}` → 204/403).

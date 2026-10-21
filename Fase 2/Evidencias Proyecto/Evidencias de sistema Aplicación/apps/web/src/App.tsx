@@ -112,6 +112,8 @@ function App() {
   }
 
   const perfil = user && perfilDe(user)
+  // El menú del Trabajador (mockup pág. 11) no incluye compra Premium ni el panel /usuarios.
+  const esSoporte = perfil === 'SOPORTE'
 
   /** Páginas de los wireframes: exigen sesión con PIN y, si se indica, un permiso de la matriz. */
   function privatePage(page: ReactNode, accion?: Accion) {
@@ -164,7 +166,9 @@ function App() {
       <Route
         path="/usuarios"
         element={
-          user && hasSession ? (
+          esSoporte ? (
+            privatePage(<SinPermiso />)
+          ) : user && hasSession ? (
             <main className="auth-page">
               <button type="button" className="secondary-button" onClick={() => navigate('/')}>
                 Ir al inicio
@@ -188,7 +192,9 @@ function App() {
       <Route
         path="/comprar"
         element={
-          hasSession ? (
+          esSoporte ? (
+            privatePage(<SinPermiso />)
+          ) : hasSession ? (
             <main className="auth-page">
               <PremiumPurchase onClose={() => navigate('/inicio')} />
             </main>

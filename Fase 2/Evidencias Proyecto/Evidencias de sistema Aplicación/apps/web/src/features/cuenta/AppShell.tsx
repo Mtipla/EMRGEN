@@ -14,7 +14,7 @@ type AppShellProps = {
 const MENU: { to: string; label: string; accion: Accion }[] = [
   { to: '/perfil', label: 'Modificar usuario', accion: 'perfil.editar' },
   { to: '/cuentas', label: 'Administrar cuentas', accion: 'cuentas.apadrinadas' },
-  { to: '/administracion/cuentas', label: 'Administrar cuentas de usuarios', accion: 'admin.cuentas.ver' },
+  { to: '/administracion/cuentas', label: 'Administrar cuentas', accion: 'admin.cuentas.ver' },
   { to: '/administracion/compras', label: 'Administrar compras', accion: 'admin.compras.ver' },
   { to: '/administracion/trabajadores', label: 'Administrar trabajadores', accion: 'admin.trabajadores' },
   { to: '/administracion/tickets', label: 'Tickets de soporte', accion: 'soporte.gestionarTickets' },

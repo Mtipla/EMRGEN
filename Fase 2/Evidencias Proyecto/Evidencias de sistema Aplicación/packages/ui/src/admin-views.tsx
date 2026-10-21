@@ -98,7 +98,7 @@ const PinTrabajador = ({
 }) => (
   <PinDialog
     title={`Eliminar a "${nombre}"`}
-    info={`Para eliminar a "${nombre}" deberás solicitar el PIN de trabajador del administrador antes de proceder. (PENDIENTE BACKEND: el PIN aún no se valida.)`}
+    info={`Para eliminar a "${nombre}" deberás solicitar el PIN de trabajador del administrador antes de proceder.`}
     confirmar={false}
     onClose={onClose}
     onSubmit={onOk}
@@ -123,8 +123,19 @@ type ModalCuentas =
   | "modificada"
   | "confirmar"
   | "pin"
+  | "pin-pendiente"
   | "eliminada"
   | null;
+
+/** Sin endpoint que valide el PIN, la eliminación con PIN se detiene aquí en vez de omitirlo. */
+const PinSinBackend = ({ onClose }: { onClose: () => void }) => (
+  <Notice
+    title="Eliminación no realizada"
+    tone="error"
+    message="PENDIENTE IMPLEMENTACIÓN BACKEND: no existe un endpoint para validar el PIN de trabajador, por lo que no se eliminó nada."
+    onClose={onClose}
+  />
+);
 
 /** "Administrar Cuentas" (mockup págs. 13-18 Trabajador y 56-60 Administrador). */
 export const AdminCuentas = ({
@@ -152,6 +163,14 @@ export const AdminCuentas = ({
     { header: "ID cuenta", render: (u) => u.usuario_ID },
     { header: "Nombre usuario", render: (u) => u.nombre_usuario },
     { header: "Correo", render: (u) => u.correo_usuario },
+    {
+      header: "Cuentas apadrinadas",
+      render: (u) =>
+        u.usuario_principal_ID
+          ? "—"
+          : usuarios.filter((x) => x.usuario_principal_ID === u.usuario_ID)
+              .length,
+    },
     { header: "Tipo de cuenta", render: tipoCuenta },
     { header: "Acceso", render: acceso },
     { header: "Números vinculados", render: () => "—" },
@@ -326,8 +345,11 @@ export const AdminCuentas = ({
         <PinTrabajador
           nombre={afectado}
           onClose={() => setModal(null)}
-          onOk={() => void eliminar()}
+          onOk={() => setModal("pin-pendiente")}
         />
+      )}
+      {modal === "pin-pendiente" && (
+        <PinSinBackend onClose={() => setModal(null)} />
       )}
       {modal === "eliminada" && (
         <Notice
