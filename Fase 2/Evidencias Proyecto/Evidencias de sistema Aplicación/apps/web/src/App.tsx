@@ -7,7 +7,8 @@ import { PinSetupForm } from './features/auth/PinSetupForm'
 import { UsersAdmin } from './features/auth/UsersAdmin'
 import { PremiumPurchase } from './features/compra/PremiumPurchase'
 import { PublicSite, type PublicView } from './features/inicio/PublicSite'
-import { perfilDe, puede, type Accion } from '@repo/ui/permisos'
+import { bloqueo, perfilDe, type Accion } from '@repo/ui/permisos'
+import { avisar, Avisos } from '@repo/ui/avisos'
 import { AppShell, SinPermiso } from './features/cuenta/AppShell'
 import { AccountsPage, HomePage, ProfilePage, SoportePage } from './features/cuenta/CuentaPages'
 import {
@@ -63,6 +64,7 @@ function App() {
         localStorage.removeItem('emergen.user')
         localStorage.removeItem('emergen.token')
         setUser(null)
+        avisar('info', 'Tu sesión expiró. Vuelve a iniciar sesión.')
       } finally {
         setCheckingSession(false)
       }
@@ -78,10 +80,17 @@ function App() {
     localStorage.removeItem('emergen.token')
     setUser(null)
     navigate('/login')
+    avisar('info', 'Cerraste tu sesión.')
   }
 
   function handleAuthenticated(authenticatedUser: AuthenticatedUser) {
     setUser(authenticatedUser)
+    avisar(
+      authenticatedUser.requiere_pin ? 'info' : 'exito',
+      authenticatedUser.requiere_pin
+        ? 'Último paso: crea tu PIN de 4 dígitos.'
+        : `Bienvenido, ${authenticatedUser.nombre_usuario}.`,
+    )
 
     navigate(
       authenticatedUser.requiere_pin ? '/login' : '/inicio',
@@ -97,6 +106,7 @@ function App() {
     localStorage.setItem('emergen.user', JSON.stringify(updatedUser))
     setUser(updatedUser)
     navigate('/inicio', { replace: true })
+    avisar('exito', 'PIN creado. Tu cuenta ya está lista.')
   }
 
   function renderPublicSite(view: PublicView) {
@@ -114,22 +124,33 @@ function App() {
   const perfil = user && perfilDe(user)
   // El menú del Trabajador (mockup pág. 11) no incluye compra Premium ni el panel /usuarios.
   const esSoporte = perfil === 'SOPORTE'
+  // El apadrinado usa el plan de su principal: POST /compras/apadrinados/ordenes le responde 403.
+  const sinCompra = esSoporte || perfil === 'APADRINADO'
 
-  /** Páginas de los wireframes: exigen sesión con PIN y, si se indica, un permiso de la matriz. */
+  /** Páginas de los wireframes: exigen sesión con PIN y, si se indica, un permiso de la matriz (rol, acceso y Premium). */
   function privatePage(page: ReactNode, accion?: Accion) {
     if (!user || !hasSession) return <Navigate to="/login" replace />
+    const motivo = accion ? bloqueo(user, accion) : null
     return (
       <AppShell user={user} onLogout={closeSession}>
-        {!accion || puede(perfil, accion) ? page : <SinPermiso />}
+        {motivo ? <SinPermiso motivo={motivo} /> : page}
       </AppShell>
     )
   }
 
   if (checkingSession) {
-    return <main>Verificando sesión…</main>
+    // <Avisos /> en la misma posición que abajo: sigue montado y muestra "sesión expirada".
+    return (
+      <>
+        <Avisos />
+        <main>Verificando sesión…</main>
+      </>
+    )
   }
 
   return (
+    <>
+    <Avisos />
     <Routes>
       {/* Páginas públicas */}
       <Route path="/" element={renderPublicSite('inicio')} />
@@ -192,7 +213,7 @@ function App() {
       <Route
         path="/comprar"
         element={
-          esSoporte ? (
+          sinCompra ? (
             privatePage(<SinPermiso />)
           ) : hasSession ? (
             <main className="auth-page">
@@ -233,6 +254,7 @@ function App() {
       {/* Redirigir rutas inexistentes */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   )
 }
 

@@ -15,7 +15,7 @@ test('mismaSecuencia compara orden y largo, y rechaza secuencias vacías', () =>
   expect(mismaSecuencia([], [])).toBe(false);
 });
 
-import { perfilDe, puede, requierePinTrabajador } from '@repo/ui/permisos';
+import { bloqueo, perfilDe, puede, requierePinTrabajador } from '@repo/ui/permisos';
 
 test('matriz de permisos: perfil por rol y cuenta principal', () => {
   expect(perfilDe({ rol_ID: 1 })).toBe('ADMINISTRADOR');
@@ -40,4 +40,29 @@ test('matriz de permisos: SOPORTE = Trabajador de los mockups, con menos privile
     expect(puede('ADMINISTRADOR', accion)).toBe(true);
   }
   expect(puede(null, 'perfil.editar')).toBe(false);
+});
+
+test('apadrinados: completo, parcial y sin Premium (cuentas de README_BDD)', () => {
+  const completo = { rol_ID: 3, estado_ID: 1, usuario_principal_ID: 7, plan_efectivo: true };
+  const parcial = { ...completo, estado_ID: 2 };
+  const sinPlan = { rol_ID: 3, estado_ID: 1, usuario_principal_ID: null, plan_efectivo: false };
+
+  expect(bloqueo(completo, 'perfil.editar')).toBeNull();
+  expect(bloqueo(completo, 'alertas.emitir')).toBeNull();
+  expect(bloqueo(completo, 'soporte.solicitar')).toBeNull();
+  expect(bloqueo(completo, 'cuentas.apadrinadas')).toBe('permiso');
+  expect(bloqueo(completo, 'compras.comprar')).toBe('permiso');
+
+  expect(bloqueo(parcial, 'perfil.editar')).toBe('parcial');
+  expect(bloqueo(parcial, 'alertas.emitir')).toBeNull();
+  expect(bloqueo(parcial, 'admin.cuentas.ver')).toBe('permiso');
+
+  expect(bloqueo(sinPlan, 'alertas.emitir')).toBe('premium');
+  expect(bloqueo(sinPlan, 'cuentas.apadrinadas')).toBe('premium');
+  expect(bloqueo(sinPlan, 'perfil.editar')).toBeNull();
+  expect(bloqueo(sinPlan, 'soporte.solicitar')).toBeNull();
+
+  // Sesión antigua sin plan_efectivo ni estado_ID: no se bloquea, decide el backend.
+  expect(bloqueo({ rol_ID: 3, usuario_principal_ID: null }, 'alertas.emitir')).toBeNull();
+  expect(bloqueo({ rol_ID: 3, usuario_principal_ID: 7 }, 'perfil.editar')).toBeNull();
 });

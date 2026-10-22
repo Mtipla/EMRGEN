@@ -1,0 +1,155 @@
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { DataSource, Repository } from 'typeorm';
+import { AdminService } from '../admin/admin.service';
+import { codigoPostgres } from '../config/postgres-error';
+import { transaction } from '../config/transaction';
+import type { UsuarioSesion } from '../login/jwt-auth.guard';
+import { LoginService } from '../login/login.service';
+import { ACCESO } from '../login/roles.decorator';
+import { Pin } from '../usuarios/pin.entity';
+import { Usuario } from '../usuarios/usuarios.entity';
+import { UsuariosService } from '../usuarios/usuarios.service';
+import { CrearApadrinadoDto } from './dto/apadrinado.dto';
+
+const PG_CHECK_VIOLATION = '23514';
+
+/** Cuenta vinculada visible para la sesión. Correo, acceso y PIN solo los ve el principal (RF9). */
+export type CuentaVinculada = {
+  usuario_ID: number;
+  nombre_usuario: string;
+  tipo: 'PRINCIPAL' | 'APADRINADO';
+  correo_usuario?: string;
+  estado_ID?: number;
+  tiene_pin?: boolean;
+};
+
+/**
+ * "Administrar cuentas" del usuario principal (RF8, RF24, RF25, HU-09, HU-10).
+ * Cambio de acceso y eliminación reutilizan AdminService para dejar la misma bitácora,
+ * con el principal como actor y tras comprobar que el apadrinado es suyo.
+ */
+@Injectable()
+export class ApadrinadosService {
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(Usuario) private readonly usuarios: Repository<Usuario>,
+    private readonly usuariosService: UsuariosService,
+    private readonly adminService: AdminService,
+    private readonly loginService: LoginService,
+  ) {}
+
+  async vinculadas(sesion: UsuarioSesion): Promise<CuentaVinculada[]> {
+    const yo = await this.usuarios.findOneBy({ usuario_ID: sesion.sub });
+    if (!yo) throw new NotFoundException('No se encontró la cuenta');
+
+    if (yo.usuario_principal_ID === null) {
+      const apadrinados = await this.usuarios.find({
+        where: { usuario_principal_ID: yo.usuario_ID },
+        order: { usuario_ID: 'ASC' },
+      });
+      return apadrinados.map((a) => ({
+        usuario_ID: a.usuario_ID,
+        nombre_usuario: a.nombre_usuario,
+        tipo: 'APADRINADO',
+        correo_usuario: a.correo_usuario,
+        estado_ID: a.estado_ID,
+        tiene_pin: a.PIN_ID !== null,
+      }));
+    }
+
+    // Apadrinado: su principal y los demás apadrinados del mismo principal, solo con el nombre.
+    const familia = await this.usuarios.find({
+      where: [{ usuario_ID: yo.usuario_principal_ID }, { usuario_principal_ID: yo.usuario_principal_ID }],
+      order: { usuario_ID: 'ASC' },
+    });
+    return familia
+      .filter((u) => u.usuario_ID !== yo.usuario_ID)
+      .map((u) => ({
+        usuario_ID: u.usuario_ID,
+        nombre_usuario: u.nombre_usuario,
+        tipo: u.usuario_principal_ID === null ? 'PRINCIPAL' : 'APADRINADO',
+      }));
+  }
+
+  async crear(sesion: UsuarioSesion, datos: CrearApadrinadoDto): Promise<CuentaVinculada[]> {
+    await this.exigirPrincipal(sesion);
+    const correo = datos.correo_usuario.trim().toLowerCase();
+    if (await this.usuarios.findOneBy({ correo_usuario: correo })) {
+      throw new ConflictException('Ya existe una cuenta con ese correo');
+    }
+    try {
+      // El trigger emergen_validar_vinculo comprueba plan y cupos dentro de la misma escritura.
+      await this.usuariosService.crearUsuarioApadrinado(sesion.sub, {
+        nombre_usuario: datos.nombre_usuario,
+        correo_usuario: correo,
+        password: datos.password,
+        estado_ID: datos.acceso_completo ? ACCESO.COMPLETO : ACCESO.PARCIAL,
+        pin: datos.PIN,
+      });
+    } catch (error) {
+      if (codigoPostgres(error) === PG_CHECK_VIOLATION) {
+        throw new ConflictException(
+          'No tienes cupos libres: compra un cupo de cuenta apadrinada para añadir otra cuenta',
+        );
+      }
+      throw this.loginService.traducirCorreoDuplicado(error);
+    }
+    return this.vinculadas(sesion);
+  }
+
+  /** PIN de primer ingreso que el principal define para su apadrinado (mockup web págs. 68-73). */
+  async definirPin(sesion: UsuarioSesion, id: number, pin: string): Promise<CuentaVinculada[]> {
+    await this.exigirPrincipal(sesion);
+    const pinHash = await bcrypt.hash(pin, 12);
+    await transaction(this.dataSource, async (manager) => {
+      const usuarios = manager.getRepository(Usuario);
+      const apadrinado = await usuarios.findOne({ where: { usuario_ID: id }, lock: { mode: 'pessimistic_write' } });
+      if (!apadrinado || apadrinado.usuario_principal_ID !== sesion.sub) {
+        throw new NotFoundException('No se encontró la cuenta apadrinada');
+      }
+      if (apadrinado.PIN_ID !== null) {
+        await manager.update(Pin, { PIN_ID: apadrinado.PIN_ID }, { pin_hash: pinHash });
+        return;
+      }
+      const nuevo = await manager.save(Pin, manager.create(Pin, { pin_hash: pinHash }));
+      apadrinado.PIN_ID = nuevo.PIN_ID;
+      await usuarios.save(apadrinado);
+    });
+    return this.vinculadas(sesion);
+  }
+
+  async cambiarAcceso(sesion: UsuarioSesion, id: number, estadoId: number): Promise<CuentaVinculada[]> {
+    await this.exigirPropio(sesion, id);
+    await this.adminService.cambiarEstadoUsuario(id, estadoId, sesion);
+    return this.vinculadas(sesion);
+  }
+
+  async eliminar(sesion: UsuarioSesion, id: number): Promise<CuentaVinculada[]> {
+    await this.exigirPropio(sesion, id);
+    await this.adminService.eliminarUsuarioApadrinado(id, sesion);
+    return this.vinculadas(sesion);
+  }
+
+  /** Mismo criterio que ComprasService.titular: solo el principal con acceso completo gestiona cuentas. */
+  private async exigirPrincipal(sesion: UsuarioSesion) {
+    const yo = await this.usuarios.findOneBy({ usuario_ID: sesion.sub });
+    if (!yo || yo.usuario_principal_ID !== null || sesion.estado_ID !== ACCESO.COMPLETO) {
+      throw new ForbiddenException('Solo la cuenta principal con acceso completo administra cuentas apadrinadas');
+    }
+  }
+
+  private async exigirPropio(sesion: UsuarioSesion, id: number) {
+    await this.exigirPrincipal(sesion);
+    const apadrinado = await this.usuarios.findOneBy({ usuario_ID: id });
+    if (!apadrinado || apadrinado.usuario_principal_ID !== sesion.sub) {
+      throw new NotFoundException('No se encontró la cuenta apadrinada');
+    }
+  }
+}

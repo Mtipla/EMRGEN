@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { avisar, mensajeError } from "./avisos";
 import { PRIORIDADES } from "./mocks";
 import { DataTable, type Column } from "./wireframe";
 
@@ -89,15 +90,13 @@ export const SolicitudSoporte = ({
     try {
       await onCrear(descripcion.trim(), categoriaId);
       setDescripcion("");
-      setResultado({
-        ok: true,
-        texto: "Solicitud enviada. Su estado inicial es ABIERTO.",
-      });
+      const texto = "Solicitud enviada. Su estado inicial es ABIERTO.";
+      setResultado({ ok: true, texto });
+      avisar("exito", texto);
     } catch (causa) {
-      setResultado({
-        ok: false,
-        texto: causa instanceof Error ? causa.message : "No se pudo enviar",
-      });
+      const texto = mensajeError(causa, "No se pudo enviar");
+      setResultado({ ok: false, texto });
+      avisar("error", texto);
     }
   }
 

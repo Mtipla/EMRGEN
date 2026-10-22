@@ -1,16 +1,20 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { CuentasApadrinadas } from '@repo/ui/cuentas-apadrinadas'
-import { MOCK_CUENTAS_VINCULADAS } from '@repo/ui/mocks'
-import { PerfilForm } from '@repo/ui/perfil-form'
-import { accesoCompleto, perfilDe, puede } from '@repo/ui/permisos'
+import { GestionApadrinados, apadrinadosApi } from '@repo/ui/cuentas-apadrinadas'
+import { PerfilForm, perfilApi } from '@repo/ui/perfil-form'
+import { ResumenCuenta } from '@repo/ui/resumen-cuenta'
+import { accesoCompleto, perfilDe, visible, type Accion } from '@repo/ui/permisos'
 import { SolicitudSoporte, type Catalogo, type Ticket } from '@repo/ui/soporte'
 import { NumerosEmergencia, Pendiente } from '@repo/ui/wireframe'
 import type { AuthenticatedUser } from '../auth/AuthForm'
 import { apiFetch, internalFetch, useCupos, useRemote } from './session'
 
+// Fuera de los componentes: GestionApadrinados recarga cuando cambia `api`.
+const apadrinados = apadrinadosApi(apiFetch)
+
 /** Home con sesión: accesos según perfil, cuentas vinculadas y números de emergencia. */
 export function HomePage({ user }: { user: AuthenticatedUser }) {
   const perfil = perfilDe(user)
+  const disponible = (accion: Accion) => visible(user, accion)
 
   return (
     <>
@@ -18,31 +22,25 @@ export function HomePage({ user }: { user: AuthenticatedUser }) {
         <h1>Hola, {user.nombre_usuario}</h1>
         <div className="wf-row">
           <Link className="wf-button wf-button--secondary" to="/perfil">Modificar usuario</Link>
-          {puede(perfil, 'cuentas.apadrinadas') && (
+          {disponible('cuentas.apadrinadas') && (
             <Link className="wf-button wf-button--secondary" to="/cuentas">Administrar cuentas</Link>
           )}
-          {puede(perfil, 'compras.comprar') && <Link className="wf-button" to="/premium">Comprar Premium</Link>}
-          {puede(perfil, 'admin.cuentas.ver') && (
+          {disponible('compras.comprar') && <Link className="wf-button" to="/premium">Comprar Premium</Link>}
+          {disponible('admin.cuentas.ver') && (
             <Link className="wf-button wf-button--secondary" to="/administracion/cuentas">Panel de administración</Link>
           )}
           <Link className="wf-button wf-button--secondary" to="/soporte">Solicitar soporte</Link>
         </div>
       </section>
 
+      <ResumenCuenta user={user} />
+
       <NumerosEmergencia />
 
       {(perfil === 'USUARIO' || perfil === 'APADRINADO') && (
         <section className="wf-card">
           <h2>Cuentas vinculadas</h2>
-          <Pendiente>el backend aún no lista las cuentas vinculadas; datos de ejemplo</Pendiente>
-          <div className="wf-grid">
-            {MOCK_CUENTAS_VINCULADAS.map((cuenta) => (
-              <article className="wf-card" key={cuenta.nombre}>
-                <h3>{cuenta.nombre}</h3>
-                <p className="wf-muted">{cuenta.informacion}</p>
-              </article>
-            ))}
-          </div>
+          <CuentasVinculadas esPrincipal={perfil === 'USUARIO'} />
           {/* HU-19 / RF22: no hay endpoint de informe personal (jsReport solo se usa en la bitácora). */}
           <Pendiente>informe personal de actividad (HU-19)</Pendiente>
           <button type="button" className="wf-button wf-button--secondary" disabled>Descargar informe</button>
@@ -52,12 +50,48 @@ export function HomePage({ user }: { user: AuthenticatedUser }) {
   )
 }
 
+/** GET /usuarios/me/vinculadas: apadrinados del principal, o el principal y los demás apadrinados. */
+function CuentasVinculadas({ esPrincipal }: { esPrincipal: boolean }) {
+  const { data, cargando, error } = useRemote(apadrinados.listar, [])
+
+  if (cargando) return <p className="wf-muted">Cargando cuentas vinculadas…</p>
+  if (error) return <p className="wf-message wf-message--error">No se pudieron cargar: {error}</p>
+  if (data.length === 0) {
+    return (
+      <p className="wf-muted">
+        {esPrincipal
+          ? 'Aún no tienes cuentas apadrinadas. Créalas desde "Administrar cuentas".'
+          : 'No hay otras cuentas vinculadas.'}
+      </p>
+    )
+  }
+  return (
+    <div className="wf-grid">
+      {data.map((cuenta) => (
+        <article className="wf-card" key={cuenta.usuario_ID}>
+          <h3>{cuenta.nombre_usuario}</h3>
+          <p className="wf-muted">
+            {cuenta.tipo === 'PRINCIPAL'
+              ? 'Cuenta principal'
+              : cuenta.estado_ID === undefined
+                ? 'Cuenta apadrinada'
+                : `Cuenta apadrinada · acceso ${cuenta.estado_ID === 1 ? 'completo' : 'parcial'}`}
+          </p>
+        </article>
+      ))}
+    </div>
+  )
+}
+
 type ProfilePageProps = {
   user: AuthenticatedUser
   onUserUpdated: (user: AuthenticatedUser) => void
 }
 
-/** "Modificar Usuario": guarda nombre de usuario y correo con PATCH /usuarios/me (igual que UsersAdmin). */
+// Fuera del componente: PerfilForm recarga cuando cambia `api`.
+const perfilDatos = perfilApi(apiFetch)
+
+/** "Modificar Usuario": nombre y correo con PATCH /usuarios/me; datos de emergencia con /usuarios/me/perfil y /contactos. */
 export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
   const perfil = perfilDe(user)
 
@@ -78,18 +112,27 @@ export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
       // Sesiones antiguas sin estado_ID no se tratan como parciales; el backend decide igual.
       accesoParcial={user.estado_ID !== undefined && !accesoCompleto(user)}
       onGuardar={guardar}
+      api={perfilDatos}
+      onCambiarPassword={async (password_actual, password_nueva) => {
+        await apiFetch('/usuarios/me/password', {
+          method: 'PATCH',
+          body: JSON.stringify({ password_actual, password_nueva }),
+        })
+      }}
     />
   )
 }
 
-/** "Administrar Cuentas" del usuario principal: cupos reales, contenido de cada cupo pendiente. */
+/** "Administrar Cuentas" del usuario principal: cupos comprados y sus cuentas apadrinadas reales. */
 export function AccountsPage() {
   const navigate = useNavigate()
   const { cupos, cargando, error } = useCupos()
 
   if (cargando) return <p className="wf-muted">Cargando cuentas…</p>
 
-  return <CuentasApadrinadas cupos={cupos} aviso={error} onAnadir={() => navigate('/comprar')} />
+  return (
+    <GestionApadrinados cupos={cupos} aviso={error} api={apadrinados} onAnadir={() => navigate('/comprar')} />
+  )
 }
 
 const aCatalogo = (filas: { categoria_id: number; nombre: string }[]): Catalogo[] =>

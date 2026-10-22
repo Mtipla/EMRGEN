@@ -14,6 +14,9 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}, base = A
       Authorization: `Bearer ${localStorage.getItem('emergen.token') ?? ''}`,
       ...init.headers,
     },
+  }).catch(() => {
+    // fetch solo rechaza por red/CORS: "Failed to fetch" no le dice nada al usuario.
+    throw new Error('Error al comunicarse con el servidor. Inténtalo nuevamente.')
   })
   const data: unknown = await response.json().catch(() => null)
   if (!response.ok) {

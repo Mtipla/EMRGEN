@@ -7,7 +7,7 @@ import Registro from './pages/Registro';
 import Pin from './pages/Pin';
 import Perfil from './pages/Perfil';
 import Cuentas from './pages/Cuentas';
-import { perfilDe, puede, type Accion } from '@repo/ui/permisos';
+import { bloqueo, type Accion } from '@repo/ui/permisos';
 import { getUser } from './lib/session';
 
 /* Core CSS required for Ionic components to work properly */
@@ -42,11 +42,11 @@ import './theme/variables.css';
 
 setupIonicReact();
 
-/** Pantallas que exigen sesión con PIN creado (y un permiso si se indica); se evalúa al montar. */
+/** Pantallas que exigen sesión con PIN creado (y un permiso si se indica); se evalúa al montar. Home muestra el motivo del bloqueo. */
 const Privada: React.FC<{ children: React.ReactElement; accion?: Accion }> = ({ children, accion }) => {
   const user = getUser();
   if (user?.requiere_pin !== false) return <Navigate to="/login" replace />;
-  return !accion || puede(perfilDe(user), accion) ? children : <Navigate to="/home" replace />;
+  return !accion || !bloqueo(user, accion) ? children : <Navigate to="/home" replace />;
 };
 
 const App: React.FC = () => (

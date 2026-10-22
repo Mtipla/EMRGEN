@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
+import { NumerosEmergencia } from '@repo/ui/wireframe'
 import '../compra/PremiumPurchase.css'
 import './PublicSite.css'
 
 export type PublicView = 'inicio' | 'premium'
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
 type PublicSiteProps = {
   view: PublicView
@@ -87,6 +90,9 @@ function Landing({ onNavigate }: Pick<PublicSiteProps, 'onNavigate'>) {
         </ol>
       </section>
 
+      {/* RF14 / HU-17: los números oficiales también se ven sin iniciar sesión. */}
+      <NumerosEmergencia />
+
       <section id="descargar-app" className="public-section">
         <h2>Descargar App</h2>
         <p className="public-pending">Próximamente: enlaces de descarga para Android e iOS.</p>
@@ -102,8 +108,19 @@ function Landing({ onNavigate }: Pick<PublicSiteProps, 'onNavigate'>) {
 
 type PremiumInfoProps = Pick<PublicSiteProps, 'isAuthenticated' | 'onBuy' | 'onAccount'>
 
+const clp = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' })
+
 function PremiumInfo({ isAuthenticated, onBuy, onAccount }: PremiumInfoProps) {
   const [warning, setWarning] = useState(false)
+  const [precio, setPrecio] = useState<number | null>(null)
+
+  // GET /compras/precio es público; si falla, la página sigue sin mostrar el precio.
+  useEffect(() => {
+    fetch(`${API_URL}/compras/precio`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { precioUnitario?: number } | null) => setPrecio(data?.precioUnitario ?? null))
+      .catch(() => setPrecio(null))
+  }, [])
 
   return (
     <section className="public-hero">
@@ -115,12 +132,13 @@ function PremiumInfo({ isAuthenticated, onBuy, onAccount }: PremiumInfoProps) {
           <li>Hasta 5 cuentas apadrinadas asociadas a tu cuenta principal.</li>
           <li>Pago seguro con PayPal.</li>
         </ul>
-        {/* El precio sale de PLAN en el backend y su endpoint exige sesión: no se muestra en público. */}
-        <p className="public-pending">
-          {isAuthenticated
-            ? 'El precio vigente se muestra al continuar con la compra.'
-            : 'El precio vigente se muestra al iniciar sesión.'}
-        </p>
+        {precio !== null ? (
+          <p>
+            Valor por cuenta apadrinada: <strong>{clp.format(precio)}</strong>
+          </p>
+        ) : (
+          <p className="public-pending">El precio vigente se muestra al continuar con la compra.</p>
+        )}
         <button
           type="button"
           className="purchase-primary public-buy"

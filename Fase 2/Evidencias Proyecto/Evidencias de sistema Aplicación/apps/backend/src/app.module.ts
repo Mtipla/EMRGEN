@@ -15,6 +15,8 @@ import { AdminModule } from './admin/admin.module';
 import { LoginModule } from './login/login.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { ComprasModule } from './compras/compras.module';
+import { PerfilModule } from './perfil/perfil.module';
+import { ApadrinadosModule } from './apadrinados/apadrinados.module';
 
 
 @Module({
@@ -46,6 +48,8 @@ import { ComprasModule } from './compras/compras.module';
     LoginModule,
     PaypalModule,
     ComprasModule,
+    PerfilModule,
+    ApadrinadosModule,
     FirebaseAuthModule,
     JsreportModule,
     GoogleMapsModule,

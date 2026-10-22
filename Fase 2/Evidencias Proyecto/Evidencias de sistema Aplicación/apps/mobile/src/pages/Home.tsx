@@ -16,7 +16,8 @@ import {
   IonToolbar,
   useIonRouter,
 } from '@ionic/react';
-import { perfilDe, puede } from '@repo/ui/permisos';
+import { MENSAJE_BLOQUEO, bloqueo } from '@repo/ui/permisos';
+import { ResumenCuenta } from '@repo/ui/resumen-cuenta';
 import { NumerosEmergencia } from '@repo/ui/wireframe';
 import AlertaSos from '../components/AlertaSos';
 import ConfigurarAlerta from '../components/ConfigurarAlerta';
@@ -28,7 +29,9 @@ const Home: React.FC = () => {
   const router = useIonRouter();
   const user = getUser();
   // Menú según la matriz de permisos; el backend sigue autorizando cada llamada.
-  const perfil = user && perfilDe(user);
+  const cuentasBloqueadas = !user || bloqueo(user, 'cuentas.apadrinadas') !== null;
+  // shortcut: el SOS no se deshabilita aunque la sesión guardada diga "sin Premium" (puede estar desactualizada); el backend responde 409 con el motivo.
+  const sosSinPremium = user ? bloqueo(user, 'alertas.emitir') === 'premium' : false;
   const [modal, setModal] = useState<'sos' | 'configurar' | null>(null);
 
   function cerrarSesion() {
@@ -49,7 +52,7 @@ const Home: React.FC = () => {
               <IonItem button detail={false} routerLink="/perfil">
                 Modificar usuario
               </IonItem>
-              {puede(perfil, 'cuentas.apadrinadas') && (
+              {!cuentasBloqueadas && (
                 <IonItem button detail={false} routerLink="/cuentas">
                   Administrar cuentas
                 </IonItem>
@@ -65,6 +68,7 @@ const Home: React.FC = () => {
         <IonButton expand="block" color="danger" size="large" onClick={() => setModal('sos')}>
           Alerta rápida en la APP
         </IonButton>
+        {sosSinPremium && <p className="wf-message wf-message--error">{MENSAJE_BLOQUEO.premium}</p>}
 
         <IonCard>
           <IonCardHeader>
@@ -75,6 +79,8 @@ const Home: React.FC = () => {
             <IonButton onClick={() => setModal('configurar')}>Configurar alerta</IonButton>
           </IonCardContent>
         </IonCard>
+
+        {user && <ResumenCuenta user={user} />}
 
         <NumerosEmergencia />
 
