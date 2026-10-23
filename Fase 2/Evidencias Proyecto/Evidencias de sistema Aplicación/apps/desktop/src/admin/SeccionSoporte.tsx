@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { adminApi } from './api'
+import { ResultadoPeticion } from './ResultadoPeticion'
 import { usePeticion } from './usePeticion'
 
 export function SeccionSoporte() {
@@ -17,44 +18,52 @@ export function SeccionSoporte() {
   }
 
   return (
-    <fieldset>
-      <legend>Crear cuenta de SOPORTE</legend>
+    <section className="wf-card" id="pruebas-soporte" aria-labelledby="pruebas-soporte-titulo">
+      <h2 id="pruebas-soporte-titulo">Crear cuenta de SOPORTE</h2>
+      <p className="wf-muted">Registra un trabajador con su nombre, correo y contraseña inicial.</p>
       {/* El rol SOPORTE lo asigna el backend: el formulario no envía rol ni estado. */}
-      <form onSubmit={(event) => void crear(event)}>
-        <label>
-          Nombre{' '}
-          <input
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            minLength={2}
-            maxLength={50}
-            required
-          />
-        </label>{' '}
-        <label>
-          Correo{' '}
-          <input
-            type="email"
-            value={correo}
-            onChange={(e) => setCorreo(e.target.value)}
-            maxLength={100}
-            required
-          />
-        </label>{' '}
-        <label>
-          Contraseña{' '}
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={8}
-            maxLength={72}
-            required
-          />
-        </label>{' '}
-        <button type="submit">Crear cuenta SOPORTE</button>
+      <form className="wf-form desktop-test-list" onSubmit={(event) => void crear(event)}>
+        <div className="wf-grid">
+          <label>
+            Nombre
+            <input
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              minLength={2}
+              maxLength={50}
+              required
+            />
+          </label>
+          <label>
+            Correo
+            <input
+              type="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              maxLength={100}
+              required
+            />
+          </label>
+          <label>
+            Contraseña inicial
+            <input
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+              maxLength={72}
+              required
+            />
+          </label>
+        </div>
+        <div className="wf-actions">
+          <button type="submit" className="wf-button">
+            Crear cuenta SOPORTE
+          </button>
+        </div>
       </form>
-      <pre>{salida}</pre>
-    </fieldset>
+      <ResultadoPeticion salida={salida} />
+    </section>
   )
 }
