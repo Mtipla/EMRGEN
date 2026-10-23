@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ETIQUETA_PERFIL, perfilDe, puede, type Accion } from '@repo/ui/permisos'
+import { ETIQUETA_PERFIL, MENSAJE_BLOQUEO, perfilDe, visible, type Accion, type Bloqueo } from '@repo/ui/permisos'
 import type { AuthenticatedUser } from '../auth/AuthForm'
 import '@repo/ui/wireframe' // carga los estilos wf-* compartidos
 
@@ -34,7 +34,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
         <Link to="/#como-funciona">¿Cómo funciona?</Link>
         <Link to="/#descargar-app">Descargar App</Link>
         <Link to="/#preguntas-frecuentes">Preguntas frecuentes</Link>
-        {puede(perfil, 'compras.comprar') && <Link to="/premium">Comprar Premium</Link>}
+        {visible(user, 'compras.comprar') && <Link to="/premium">Comprar Premium</Link>}
 
         <div className="wf-menu">
           <button type="button" className="wf-link" aria-expanded={open} onClick={() => setOpen(!open)}>
@@ -43,7 +43,8 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
           {open && (
             <nav className="wf-menu-list" aria-label="Menú de usuario" onClick={() => setOpen(false)}>
               <span className="wf-muted">{perfil ? ETIQUETA_PERFIL[perfil] : 'Perfil sin rol (vuelve a iniciar sesión)'}</span>
-              {MENU.filter((item) => puede(perfil, item.accion)).map((item) => (
+              {/* Mockup pág. 29: sin Premium no aparece "Administrar cuentas". */}
+              {MENU.filter((item) => visible(user, item.accion)).map((item) => (
                 <Link key={item.to} to={item.to}>{item.label}</Link>
               ))}
               {perfil === 'ADMINISTRADOR' && <Link to="/usuarios">Usuarios registrados</Link>}
@@ -57,12 +58,12 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
   )
 }
 
-/** Página para un perfil sin permiso en la UI. El backend rechaza igual la llamada (403). */
-export function SinPermiso() {
+/** Página para un perfil sin permiso en la UI. El backend rechaza igual la llamada (403/409). */
+export function SinPermiso({ motivo = 'permiso' }: { motivo?: Bloqueo }) {
   return (
     <section className="wf-card">
-      <h1>Sin permisos</h1>
-      <p>Tu perfil no tiene acceso a esta sección.</p>
+      <h1>{motivo === 'premium' ? 'Requiere Premium' : 'Sin permisos'}</h1>
+      <p>{motivo === 'permiso' ? 'Tu perfil no tiene acceso a esta sección.' : MENSAJE_BLOQUEO[motivo]}</p>
       <Link className="wf-button" to="/inicio">Volver al inicio</Link>
     </section>
   )

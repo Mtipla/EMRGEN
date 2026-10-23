@@ -16,6 +16,7 @@ import {
   type FirebaseRequest,
 } from '../integrations/firebase-auth/firebase-auth.guard';
 import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
+import { CambiarPasswordDto } from './dto/cambiar-password.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { CrearPinDto } from './dto/crear-pin.dto';
 import { LoginDto } from './dto/login.dto';
@@ -70,6 +71,16 @@ export class LoginController {
     @Body() cambios: ActualizarMiUsuarioDto,
   ) {
     return this.loginService.actualizarPropio(request.user.sub, cambios);
+  }
+
+  // HU-15 / RF3: la contraseña actual es la verificación de identidad.
+  @UseGuards(JwtAuthGuard)
+  @Patch('me/password')
+  cambiarPassword(
+    @Req() request: { user: UsuarioSesion },
+    @Body() datos: CambiarPasswordDto,
+  ) {
+    return this.loginService.cambiarPassword(request.user.sub, datos.password_actual, datos.password_nueva);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

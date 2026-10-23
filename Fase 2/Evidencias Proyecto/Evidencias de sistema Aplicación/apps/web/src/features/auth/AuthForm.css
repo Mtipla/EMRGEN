@@ -198,3 +198,11 @@
     white-space: normal;
   }
 }
+/* Validación en vivo: verde = dato correcto, rojo = revisar. */
+.auth-field input.wf-valido {
+  border-color: #16a34a;
+}
+
+.auth-field input.wf-invalido {
+  border-color: #dc2626;
+}

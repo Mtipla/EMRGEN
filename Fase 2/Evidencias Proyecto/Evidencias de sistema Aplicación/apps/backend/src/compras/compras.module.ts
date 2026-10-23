@@ -6,7 +6,7 @@ import { LoginModule } from '../login/login.module';
 import { Plan } from '../planes/plan.entity';
 import { PlanUsuario } from '../planes/plan-usuario.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
-import { ComprasController } from './compras.controller';
+import { ComprasController, PrecioPublicoController } from './compras.controller';
 import { ComprasService } from './compras.service';
 import { DetalleVenta } from './detalle-venta.entity';
 import { Venta } from './venta.entity';
@@ -18,7 +18,7 @@ import { Venta } from './venta.entity';
     PaypalModule,
     MindicadorModule,
   ],
-  controllers: [ComprasController],
+  controllers: [ComprasController, PrecioPublicoController],
   providers: [ComprasService],
 })
 export class ComprasModule {}

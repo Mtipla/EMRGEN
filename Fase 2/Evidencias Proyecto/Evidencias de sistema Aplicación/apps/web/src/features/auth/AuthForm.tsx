@@ -2,6 +2,7 @@ import './AuthForm.css'
 import { Link } from 'react-router-dom'
 import { useState, type FormEvent } from 'react'
 import { FirebaseAuthError } from '@repo/api-client'
+import { avisar } from '@repo/ui/avisos'
 import { firebaseAuth } from '../../lib/api'
 
 type Mode = 'login' | 'registro' | 'verificacion'
@@ -24,6 +25,8 @@ export type AuthenticatedUser = {
   rol_ID?: number
   estado_ID?: number
   usuario_principal_ID?: number | null
+  /** Premium (plan propio o del principal); solo en login y GET /usuarios/me. */
+  plan_efectivo?: boolean
 }
 
 type AuthFormProps = {
@@ -59,6 +62,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   const [nombre, setNombre] = useState('')
   const [correo, setCorreo] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmacion, setConfirmacion] = useState('')
   const [pending, setPending] = useState<PendingAccount | null>(null)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -98,9 +102,16 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
       await action()
     } catch (cause) {
       setError(describeError(cause))
+      avisar('error', describeError(cause))
     } finally {
       setLoading(false)
     }
+  }
+
+  /** Mensaje de éxito en la tarjeta y como alerta flotante. */
+  function informar(texto: string) {
+    setMessage(texto)
+    avisar('exito', texto)
   }
 
   /** Crea el usuario en la BD; el backend exige un ID token con el correo ya confirmado. */
@@ -124,7 +135,8 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     setPending(null)
     setMode('login')
     setPassword('')
-    setMessage('Correo confirmado y cuenta creada. Ahora inicia sesión con tu correo y contraseña.')
+    setConfirmacion('')
+    informar('Correo confirmado y cuenta creada. Ahora inicia sesión con tu correo y contraseña.')
   }
 
   /** Crea (o retoma) la cuenta en Firebase y envía el correo de confirmación. */
@@ -171,7 +183,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
       if (!pending) return
       const account = await refreshPending(pending)
       await firebaseAuth.sendEmailVerification(account.session.idToken)
-      setMessage(`Te enviamos un nuevo correo de confirmación a ${account.session.email}.`)
+      informar(`Te enviamos un nuevo correo de confirmación a ${account.session.email}.`)
     })
 
   const cancelVerification = () =>
@@ -188,6 +200,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     event.preventDefault()
     void run(async () => {
       if (mode === 'registro') {
+        if (password !== confirmacion) throw new Error('Las contraseñas no coinciden.')
         await startRegistration()
         return
       }
@@ -235,6 +248,8 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   }
 
   const isRegister = mode === 'registro'
+  const passwordOk = password.length >= 8
+  const confirmacionOk = confirmacion === password
 
 
   return (
@@ -280,6 +295,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
               <input
                 type="password"
                 autoComplete={isRegister ? 'new-password' : 'current-password'}
+                className={isRegister && password ? (passwordOk ? 'wf-valido' : 'wf-invalido') : undefined}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 minLength={isRegister ? 8 : undefined}
@@ -288,8 +304,33 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
             </label>
 
             {isRegister && (
-              <p className="password-hint">
-                Usa al menos 8 caracteres.
+              <p className={`password-hint wf-ayuda ${password ? (passwordOk ? 'wf-ayuda--ok' : 'wf-ayuda--error') : ''}`}>
+                {!password
+                  ? 'Usa al menos 8 caracteres.'
+                  : passwordOk
+                    ? '✓ Largo suficiente.'
+                    : `✕ Faltan ${8 - password.length} caracteres (mínimo 8).`}
+              </p>
+            )}
+
+            {isRegister && (
+              <label className="auth-field">
+                <span>Confirmar</span>
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  aria-label="Confirmar contraseña"
+                  className={confirmacion ? (confirmacionOk ? 'wf-valido' : 'wf-invalido') : undefined}
+                  value={confirmacion}
+                  onChange={(event) => setConfirmacion(event.target.value)}
+                  required
+                />
+              </label>
+            )}
+
+            {isRegister && confirmacion && (
+              <p className={`password-hint wf-ayuda ${confirmacionOk ? 'wf-ayuda--ok' : 'wf-ayuda--error'}`}>
+                {confirmacionOk ? '✓ Las contraseñas coinciden.' : '✕ Las contraseñas no coinciden.'}
               </p>
             )}
 
@@ -329,7 +370,15 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
           </form>
 
           {!isRegister && (
-            <a href="#recuperar" className="forgot-password">
+            <a
+              href="#recuperar"
+              className="forgot-password"
+              onClick={(event) => {
+                event.preventDefault()
+                // Pendiente de decisión: el login valida contra la BD, no contra Firebase.
+                avisar('info', 'La recuperación de contraseña aún no está disponible. Si no recuerdas tu contraseña, escríbele al equipo de soporte.')
+              }}
+            >
               ¿Has olvidado tu correo electrónico o contraseña?
             </a>
           )}

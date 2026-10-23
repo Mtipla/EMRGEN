@@ -15,6 +15,8 @@ export type SessionUser = {
   rol_ID?: number;
   estado_ID?: number;
   usuario_principal_ID?: number | null;
+  /** Premium (plan propio o del principal); solo en login y GET /usuarios/me. */
+  plan_efectivo?: boolean;
 };
 
 export function getUser(): SessionUser | null {

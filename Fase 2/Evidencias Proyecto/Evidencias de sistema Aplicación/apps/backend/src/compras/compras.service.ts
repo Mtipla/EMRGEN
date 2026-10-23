@@ -50,6 +50,12 @@ export class ComprasService {
     return producto;
   }
 
+  /** Precio vigente del cupo para la página pública /premium; no revela datos de ningún usuario. */
+  async precioPublico() {
+    const producto = await this.producto();
+    return { plan: producto.nombre_plan, precioUnitario: producto.precio_actual, maxApadrinados: MAX_APADRINADOS };
+  }
+
   async resumen(usuarioId: number): Promise<ResumenCompraApadrinados> {
     const { usuario, plan } = await this.titular(this.dataSource.manager, usuarioId);
     const producto = await this.producto();

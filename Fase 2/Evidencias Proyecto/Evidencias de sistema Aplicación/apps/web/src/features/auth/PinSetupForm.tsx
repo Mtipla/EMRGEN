@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { avisar } from '@repo/ui/avisos'
 import type { AuthenticatedUser } from './AuthForm'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
@@ -18,12 +19,14 @@ export function PinSetupForm({ user, onPinCreated, onLogout }: PinSetupFormProps
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
-    if (!/^\d{4}$/.test(pin)) {
-      setError('El PIN debe tener exactamente 4 dígitos.')
-      return
-    }
-    if (pin !== confirmation) {
-      setError('Los PIN no coinciden.')
+    const invalido = !/^\d{4}$/.test(pin)
+      ? 'El PIN debe tener exactamente 4 dígitos.'
+      : pin !== confirmation
+        ? 'Los PIN no coinciden.'
+        : ''
+    if (invalido) {
+      setError(invalido)
+      avisar('error', invalido)
       return
     }
 
@@ -46,7 +49,9 @@ export function PinSetupForm({ user, onPinCreated, onLogout }: PinSetupFormProps
       }
       onPinCreated()
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudo guardar el PIN')
+      const message = cause instanceof Error ? cause.message : 'No se pudo guardar el PIN'
+      setError(message)
+      avisar('error', message)
     } finally {
       setLoading(false)
     }

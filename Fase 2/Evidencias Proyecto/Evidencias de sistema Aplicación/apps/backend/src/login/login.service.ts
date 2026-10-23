@@ -32,7 +32,11 @@ import { LoginDto } from './dto/login.dto';
 export type UsuarioPublico = Pick<
   Usuario,
   'usuario_ID' | 'nombre_usuario' | 'correo_usuario' | 'rol_ID' | 'estado_ID' | 'usuario_principal_ID'
-> & { requiere_pin: boolean };
+> & {
+  requiere_pin: boolean;
+  /** Premium: plan propio o del principal. Solo en las respuestas de la propia sesión (login y /usuarios/me). */
+  plan_efectivo?: boolean;
+};
 
 const BCRYPT_COSTO = 12;
 // Hash de relleno: si el correo no existe se compara igual, para que el tiempo de
@@ -118,7 +122,7 @@ export class LoginService {
       sub: usuario.usuario_ID,
       email: usuario.correo_usuario,
     });
-    return { access_token, usuario: this.sinPassword(usuario) };
+    return { access_token, usuario: await this.conPlan(usuario) };
   }
 
   async crearPinInicial(usuarioId: number, pinIngresado: string) {
@@ -152,7 +156,7 @@ export class LoginService {
     if (!usuario) {
       throw new NotFoundException('No se encontró la cuenta');
     }
-    return this.sinPassword(usuario);
+    return this.conPlan(usuario);
   }
 
   async listar(): Promise<UsuarioPublico[]> {
@@ -175,12 +179,31 @@ export class LoginService {
     try {
       const user = await this.usuarioRepository.findOneBy({ usuario_ID: id });
       if (user?.estado_ID !== 1) throw new ForbiddenException('El acceso parcial no permite editar el perfil');
-      return this.sinPassword(
+      return this.conPlan(
         await this.aplicarCambiosDePerfil(this.usuarioRepository, id, cambios),
       );
     } catch (error) {
       throw this.traducirCorreoDuplicado(error);
     }
+  }
+
+  /** Mismo criterio que actualizarPropio: el acceso parcial no cambia sus credenciales. */
+  async cambiarPassword(id: number, actual: string, nueva: string) {
+    if (!this.passwordCabeEnBcrypt(nueva)) {
+      throw new BadRequestException('La contraseña supera el límite de 72 bytes');
+    }
+    const usuario = await this.usuarioRepository
+      .createQueryBuilder('usuario')
+      .addSelect('usuario.contra_usuario')
+      .where('usuario.usuario_ID = :id', { id })
+      .getOne();
+    if (!usuario) throw new NotFoundException('No se encontró la cuenta');
+    if (usuario.estado_ID !== 1) throw new ForbiddenException('El acceso parcial no permite cambiar la contraseña');
+    if (!(await bcrypt.compare(actual, usuario.contra_usuario))) {
+      throw new UnauthorizedException('La contraseña actual no es correcta');
+    }
+    await this.usuarioRepository.update(id, { contra_usuario: await bcrypt.hash(nueva, BCRYPT_COSTO) });
+    return { mensaje: 'Contraseña actualizada' };
   }
 
   /**
@@ -290,6 +313,16 @@ export class LoginService {
       usuario_principal_ID,
       requiere_pin: usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
     };
+  }
+
+  /** Misma regla que el SOS de internal-api: el apadrinado usa el plan de su principal. */
+  private async conPlan(usuario: Usuario): Promise<UsuarioPublico> {
+    const titular = usuario.usuario_principal_ID ?? usuario.usuario_ID;
+    const filas: unknown[] = await this.dataSource.query(
+      'SELECT 1 FROM plan_usuario WHERE usuario_id = $1',
+      [titular],
+    );
+    return { ...this.sinPassword(usuario), plan_efectivo: filas.length > 0 };
   }
 
   private passwordCabeEnBcrypt(password: string): boolean {

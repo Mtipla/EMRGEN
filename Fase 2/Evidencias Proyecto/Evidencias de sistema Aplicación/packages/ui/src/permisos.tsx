@@ -16,6 +16,8 @@ export interface UsuarioConRol {
   rol_ID?: number;
   estado_ID?: number;
   usuario_principal_ID?: number | null;
+  /** Premium: plan propio o del principal (login y GET /usuarios/me). */
+  plan_efectivo?: boolean;
 }
 
 /** null si la sesión aún no trae el rol (respuesta antigua del backend). */
@@ -30,6 +32,11 @@ export function perfilDe(u: UsuarioConRol): Perfil | null {
 export const accesoCompleto = (u: UsuarioConRol) =>
   u.estado_ID === ACCESO.COMPLETO;
 
+/** Solo si la sesión lo informa: sesiones antiguas sin el dato no se bloquean (decide el backend). */
+export const sinPremium = (u: UsuarioConRol) => u.plan_efectivo === false;
+const accesoParcial = (u: UsuarioConRol) =>
+  u.estado_ID !== undefined && !accesoCompleto(u);
+
 export type Accion =
   | "perfil.editar"
   | "perfil.pinTrabajador"
@@ -38,6 +45,7 @@ export type Accion =
   | "soporte.solicitar"
   | "soporte.gestionarTickets"
   | "alertas.verTodas"
+  | "alertas.emitir"
   | "admin.cuentas.ver"
   | "admin.cuentas.editar"
   | "admin.cuentas.eliminar"
@@ -49,13 +57,19 @@ export type Accion =
 const TODOS: Perfil[] = ["USUARIO", "APADRINADO", "SOPORTE", "ADMINISTRADOR"];
 const PERSONAL: Perfil[] = ["SOPORTE", "ADMINISTRADOR"];
 
-/** Quién puede cada acción en la UI y de dónde sale. */
-export const PERMISOS: Record<Accion, { perfiles: Perfil[]; fuente: string }> =
-  {
+/**
+ * Quién puede cada acción en la UI y de dónde sale.
+ * `premium`: el backend exige plan efectivo; `soloCompleto`: el backend rechaza el acceso parcial.
+ */
+export const PERMISOS: Record<
+  Accion,
+  { perfiles: Perfil[]; fuente: string; premium?: true; soloCompleto?: true }
+> = {
     // PATCH /usuarios/me: 403 con acceso parcial (LoginService.actualizarPropio).
     "perfil.editar": {
       perfiles: TODOS,
       fuente: "PATCH /usuarios/me (solo acceso completo)",
+      soloCompleto: true,
     },
     "perfil.pinTrabajador": {
       perfiles: ["ADMINISTRADOR"],
@@ -64,7 +78,8 @@ export const PERMISOS: Record<Accion, { perfiles: Perfil[]; fuente: string }> =
     // ComprasService.titular: solo principal con acceso completo y plan.
     "cuentas.apadrinadas": {
       perfiles: ["USUARIO"],
-      fuente: "GET /compras/apadrinados",
+      fuente: "GET /compras/apadrinados (409 sin plan base)",
+      premium: true,
     },
     "compras.comprar": {
       perfiles: ["USUARIO"],
@@ -81,6 +96,12 @@ export const PERMISOS: Record<Accion, { perfiles: Perfil[]; fuente: string }> =
     "alertas.verTodas": {
       perfiles: PERSONAL,
       fuente: "GET /internal/v1/alertas (es_staff)",
+    },
+    // El parcial puede emitir, pero solo con el mensaje configurado (403 si envía otro).
+    "alertas.emitir": {
+      perfiles: TODOS,
+      fuente: "POST /internal/v1/alertas (409 sin plan del principal)",
+      premium: true,
     },
     // Mockup "Trabajador": buscar, añadir, modificar, descargar; eliminar con PIN de trabajador.
     // El backend aún limita /admin/* a ADMINISTRADOR: SOPORTE recibe 403 (BACKEND_SOPORTE).
@@ -117,6 +138,42 @@ export const PERMISOS: Record<Accion, { perfiles: Perfil[]; fuente: string }> =
 export function puede(perfil: Perfil | null, accion: Accion): boolean {
   return perfil !== null && PERMISOS[accion].perfiles.includes(perfil);
 }
+
+export type Bloqueo = "permiso" | "parcial" | "premium";
+
+/** Motivo por el que la UI bloquea la acción a este usuario, o null si está disponible. */
+export function bloqueo(u: UsuarioConRol, accion: Accion): Bloqueo | null {
+  const regla = PERMISOS[accion];
+  if (!puede(perfilDe(u), accion)) return "permiso";
+  if (regla.soloCompleto && accesoParcial(u)) return "parcial";
+  if (regla.premium && sinPremium(u)) return "premium";
+  return null;
+}
+
+/**
+ * Entrada de menú o botón visible: se oculta sin permiso o sin Premium. Con acceso parcial se
+ * muestra igual, porque la página abre en solo lectura y explica el bloqueo.
+ */
+export function visible(u: UsuarioConRol, accion: Accion): boolean {
+  const motivo = bloqueo(u, accion);
+  return motivo === null || motivo === "parcial";
+}
+
+export const MENSAJE_BLOQUEO: Record<Bloqueo, string> = {
+  permiso: "No tienes permisos para realizar esta acción.",
+  parcial:
+    "Tu acceso es parcial: esta acción requiere autorización de tu cuenta principal.",
+  premium: "Esta funcionalidad requiere Premium.",
+};
+
+/** Funciones básicas que comparten usuario principal y apadrinados (resumen de cuenta). */
+export const FUNCIONES_BASICAS: { accion: Accion; etiqueta: string }[] = [
+  { accion: "perfil.editar", etiqueta: "Modificar perfil" },
+  { accion: "soporte.solicitar", etiqueta: "Solicitar soporte" },
+  { accion: "alertas.emitir", etiqueta: "Alerta SOS" },
+  { accion: "cuentas.apadrinadas", etiqueta: "Administrar cuentas apadrinadas" },
+  { accion: "compras.comprar", etiqueta: "Comprar cupos (Premium)" },
+];
 
 /** Mockup págs. 15 y 22: SOPORTE pide el "PIN de trabajador del administrador" antes de eliminar. */
 export const requierePinTrabajador = (perfil: Perfil | null) =>

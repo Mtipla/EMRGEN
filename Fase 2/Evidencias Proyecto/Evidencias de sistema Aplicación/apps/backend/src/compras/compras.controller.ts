@@ -13,6 +13,17 @@ import { JwtAuthGuard, type UsuarioSesion } from '../login/jwt-auth.guard';
 import { ComprasService } from './compras.service';
 import { CrearOrdenCompraDto } from './dto/crear-orden-compra.dto';
 
+// Sin sesión: el precio se muestra en la página pública de Premium (mockup web pág. 2).
+@Controller('compras/precio')
+export class PrecioPublicoController {
+  constructor(private readonly comprasService: ComprasService) {}
+
+  @Get()
+  precio() {
+    return this.comprasService.precioPublico();
+  }
+}
+
 // El usuario siempre sale del token verificado; el navegador nunca envía precio ni usuario.
 @Controller('compras/apadrinados')
 @UseGuards(JwtAuthGuard)
