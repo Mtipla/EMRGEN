@@ -1,39 +1,39 @@
-# Graph Report - EMRGEN  (2026-10-21)
+# Graph Report - EMRGEN  (2026-10-23)
 
 ## Corpus Check
-- 249 files · ~175,276 words
+- 287 files · ~195,240 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 39 file(s) not represented in the graph (top: (none) 26, .css 10, .pptx 1)
+- Unclassified: 41 file(s) not represented in the graph (top: (none) 26, .css 12, .pptx 1)
 
 ## Summary
-- 2304 nodes · 4133 edges · 166 communities (129 shown, 37 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 188 edges (avg confidence: 0.87)
+- 2686 nodes · 5250 edges · 173 communities (133 shown, 40 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 221 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `dbdf6137`
+- Built from commit: `f6e2e66c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- auditoria.service.ts
+- ActualizarPerfilDto
 - USUARIO Table
 - ref_react
 - eslint-config/package.json
-- transaction
+- CuentaPages.tsx
 - backend/package.json
-- compras.service.ts
-- AuditoriaService
+- LoginController
+- ApadrinadosController
 - mobile/package.json
 - index.d.ts
-- admin/api.ts
-- routes/alertas.py
+- AdminService
+- readEnv
 - Diagrama ER Actualizado (EMRGEN)
-- google-maps.service.ts
+- jsreport.service.ts
 - 001_compras_paypal.sql
 - mindicador.service.ts
-- CrearUsuarioDto
-- init.sql
+- perfil-form.tsx
+- emergency-alert.message.ts
 - USUARIO
 - Team Workflow Guide (Claude Code + Graphify + Git)
 - firebase-auth.service.ts
@@ -41,13 +41,13 @@
 - DevDeps Backend NestJS
 - ComprasService
 - desktop/package.json
-- admin-views.tsx
+- wireframe.tsx
 - web/package.json
 - Sistema EMERGEN (system boundary)
-- AuditoriaService
+- AdminService
 - WhatsappController
-- usuarios.service.ts
-- scheduler.py
+- PremiumPurchase.tsx
+- Integración BDD EMERGEN — resultado del 21-10-2026
 - db-dev.cjs
 - google-maps.ts
 - Usuario
@@ -60,7 +60,7 @@
 - compilerOptions
 - test_alertas.py
 - errors.py
-- dev.mjs
+- GuardarPlanDto
 - send-emergency-alert.dto.ts
 - Diagrama de Componentes
 - whatsapp-alert.service.ts
@@ -73,47 +73,40 @@
 - compilerOptions
 - compilerOptions
 - Integración BDD EMERGEN — resultado del 21-10-2026
-- public.alerta
 - AppService
 - devDependencies
 - dependencies
-- services/alertas.py
 - Diagrama de Arquitectura
 - api-client/package.json
 - scripts
 - mobile/src/App.tsx
 - Evidencias de sistema Aplicación/package.json
 - ui/package.json
-- button.tsx
-- AuthForm.tsx
 - firebase-auth.ts
 - BaileysLoggerAdapter
 - devDependencies
-- public.usuario
-- http.ts
 - usePremiumPurchase
 - compilerOptions
-- PublicSite.tsx
+- Archivos principales
 - Trello Sprint Board Screenshot (Fase 1)
 - Sprint 4 (31/8/2026)
 - public.venta
 - dependencies
 - conftest.py
-- phone-number.ts
 - PublicSite.tsx
-- firebase-auth.service.ts
+- routes/alertas.py
 - dependencies
 - manifest.json
 - api-client/tsconfig.json
 - jest.config.ts
 - ui/tsconfig.json
-- AuthForm
+- avisar
 - .oxlintrc.json
 - tsconfig.build.json
 - init.sql
 - scripts
 - compilerOptions
-- http.ts
+- WhatsappAlertService
 - api-types/package.json
 - typescript-config/package.json
 - backend Service (nestjs_emergen_backend)
@@ -139,14 +132,7 @@
 - scripts
 - scripts
 - Turborepo Monorepo
-- class-validator
-- public.detalle_venta
-- verify-excel.py
-- services/tickets.py
-- External APIs Integration Guide
-- public.envio_alerta
 - public.detalle_alerta
-- ejecutar
 - public.bitacora_sistema
 - CLAUDE.md
 - Desktop App React + TypeScript + Vite Template README
@@ -171,143 +157,143 @@
 - Web App index.html Entry Point
 - Favicon Icon (Desktop App)
 - Desktop App Hero Image
+- actualizar-bitacora-auditoria.sql
+- 20261006_pin_identity.sql
+- 001_catalogos_soporte.sql
+- pin
+- External APIs Integration Guide
+- ConfigurarAlerta.tsx
+- public.venta
+- db Service (postgres:15-alpine)
+- ref_vite
+- compras.service.ts
+- public.detalle_venta
+- index.ts
+- verify-excel.py
+- Test Seed Data Commands
+- public.envio_alerta
+- public.detalle_alerta
+- scheduler.py
+- public.bitacora_sistema
 - pg_temp.must_fail
+- css.d.ts
 
 ## God Nodes (most connected - your core abstractions)
-1. `@nestjs/common` - 64 edges
-2. `public.usuario` - 34 edges
-3. `WhatsappConnectionService` - 30 edges
-4. `Usuario` - 29 edges
-5. `LoginService` - 25 edges
-6. `typeorm` - 23 edges
-7. `ComprasService` - 23 edges
-8. `AuditoriaService` - 22 edges
-9. `UsuarioSesion` - 22 edges
-10. `transaction()` - 22 edges
+1. `@nestjs/common` - 71 edges
+2. `UsuarioSesion` - 40 edges
+3. `Usuario` - 34 edges
+4. `public.usuario` - 34 edges
+5. `WhatsappConnectionService` - 30 edges
+6. `LoginService` - 30 edges
+7. `avisar()` - 30 edges
+8. `typeorm` - 26 edges
+9. `App()` - 26 edges
+10. `ComprasService` - 25 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Twilio` --semantically_similar_to--> `WhatsApp (Baileys) Emergency Notifications`  [INFERRED] [semantically similar]
   README.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme-apis.md
 - `5.1 Para qué sirve` --references--> `MapView()`  [INFERRED]
   Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme-apis.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/packages/ui/src/map-view.tsx
+- `Cambios` --references--> `PerfilForm()`  [INFERRED]
+  Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/CHANGELOG_DESARROLLO.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/packages/ui/src/perfil-form.tsx
 - `MySQL Database (30 normalized tables)` --conceptually_related_to--> `db Service (postgres:15-alpine)`  [AMBIGUOUS]
   README.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docker-compose.yml
 - `Archivos principales` --references--> `readEnv()`  [INFERRED]
-  Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme-apis.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/env.ts
-- `Archivos principales` --references--> `requireEnv()`  [INFERRED]
   Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme-apis.md → Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/env.ts
 
 ## Import Cycles
 - None detected.
 
-## Hyperedges (group relationships)
-- **Clientes frontend consumen la interfaz del Control Principal** — fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_aplicacion_web, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_aplicacion_movil, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_aplicacion_de_escritorio, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_control_principal [EXTRACTED 1.00]
-- **EMERGEN Docker Backend + DB Stack** — fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose_db_service, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose_backend_service, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose_emergen_network, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose_emergen_postgres_data, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_init_sql [EXTRACTED 1.00]
-- **Docker Compose Stack (db + backend + volumes)** — fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose_db, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose_backend, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose_emergen_postgres_data, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_docker_compose_emergen_whatsapp_auth, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_init_sql [EXTRACTED 1.00]
-- **Emergency Alert Notification Flow** — fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_apis_alertasservice, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_apis_whatsappalertservice, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_bdd_contacto_emergencia_table, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_bdd_usuario_mensaje_personalizado_table, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_apis_hu_08_emergency_alert [EXTRACTED 1.00]
-- **Clientes multiplataforma consumen API REST** — fase_2_evidencias_proyecto_evidencias_de_documentaci_n_4_3_arquitectura_diagrama_de_arquitectura_aplicacion_web, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_4_3_arquitectura_diagrama_de_arquitectura_aplicacion_movil, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_4_3_arquitectura_diagrama_de_arquitectura_aplicacion_escritorio, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_4_3_arquitectura_diagrama_de_arquitectura_apis_rest_backend [EXTRACTED 1.00]
-- **Compra de planes con conversion de divisas** — fase_2_evidencias_proyecto_evidencias_de_documentaci_n_4_3_arquitectura_diagrama_de_arquitectura_apis_rest_backend, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_4_3_arquitectura_diagrama_de_arquitectura_mindicador, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_4_3_arquitectura_diagrama_de_arquitectura_paypal [EXTRACTED 1.00]
-- **Flujo de alertas: gestor de alertas con mensajería y geolocalización** — fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_control_principal, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_gestor_de_alertas_y_emergencias, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_servicio_mensajeria, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_servicio_geolocalizacion [EXTRACTED 1.00]
-- **Flujo comercial: pagos y conversión de divisas** — fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_gestor_comercial, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_pasarela_de_pago, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_3_3_diagrama_uml_diagrama_de_componentes_diagrama_de_componentes_servicio_conversion_de_divisas [EXTRACTED 1.00]
-- **Graphify Shared-Graph Git Workflow** — contributing_graphify_branch, contributing_main_branch, contributing_individual_branches, contributing_graph_update_procedure, contributing_graph_json_merge_driver, contributing_graphify_skip_hook [EXTRACTED 1.00]
-- **Graphify shared-graph branch workflow** — contributing_graphify_branch, contributing_shared_graph_graphify_out, contributing_graphify_update_procedure, contributing_graph_json_merge_driver, contributing_graphify_skip_hook [EXTRACTED 1.00]
-- **Scrum sprint lifecycle in Fase 1 (sprints, dailies, closure)** — fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_1__sprint_1, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_1__daily_sprints, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_1__sprint_review_retrospective, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_1__sprint_2, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_1__sprint_3 [EXTRACTED 1.00]
-- **Plan Payment and CLP Pricing** — fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_apis_paypal_integration, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_apis_mindicador, fase_2_evidencias_proyecto_evidencias_de_sistema_aplicaci_n_readme_apis_api_client_package [INFERRED 0.85]
-- **Sprint 4 Scrum cycle (planning, dailies, closure)** — fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_2__sprint_4, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_2__daily_sprint_4, fase_2_evidencias_proyecto_evidencias_de_documentaci_n_1_2_sprint_planning_evidencias_de_sprints_daily_sprints_fase_1__captura_2__cierre_sprint_4 [INFERRED 0.85]
+## Communities (173 total, 40 thin omitted)
 
-## Communities (166 total, 37 thin omitted)
-
-### Community 0 - "auditoria.service.ts"
-Cohesion: 0.11
-Nodes (22): ResumenUsuario, APLICACION, EntradaBitacora, EventoAuditado, FORMATO_CHILE, NOMBRE_ROL, NuevaEntradaBitacora, ResultadoAuditado (+14 more)
+### Community 0 - "ActualizarPerfilDto"
+Cohesion: 0.08
+Nodes (5): ActualizarPerfilDto, ContactoDto, FichaMedicaDto, PerfilController, PerfilService
 
 ### Community 1 - "USUARIO Table"
-Cohesion: 0.14
-Nodes (16): emergen_whatsapp_auth Volume, AlertasService (example integration), HU-08 Emergency Alert User Story, HU-12 Medical Info Access While Emergency Active, WhatsApp (Baileys) Emergency Notifications, WhatsappAlertService, WhatsappAuthStateStore, WhatsappConnectionService (+8 more)
+Cohesion: 0.24
+Nodes (8): Desktop Admin Panel (Electron 44), Mobile App (Ionic 9 + Capacitor 8), Shared Packages (eslint-config, typescript-config, ui), Troubleshooting Table, Turborepo Monorepo, Web App (React 19 + Vite 8 + Ionic 9), Solution Architecture (microservices + Turborepo), Twilio
 
 ### Community 2 - "ref_react"
-Cohesion: 0.11
-Nodes (7): App(), savedUser, AuthenticatedUser, PinSetupForm(), PinSetupFormProps, UsersAdmin(), UsersAdminProps
+Cohesion: 0.10
+Nodes (31): AdminAlertasPage(), AdminCuentasPage(), AdminTicketsPage(), AdminTrabajadoresPage(), useAdminUsuarios(), aCatalogo(), AccountsPage(), SoportePage() (+23 more)
 
 ### Community 3 - "eslint-config/package.json"
 Cohesion: 0.07
 Nodes (30): config, nextJsConfig, devDependencies, eslint, eslint-config-prettier, @eslint/js, eslint-plugin-only-warn, eslint-plugin-react-hooks (+22 more)
 
-### Community 4 - "transaction"
-Cohesion: 0.10
-Nodes (23): connect(), get_db(), transaction(), run_once(), historical(), test_24_horas_recuperacion_y_carrera_job_manual(), manual(), test_sos_concurrente_unico_y_replay() (+15 more)
+### Community 4 - "CuentaPages.tsx"
+Cohesion: 0.13
+Nodes (27): AppShell(), AppShellProps, MENU, apadrinados, CuentasVinculadas(), HomePage(), perfilDatos, ProfilePage() (+19 more)
 
 ### Community 5 - "backend/package.json"
 Cohesion: 0.05
 Nodes (36): author, description, prettier, @repo/api-types, @types/node, typescript, license, name (+28 more)
-
-### Community 6 - "compras.service.ts"
-Cohesion: 0.09
-Nodes (10): ABIERTAS, Reserva, DetalleVenta, Venta, codigoPostgres(), PG_UNIQUE_VIOLATION, PostgresExceptionFilter, transaction() (+2 more)
-
-### Community 7 - "AuditoriaService"
-Cohesion: 0.10
-Nodes (4): AuditoriaController, AuditoriaService, ConsultarBitacoraDto, RenderedReport
 
 ### Community 8 - "mobile/package.json"
 Cohesion: 0.05
 Nodes (37): description, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @ionic/react, @ionic/react-router (+29 more)
 
 ### Community 9 - "index.d.ts"
-Cohesion: 0.12
-Nodes (5): CreatePaypalOrderDto, PaypalController, PaypalService, CapturePaypalOrderResponse, PaypalOrderResponse
+Cohesion: 0.11
+Nodes (9): CreatePaypalOrderDto, PaypalController, BASE_URLS, PaypalLink, PaypalOrder, PaypalService, CapturePaypalOrderResponse, CreatePaypalOrderRequest (+1 more)
 
-### Community 10 - "admin/api.ts"
-Cohesion: 0.13
-Nodes (23): adminApi, API_URL, datos(), DatosPlan, DatosSoporte, EntradaBitacora, ESTADOS, Expediente (+15 more)
+### Community 10 - "AdminService"
+Cohesion: 0.31
+Nodes (3): AdminService, diferencias(), ActorAuditoria
 
-### Community 11 - "routes/alertas.py"
-Cohesion: 0.14
-Nodes (10): cerrar_alerta(), crear_alerta(), listar_alertas(), obtener_alerta(), solo_staff(), usuario_actual(), UsuarioSesion, Alerta (+2 more)
+### Community 11 - "readEnv"
+Cohesion: 0.29
+Nodes (7): readEnv(), requireEnv(), defaultCountryCode(), INTEGRATION, whatsappAuthDir(), bootstrap(), @nestjs/core
 
-### Community 13 - "google-maps.service.ts"
-Cohesion: 0.13
-Nodes (6): GeocodeQueryDto, ReverseGeocodeQueryDto, GoogleMapsController, GoogleMapsService, GeocodeResult, class-transformer
+### Community 13 - "jsreport.service.ts"
+Cohesion: 0.11
+Nodes (9): ExternalRequestInit, logger, requestExternal(), requestExternalJson(), GenerateReportDto, JsreportController, InlineReportTemplate, JsreportService (+1 more)
 
 ### Community 15 - "mindicador.service.ts"
-Cohesion: 0.12
-Nodes (6): GenerateReportDto, JsreportController, InlineReportTemplate, JsreportService, GenerateReportRequest, 4.4 Endpoint
-
-### Community 17 - "init.sql"
 Cohesion: 0.11
-Nodes (20): emergen_venta_identidad, ix_mensaje_contacto_estado_contacto_id, ix_mensaje_contacto_tipo_contacto_id, ix_notificacion_movil_usuario_id, ix_respuesta_contacto_mensaje_contacto_id, ix_respuesta_contacto_usuario_id, ix_soporte_ticket_soporte_id, ix_ticket_estado (+12 more)
+Nodes (22): connect(), get_db(), transaction(), run_once(), historical(), test_24_horas_recuperacion_y_carrera_job_manual(), manual(), test_sos_concurrente_unico_y_replay() (+14 more)
+
+### Community 16 - "perfil-form.tsx"
+Cohesion: 0.08
+Nodes (34): mensajeError(), CompraAdmin, CuentaApadrinada, CuentaVinculada, ESTADOS_PAGO, MAX_CONTACTOS, MOCK_COMPRAS, MOCK_CUENTAS_APADRINADAS (+26 more)
+
+### Community 17 - "emergency-alert.message.ts"
+Cohesion: 0.31
+Nodes (7): buildEmergencyAlertText(), buildLocationMessage(), googleMapsLink(), location, EmergencyAlertResult, SendEmergencyAlertRequest, 7.4 Endpoints
 
 ### Community 18 - "USUARIO"
 Cohesion: 0.08
 Nodes (30): ACCESO_APLICACION, ALERTA, APLICACION, BITACORA_SISTEMA, CATEGORIA_SOPORTE, CONTACTO_EMERGENCIA, DETALLE_ALERTA, DETALLE_VENTA (+22 more)
 
 ### Community 19 - "Team Workflow Guide (Claude Code + Graphify + Git)"
-Cohesion: 0.17
-Nodes (18): Branch Architecture (main, graphify, alonso, diego, gabriel), GitHub branch protection rules, Claude Code, CLAUDE.md graphify section and PreToolUse hook, Conventional Commits message format, Daily cycle on individual branch (6.2), graph.json union merge driver (.gitattributes), graphify branch (+10 more)
+Cohesion: 0.14
+Nodes (21): CONTRIBUTING.md, graphify-out Knowledge Graph, Graphify Usage Rules, Branch Architecture (main, graphify, alonso, diego, gabriel), GitHub branch protection rules, Claude Code, CLAUDE.md graphify section and PreToolUse hook, Conventional Commits message format (+13 more)
 
-### Community 20 - "firebase-auth.guard.ts"
+### Community 20 - "firebase-auth.service.ts"
 Cohesion: 0.15
 Nodes (8): FirebaseAuthController, FirebaseAuthGuard, FirebaseRequest, FirebaseAuthModule, FirebaseAuthService, FirebaseTokenPayload, FirebaseAuthUser, 3.3 Endpoint y piezas exportadas
 
 ### Community 21 - "EMERGEN: integración de APIs externas"
 Cohesion: 0.05
-Nodes (36): 1.1 Crear o completar el `.env`, 1.2 Referencia de variables, 1.3 Aplicar los cambios, 1. Configurar las variables de entorno, 2.1 Para qué sirve, 2.2 Obtener las credenciales, 2.3 Endpoints, 2.4 Ejemplos (+28 more)
+Nodes (37): 1.1 Crear o completar el `.env`, 1.2 Referencia de variables, 1.3 Aplicar los cambios, 1. Configurar las variables de entorno, 2.1 Para qué sirve, 2.2 Obtener las credenciales, 2.3 Endpoints, 2.4 Ejemplos (+29 more)
 
 ### Community 22 - "DevDeps Backend NestJS"
 Cohesion: 0.08
 Nodes (25): devDependencies, jest, @nestjs/cli, @nestjs/mau, @nestjs/schematics, @nestjs/testing, oxlint, oxlint-tsgolint (+17 more)
 
 ### Community 23 - "ComprasService"
-Cohesion: 0.06
-Nodes (16): AdminController, ActualizarEstadoDto, clpAUsd(), ESTADO_PAGO, MAX_APADRINADOS, METODO_PAGO_PAYPAL, MONEDA_PAYPAL, nombreEstado() (+8 more)
+Cohesion: 0.12
+Nodes (7): GeocodeQueryDto, ReverseGeocodeQueryDto, GoogleMapsController, GoogleMapsModule, GoogleMapsService, GeocodeResult, jwks-rsa
 
 ### Community 24 - "desktop/package.json"
 Cohesion: 0.08
 Nodes (25): axios, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @ionic/react, react (+17 more)
 
-### Community 25 - "admin-views.tsx"
-Cohesion: 0.13
-Nodes (24): acceso(), AdminCompras(), AdminComprasProps, AdminCuentas(), eliminar(), guardar(), AdminCuentasProps, AdminTrabajadores() (+16 more)
+### Community 25 - "wireframe.tsx"
+Cohesion: 0.08
+Nodes (43): Registro(), Antes / después, acceso(), AdminCompras(), AdminComprasProps, AdminCuentas(), eliminar(), guardar() (+35 more)
 
 ### Community 26 - "web/package.json"
 Cohesion: 0.08
@@ -318,32 +304,32 @@ Cohesion: 0.12
 Nodes (24): Actor: Administrador, Use Case: Aumentar Usuarios Apadrinados, Actor: Contacto de Emergencia, Use Case: Crear PIN Usuario Apadrinado, Use Case: Enviar Mensaje Personalizado, Use Case: Enviar Ubicacion, Use Case: Generar Alerta, Use Case: Gestionar Compras (+16 more)
 
 ### Community 28 - "AdminService"
-Cohesion: 0.18
-Nodes (5): AdminService, diferencias(), ExpedienteUsuario, ActorAuditoria, PlanUsuario
+Cohesion: 0.10
+Nodes (4): AuditoriaController, AuditoriaService, ConsultarBitacoraDto, RenderedReport
 
 ### Community 29 - "WhatsappController"
 Cohesion: 0.17
 Nodes (3): WhatsappController, WhatsappPairingCodeResponse, WhatsappStatusResponse
 
-### Community 30 - "usuarios.service.ts"
-Cohesion: 0.13
-Nodes (8): GuardarPlanDto, AppModule, Pin, MAX_APADRINADOS, createAppTestingModule(), bcrypt, @nestjs/testing, supertest
+### Community 30 - "PremiumPurchase.tsx"
+Cohesion: 0.27
+Nodes (8): clp, PaypalCheckout(), PaypalCheckoutProps, PremiumPurchase(), PremiumPurchaseProps, ResultModal(), ResultModalProps, loadPaypalSdk()
 
-### Community 31 - "scheduler.py"
-Cohesion: 0.13
-Nodes (4): Settings, lifespan(), loop(), health()
+### Community 31 - "Integración BDD EMERGEN — resultado del 21-10-2026"
+Cohesion: 0.22
+Nodes (9): Dictamen y alcance, Diferencias consolidadas y contrato físico, Integración BDD EMERGEN — resultado del 21-10-2026, Línea base y entorno conservado, Pasos de aceptación manual pendientes, Pendientes y límites de la evidencia, Resultados ejecutados, Si después deben conservarse datos de una base antigua (+1 more)
 
 ### Community 32 - "db-dev.cjs"
-Cohesion: 0.07
-Nodes (26): file, bcrypt, { Client }, { createRequire }, { parseEnv }, { readFileSync, existsSync }, requireBackend, { resolve } (+18 more)
+Cohesion: 0.06
+Nodes (28): file, { app, BrowserWindow, shell }, path, bcrypt, { Client }, { createRequire }, { parseEnv }, { readFileSync, existsSync } (+20 more)
 
 ### Community 33 - "google-maps.ts"
-Cohesion: 0.16
-Nodes (17): addMarker(), createMap(), CreateMapOptions, GoogleMap, GoogleMapsNamespace, GoogleMarker, loadGoogleMaps(), MapsLibrary (+9 more)
+Cohesion: 0.15
+Nodes (12): EmergenApi, loadGoogleMaps(), loadScript(), pending, PaypalButtons, PaypalButtonsOptions, PaypalNamespace, renderPaypalButtons() (+4 more)
 
 ### Community 34 - "Usuario"
-Cohesion: 0.11
-Nodes (3): LoginService, Usuario, UsuariosService
+Cohesion: 0.09
+Nodes (3): ActualizarMiUsuarioDto, LoginService, Usuario
 
 ### Community 35 - "devDependencies"
 Cohesion: 0.09
@@ -354,16 +340,16 @@ Cohesion: 0.09
 Nodes (22): dependencies, bcrypt, class-transformer, class-validator, jsonwebtoken, jwks-rsa, @nestjs/common, @nestjs/config (+14 more)
 
 ### Community 37 - "tickets_soporte.py"
-Cohesion: 0.20
-Nodes (11): actualizar_ticket(), crear_ticket(), listar_categorias(), listar_estados(), listar_tickets(), obtener_ticket(), Categoria, Estado (+3 more)
+Cohesion: 0.13
+Nodes (14): AdminModule, ApadrinadosModule, AuditoriaModule, ComprasModule, JsreportModule, MindicadorModule, PaypalModule, LoginModule (+6 more)
 
 ### Community 38 - "compilerOptions"
 Cohesion: 0.10
 Nodes (20): compilerOptions, allowSyntheticDefaultImports, declaration, emitDecoratorMetadata, esModuleInterop, experimentalDecorators, incremental, isolatedModules (+12 more)
 
 ### Community 39 - "@nestjs/common"
-Cohesion: 0.11
-Nodes (19): AdminModule, AuditoriaModule, ComprasModule, GoogleMapsModule, MindicadorModule, PaypalModule, JwtAuthGuard, SolicitudAutenticada (+11 more)
+Cohesion: 0.07
+Nodes (15): ActualizarEstadoDto, Solicitud, CrearApadrinadoDto, CambiarPasswordDto, CrearPinDto, CrearUsuarioDto, LoginDto, JwtAuthGuard (+7 more)
 
 ### Community 40 - "compilerOptions"
 Cohesion: 0.10
@@ -374,44 +360,40 @@ Cohesion: 0.10
 Nodes (19): compilerOptions, allowArbitraryExtensions, allowImportingTsExtensions, erasableSyntaxOnly, jsx, lib, module, moduleDetection (+11 more)
 
 ### Community 42 - "test_alertas.py"
-Cohesion: 0.24
-Nodes (15): token(), body(), close(), create(), test_borrado_lectura_historica_staff_left_join(), test_cierre_propio_pin_hash_otra_familia_repeticion(), test_parcial_pin_tutor_completo_pin_propio(), test_pin_limitado_persistente_y_configuracion_faltante() (+7 more)
+Cohesion: 0.15
+Nodes (14): CuentaVinculada, codigoPostgres(), PG_FOREIGN_KEY_VIOLATION, PG_UNIQUE_VIOLATION, PostgresExceptionFilter, transaction(), HASH_FICTICIO, UsuarioPublico (+6 more)
 
 ### Community 43 - "errors.py"
-Cohesion: 0.23
-Nodes (6): _body(), _http_error(), _postgres_error(), register_error_handlers(), _unhandled_error(), _validation_error()
-
-### Community 44 - "dev.mjs"
-Cohesion: 0.17
-Nodes (7): { app, BrowserWindow, shell }, path, argumentos, env, indiceModo, ventana, electron
+Cohesion: 0.14
+Nodes (3): AdminController, ApadrinadosService, UsuarioSesion
 
 ### Community 45 - "send-emergency-alert.dto.ts"
-Cohesion: 0.15
-Nodes (6): EmergencyAlertLocationDto, EmergencyAlertMedicalInfoDto, SendEmergencyAlertDto, MAX_RECIPIENTS, EmergencyAlertLocation, EmergencyAlertMedicalInfo
+Cohesion: 0.11
+Nodes (12): PairingCodeDto, EmergencyAlertLocationDto, EmergencyAlertMedicalInfoDto, SendEmergencyAlertDto, PHONE_NUMBER, MAX_RECIPIENTS, EmergencyAlertDeliveryStatus, EmergencyAlertLocation (+4 more)
 
 ### Community 46 - "Diagrama de Componentes"
 Cohesion: 0.27
 Nodes (19): Aplicación de Escritorio, Aplicación Móvil, Aplicación WEB, Backend (capa), Base de Datos, Capa de acceso a Datos, Control Principal, Diagrama de Componentes (+11 more)
 
 ### Community 47 - "whatsapp-alert.service.ts"
-Cohesion: 0.21
-Nodes (11): buildEmergencyAlertText(), buildLocationMessage(), googleMapsLink(), location, sleep(), withRetry(), RETRY_DELAYS_MS, alert (+3 more)
+Cohesion: 0.29
+Nodes (7): maskPhoneNumber(), normalizePhoneNumber(), toUserJid(), sleep(), withRetry(), RETRY_DELAYS_MS, EmergencyAlertDelivery
 
 ### Community 48 - "WhatsappConnectionService"
-Cohesion: 0.17
-Nodes (4): errorMessage(), statusCodeOf(), WhatsappConnectionService, WhatsappConnectionState
+Cohesion: 0.20
+Nodes (4): errorMessage(), WhatsappConnectionService, isWhatsappEnabled(), WhatsappConnectionState
 
 ### Community 49 - "compilerOptions"
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, allowSyntheticDefaultImports, forceConsistentCasingInFileNames, isolatedModules, jsx, lib, module (+10 more)
 
 ### Community 50 - "whatsapp-connection.service.ts"
-Cohesion: 0.17
-Nodes (12): readEnv(), BaileysLib, loadBaileys(), MultiFileAuthStateStore, WhatsappAuthState, WhatsappAuthStateStore, defaultCountryCode(), INTEGRATION (+4 more)
+Cohesion: 0.20
+Nodes (7): BaileysLib, loadBaileys(), MultiFileAuthStateStore, WhatsappAuthState, WhatsappAuthStateStore, statusCodeOf(), @whiskeysockets/baileys
 
 ### Community 51 - "mindicador.service.ts"
 Cohesion: 0.13
-Nodes (11): INDICATOR_CODES, IndicatorParamDto, IndicatorQueryDto, MindicadorController, MindicadorDaily, MindicadorSerie, MindicadorService, EconomicIndicator (+3 more)
+Nodes (9): INDICATOR_CODES, IndicatorParamDto, IndicatorQueryDto, MindicadorController, MindicadorDaily, MindicadorSerie, MindicadorService, EconomicIndicator (+1 more)
 
 ### Community 52 - "tasks"
 Cohesion: 0.09
@@ -430,12 +412,8 @@ Cohesion: 0.12
 Nodes (16): compilerOptions, declaration, declarationMap, esModuleInterop, incremental, isolatedModules, lib, module (+8 more)
 
 ### Community 56 - "Integración BDD EMERGEN — resultado del 21-10-2026"
-Cohesion: 0.12
-Nodes (15): Test Seed Data Commands, Dictamen y alcance, Diferencias consolidadas y contrato físico, Integración BDD EMERGEN — resultado del 21-10-2026, Línea base y entorno conservado, Pasos de aceptación manual pendientes, Pendientes y límites de la evidencia, Resultados ejecutados (+7 more)
-
-### Community 57 - "public.alerta"
-Cohesion: 0.12
-Nodes (17): emergen_alerta, emergen_alerta_revoca, emergen_enlace, emergen_historial, ix_alerta_prioridad_id, ix_alerta_usuario_id, ix_historial_alerta_alerta_id, ix_historial_alerta_detalle_alerta_id (+9 more)
+Cohesion: 0.16
+Nodes (7): _body(), _http_error(), _postgres_error(), register_error_handlers(), _unhandled_error(), _validation_error(), health()
 
 ### Community 59 - "devDependencies"
 Cohesion: 0.13
@@ -444,10 +422,6 @@ Nodes (15): devDependencies, electron, electron-builder, eslint, @eslint/js, esl
 ### Community 60 - "dependencies"
 Cohesion: 0.13
 Nodes (15): dependencies, @capacitor/app, @capacitor/core, @capacitor/haptics, @capacitor/keyboard, @capacitor/status-bar, @ionic/react, @ionic/react-router (+7 more)
-
-### Community 61 - "services/alertas.py"
-Cohesion: 0.24
-Nodes (7): verify_pin(), cerrar(), crear(), _finalizar(), finalizar_vencidas(), listar(), obtener()
 
 ### Community 62 - "Diagrama de Arquitectura"
 Cohesion: 0.26
@@ -462,8 +436,8 @@ Cohesion: 0.14
 Nodes (14): scripts, build, deploy, format, lint, start, start:debug, start:dev (+6 more)
 
 ### Community 65 - "mobile/src/App.tsx"
-Cohesion: 0.20
-Nodes (6): App(), ExploreContainer(), container, root, Home(), @testing-library/react
+Cohesion: 0.15
+Nodes (25): App(), Privada(), Alerta, AlertaSos(), enviar(), Paso, apiFetch(), clearSession() (+17 more)
 
 ### Community 66 - "Evidencias de sistema Aplicación/package.json"
 Cohesion: 0.06
@@ -473,13 +447,9 @@ Nodes (34): devDependencies, prettier, turbo, typescript, devEngines, packageMan
 Cohesion: 0.06
 Nodes (30): dependencies, react, react-dom, @repo/api-client, devDependencies, eslint, @repo/eslint-config, @repo/typescript-config (+22 more)
 
-### Community 69 - "AuthForm.tsx"
-Cohesion: 0.20
-Nodes (14): AuthForm(), completeRegistration(), describeError(), handleSubmit(), postUsuarios(), run(), startRegistration(), AuthFormProps (+6 more)
-
-### Community 70 - "2026-10-21 — Roles, permisos, soporte y funcionalidades documentadas (bloque 2)"
-Cohesion: 0.06
-Nodes (33): 2026-10-21 — Roles, permisos, soporte y funcionalidades documentadas (bloque 2), 2026-10-21 — Rutas y UI base de los wireframes (bloque 1), 2026-10-21 — SOPORTE = "Trabajador" de documentos y mockups (bloque 3), Antes / después, Archivos, Archivos, Archivos, Cambios (+25 more)
+### Community 70 - "firebase-auth.ts"
+Cohesion: 0.04
+Nodes (45): 2026-10-21 — Auditoría y corrección de rutas del Trabajador/SOPORTE (bloque 4), 2026-10-21 — Roles, permisos, soporte y funcionalidades documentadas (bloque 2), 2026-10-21 — Rutas y UI base de los wireframes (bloque 1), 2026-10-21 — SOPORTE = "Trabajador" de documentos y mockups (bloque 3), Antes / después, Antes / después, Antes / después, Archivos (+37 more)
 
 ### Community 71 - "BaileysLoggerAdapter"
 Cohesion: 0.23
@@ -489,25 +459,17 @@ Nodes (4): BaileysLoggerAdapter, ILogger, Level, LEVELS
 Cohesion: 0.15
 Nodes (13): devDependencies, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @types/node, @types/react (+5 more)
 
-### Community 73 - "public.usuario"
-Cohesion: 0.13
-Nodes (15): emergen_00_ultimo_admin, emergen_usuario_borrado, emergen_usuario_limpieza, emergen_usuario_vinculo, ix_usuario_estado_id, ix_usuario_msj_personalizado_id, ix_usuario_pin_id, ix_usuario_principal (+7 more)
-
-### Community 74 - "Cambios Realizados (AUDITORIA CLAUDE)"
-Cohesion: 0.18
-Nodes (13): AUDIT-P04 Refresh token rotativo y revocable, Auditoría Técnica EMERGEN (05/10/2026), Cambios Realizados (AUDITORIA CLAUDE), Hallazgo I-05 Catálogo único de tipos de emergencia, Hallazgo I-08 Alcance de comunicación a servicios de emergencia, Hallazgo R-09 Dos proveedores de identidad (Firebase y JWT propio), Informe TEC (1.6), ISO/IEC/IEEE 29148:2018 (+5 more)
-
 ### Community 75 - "usePremiumPurchase"
-Cohesion: 0.18
-Nodes (14): api, errorMessage(), PurchaseModal, specificMessage(), usePremiumPurchase(), cancelPurchase(), confirm(), createOrder() (+6 more)
+Cohesion: 0.26
+Nodes (10): errorMessage(), specificMessage(), usePremiumPurchase(), cancelPurchase(), confirm(), createOrder(), load(), paymentCancelled() (+2 more)
 
 ### Community 76 - "compilerOptions"
 Cohesion: 0.18
 Nodes (10): compilerOptions, allowJs, jsx, module, moduleResolution, noEmit, plugins, extends (+2 more)
 
 ### Community 77 - "Archivos principales"
-Cohesion: 0.20
-Nodes (10): EmergenApi, PaypalButtons, PaypalButtonsOptions, PaypalNamespace, renderPaypalButtons(), RenderPaypalButtonsOptions, ButtonsOptions, CreatePaypalOrderRequest (+2 more)
+Cohesion: 0.21
+Nodes (13): renderPublicSite(), clp, ImagePlaceholder(), Landing(), LoginRequiredModal(), LoginRequiredModalProps, PremiumInfo(), PremiumInfoProps (+5 more)
 
 ### Community 78 - "Trello Sprint Board Screenshot (Fase 1)"
 Cohesion: 0.24
@@ -518,28 +480,24 @@ Cohesion: 0.27
 Nodes (10): Cierre Sprint 3 (28/8/2026), Cierre Sprint 4 (14/9/2026), Creacion del repositorio de GitHub, Daily Sprint 3 (24-28/8/2026), Daily Sprint 4 (11 dailies), Daily Sprint 4 date inconsistency (1/8-11/8 after 31/8), 4.1 Diccionario de Datos / Modelo de Dominio, 4.4 Docker (+2 more)
 
 ### Community 80 - "public.venta"
-Cohesion: 0.15
-Nodes (14): emergen_reserva, emergen_venta_comprador, ix_reserva_usuario, ix_venta_estado_pago_id, ix_venta_metodo_pago_id, ix_venta_usuario_id, public.emergen_comprobar_total_venta(), public.emergen_validar_plan_usuario() (+6 more)
+Cohesion: 0.18
+Nodes (15): GeocodeApiResponse, addMarker(), createMap(), CreateMapOptions, GoogleMap, GoogleMapsNamespace, GoogleMarker, MapsLibrary (+7 more)
 
 ### Community 81 - "dependencies"
 Cohesion: 0.20
 Nodes (10): dependencies, axios, @ionic/react, @ionic/react-router, ionicons, react, react-dom, react-router-dom (+2 more)
 
 ### Community 82 - "conftest.py"
-Cohesion: 0.16
-Nodes (3): client(), crear_usuario(), db()
-
-### Community 83 - "phone-number.ts"
-Cohesion: 0.24
-Nodes (7): PairingCodeDto, maskPhoneNumber(), normalizePhoneNumber(), PHONE_NUMBER, toUserJid(), EmergencyAlertDelivery, WhatsappPairingCodeRequest
+Cohesion: 0.18
+Nodes (15): listar_alertas(), obtener_alerta(), actualizar_ticket(), crear_ticket(), listar_categorias(), listar_estados(), listar_tickets(), obtener_ticket() (+7 more)
 
 ### Community 84 - "PublicSite.tsx"
-Cohesion: 0.23
-Nodes (12): renderPublicSite(), ImagePlaceholder(), Landing(), LoginRequiredModal(), LoginRequiredModalProps, PremiumInfo(), PremiumInfoProps, PublicNav() (+4 more)
+Cohesion: 0.12
+Nodes (21): ExpedienteUsuario, ResumenUsuario, APLICACION, EntradaBitacora, EventoAuditado, FORMATO_CHILE, NOMBRE_ROL, NuevaEntradaBitacora (+13 more)
 
-### Community 85 - "firebase-auth.service.ts"
-Cohesion: 0.24
-Nodes (5): attacker, google, json(), paypalToken(), jsonwebtoken
+### Community 85 - "routes/alertas.py"
+Cohesion: 0.15
+Nodes (6): cerrar_alerta(), crear_alerta(), usuario_actual(), Alerta, AlertaCerrar, AlertaCrear
 
 ### Community 86 - "dependencies"
 Cohesion: 0.25
@@ -558,12 +516,12 @@ Cohesion: 0.33
 Nodes (4): config, { config: tsconfig }, jest, ts-jest
 
 ### Community 90 - "ui/tsconfig.json"
-Cohesion: 0.25
-Nodes (7): compilerOptions, outDir, strictNullChecks, exclude, extends, include, @repo/typescript-config/react-library.json
+Cohesion: 0.22
+Nodes (8): compilerOptions, outDir, rootDir, strictNullChecks, exclude, extends, include, @repo/typescript-config/react-library.json
 
-### Community 91 - "PremiumPurchase.tsx"
-Cohesion: 0.27
-Nodes (8): clp, PaypalCheckout(), PaypalCheckoutProps, PremiumPurchase(), PremiumPurchaseProps, ResultModal(), ResultModalProps, loadPaypalSdk()
+### Community 91 - "avisar"
+Cohesion: 0.10
+Nodes (33): App(), closeSession(), handleAuthenticated(), handlePinCreated(), privatePage(), refreshSession(), AuthForm(), completeRegistration() (+25 more)
 
 ### Community 92 - ".oxlintrc.json"
 Cohesion: 0.29
@@ -574,8 +532,8 @@ Cohesion: 0.29
 Nodes (6): compilerOptions, rootDir, exclude, extends, include, ./tsconfig.json
 
 ### Community 94 - "init.sql"
-Cohesion: 0.13
-Nodes (16): ix_mensaje_contacto_estado_contacto_id, ix_mensaje_contacto_tipo_contacto_id, ix_respuesta_contacto_mensaje_contacto_id, ix_respuesta_contacto_usuario_id, ix_soporte_ticket_soporte_id, ix_ticket_estado, ix_ticket_soporte_categoria_soporte_id, ix_ticket_soporte_usuario_id (+8 more)
+Cohesion: 0.11
+Nodes (20): emergen_venta_identidad, ix_mensaje_contacto_estado_contacto_id, ix_mensaje_contacto_tipo_contacto_id, ix_notificacion_movil_usuario_id, ix_respuesta_contacto_mensaje_contacto_id, ix_respuesta_contacto_usuario_id, ix_soporte_ticket_soporte_id, ix_ticket_estado (+12 more)
 
 ### Community 95 - "scripts"
 Cohesion: 0.29
@@ -586,8 +544,8 @@ Cohesion: 0.29
 Nodes (6): compilerOptions, allowSyntheticDefaultImports, composite, module, moduleResolution, include
 
 ### Community 97 - "WhatsappAlertService"
-Cohesion: 0.22
-Nodes (7): WhatsappAlertService, WhatsappModule, 7.1 Para qué sirve, 7.2 Configurar, 7.3 Vincular el número emisor (una sola vez), 7.5 Usar el servicio desde otro módulo del backend, 7. WhatsApp (Baileys): notificaciones de emergencia
+Cohesion: 0.18
+Nodes (11): api, PurchaseModal, bearer(), createEmergenApi(), ApiError, createHttpClient(), send(), HttpClient (+3 more)
 
 ### Community 98 - "api-types/package.json"
 Cohesion: 0.29
@@ -598,8 +556,8 @@ Cohesion: 0.29
 Nodes (6): license, name, private, publishConfig, access, version
 
 ### Community 100 - "backend Service (nestjs_emergen_backend)"
-Cohesion: 0.30
-Nodes (12): backend Service (evidence copy, without WhatsApp), db Service (postgres:15-alpine, evidence copy), EMERGEN docker-compose Configuration, backend Service (nestjs_emergen_backend), backend Service (nestjs_emergen_backend, 3001->3000), db Service (postgres:15-alpine), db Service (postgres_emergen_db, postgres:15-alpine, 5433), emergen_network Bridge Network (+4 more)
+Cohesion: 0.24
+Nodes (15): token(), body(), close(), create(), test_borrado_lectura_historica_staff_left_join(), test_cierre_propio_pin_hash_otra_familia_repeticion(), test_parcial_pin_tutor_completo_pin_propio(), test_pin_limitado_persistente_y_configuracion_faltante() (+7 more)
 
 ### Community 101 - "obj_cl_Gestionar_Compras : Clase"
 Cohesion: 0.33
@@ -618,16 +576,16 @@ Cohesion: 0.33
 Nodes (5): collection, compilerOptions, deleteOutDir, $schema, sourceRoot
 
 ### Community 105 - "PanelAdmin"
-Cohesion: 0.36
-Nodes (6): describirError(), setToken(), PanelAdmin(), cerrarSesion(), iniciarSesion(), App()
+Cohesion: 0.07
+Nodes (50): adminApi, API_URL, datos(), DatosPlan, DatosSoporte, describirError(), EntradaBitacora, ESTADOS (+42 more)
 
 ### Community 106 - "react-library.json"
 Cohesion: 0.33
 Nodes (5): compilerOptions, jsx, extends, ./base.json, $schema
 
 ### Community 107 - "paypal.service.ts"
-Cohesion: 0.21
-Nodes (10): requireEnv(), GeocodeApiResponse, ExternalRequestInit, logger, requestExternal(), requestExternalJson(), BASE_URLS, PaypalLink (+2 more)
+Cohesion: 0.33
+Nodes (5): 1. Cuentas, 2. Cómo usarlas, 3. Cómo volver a crearlas, 4. Cómo eliminarlas, Cuentas temporales de prueba (solo entorno local)
 
 ### Community 108 - "obj_cl_Gestionar_Usuario : Clase"
 Cohesion: 0.40
@@ -686,56 +644,100 @@ Cohesion: 0.40
 Nodes (5): scripts, build, dev, lint, preview
 
 ### Community 122 - "Turborepo Monorepo"
-Cohesion: 0.20
-Nodes (10): EMERGEN Monorepo Dev Guide (Docker evidence copy), Desktop Admin Panel (Electron 44), Mobile App (Ionic 9 + Capacitor 8), EMERGEN Monorepo Dev Guide, Shared Packages (eslint-config, typescript-config, ui), Troubleshooting Table, Turborepo Monorepo, Web App (React 19 + Vite 8 + Ionic 9) (+2 more)
-
-### Community 123 - "class-validator"
-Cohesion: 0.17
-Nodes (3): CrearPinDto, LoginDto, class-validator
-
-### Community 124 - "public.detalle_venta"
 Cohesion: 0.18
-Nodes (12): emergen_detalle_compra, emergen_detalle_total, emergen_plan_usuario, emergen_venta_total, ix_detalle_venta_plan_id, ix_detalle_venta_venta_id, ix_plan_usuario_plan_id, public.detalle_venta (+4 more)
-
-### Community 126 - "services/tickets.py"
-Cohesion: 0.36
-Nodes (8): actualizar(), categorias(), crear(), estado_canonico(), estados(), existe_categoria(), listar(), obtener()
-
-### Community 127 - "External APIs Integration Guide"
-Cohesion: 0.36
-Nodes (10): @repo/api-client Package, @repo/api-types Package, External APIs Integration Guide, Firebase Authentication, FirebaseAuthGuard, Google Maps Platform (Maps JS + Geocoding), jsReport PDF Reports, mindicador API (Chile economic indicators) (+2 more)
-
-### Community 128 - "public.envio_alerta"
-Cohesion: 0.22
-Nodes (9): emergen_contactos, emergen_envio, ix_contacto_emergencia_usuario_id, ix_envio_alerta_alerta_id, ix_envio_alerta_contacto_emergencia_id, ix_envio_alerta_estado_envio_id, public.contacto_emergencia, public.envio_alerta (+1 more)
+Nodes (8): alert, WhatsappAlertService, WhatsappModule, 7.1 Para qué sirve, 7.2 Configurar, 7.3 Vincular el número emisor (una sola vez), 7.5 Usar el servicio desde otro módulo del backend, 7. WhatsApp (Baileys): notificaciones de emergencia
 
 ### Community 129 - "public.detalle_alerta"
-Cohesion: 0.22
-Nodes (9): emergen_detalle_historico, emergen_medico_propietario, ix_detalle_alerta_antecedente_medico_id, ix_detalle_alerta_msj_personalizado_id, public.antecedente_medico, public.detalle_alerta, public.emergen_medico_propietario_fijo(), public.emergen_preparar_borrado_usuario() (+1 more)
-
-### Community 130 - "ejecutar"
-Cohesion: 0.32
-Nodes (8): listar(), crear(), SeccionUsuarios(), accion(), listar(), verExpediente(), resumir(), ejecutar()
+Cohesion: 0.07
+Nodes (20): container, root, savedUser, AuthenticatedUser, AuthFormProps, FIREBASE_ERRORS, firebaseErrorMessage(), FirebaseSession (+12 more)
 
 ### Community 131 - "public.bitacora_sistema"
-Cohesion: 0.25
-Nodes (8): ix_acceso_aplicacion_aplicacion_id, ix_acceso_aplicacion_usuario_id, ix_bitacora_sistema_aplicacion_id, ix_bitacora_sistema_usuario_id, public.acceso_aplicacion, public.aplicacion, public.bitacora_sistema, public.rol
+Cohesion: 0.13
+Nodes (15): emergen_00_ultimo_admin, emergen_usuario_borrado, emergen_usuario_limpieza, emergen_usuario_vinculo, ix_usuario_estado_id, ix_usuario_msj_personalizado_id, ix_usuario_pin_id, ix_usuario_principal (+7 more)
 
 ### Community 133 - "Desktop App React + TypeScript + Vite Template README"
 Cohesion: 1.00
 Nodes (3): Desktop App React + TypeScript + Vite Template README, Web App React + TypeScript + Vite Template README, @turbo/eslint-config Shared ESLint Configurations
 
 ### Community 141 - ".env Configuration (single root .env)"
-Cohesion: 0.33
-Nodes (5): No-secrets policy (.env, MySQL, PayPal, Twilio, Google Maps credentials), config/env.ts (readEnv/requireEnv), .env Configuration (single root .env), Environment Variables Template (.env.example), JWT_SECRET (HS256 access tokens)
+Cohesion: 0.16
+Nodes (3): client(), crear_usuario(), db()
+
+### Community 142 - "ActualizarMiUsuarioDto"
+Cohesion: 0.12
+Nodes (17): emergen_alerta, emergen_alerta_revoca, emergen_enlace, emergen_historial, ix_alerta_prioridad_id, ix_alerta_usuario_id, ix_historial_alerta_alerta_id, ix_historial_alerta_detalle_alerta_id (+9 more)
 
 ### Community 143 - "Cuentas temporales de prueba (solo entorno local)"
-Cohesion: 0.33
-Nodes (5): 1. Cuentas, 2. Cómo usarlas, 3. Cómo volver a crearlas, 4. Cómo eliminarlas, Cuentas temporales de prueba (solo entorno local)
+Cohesion: 0.36
+Nodes (8): actualizar(), categorias(), crear(), estado_canonico(), estados(), existe_categoria(), listar(), obtener()
 
 ### Community 144 - "Team Rules (Reglas del equipo)"
-Cohesion: 0.50
-Nodes (3): CONTRIBUTING.md, graphify-out Knowledge Graph, Graphify Usage Rules
+Cohesion: 0.25
+Nodes (5): argumentos, env, indiceModo, ventana, electron
+
+### Community 161 - "actualizar-bitacora-auditoria.sql"
+Cohesion: 0.18
+Nodes (9): AppModule, attacker, google, createAppTestingModule(), json(), paypalToken(), jsonwebtoken, @nestjs/testing (+1 more)
+
+### Community 162 - "20261006_pin_identity.sql"
+Cohesion: 0.15
+Nodes (15): emergen_whatsapp_auth Volume, AlertasService (example integration), HU-08 Emergency Alert User Story, HU-12 Medical Info Access While Emergency Active, WhatsApp (Baileys) Emergency Notifications, WhatsappAlertService, WhatsappAuthStateStore, WhatsappConnectionService (+7 more)
+
+### Community 164 - "001_catalogos_soporte.sql"
+Cohesion: 0.22
+Nodes (8): verify_pin(), cerrar(), crear(), _finalizar(), finalizar_vencidas(), listar(), obtener(), test_insert_antes_de_cierre_revoca_enlace()
+
+### Community 165 - "pin"
+Cohesion: 0.24
+Nodes (9): No-secrets policy (.env, MySQL, PayPal, Twilio, Google Maps credentials), backend Service (nestjs_emergen_backend), config/env.ts (readEnv/requireEnv), Backend App (NestJS 12 + TypeORM + PostgreSQL), Backend Dockerfile (multi-stage, turbo prune), .env Configuration (single root .env), Environment Variables Template (.env.example), JWT_SECRET (HS256 access tokens) (+1 more)
+
+### Community 166 - "External APIs Integration Guide"
+Cohesion: 0.36
+Nodes (10): @repo/api-client Package, @repo/api-types Package, External APIs Integration Guide, Firebase Authentication, FirebaseAuthGuard, Google Maps Platform (Maps JS + Geocoding), jsReport PDF Reports, mindicador API (Chile economic indicators) (+2 more)
+
+### Community 168 - "ConfigurarAlerta.tsx"
+Cohesion: 0.43
+Nodes (6): ConfigurarAlerta(), comprobar(), Paso, BOTONES_ALERTA, mismaSecuencia(), PRUEBAS_REQUERIDAS
+
+### Community 172 - "public.venta"
+Cohesion: 0.15
+Nodes (14): emergen_reserva, emergen_venta_comprador, ix_reserva_usuario, ix_venta_estado_pago_id, ix_venta_metodo_pago_id, ix_venta_usuario_id, public.emergen_comprobar_total_venta(), public.emergen_validar_plan_usuario() (+6 more)
+
+### Community 173 - "db Service (postgres:15-alpine)"
+Cohesion: 0.39
+Nodes (9): backend Service (evidence copy, without WhatsApp), db Service (postgres:15-alpine, evidence copy), EMERGEN docker-compose Configuration, backend Service (nestjs_emergen_backend, 3001->3000), db Service (postgres:15-alpine), db Service (postgres_emergen_db, postgres:15-alpine, 5433), emergen_network Bridge Network, emergen_postgres_data Volume (+1 more)
+
+### Community 176 - "compras.service.ts"
+Cohesion: 0.06
+Nodes (18): clpAUsd(), ESTADO_PAGO, MAX_APADRINADOS, METODO_PAGO_PAYPAL, MONEDA_PAYPAL, nombreEstado(), PLAN_CUENTA_APADRINADA, ComprasController (+10 more)
+
+### Community 177 - "public.detalle_venta"
+Cohesion: 0.18
+Nodes (12): emergen_detalle_compra, emergen_detalle_total, emergen_plan_usuario, emergen_venta_total, ix_detalle_venta_plan_id, ix_detalle_venta_venta_id, ix_plan_usuario_plan_id, public.detalle_venta (+4 more)
+
+### Community 179 - "index.ts"
+Cohesion: 0.11
+Nodes (19): api, env, firebase, firebaseAuth, api, env, firebase, firebaseAuth (+11 more)
+
+### Community 182 - "Test Seed Data Commands"
+Cohesion: 0.22
+Nodes (8): EMERGEN Monorepo Dev Guide (Docker evidence copy), Test Seed Data Commands, EMERGEN Monorepo Dev Guide, Archivos afectados y reparaciones, Comandos y resultados, Estado de integración BDD — 2026-10-21, Estado real después de la reanudación, Pendientes y siguiente paso exacto
+
+### Community 185 - "public.envio_alerta"
+Cohesion: 0.22
+Nodes (9): emergen_contactos, emergen_envio, ix_contacto_emergencia_usuario_id, ix_envio_alerta_alerta_id, ix_envio_alerta_contacto_emergencia_id, ix_envio_alerta_estado_envio_id, public.contacto_emergencia, public.envio_alerta (+1 more)
+
+### Community 186 - "public.detalle_alerta"
+Cohesion: 0.22
+Nodes (9): emergen_detalle_historico, emergen_medico_propietario, ix_detalle_alerta_antecedente_medico_id, ix_detalle_alerta_msj_personalizado_id, public.antecedente_medico, public.detalle_alerta, public.emergen_medico_propietario_fijo(), public.emergen_preparar_borrado_usuario() (+1 more)
+
+### Community 189 - "scheduler.py"
+Cohesion: 0.16
+Nodes (3): Settings, lifespan(), loop()
+
+### Community 190 - "public.bitacora_sistema"
+Cohesion: 0.25
+Nodes (8): ix_acceso_aplicacion_aplicacion_id, ix_acceso_aplicacion_usuario_id, ix_bitacora_sistema_aplicacion_id, ix_bitacora_sistema_usuario_id, public.acceso_aplicacion, public.aplicacion, public.bitacora_sistema, public.rol
 
 ## Ambiguous Edges - Review These
 - `db Service (postgres:15-alpine)` → `MySQL Database (30 normalized tables)`  [AMBIGUOUS]
@@ -749,22 +751,22 @@ Nodes (3): CONTRIBUTING.md, graphify-out Knowledge Graph, Graphify Usage Rules
 
 ## Knowledge Gaps
 - **226 isolated node(s):** `@nestjs/passport`, `@nestjs/platform-express`, `@paypal/checkout-server-sdk`, `passport`, `passport-jwt` (+221 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1092 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **37 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1218 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **40 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `@nestjs/common` connect `@nestjs/common` to `auditoria.service.ts`, `Usuario`, `backend/package.json`, `compras.service.ts`, `BaileysLoggerAdapter`, `index.d.ts`, `paypal.service.ts`, `google-maps.service.ts`, `mindicador.service.ts`, `whatsapp-alert.service.ts`, `whatsapp-connection.service.ts`, `mindicador.service.ts`, `firebase-auth.guard.ts`, `firebase-auth.service.ts`, `AppService`, `usuarios.service.ts`?**
-  _High betweenness centrality (0.067) - this node is a cross-community bridge._
+- **Why does `@nestjs/common` connect `tickets_soporte.py` to `actualizar-bitacora-auditoria.sql`, `backend/package.json`, `Turborepo Monorepo`, `@nestjs/common`, `BaileysLoggerAdapter`, `index.d.ts`, `test_alertas.py`, `readEnv`, `jsreport.service.ts`, `whatsapp-alert.service.ts`, `compras.service.ts`, `whatsapp-connection.service.ts`, `mindicador.service.ts`, `PublicSite.tsx`, `firebase-auth.service.ts`, `ComprasService`, `AppService`?**
+  _High betweenness centrality (0.082) - this node is a cross-community bridge._
 - **What connects `@nestjs/passport`, `@nestjs/platform-express`, `@paypal/checkout-server-sdk` to the rest of the system?**
   _226 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `auditoria.service.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.10931174089068826 - nodes in this community are weakly interconnected._
-- **Why does `@testing-library/react` connect `mobile/src/App.tsx` to `mobile/package.json`?**
-  _High betweenness centrality (0.049) - this node is a cross-community bridge._
-- **Should `USUARIO Table` be split into smaller, more focused modules?**
-  _Cohesion score 0.13970588235294118 - nodes in this community are weakly interconnected._
+- **Should `ActualizarPerfilDto` be split into smaller, more focused modules?**
+  _Cohesion score 0.08362369337979095 - nodes in this community are weakly interconnected._
+- **Why does `EMERGEN: integración de APIs externas` connect `EMERGEN: integración de APIs externas` to `public.venta`, `Turborepo Monorepo`?**
+  _High betweenness centrality (0.066) - this node is a cross-community bridge._
+- **Should `ref_react` be split into smaller, more focused modules?**
+  _Cohesion score 0.09759759759759759 - nodes in this community are weakly interconnected._
 
 ### Low-confidence Hints
 _AMBIGUOUS edges — the extractor was unsure. Verify before acting on these._
