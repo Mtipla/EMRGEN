@@ -49,7 +49,46 @@ export type UsuarioAdmin = {
   usuario_principal_ID?: number | null
 }
 
+export type AlertaAdmin = {
+  alerta_id: number
+  usuario_id: number | null
+  nombre_usuario: string | null
+  correo_usuario: string | null
+  estado_alerta: 'ACTIVA' | 'FINALIZADA' | 'EXPIRADA'
+  prioridad_id: number
+  prioridad: string
+  mensaje: string
+  ubicacion: string | null
+  fecha_creacion: string
+  fecha_cierre: string | null
+}
+
+export type PaginaAlertas = {
+  alertas: AlertaAdmin[]
+  total: number
+  activas: number
+}
+
 export type DatosSoporte = { nombre_usuario: string; correo_usuario: string; password: string }
+
+export type FormatoReporte = 'pdf' | 'xlsx'
+
+export type FiltrosVentas = { busqueda: string; estado_pago_id: string; desde: string; hasta: string }
+export type VentaAdmin = {
+  venta_id: number
+  usuario_id: number | null
+  nombre_usuario: string | null
+  correo_usuario: string | null
+  fecha_venta: string
+  estado_pago_id: number
+  estado: string
+  metodo_pago: string
+  total_venta: number
+  monto_cobrado: string | null
+  moneda_cobrada: string | null
+  detalles: { detalle_venta_id: number; plan_id: number; nombre_plan: string; tipo_compra: 'PLAN' | 'CUPOS'; cantidad: number; cupos_otorgados: number; precio_uni: number }[]
+}
+export type PaginaVentas = { ventas: VentaAdmin[]; total: number; total_pagado_clp: number }
 
 export type PlanUsuario = {
   plan_usuario_ID: number
@@ -109,6 +148,30 @@ export const adminApi = {
   actualizarMiUsuario: (nombre_usuario: string, correo_usuario: string) =>
     datos(http.patch<Sesion['usuario']>('/usuarios/me', { nombre_usuario, correo_usuario })),
 
+  listarAlertas: (
+    filtros: {
+      estado: string
+      usuario_id: string
+      limit: number
+      offset: number
+    },
+    signal: AbortSignal,
+  ) =>
+    datos(
+      http.get<PaginaAlertas>('/admin/alertas', {
+        params: {
+          ...sinVacios({
+            estado: filtros.estado,
+            usuario_id: filtros.usuario_id,
+          }),
+          limit: filtros.limit,
+          offset: filtros.offset,
+        },
+        signal,
+        timeout: 10000,
+      }),
+    ),
+
   // Usuarios
   listarUsuarios: () => datos(http.get<UsuarioAdmin[]>('/admin/usuarios')),
   verExpediente: (id: number) => datos(http.get<Expediente>(`/admin/usuarios/${id}`)),
@@ -127,15 +190,22 @@ export const adminApi = {
   crearSoporte: (cuenta: DatosSoporte) =>
     datos(http.post<UsuarioAdmin>('/admin/usuarios/soporte', cuenta)),
 
+  // Ventas registradas y reportes PDF/Excel generados por jsReport con los mismos filtros.
+  listarVentas: (filtros: FiltrosVentas, offset: number, signal: AbortSignal) =>
+    datos(http.get<PaginaVentas>('/admin/ventas', { params: { ...sinVacios(filtros), limit: 20, offset }, signal, timeout: 10000 })),
+  descargarVentas: (filtros: FiltrosVentas, formato: FormatoReporte = 'pdf') =>
+    datos(http.get<Blob>('/admin/ventas/reporte', { params: { ...sinVacios(filtros), formato }, responseType: 'blob', timeout: 90000 })),
+
   // Bitácora / auditoría (solo lectura: las entradas las genera el backend)
   listarBitacora: (filtros: FiltrosBitacora) =>
     datos(http.get<EntradaBitacora[]>('/admin/auditoria', { params: sinVacios(filtros) })),
-  /** PDF generado por jsReport en el backend. */
-  descargarReporte: (filtros: FiltrosBitacora) =>
+  /** PDF o Excel generado por jsReport en el backend. */
+  descargarReporte: (filtros: FiltrosBitacora, formato: FormatoReporte = 'pdf') =>
     datos(
       http.get<Blob>('/admin/auditoria/reporte', {
-        params: sinVacios(filtros),
+        params: { ...sinVacios(filtros), formato },
         responseType: 'blob',
+        timeout: 90000,
       }),
     ),
 }

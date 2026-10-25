@@ -57,3 +57,26 @@ export const PLANTILLA_BITACORA = `<!DOCTYPE html>
   </table>
 </body>
 </html>`;
+
+export const PLANTILLA_BITACORA_EXCEL = `<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><style>
+  td, th { font-family: Calibri, sans-serif; font-size: 12px; padding: 5px; border: 1px solid #cbd5e1; width: 150px; vertical-align: top; }
+  th { background-color: #e2e8f0; font-weight: bold; }
+  .ancho { width: 350px; white-space: pre-wrap; }
+</style></head><body>
+  <table data-sheet-name="Resumen">
+    <tr><th colspan="2">Bitácora de auditoría — EMERGEN</th></tr>
+    <tr><td>Generado (Chile)</td><td>{{generado}}</td></tr>
+    <tr><td>Filtros</td><td class="ancho">{{filtros}}</td></tr>
+    <tr><td>Registros</td><td data-cell-type="number">{{total}}</td></tr>
+  </table>
+  <table data-sheet-name="Bitacora">
+    <tr><th>ID</th><th>Fecha (Chile)</th><th>Actor</th><th>Rol</th><th>Usuario afectado</th><th>Acción</th><th>Entidad</th><th>Origen</th><th>Resultado</th><th>Detalle</th></tr>
+    {{#each entradas}}<tr>
+      <td data-cell-type="number">{{bitacora_sistema_ID}}</td><td>{{fecha}}</td>
+      <td>{{actor}}</td><td>{{rol}}</td><td>{{afectado}}</td><td>{{tipo}}</td>
+      <td>{{entidad}}</td><td>{{aplicacion}}</td><td>{{resultado}}</td>
+      <td class="ancho">{{accion_realizada}}{{#each cambios}}<br>{{this}}{{/each}}</td>
+    </tr>{{/each}}
+  </table>
+</body></html>`;

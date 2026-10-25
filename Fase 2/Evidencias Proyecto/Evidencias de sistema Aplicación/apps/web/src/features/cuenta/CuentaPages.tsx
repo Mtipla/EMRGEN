@@ -25,7 +25,11 @@ export function HomePage({ user }: { user: AuthenticatedUser }) {
           {disponible('cuentas.apadrinadas') && (
             <Link className="wf-button wf-button--secondary" to="/cuentas">Administrar cuentas</Link>
           )}
-          {disponible('compras.comprar') && <Link className="wf-button" to="/premium">Comprar Premium</Link>}
+          {disponible('compras.comprar') && (
+            <Link className="wf-button" to={user.plan_efectivo ? '/comprar' : '/premium'}>
+              {user.plan_efectivo ? 'Comprar cupos de cuentas' : 'Comprar Premium'}
+            </Link>
+          )}
           {disponible('admin.cuentas.ver') && (
             <Link className="wf-button wf-button--secondary" to="/administracion/cuentas">Panel de administración</Link>
           )}

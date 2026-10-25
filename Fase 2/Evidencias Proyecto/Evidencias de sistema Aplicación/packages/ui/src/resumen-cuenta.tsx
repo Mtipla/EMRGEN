@@ -17,7 +17,7 @@ export const ResumenCuenta = ({ user }: { user: UsuarioConRol }) => {
 
   return (
     <section className="wf-card">
-      <h2>Tu cuenta</h2>
+      <h2>Caracteristicas de tu cuenta</h2>
       <p>
         Tipo: {perfil ? ETIQUETA_PERFIL[perfil] : "Sin información"}
         {" · "}Acceso:{" "}

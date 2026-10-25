@@ -11,6 +11,7 @@ import {
 } from './VistasWireframe'
 import './panel-admin.css'
 import { SelectorTema } from './SelectorTema'
+import { VistaAlertas } from './VistaAlertas'
 
 /** Panel de pruebas del administrador (y vistas del Trabajador/SOPORTE): cada sección consume sus endpoints con Axios. */
 export function PanelAdmin() {
@@ -131,6 +132,7 @@ export function PanelAdmin() {
             <NavLink to="/perfil">Modificar usuario</NavLink>
             <NavLink to="/administracion/cuentas">Administrar cuentas</NavLink>
             <NavLink to="/administracion/compras">Administrar compras</NavLink>
+            {!esSoporte && <NavLink to="/administracion/alertas">Alertas SOS</NavLink>}
             {puede(perfil, 'admin.trabajadores') && (
               <NavLink to="/administracion/trabajadores">Administrar trabajadores</NavLink>
             )}
@@ -144,6 +146,7 @@ export function PanelAdmin() {
             />
             <Route path="/administracion/cuentas" element={<VistaCuentas perfil={perfil} />} />
             <Route path="/administracion/compras" element={<VistaCompras perfil={perfil} />} />
+            {!esSoporte && <Route path="/administracion/alertas" element={<VistaAlertas />} />}
             {puede(perfil, 'admin.trabajadores') && (
               <Route path="/administracion/trabajadores" element={<VistaTrabajadores />} />
             )}

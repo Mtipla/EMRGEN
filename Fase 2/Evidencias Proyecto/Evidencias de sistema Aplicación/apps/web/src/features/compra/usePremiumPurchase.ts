@@ -4,13 +4,14 @@ import {
   createEmergenApi,
   type OrdenCompraResponse,
   type CompraPendiente,
-  type ResumenCompraApadrinados,
+  type ResumenCompra,
+  type TipoCompra,
 } from '@repo/api-client'
 
 const api = createEmergenApi(import.meta.env.VITE_API_URL ?? 'http://localhost:3000')
 
 export type PurchaseModal =
-  | { type: 'success'; cantidad: number }
+  | { type: 'success'; cantidad: number; tipoCompra: TipoCompra }
   | { type: 'error'; detail?: string }
 
 /**
@@ -18,9 +19,9 @@ export type PurchaseModal =
  * este hook tal cual. El precio, el usuario y la confirmación del pago los decide el
  * backend; aquí solo se muestra el éxito cuando la captura responde estado PAGADO.
  */
-export function usePremiumPurchase() {
+export function usePremiumPurchase(onPurchased?: () => Promise<void>) {
   const token = localStorage.getItem('emergen.token') ?? ''
-  const [summary, setSummary] = useState<ResumenCompraApadrinados>()
+  const [summary, setSummary] = useState<ResumenCompra>()
   const [pending, setPending] = useState<CompraPendiente[]>([])
   const [loadError, setLoadError] = useState('')
   const [cantidad, setCantidad] = useState(1)
@@ -40,7 +41,7 @@ export function usePremiumPurchase() {
   useEffect(() => {
     async function load() {
       try {
-        const [data, pendingSales] = await Promise.all([api.compras.summary(token), api.compras.pending(token)])
+        const [data, pendingSales] = await Promise.all([api.compras.purchaseSummary(token), api.compras.pending(token)])
         setPending(pendingSales)
         setLoadError('')
         setSummary(data)
@@ -64,7 +65,8 @@ export function usePremiumPurchase() {
     orderError.current = undefined
     if (order) return order.orderId
     try {
-      const created = await api.compras.createOrder(token, cantidad)
+      if (!summary) throw new Error('La compra aún no está lista')
+      const created = await api.compras.createOrder(token, cantidad, summary.tipoCompra)
       setOrder(created)
       return created.orderId
     } catch (error) {
@@ -86,7 +88,8 @@ export function usePremiumPurchase() {
       setCheckoutOpen(false)
       if (result.estado === 'PAGADO') {
         setUnconfirmedOrderId(undefined)
-        setModal({ type: 'success', cantidad })
+        setModal({ type: 'success', cantidad, tipoCompra: summary!.tipoCompra })
+        await onPurchased?.()
       } else if (result.estado === 'PENDIENTE' || result.estado === 'REVISION') {
         setUnconfirmedOrderId(orderId)
         setNotice(
@@ -165,7 +168,8 @@ export function usePremiumPurchase() {
         setNotice('Compra recuperada. Continúa con PayPal para aprobarla.')
       } else if (result.estado === 'PAGADO') {
         setUnconfirmedOrderId(undefined)
-        setModal({ type: 'success', cantidad: sale.cantidad })
+        setModal({ type: 'success', cantidad: sale.cantidad, tipoCompra: summary!.tipoCompra })
+        await onPurchased?.()
       } else {
         setNotice('Estado de la compra: ' + result.estado + '. Verifica antes de realizar otro pago.')
       }

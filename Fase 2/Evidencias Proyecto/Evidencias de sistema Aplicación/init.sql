@@ -418,7 +418,7 @@ CREATE TABLE public.bitacora_sistema (
 CREATE TABLE public.reserva_cupos (
     venta_id integer PRIMARY KEY REFERENCES public.venta(venta_id) ON DELETE CASCADE,
     usuario_id integer NOT NULL REFERENCES public.usuario(usuario_id) ON DELETE RESTRICT,
-    cupos integer NOT NULL CHECK (cupos BETWEEN 1 AND 5),
+    cupos integer NOT NULL CHECK (cupos BETWEEN 0 AND 5),
     estado varchar(15) DEFAULT 'RESERVADA' NOT NULL CHECK (estado IN ('RESERVADA','CREANDO','CAPTURANDO','INCIERTA','APLICADA','LIBERADA')),
     actualizada_en timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
     clave_operacion uuid DEFAULT gen_random_uuid() NOT NULL UNIQUE
@@ -533,6 +533,7 @@ INSERT INTO public.estado_ticket VALUES (1,'ABIERTO'),(2,'EN PROCESO'),(3,'RESUE
 INSERT INTO public.categoria_soporte VALUES (1,'CUENTA Y ACCESO'),(2,'PAGOS Y PLANES'),(3,'ALERTAS'),(4,'APLICACION'),(5,'OTRO');
 -- Se conserva el producto de desarrollo, separado de cualquier plan base.
 INSERT INTO public.plan VALUES (1,'CUENTA APADRINADA ADICIONAL',1000,5);
+INSERT INTO public.plan VALUES (2,'PLAN BASE DEMOSTRACION',5000,1);
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT * FROM (VALUES ('aplicacion','aplicacion_id'),('metodo_pago','metodo_pago_id'),('estado_pago','estado_pago_id'),('estado_ticket','estado_ticket_id'),('categoria_soporte','categoria_soporte_id'),('plan','plan_id')) AS t(tabla,columna) LOOP
     EXECUTE format('SELECT setval(pg_get_serial_sequence(%L,%L), max(%I), true) FROM public.%I', 'public.'||r.tabla,r.columna,r.columna,r.tabla);
@@ -935,7 +936,7 @@ COMMENT ON COLUMN public.detalle_venta.cupos_otorgados IS 'Total de cupos conced
 COMMENT ON COLUMN public.envio_alerta.fecha_envio IS 'Despacho confirmado; NULL en PENDIENTE/FALLIDO. No acredita lectura.';
 COMMENT ON COLUMN public.bitacora_sistema.usuario_id IS 'Actor nullable; ON DELETE SET NULL. La auditoría se registra antes de borrar, en la misma transacción.';
 CREATE FUNCTION public.emergen_validar_reserva() RETURNS trigger LANGUAGE plpgsql AS $$
-DECLARE v_adquiridos integer; v_reservados integer;
+DECLARE v_adquiridos integer; v_reservados integer; v_tipo varchar(10);
 BEGIN
   IF TG_OP='UPDATE' AND (NEW.usuario_id<>OLD.usuario_id OR NEW.venta_id<>OLD.venta_id OR NEW.cupos<>OLD.cupos) THEN
     RAISE EXCEPTION 'La identidad de una reserva es inmutable' USING ERRCODE='23514';
@@ -947,7 +948,22 @@ BEGIN
     RAISE EXCEPTION 'Reserva ajena al comprador' USING ERRCODE='23514';
   END IF;
   PERFORM public.emergen_bloquear_usuario(NEW.usuario_id);
+  SELECT tipo_compra INTO v_tipo FROM public.detalle_venta WHERE venta_id=NEW.venta_id;
+  IF v_tipo IS NULL OR (v_tipo='PLAN' AND NEW.cupos<>0) OR (v_tipo='CUPOS' AND NEW.cupos=0) THEN
+    RAISE EXCEPTION 'Reserva incompatible con el tipo de compra' USING ERRCODE='23514';
+  END IF;
   IF NEW.estado IN ('RESERVADA','CREANDO','CAPTURANDO','INCIERTA') THEN
+    IF v_tipo='PLAN' THEN
+      IF EXISTS (SELECT 1 FROM public.plan_usuario WHERE usuario_id=NEW.usuario_id) THEN
+        RAISE EXCEPTION 'El comprador ya tiene plan' USING ERRCODE='23514';
+      END IF;
+      IF EXISTS (SELECT 1 FROM public.reserva_cupos r JOIN public.detalle_venta d USING(venta_id)
+        WHERE r.usuario_id=NEW.usuario_id AND r.venta_id<>NEW.venta_id AND d.tipo_compra='PLAN'
+          AND r.estado IN ('RESERVADA','CREANDO','CAPTURANDO','INCIERTA')) THEN
+        RAISE EXCEPTION 'Ya existe una compra de plan pendiente' USING ERRCODE='23514';
+      END IF;
+      RETURN NEW;
+    END IF;
     SELECT cupos_apadrinados_adq INTO v_adquiridos FROM public.plan_usuario WHERE usuario_id=NEW.usuario_id;
     IF NOT FOUND THEN RAISE EXCEPTION 'La reserva requiere plan' USING ERRCODE='23514'; END IF;
     SELECT COALESCE(sum(cupos),0) INTO v_reservados FROM public.reserva_cupos

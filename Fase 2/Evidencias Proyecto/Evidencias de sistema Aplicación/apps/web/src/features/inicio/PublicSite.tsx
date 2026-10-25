@@ -112,14 +112,14 @@ const clp = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' 
 
 function PremiumInfo({ isAuthenticated, onBuy, onAccount }: PremiumInfoProps) {
   const [warning, setWarning] = useState(false)
-  const [precio, setPrecio] = useState<number | null>(null)
+  const [precios, setPrecios] = useState<{ precioUnitario: number; precioPlan: number } | null>(null)
 
   // GET /compras/precio es público; si falla, la página sigue sin mostrar el precio.
   useEffect(() => {
     fetch(`${API_URL}/compras/precio`)
       .then((response) => (response.ok ? response.json() : null))
-      .then((data: { precioUnitario?: number } | null) => setPrecio(data?.precioUnitario ?? null))
-      .catch(() => setPrecio(null))
+      .then((data: { precioUnitario: number; precioPlan: number } | null) => setPrecios(data))
+      .catch(() => setPrecios(null))
   }, [])
 
   return (
@@ -132,10 +132,15 @@ function PremiumInfo({ isAuthenticated, onBuy, onAccount }: PremiumInfoProps) {
           <li>Hasta 5 cuentas apadrinadas asociadas a tu cuenta principal.</li>
           <li>Pago seguro con PayPal.</li>
         </ul>
-        {precio !== null ? (
-          <p>
-            Valor por cuenta apadrinada: <strong>{clp.format(precio)}</strong>
-          </p>
+        {precios !== null ? (
+          <>
+            <p>
+              Valor de la cuenta Premium: <strong>{clp.format(precios.precioPlan)}</strong>
+            </p>
+            <p>
+              Valor por cuenta apadrinada: <strong>{clp.format(precios.precioUnitario)}</strong>
+            </p>
+          </>
         ) : (
           <p className="public-pending">El precio vigente se muestra al continuar con la compra.</p>
         )}

@@ -9,13 +9,15 @@ const clp = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' 
 
 type PremiumPurchaseProps = {
   onClose: () => void
+  onPurchased?: () => Promise<void>
 }
 
 /** Pantalla "Comprar Cuenta Premium". Solo presenta: la lógica está en usePremiumPurchase. */
-export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
-  const purchase = usePremiumPurchase()
+export function PremiumPurchase({ onClose, onPurchased }: PremiumPurchaseProps) {
+  const purchase = usePremiumPurchase(onPurchased)
   const { summary, order, cantidad, processing, checkoutOpen } = purchase
   const soldOut = summary?.maxCantidad === 0
+  const esPlan = summary?.tipoCompra === 'PLAN'
 
   async function cancel() {
     await purchase.cancelPurchase()
@@ -33,7 +35,7 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
       </nav>
 
       <div className="purchase-card" aria-busy={processing || !summary}>
-        <h1>Comprar Cuenta Premium</h1>
+        <h1>{summary ? (esPlan ? 'Comprar Cuenta Premium' : 'Comprar cupos de cuentas') : 'Cargando compra'}</h1>
 
         {purchase.loadError ? (
           <div role="alert" className="purchase-notice purchase-notice--error">
@@ -49,23 +51,27 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
             <dl className="purchase-details">
               <dt>Cantidad</dt>
               <dd>
-                <input
-                  type="number"
-                  aria-label="Cantidad de cuentas"
-                  min={1}
-                  max={Math.max(summary.maxCantidad, 1)}
-                  value={cantidad}
-                  disabled={soldOut || checkoutOpen || processing}
-                  onChange={(event) => {
-                    const value = Math.trunc(Number(event.target.value))
-                    purchase.setCantidad(Math.min(Math.max(value || 1, 1), summary.maxCantidad))
-                  }}
-                />
-                <small> (máximo {summary.maxCantidad})</small>
+                {esPlan ? '1 plan para tu cuenta' : (
+                  <>
+                    <input
+                      type="number"
+                      aria-label="Cantidad de cuentas"
+                      min={1}
+                      max={Math.max(summary.maxCantidad, 1)}
+                      value={cantidad}
+                      disabled={soldOut || checkoutOpen || processing}
+                      onChange={(event) => {
+                        const value = Math.trunc(Number(event.target.value))
+                        purchase.setCantidad(Math.min(Math.max(value || 1, 1), summary.maxCantidad))
+                      }}
+                    />
+                    <small> (máximo {summary.maxCantidad})</small>
+                  </>
+                )}
               </dd>
               <dt>Descripción</dt>
               <dd>
-                Añadir Cuenta(s) Extra a "{summary.usuario}"
+                {esPlan ? `Activar cuenta Premium para "${summary.usuario}"` : `Añadir Cuenta(s) Extra a "${summary.usuario}"`}
               </dd>
               <dt>Número de boleta</dt>
               <dd>{order ? order.ventaId : <small>se asigna al iniciar el pago</small>}</dd>
@@ -83,7 +89,7 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
 
             {soldOut && (
               <p className="purchase-notice">
-                No hay cupos disponibles para una nueva compra. Revisa tus compras pendientes.
+                {esPlan ? 'Ya tienes una compra de plan pendiente. Retómala o verifica su pago.' : 'No hay cupos disponibles para una nueva compra. Revisa tus compras pendientes.'}
               </p>
             )}
             {purchase.notice && (
@@ -130,7 +136,7 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
                   disabled={soldOut || checkoutOpen || processing}
                   onClick={purchase.openCheckout}
                 >
-                  Método de pago (API de COMPRA)
+                  Continuar con PayPal
                 </button>
               )}
               <button
@@ -150,7 +156,11 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
         <ResultModal
           modal={purchase.modal}
           boleta={order?.ventaId}
-          onClose={purchase.closeModal}
+          onClose={() => {
+            const success = purchase.modal?.type === 'success'
+            purchase.closeModal()
+            if (success) onClose()
+          }}
         />
       )}
     </section>
@@ -231,7 +241,9 @@ function ResultModal({ modal, boleta, onClose }: ResultModalProps) {
         </h2>
         {success ? (
           <p>
-            {modal.cantidad === 1
+            {modal.tipoCompra === 'PLAN'
+              ? 'Tu cuenta Premium está activa. Ya puedes comprar cupos de cuentas apadrinadas.'
+              : modal.cantidad === 1
               ? 'Su cuenta se encuentra habilitada con una cuenta APADRINADA adicional.'
               : `Su cuenta se encuentra habilitada con ${modal.cantidad} cuentas APADRINADAS adicionales.`}
           </p>

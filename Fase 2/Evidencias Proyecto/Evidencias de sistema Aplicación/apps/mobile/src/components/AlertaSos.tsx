@@ -1,109 +1,111 @@
 import { useState } from 'react';
 import { PRIORIDADES } from '@repo/ui/mocks';
-import { Modal, Notice, PinDialog } from '@repo/ui/wireframe';
-import { errorText, internalFetch } from '../lib/session';
+import { Modal, NumerosEmergencia } from '@repo/ui/wireframe';
+import { enviarSos, errorSos, type Alerta } from '../lib/sos';
 
-type Alerta = { alerta_id: number; estado_alerta: string };
-
-type Paso = { tipo: 'elegir' } | { tipo: 'activa'; alerta: Alerta } | { tipo: 'cerrar'; alerta: Alerta } | { tipo: 'aviso'; titulo: string; texto: string; error?: boolean };
-
-/**
- * SOS (HU-06) y finalización con PIN (HU-14) contra internal-api:
- * POST /internal/v1/alertas y POST /internal/v1/alertas/{id}/cerrar.
- * El backend exige plan del principal y al menos un contacto propio (409 si no).
- */
-const AlertaSos: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [paso, setPaso] = useState<Paso>({ tipo: 'elegir' });
-  const [prioridad, setPrioridad] = useState<number>(PRIORIDADES[2].id);
+/** El éxito solo se muestra después de que la API confirma el registro del SOS. */
+const AlertaSos: React.FC<{ onClose: () => void; onRegistrada: () => void }> = ({
+  onClose,
+  onRegistrada,
+}) => {
+  const [solicitud, setSolicitud] = useState(() => ({
+    prioridad: PRIORIDADES[2].id as number,
+    clave: crypto.randomUUID(),
+  }));
+  const [alerta, setAlerta] = useState<Alerta | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState('');
 
   async function enviar() {
+    if (enviando) return;
     setEnviando(true);
+    setError('');
     try {
-      const alerta = await internalFetch<Alerta>('/alertas', {
-        method: 'POST',
-        body: JSON.stringify({ clave_idempotencia: crypto.randomUUID(), prioridad_id: prioridad }),
-      });
-      setPaso({ tipo: 'activa', alerta });
-    } catch (cause) {
-      setPaso({ tipo: 'aviso', titulo: 'No se pudo enviar la alerta', texto: errorText(cause), error: true });
+      // Un reintento conserva UUID y contenido para no duplicar un envío confirmado por el servidor.
+      const registrada = await enviarSos(solicitud.prioridad, solicitud.clave);
+      setAlerta(registrada);
+      onRegistrada();
+    } catch (causa) {
+      setError(errorSos(causa));
     } finally {
       setEnviando(false);
     }
   }
 
-  if (paso.tipo === 'elegir') {
+  if (alerta)
     return (
       <Modal
-        title="Alerta rápida"
-        tone="error"
-        onClose={onClose}
-        actions={
-          <>
-            <button type="button" className="wf-button wf-button--secondary" onClick={onClose}>
-              Cancelar
-            </button>
-            <button type="button" className="wf-button" disabled={enviando} onClick={() => void enviar()}>
-              {enviando ? 'Enviando…' : 'Enviar SOS'}
-            </button>
-          </>
-        }
-      >
-        <div className="wf-form">
-          <label>
-            Tipo de emergencia
-            <select value={prioridad} onChange={(e) => setPrioridad(Number(e.target.value))}>
-              {PRIORIDADES.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nombre}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </Modal>
-    );
-  }
-
-  if (paso.tipo === 'activa') {
-    return (
-      <Modal
-        title={`Alerta ${paso.alerta.alerta_id} enviada`}
+        title={`Alerta #${alerta.alerta_id} registrada`}
         tone="success"
         onClose={onClose}
         actions={
-          <>
-            <button type="button" className="wf-button wf-button--secondary" onClick={onClose}>
-              Cerrar ventana
-            </button>
-            <button type="button" className="wf-button" onClick={() => setPaso({ tipo: 'cerrar', alerta: paso.alerta })}>
-              Finalizar alerta
-            </button>
-          </>
+          <button type="button" className="wf-button" onClick={onClose}>
+            Ver mis alertas
+          </button>
         }
       >
-        <p>Estado: {paso.alerta.estado_alerta}. El envío a los contactos (WhatsApp) aún no está conectado a este servicio.</p>
+        <p>
+          Estado: <strong>{alerta.estado_alerta}</strong>. Puedes consultar y finalizar la alerta
+          desde el apartado Alertas, ingresando tu PIN.
+        </p>
       </Modal>
     );
-  }
 
-  if (paso.tipo === 'cerrar') {
-    return (
-      <PinDialog
-        title="Finalizar alerta"
-        info="Para finalizar la alerta ingresa tu PIN (o el de tu cuenta principal si tu acceso es parcial)."
-        confirmar={false}
-        onClose={onClose}
-        onSubmit={async (pin) => {
-          // Los errores (403 PIN incorrecto, 429 bloqueo) los muestra PinDialog.
-          await internalFetch(`/alertas/${paso.alerta.alerta_id}/cerrar`, { method: 'POST', body: JSON.stringify({ pin }) });
-          setPaso({ tipo: 'aviso', titulo: 'Alerta finalizada', texto: 'Tus contactos sabrán que la situación terminó.' });
-        }}
-      />
-    );
-  }
-
-  return <Notice title={paso.titulo} tone={paso.error ? 'error' : 'success'} message={paso.texto} onClose={onClose} />;
+  return (
+    <Modal
+      title="Alerta rápida"
+      tone="error"
+      onClose={() => {
+        if (!enviando) onClose();
+      }}
+      actions={null}
+    >
+      <div className="wf-form">
+        <label>
+          Tipo de emergencia
+          <select
+            value={solicitud.prioridad}
+            disabled={enviando}
+            onChange={(e) =>
+              setSolicitud({ prioridad: Number(e.target.value), clave: crypto.randomUUID() })
+            }
+          >
+            {PRIORIDADES.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nombre}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      {error && (
+        <p role="alert" className="wf-message wf-message--error">
+          {error}
+        </p>
+      )}
+      <div className="wf-actions">
+        <button
+          type="button"
+          className="wf-button wf-button--secondary"
+          disabled={enviando}
+          onClick={onClose}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="wf-button"
+          disabled={enviando}
+          onClick={() => void enviar()}
+        >
+          {enviando ? 'Enviando…' : 'Enviar SOS'}
+        </button>
+      </div>
+      <div className="mobile-sos-numeros">
+        <NumerosEmergencia />
+      </div>
+    </Modal>
+  );
 };
 
 export default AlertaSos;

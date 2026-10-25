@@ -35,6 +35,21 @@ def test_plan_contactos_y_prioridad(client,crear_usuario):
     assert client.post(URL,headers=token(uid),json=body(prioridad_id=5)).status_code==400
     assert client.post(URL,headers=token(uid),json={"prioridad_id":3}).status_code==400
 
+def test_filtrar_activas_respeta_propietario_y_estado_antes_de_paginar(client,crear_usuario):
+    uid=crear_usuario();other=crear_usuario();staff=crear_usuario(rol_id=1)
+    terminada=create(client,uid)["alerta_id"]
+    assert close(client,uid,terminada).status_code==200
+    activa=create(client,uid)["alerta_id"]
+    create(client,other)
+    propias=client.get(URL,headers=token(uid),params={"estado":"ACTIVA","usuario_id":other,"limit":1})
+    assert propias.status_code==200
+    assert [a["alerta_id"] for a in propias.json()]==[activa]
+    historial=client.get(URL,headers=token(uid),params={"estado":"FINALIZADA"})
+    assert [a["alerta_id"] for a in historial.json()]==[terminada]
+    personal=client.get(URL,headers=token(staff),params={"estado":"ACTIVA","usuario_id":uid})
+    assert [a["alerta_id"] for a in personal.json()]==[activa]
+    assert client.get(URL,headers=token(uid),params={"estado":"OTRO"}).status_code==400
+
 def test_cierre_propio_pin_hash_otra_familia_repeticion(client,db,crear_usuario):
     uid=crear_usuario();other=crear_usuario()
     alert=create(client,uid,ubicacion="Ficticia");aid=alert["alerta_id"]

@@ -198,9 +198,53 @@ describe('AuditoriaService', () => {
       expect(error).toBeInstanceOf(BadGatewayException);
       expect((error as Error).message).toContain('GET /admin/auditoria');
     });
+
+    it('genera Excel con los mismos filtros y datos, conservando los cambios de auditoría', async () => {
+      const listar = jest.spyOn(service, 'listar').mockResolvedValueOnce([entrada]);
+      renderInline.mockResolvedValueOnce({
+        content: Buffer.from([0x50, 0x4b, 0x03, 0x04]),
+        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      await service.generarReporte({ usuario_afectado_ID: 7, limite: 10 }, 'xlsx');
+      expect(listar).toHaveBeenCalledWith({ usuario_afectado_ID: 7, limite: 10 });
+      const [plantilla, datos] = renderInline.mock.calls[0];
+      expect(plantilla.recipe).toBe('html-to-xlsx');
+      expect(plantilla.content).toContain('data-sheet-name="Bitacora"');
+      expect(datos.entradas[0]).toMatchObject({
+        bitacora_sistema_ID: 5,
+        actor: 'Admin',
+        cambios: ['estado_ID: 1 → 2'],
+      });
+    });
+
+    it('rechaza un PDF cuando se solicitó Excel', async () => {
+      jest.spyOn(service, 'listar').mockResolvedValueOnce([]);
+      renderInline.mockResolvedValueOnce({
+        content: Buffer.from('%PDF-1.7'),
+        contentType: 'application/pdf',
+      });
+      await expect(service.generarReporte({}, 'xlsx')).rejects.toThrow('Excel válido');
+    });
   });
 
   describe('exportarReporte', () => {
+    it('registra el formato Excel en la exportación exitosa y en el intento fallido', async () => {
+      const registrar = jest.spyOn(service, 'registrar').mockResolvedValue();
+      jest.spyOn(service, 'generarReporte')
+        .mockResolvedValueOnce({ content: Buffer.from('xlsx'), contentType: 'application/octet-stream' })
+        .mockRejectedValueOnce(new BadGatewayException('jsReport: sin respuesta'));
+      await service.exportarReporte({}, ADMIN, 'xlsx');
+      expect(registrar).toHaveBeenLastCalledWith(managerBase, expect.objectContaining({
+        accion: 'Exportación de la bitácora a Excel',
+        tipo: 'EXPORTACION',
+      }));
+      await expect(service.exportarReporte({}, ADMIN, 'xlsx')).rejects.toBeInstanceOf(BadGatewayException);
+      expect(registrar).toHaveBeenLastCalledWith(managerBase, expect.objectContaining({
+        accion: 'Exportación de la bitácora a Excel: jsReport: sin respuesta',
+        resultado: 'FALLIDA',
+      }));
+    });
+
     it('registra la exportación solo cuando el PDF se generó', async () => {
       const registrar = jest.spyOn(service, 'registrar').mockResolvedValue();
       const generar = jest.spyOn(service, 'generarReporte');

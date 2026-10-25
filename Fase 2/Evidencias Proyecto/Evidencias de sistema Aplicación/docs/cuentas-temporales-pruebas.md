@@ -39,7 +39,7 @@ Estado en que quedaron tras la validación:
 4. En «Gestión de usuarios»: «Listar usuarios», escribe el ID de un usuario de prueba y usa
    «Ver expediente», «Guardar datos», «Guardar plan y cupos» o «Cambiar estado».
 5. En «Bitácora / auditoría»: filtra por «ID usuario afectado», «Listar bitácora» y
-   «Exportar PDF (jsReport)».
+   «Descargar PDF/Excel».
 
 ## 3. Cómo volver a crearlas
 

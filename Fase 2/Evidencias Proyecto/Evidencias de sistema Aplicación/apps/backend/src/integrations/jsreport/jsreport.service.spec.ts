@@ -88,6 +88,22 @@ describe('JsreportService', () => {
     expect(timeout).toHaveBeenCalledWith(60_000);
   });
 
+  it('respeta la receta Excel y devuelve el binario y tipo de contenido de jsReport', async () => {
+    const content = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
+    const tipo = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    fetchMock.mockResolvedValueOnce(new Response(content, {
+      status: 200,
+      headers: { 'Content-Type': tipo },
+    }));
+    const report = await new JsreportService().renderInline(
+      { content: '<table><tr><td>{{total}}</td></tr></table>', recipe: 'html-to-xlsx' },
+      { total: 2000 },
+    );
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body as string).template.recipe).toBe('html-to-xlsx');
+    expect(report.contentType).toBe(tipo);
+    expect(report.content).toEqual(content);
+  });
+
   it.each([401, 404, 500])(
     'responde 502 si jsReport devuelve HTTP %i',
     async (status) => {

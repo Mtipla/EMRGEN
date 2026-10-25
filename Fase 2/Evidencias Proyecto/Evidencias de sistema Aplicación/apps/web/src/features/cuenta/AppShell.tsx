@@ -34,7 +34,11 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
         <Link to="/#como-funciona">¿Cómo funciona?</Link>
         <Link to="/#descargar-app">Descargar App</Link>
         <Link to="/#preguntas-frecuentes">Preguntas frecuentes</Link>
-        {visible(user, 'compras.comprar') && <Link to="/premium">Comprar Premium</Link>}
+        {visible(user, 'compras.comprar') && (
+          <Link to={user.plan_efectivo ? '/comprar' : '/premium'}>
+            {user.plan_efectivo ? 'Comprar cupos de cuentas' : 'Comprar Premium'}
+          </Link>
+        )}
 
         <div className="wf-menu">
           <button type="button" className="wf-link" aria-expanded={open} onClick={() => setOpen(!open)}>

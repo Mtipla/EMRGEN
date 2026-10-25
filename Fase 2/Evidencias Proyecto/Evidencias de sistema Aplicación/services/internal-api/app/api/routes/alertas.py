@@ -1,4 +1,5 @@
 import psycopg
+from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.db import get_db, transaction
@@ -30,6 +31,7 @@ def cerrar_alerta(alerta_id: int, datos: AlertaCerrar,
 @router.get("", response_model=list[Alerta], summary="Historial de alertas")
 def listar_alertas(
     usuario_id: int | None = Query(None, description="Solo ADMINISTRADOR o SOPORTE: filtra por usuario."),
+    estado: Literal["ACTIVA", "FINALIZADA", "EXPIRADA"] | None = Query(None),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
     usuario: UsuarioSesion = Depends(usuario_actual),
@@ -37,7 +39,7 @@ def listar_alertas(
 ):
     # Un usuario común solo ve las suyas; el personal ve todas o las de un usuario.
     filtro = usuario_id if usuario.es_staff else usuario.id
-    return alertas.listar(db, filtro, limit, offset)
+    return alertas.listar(db, filtro, limit, offset, estado)
 
 
 @router.get("/{alerta_id}", response_model=Alerta, summary="Detalle de una alerta")

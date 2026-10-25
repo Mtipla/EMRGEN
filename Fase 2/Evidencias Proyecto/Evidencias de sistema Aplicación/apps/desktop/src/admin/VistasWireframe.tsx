@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { AdminCompras, AdminCuentas, AdminTrabajadores } from '@repo/ui/admin-views'
+import { AdminCuentas, AdminTrabajadores } from '@repo/ui/admin-views'
 import { PerfilForm } from '@repo/ui/perfil-form'
 import {
   BACKEND_SOPORTE,
   perfilDe,
-  puede,
   requierePinTrabajador,
   type Perfil,
 } from '@repo/ui/permisos'
@@ -14,6 +13,8 @@ import { SeccionSoporte } from './SeccionSoporte'
 import { SeccionUsuarios } from './SeccionUsuarios'
 
 const ROL_SOPORTE = 2 // ROLES[2] en ./api
+
+export { VistaCompras } from './VistaCompras'
 
 /** Herramientas de pruebas con la misma presentación que las demás vistas del panel. */
 export function VistaPruebas() {
@@ -102,16 +103,6 @@ export function VistaCuentas({ perfil }: { perfil: Perfil }) {
       onGuardar={conRecarga(adminApi.actualizarDatos)}
       onCambiarAcceso={cambiarAcceso}
       onEliminarApadrinado={conRecarga(adminApi.eliminarApadrinado)}
-    />
-  )
-}
-
-export function VistaCompras({ perfil }: { perfil: Perfil }) {
-  return (
-    <AdminCompras
-      titulo="Administrar compras"
-      puedeEditar={puede(perfil, 'admin.compras.editar')}
-      pinParaEliminar={requierePinTrabajador(perfil)}
     />
   )
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { downloadBlob } from '@repo/api-client'
 import { DataTable, type Column } from '@repo/ui/wireframe'
 import { adminApi, ROLES, type EntradaBitacora, type FiltrosBitacora } from './api'
+import { BotonDescargarReporte } from './BotonDescargarReporte'
 import { ResultadoPeticion } from './ResultadoPeticion'
 import { usePeticion } from './usePeticion'
 
@@ -66,12 +66,6 @@ export function SeccionBitacora() {
     if (lista) setEntradas(lista)
   }
 
-  async function exportarPdf() {
-    const pdf = await ejecutar('Exportar PDF (jsReport)', () => adminApi.descargarReporte(filtros))
-    // En Electron abre el diálogo "Guardar como" del sistema.
-    if (pdf) downloadBlob(pdf, `bitacora-${new Date().toISOString().slice(0, 10)}.pdf`)
-  }
-
   return (
     <section
       className="wf-card desktop-test-audit"
@@ -80,8 +74,8 @@ export function SeccionBitacora() {
     >
       <h2 id="pruebas-bitacora-titulo">Bitácora / auditoría</h2>
       <p className="wf-muted">
-        Consulta las acciones registradas en el sistema y exporta un reporte PDF con los mismos
-        filtros.
+        Consulta las acciones registradas en el sistema y exporta un reporte PDF o Excel con los
+        mismos filtros.
       </p>
       <div className="wf-form desktop-test-list">
         <div className="wf-grid">
@@ -144,13 +138,11 @@ export function SeccionBitacora() {
         </div>
       </div>
       <div className="wf-actions">
-        <button
-          type="button"
+        <BotonDescargarReporte
+          nombre="bitacora"
           className="wf-button wf-button--secondary"
-          onClick={() => void exportarPdf()}
-        >
-          Exportar PDF (jsReport)
-        </button>
+          descargar={(formato) => adminApi.descargarReporte(filtros, formato)}
+        />
         <button type="button" className="wf-button" onClick={() => void listar()}>
           Listar bitácora
         </button>
