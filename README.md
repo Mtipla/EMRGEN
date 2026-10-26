@@ -1,57 +1,63 @@
 ## 📖 Descripción del Proyecto
-**Emergen** es una aplicación diseñada para brindar una solución rápida, ágil y efectiva en situaciones que requieran un llamado de emergencia (incidentes médicos, domésticos o accidentes urbanos). Además, el sistema permite la trazabilidad y gestión de equipos de respuesta.
 
-* **¿Qué problema resuelve?:** Reduce drásticamente los tiempos de espera y la falta de información en situaciones críticas. Complementa la alerta de emergencia entregando detalles específicos y vitales (ubicación en tiempo real, contexto y datos médicos) para el personal de rescate, solucionando problemas de falta de contexto o pérdida de ubicación.
-* **¿A quién va dirigido?:** Al público general, enfocándose en usuarios en situación de alto riesgo (sectores con alta tasa de incidentes) y personas dependientes o con condiciones de salud que necesiten comunicar su estado rápidamente a sus "contactos de emergencia" o cuidadores.
+**EMERGEN** es una plataforma de alertas de emergencia con una web, una aplicación móvil y un panel administrativo de escritorio. Reúne la gestión de usuarios, cuentas apadrinadas, contactos, planes, compras, alertas SOS y soporte.
+
+- **¿Qué problema aborda?:** Facilitar la comunicación y el seguimiento de emergencias, centralizando la información del usuario, sus contactos y el historial de alertas.
+- **¿A quién va dirigido?:** Al público general, especialmente a personas dependientes, adultos mayores y usuarios vinculados con cuidadores o contactos de confianza.
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
-El proyecto se aloja en un único repositorio gestionado con **Turborepo** para centralizar la lógica y garantizar un mismo ambiente de desarrollo.
 
-* **Lenguaje de Programación:** TypeScript (garantiza tipado unificado entre frontend y backend).
-* **Backend y API REST:** Node.js con el framework Nest.js para la confección de APIs internas.
-* **Base de Datos:** MySQL (Base de datos relacional con 30 tablas normalizadas para garantizar la integridad de los datos).
-* **Frontend (App Web):** React / Angular con componentes base de Ionic.
-* **App de Escritorio (Administración):** Electron (exporta la app web como software ejecutable local para gestionar la plataforma).
-* **App Móvil:** Capacitor (herramienta nativa de Ionic para exportar la app web a móvil).
-* **Servicios y APIs Externas:** 
-  * PayPal REST API
-  * Twilio SendGrid Email Validation
-  * jsReport API
-  * Google Maps Platform API
+Las aplicaciones se organizan en un monorepo con **npm workspaces y Turborepo**, compartiendo componentes y contratos de datos.
+
+- **Lenguajes:** TypeScript y Python.
+- **Backend:** Node.js con NestJS para cuentas, permisos, compras y administración; FastAPI para SOS y soporte.
+- **Base de Datos:** PostgreSQL 15 con TypeORM y 34 tablas definidas en `init.sql`.
+- **Web:** React 19, Ionic React y Vite.
+- **App Móvil:** Ionic React y Capacitor, con su propio punto de entrada.
+- **Escritorio:** React y Electron para el panel administrativo.
+- **Entorno y Calidad:** Docker Compose, ESLint, oxlint, Prettier, Jest, Vitest, Cypress y pytest.
+- **Servicios e Integraciones:**
+  - PayPal: pagos de planes y cupos.
+  - Firebase Authentication: verificación de correo y herramientas de recuperación de contraseña. Las sesiones JWT las emite NestJS.
+  - jsReport: reportes PDF y Excel.
+  - Google Maps Platform: mapas y geocodificación.
+  - mindicador.cl: indicadores económicos para la conversión de precios.
+  - WhatsApp mediante Baileys: módulo de mensajería, todavía separado del registro de SOS.
 
 ---
 
 ## ⚙️ Instrucciones para ejecutar el proyecto localmente
 
-*[Espacio reservado: Detallar aquí los pasos de instalación, comandos como `npm install`, configuración de variables de entorno `.env`, scripts de ejecución de Turborepo y credenciales de la base de datos local]*
+Requiere **Node.js 24.21.0, npm 11.19.x, Python 3.12+ y Docker Desktop**. Consulta la [guía de instalación y ejecución](<Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README.md>) para configurar `.env`, instalar dependencias e iniciar las aplicaciones.
+
+Ejecuta los comandos desde `Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/`. Docker Compose inicia PostgreSQL y NestJS; FastAPI y jsReport se ejecutan por separado. Los datos de prueba se explican en [la guía de la base de datos](<Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README_BDD.md>).
 
 ---
 
 ## 👨‍💻 Integrantes del Equipo y Roles
 
-| Nombre | Rol | Función Principal | Tareas |
-|---|---|---|---|
-| **Julio Tapia** | Product Owner | Maximizar el valor del proyecto y asegurar que el sistema resuelva el problema de trazabilidad y gestión de equipos. | Definir funcionalidades, validar criterios de aceptación y ajustar prioridades tras cada iteración. |
-| **Gabriel Valencia** | Scrum Master | Facilitar la adopción de la metodología Scrum y asegurar la fluidez del proceso de desarrollo. | Organizar reuniones metodológicas y apoyar la gestión efectiva del Product Backlog. |
-| **Alonso González** | Equipo de Desarrollo | Construir la solución informática transformando requerimientos en módulos funcionales. | Diseñar la BD, programar lógica, desarrollar interfaces y realizar pruebas. |
-| **Diego Plaza** | Equipo de Desarrollo | Construir la solución informática transformando requerimientos en módulos funcionales. | Diseñar la BD, programar lógica, desarrollar interfaces y realizar pruebas. |
+| Nombre               | Rol                  | Función Principal                 | Tareas                                                         |
+| -------------------- | -------------------- | --------------------------------- | -------------------------------------------------------------- |
+| **Julio Tapia**      | Product Owner        | Orientar el alcance del proyecto. | Priorizar funcionalidades y validar criterios de aceptación.   |
+| **Gabriel Valencia** | Scrum Master         | Facilitar el trabajo con Scrum.   | Coordinar reuniones y apoyar la gestión del Product Backlog.   |
+| **Alonso González**  | Equipo de Desarrollo | Implementar la solución.          | Diseñar la BD, desarrollar funcionalidades y realizar pruebas. |
+| **Diego Plaza**      | Equipo de Desarrollo | Implementar la solución.          | Diseñar la BD, desarrollar funcionalidades y realizar pruebas. |
 
 ---
 
 ## 🔄 Metodología de Trabajo
-Se utiliza el marco de trabajo **Scrum** para el desarrollo ágil del proyecto. El trabajo se divide en iteraciones (Sprints) enfocadas en transformar los requerimientos del *Product Backlog* en entregables funcionales. El equipo mantiene reuniones periódicas (Dailies, Plannings, Retrospectives) para asegurar la mejora continua y adaptar las prioridades según el valor entregado.
+
+El equipo utiliza **Scrum**, organizando el Product Backlog en sprints y revisando avances, pruebas y prioridades mediante reuniones de planificación, seguimiento y retrospectiva.
 
 ---
 
 ## 🏗️ Arquitectura de la Solución
-El sistema utiliza una arquitectura basada en microservicios y un entorno monorepo (**Turborepo**). 
-* **Capa de Datos:** MySQL almacena la información estructurada en 30 tablas normalizadas.
-* **Capa de Negocio (Backend):** Una API REST centralizada construida en Nest.js procesa la lógica y se comunica con servicios externos (Google Maps, PayPal, Twilio, jsReport).
-* **Capa de Presentación (Clientes):** Tres interfaces comparten la misma base lógica y de diseño mediante Ionic/TypeScript:
-  1. **Web App:** Acceso general para usuarios.
-  2. **Mobile App (Capacitor):** Interfaz nativa en smartphones para el envío de alertas en tiempo real y geolocalización.
-  3. **Desktop App (Electron):** Panel de administración central para gestionar plataformas, usuarios y trazabilidad de los equipos.
 
-*[Espacio reservado: Insertar diagrama de arquitectura de software o infraestructura aquí]*
+- **Capa de Datos:** PostgreSQL compartido por NestJS y FastAPI, con restricciones y triggers de integridad.
+- **Capa de Negocio:** NestJS gestiona cuentas, permisos, planes, compras e integraciones. FastAPI gestiona SOS, su cierre automático y soporte, utilizando las mismas sesiones JWT.
+- **Capa de Presentación:** Tres aplicaciones independientes comparten paquetes de interfaz y acceso a las APIs:
+  1. **Web:** Sitio público, registro, cuenta y compra de planes.
+  2. **Móvil:** Acceso del usuario, gestión de su cuenta y alertas SOS.
+  3. **Escritorio:** Administración de usuarios, consulta de alertas, compras, bitácora y reportes.
