@@ -41,6 +41,9 @@ with zipfile.ZipFile(path) as z:
 model[("pin","pin_hash")]=("varchar(255)",False,False,False,False,False)
 del model[("pin","pin")]
 model[("bitacora_sistema","usuario_id")]=("integer",True,False,False,True,False)
+# CA-11.1 del merge: los seis datos clínicos almacenan AES-GCM como texto.
+for field in ("tipo_sangre","alergias","enfermedades_cronicas","medicamentos_actuales","discapacidad_presente","donante_organos"):
+    model[("antecedente_medico",field)]=("text",False,False,False,False,False)
 extras={("venta",n) for n in ("orden_paypal_id","captura_paypal_id","monto_cobrado","moneda_cobrada")}
 extras|={("pin","intentos_fallidos"),("pin","bloqueado_hasta"),("alerta","huella_solicitud")}
 extras|={("envio_alerta","tipo_notificacion")}
@@ -71,5 +74,5 @@ with connect() as db:
     if failures or unplanned:
         print("DIFERENCIAS",failures,unplanned);sys.exit(1)
     print(f"Excel OK: {len(model)} columnas, {len(set(t for t,c in model))} tablas; tipos/nulabilidad/identity/PK/FK y UNIQUE explícitos.")
-    print("Excepciones: PIN hasheado, actor nullable; adicionales PayPal, límites PIN, huella SOS, reserva durable y tipo de notificación WhatsApp.")
+    print("Excepciones: PIN hasheado, actor nullable, ficha médica cifrada como texto; adicionales PayPal, límites PIN, huella SOS, reserva durable y tipo de notificación WhatsApp.")
     print("SHA256",hashlib.sha256(path.read_bytes()).hexdigest())

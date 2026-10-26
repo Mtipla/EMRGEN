@@ -18,7 +18,11 @@ La API de SOS es **FastAPI**, en `http://localhost:8000`. El login sigue en **Ne
 
 En Swagger, expande **Alertas de emergencia**. Allí aparecen el listado, detalle, creación y cierre. El esquema `Alerta` muestra los campos de respuesta.
 
-La versión actual documenta `authorization` como un parámetro de cabecera por operación, sin un esquema de seguridad Bearer ni botón global **Authorize**. Para ejecutar las pruebas autenticadas de forma reproducible, utiliza los comandos siguientes. Abrir directamente la URL del listado en el navegador devuelve 401 porque no adjunta el token.
+Swagger utiliza el esquema Bearer `SesionEMERGEN` y muestra el botón global **Authorize**. Obtén un JWT mediante el login de NestJS o desde la consola de la web/móvil con sesión iniciada (`localStorage.getItem('emergen.token')`). Pulsa **Authorize**, pega **solo el JWT, sin el prefijo `Bearer` ni comillas**, y confirma con **Authorize → Close**. Después ejecuta el GET con **Try it out → Execute**. Swagger adjunta automáticamente `Authorization: Bearer ...`. Abrir directamente la URL del listado en la barra del navegador devuelve 401 porque no adjunta el token.
+
+Si estabas usando la versión anterior, recarga `/docs` con **Ctrl+F5** para cargar el esquema actualizado. Un token vencido requiere iniciar sesión de nuevo. El token que se usa aquí es el `access_token` de EMERGEN; la clave `JWT_SECRET` es configuración del servidor.
+
+La corrección de Swagger se verificó con 17 pruebas de autenticación, OpenAPI, CORS y salud, y desde su interfaz en Chromium: **Authorize → JWT sin prefijo → GET /internal/v1/alertas** envió la cabecera Bearer y respondió **HTTP 200** con una sesión de administrador. Los tokens ausentes, mal formados o vencidos siguen devolviendo 401.
 
 La sesión del panel administrativo no se comparte automáticamente con Swagger o PowerShell. El panel de escritorio guarda su token solo en memoria; los comandos obtienen una sesión independiente mediante el login existente.
 

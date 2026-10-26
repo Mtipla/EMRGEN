@@ -180,7 +180,7 @@ Los cinco servicios externos descritos en la especificación de herramientas cum
 | Google Maps Platform    | Visualización de mapas y conversión de coordenadas en direcciones mediante Geocoding.                                               | `GOOGLE_MAPS_API_KEY` para servidor, `VITE_GOOGLE_MAPS_API_KEY` para navegador y `VITE_GOOGLE_MAPS_MAP_ID` opcional. |
 | mindicador.cl           | Consulta de indicadores y del dólar para convertir los precios en CLP a USD en el flujo de PayPal.                                  | `MINDICADOR_API_URL`; `DOLAR_CLP_RESPALDO` permite configurar un valor de respaldo.                                  |
 
-El backend también integra **WhatsApp mediante Baileys**. Este módulo mantiene la sesión de un número emisor y envía el mensaje de emergencia y la ubicación a entre uno y cinco contactos. El flujo actual excluye antecedentes médicos. Baileys no es una API oficial de WhatsApp. El módulo no procesa conversaciones entrantes.
+El backend también integra **WhatsApp mediante Baileys**. Este módulo mantiene la sesión de un número emisor y envía el tipo de emergencia, el mensaje, la ubicación y los antecedentes médicos a entre uno y cinco contactos. La ficha se descifra en NestJS mediante la configuración `MEDICAL_DATA_KEYS` incorporada por el módulo de perfil. Baileys no es una API oficial de WhatsApp. El módulo no procesa conversaciones entrantes.
 
 Para habilitarlo, define `WHATSAPP_ENABLED=true`, reinicia el backend y vincula el número mediante QR o código de emparejamiento. Las rutas de gestión y envío manual están bajo `/notifications/whatsapp` y requieren una sesión de administrador. El procedimiento completo está en [la guía de integraciones](readme-apis.md).
 

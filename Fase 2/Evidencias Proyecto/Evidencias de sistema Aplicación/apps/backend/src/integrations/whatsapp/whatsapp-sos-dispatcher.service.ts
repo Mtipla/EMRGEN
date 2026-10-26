@@ -5,6 +5,8 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import type { EmergencyAlertMedicalInfo } from '@repo/api-types';
+import { descifrarFicha } from '../../perfil/cifrado-medico';
 import { parseAlertLocation } from './emergency-alert.message';
 import { WhatsappAlertService } from './whatsapp-alert.service';
 import { WhatsappConnectionService } from './whatsapp-connection.service';
@@ -13,6 +15,8 @@ interface PendingDelivery {
   envio_alerta_id: number;
   tipo_notificacion: 'ACTIVACION' | 'FINALIZACION';
   alerta_id: number;
+  usuario_id: number;
+  ficha_cifrada: Parameters<typeof descifrarFicha>[1] | null;
   num_emergencia: string;
   nombre_usuario: string;
   correo_usuario: string;
@@ -77,14 +81,16 @@ export class WhatsappSosDispatcher
         const [row] = await manager.query<
           PendingDelivery[]
         >(`SELECT e.envio_alerta_id,e.tipo_notificacion,
-          a.alerta_id,a.fecha_creacion,c.num_emergencia,u.nombre_usuario,u.correo_usuario,
-          d.texto_mensaje,l.ubicacion,p.tipo_prioridad
+          a.alerta_id,a.usuario_id,a.fecha_creacion,c.num_emergencia,u.nombre_usuario,u.correo_usuario,
+          d.texto_mensaje,l.ubicacion,p.tipo_prioridad,to_jsonb(m) AS ficha_cifrada
           FROM envio_alerta e JOIN alerta a USING(alerta_id)
           JOIN usuario u ON u.usuario_id=a.usuario_id
           JOIN contacto_emergencia c ON c.contacto_emergencia_id=e.contacto_emergencia_id
             AND c.usuario_id=a.usuario_id
           JOIN detalle_alerta d USING(detalle_alerta_id)
           JOIN prioridad p ON p.prioridad_id=a.prioridad_id
+          LEFT JOIN antecedente_medico m ON m.antecedente_medico_id=d.antecedente_medico_id
+            AND m.usuario_id=a.usuario_id
           LEFT JOIN ubicacion_alerta l USING(ubicacion_alerta_id)
           WHERE e.estado_envio_id=1 AND (
             (e.tipo_notificacion='ACTIVACION' AND a.estado_alerta='ACTIVA'
@@ -107,6 +113,7 @@ export class WhatsappSosDispatcher
                 message: row.texto_mensaje,
                 location: parseAlertLocation(row.ubicacion),
                 locationLabel: row.ubicacion ?? undefined,
+                medicalInfo: this.medicalInfo(row),
               });
         await manager.query(
           `UPDATE envio_alerta SET estado_envio_id=$2,
@@ -120,6 +127,21 @@ export class WhatsappSosDispatcher
         return true;
       });
       if (!processed) break;
+    }
+  }
+
+  private medicalInfo(
+    row: PendingDelivery,
+  ): EmergencyAlertMedicalInfo | undefined {
+    if (!row.ficha_cifrada) return undefined;
+    try {
+      return { record: descifrarFicha(row.usuario_id, row.ficha_cifrada) };
+    } catch {
+      // Un fallo de la ficha no impide el SOS ni expone el contenido o las claves en logs.
+      this.logger.warn(
+        `No se pudieron obtener los antecedentes médicos del SOS ${row.alerta_id}.`,
+      );
+      return { summary: 'No disponibles en este momento.' };
     }
   }
 }

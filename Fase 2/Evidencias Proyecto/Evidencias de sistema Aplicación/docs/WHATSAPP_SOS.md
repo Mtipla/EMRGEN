@@ -1,6 +1,6 @@
 # Envío de SOS por WhatsApp
 
-El móvil captura la ubicación y registra el SOS en FastAPI. El servicio guarda el mensaje configurado del usuario (o el predeterminado), el tipo de emergencia seleccionado y un envío `PENDIENTE` de `ACTIVACION` por contacto en la misma transacción. NestJS revisa esa cola cada dos segundos y utiliza la sesión de Baileys para despachar el texto y, si hay coordenadas, un pin de ubicación. Este flujo no consulta ni envía antecedentes médicos.
+El móvil captura la ubicación y registra el SOS en FastAPI. El servicio guarda el mensaje configurado del usuario (o el predeterminado), el tipo de emergencia seleccionado, la referencia a la ficha médica del emisor y un envío `PENDIENTE` de `ACTIVACION` por contacto en la misma transacción. NestJS revisa esa cola cada dos segundos y utiliza la sesión de Baileys para despachar el texto con los antecedentes médicos y, si hay coordenadas, un pin de ubicación.
 
 Al pasar una alerta de `ACTIVA` a `FINALIZADA`, un trigger registra un envío `PENDIENTE` de `FINALIZACION` por cada contacto de emergencia actual del usuario. Esto incluye el cierre con PIN y el cierre automático de las 24 horas. NestJS entrega el aviso de cierre como un único texto, sin volver a adjuntar la ubicación.
 
@@ -16,6 +16,30 @@ node scripts/verify-schema.cjs
 La migración está en `migrations/20261026_whatsapp_finalizacion.sql`, conserva los datos y puede repetirse. Reinicia los dos servicios con el código actualizado. No vuelvas a ejecutar `init.sql` en una base con datos: ese archivo ya incluye la ampliación para instalaciones nuevas. No se generan avisos retroactivos para alertas finalizadas antes de aplicar la migración.
 
 Para el funcionamiento normal deben estar disponibles PostgreSQL, NestJS, FastAPI y el móvil.
+
+### Antecedentes médicos después del merge
+
+El envío inicial incluye tipo de sangre, alergias, enfermedades crónicas, medicamentos actuales, discapacidad y condición de donante. Los campos vacíos se muestran como `No informado`. Si la cuenta no tiene ficha, el mensaje indica `Sin antecedentes registrados`; si falla el descifrado, se informa que no están disponibles y se continúa con el SOS.
+
+La ficha se vincula por el usuario que genera el SOS, también en cuentas apadrinadas. NestJS descifra sus seis campos con `MEDICAL_DATA_KEYS` al despachar. FastAPI guarda la referencia y el histórico de la alerta; los datos clínicos permanecen cifrados en PostgreSQL. El aviso de `FINALIZADA` conserva únicamente el texto de cierre.
+
+El merge exige configurar `MEDICAL_DATA_KEYS` y migrar una base anterior con NestJS detenido. Con la clave guardada en el `.env` raíz, ejecuta:
+
+```powershell
+node scripts/cifrar-fichas.cjs
+```
+
+La migración existente conserva el contenido y puede repetirse. En este entorno ya se aplicó y se comprobó que los seis valores originales se recuperan después de descifrarlos. La clave local queda fuera de Git.
+
+### Histórico informativo de la API SOS
+
+Este comportamiento ya estaba implementado: cada SOS se conserva en `alerta`, con su mensaje en `detalle_alerta` y las transiciones en `historial_alerta`. Al finalizar, se actualizan `estado_alerta` y `fecha_cierre` en el mismo registro. Los datos permanecen disponibles después de cerrar la alerta y reiniciar los servicios.
+
+- `GET /internal/v1/alertas`: histórico del usuario, incluidas las finalizadas si se omite el filtro `estado`.
+- `GET /internal/v1/alertas?estado=FINALIZADA`: histórico de alertas cerradas.
+- `GET /internal/v1/alertas/{id}`: detalle y estado persistidos de un evento.
+
+Estas consultas son de solo lectura: no generan envíos ni transiciones y no cambian el estado. La app utiliza los POST de creación y cierre para registrar esas acciones; el histórico permite consultarlas. El móvil filtra `ACTIVA` en su monitor, por eso las finalizadas dejan de verse allí aunque se conserven en la API. Se añadieron pruebas que comprueban la persistencia desde una conexión nueva y la ausencia de cambios al consultar repetidamente.
 
 ## Configuración y vinculación del emisor
 
@@ -90,6 +114,14 @@ TIPO DE EMERGENCIA: URBANO
 FECHA/HORA: fecha y hora (America/Santiago)
 UBICACIÓN: coordenadas · enlace de Google Maps
 "Mensaje personalizado o predeterminado"
+
+ANTECEDENTES MÉDICOS:
+Tipo de sangre: dato del perfil
+Alergias: dato del perfil
+Enfermedades crónicas: dato del perfil
+Medicamentos actuales: dato del perfil
+Discapacidad: dato del perfil
+Donante de órganos: Sí o No
 ```
 
 El tipo se consulta en `prioridad.tipo_prioridad` a partir del `prioridad_id` del SOS: `MEDICO`, `URBANO`, `EMERGENCIA` o `ADULTO MAYOR`. El aviso de cierre respeta este texto:
@@ -117,7 +149,7 @@ node scripts/test-whatsapp-sos.cjs
 
 WhatsApp y PostgreSQL no comparten una transacción: si el proceso se interrumpe después de enviar el texto y antes de confirmar su estado en la base, una recuperación puede duplicar ese mensaje. No se garantiza entrega exactamente una vez.
 
-Los antecedentes médicos y sus enlaces quedan fuera de este flujo, aunque un cliente anterior incluya `medicalInfo` en un envío manual.
+El envío manual admite la ficha estructurada en `medicalInfo.record` y el resumen opcional en `medicalInfo.summary`. En el flujo móvil los antecedentes se resuelven desde la ficha vinculada al emisor. Los enlaces médicos temporales no forman parte de esta integración.
 
 ## Verificación local del 26 de octubre de 2026
 
@@ -140,3 +172,11 @@ Se aplicó la migración de tipos de notificación conservando los registros ant
 Chrome no proporcionó una posición en la prueba del SOS #184, que quedó sin ubicación. No se determinó la causa del navegador en esa sesión. Se añadieron avisos específicos para distinguir los errores en los próximos intentos, sin bloquear el envío ni sustituir la posición por coordenadas inventadas.
 
 La validación final incluyó **241 pruebas** (153 de NestJS, 36 de FastAPI, 32 del cliente compartido y 20 del móvil), compilación y lint del backend, revisión de tipos y lint de los cambios del móvil, comparación con el esquema y el modelo Excel, pruebas SQL y la prueba del despachador con dos contactos y proveedor simulado. Se comprobaron el cierre automático, el PIN incorrecto, la repetición de cierre, la desconexión, el rollback y la cancelación de pendientes al borrar una cuenta.
+
+### Integración de antecedentes médicos e histórico después del merge
+
+Se configuró el cifrado que exige el módulo de perfil y se ejecutó la migración existente, comprobando que los seis campos originales se conservan al descifrarlos. El SOS **#215** generó el envío inicial **#205** a las **18:32:58, America/Santiago**; el receptor confirmó que llegaron los antecedentes correctos. Al finalizarlo desde el móvil, el mismo registro pasó a `FINALIZADA`, conservó su fecha de creación y recibió fecha de cierre. El aviso de cierre **#206** se registró a las **18:34:52**.
+
+La consulta de la API después del cierre devolvió el SOS #215 finalizado y las alertas anteriores #184, #153 y #131. El histórico ya estaba implementado; se añadieron pruebas de persistencia desde otra conexión y de consultas repetidas sin escrituras, transiciones ni envíos adicionales. La API no incluye los valores médicos descifrados en estas consultas.
+
+Pasaron **272 pruebas**: 177 unitarias de NestJS, 4 de integración HTTP/PostgreSQL de la ficha médica, 39 de FastAPI, 32 del cliente compartido y 20 del móvil. También pasaron el envío simulado con ficha cifrada, las comprobaciones de esquema/Excel, las pruebas SQL, compilación del backend, lint del módulo WhatsApp y tipos del móvil.

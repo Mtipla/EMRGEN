@@ -223,7 +223,18 @@ export interface EmergencyAlertLocation extends GeoPoint {
   address?: string;
 }
 
+export interface EmergencyAlertMedicalRecord {
+  tipo_sangre: string;
+  alergias: string;
+  enfermedades_cronicas: string;
+  medicamentos_actuales: string;
+  discapacidad_presente: string;
+  donante_organos: boolean;
+}
+
 export interface EmergencyAlertMedicalInfo {
+  /** Datos del perfil que se incorporan al texto inicial del SOS. */
+  record?: EmergencyAlertMedicalRecord;
   /** Resumen breve (alergias, grupo sanguíneo...). Queda guardado en el chat del receptor. */
   summary?: string;
   /** Enlace HTTPS temporal a la ficha médica (HU-12), revocable al finalizar la emergencia. */

@@ -19,6 +19,7 @@ export function buildEmergencyAlertText({
   message,
   location,
   locationLabel,
+  medicalInfo,
 }: Omit<SendEmergencyAlertRequest, 'recipients'>): string {
   const date = new Intl.DateTimeFormat('es-CL', {
     timeZone: 'America/Santiago',
@@ -30,7 +31,7 @@ export function buildEmergencyAlertText({
         .filter(Boolean)
         .join(' · ')
     : (locationLabel ?? 'No disponible');
-  return [
+  const lines = [
     'MENSAJE MEDIANTE APLICACIÓN EMERGEN',
     '',
     `El usuario ${senderName ?? 'de EMERGEN'} de correo ${senderEmail ?? 'no informado'} ha generado una alerta`,
@@ -39,7 +40,24 @@ export function buildEmergencyAlertText({
     `FECHA/HORA: ${date} (America/Santiago)`,
     `UBICACIÓN: ${place}`,
     `"${message}"`,
-  ].join('\n');
+    '',
+    'ANTECEDENTES MÉDICOS:',
+  ];
+  const ficha = medicalInfo?.record;
+  if (ficha) {
+    const value = (text: string) => text.trim() || 'No informado';
+    lines.push(
+      `Tipo de sangre: ${value(ficha.tipo_sangre)}`,
+      `Alergias: ${value(ficha.alergias)}`,
+      `Enfermedades crónicas: ${value(ficha.enfermedades_cronicas)}`,
+      `Medicamentos actuales: ${value(ficha.medicamentos_actuales)}`,
+      `Discapacidad: ${value(ficha.discapacidad_presente)}`,
+      `Donante de órganos: ${ficha.donante_organos ? 'Sí' : 'No'}`,
+    );
+  } else {
+    lines.push(medicalInfo?.summary || 'Sin antecedentes registrados.');
+  }
+  return lines.join('\n');
 }
 
 export function buildFinalizedAlertText({

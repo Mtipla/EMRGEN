@@ -183,3 +183,39 @@ def test_mensaje_puntual_maximo_160(client,crear_usuario):
     alerta=create(client,uid,mensaje="a"*160)
     assert alerta["mensaje"]=="a"*160
     assert close(client,uid,alerta["alerta_id"]).status_code==200
+
+
+def test_sos_vincula_solo_el_antecedente_del_emisor(client,db,crear_usuario):
+    parent=crear_usuario();child=crear_usuario(parent=parent)
+    medical={}
+    for uid in (parent,child):
+        # No se descifra en FastAPI; esta prueba verifica propiedad y referencia.
+        medical[uid]=db.execute("""INSERT INTO antecedente_medico(usuario_id,tipo_sangre,alergias,
+            enfermedades_cronicas,medicamentos_actuales,discapacidad_presente,donante_organos)
+            VALUES (%s,'fixture','fixture','fixture','fixture','fixture','fixture') RETURNING antecedente_medico_id""",(uid,)).fetchone()["antecedente_medico_id"]
+    aid=create(client,child)["alerta_id"]
+    ref=db.execute("SELECT d.antecedente_medico_id FROM alerta a JOIN detalle_alerta d USING(detalle_alerta_id) WHERE alerta_id=%s",(aid,)).fetchone()
+    assert ref["antecedente_medico_id"]==medical[child]
+    assert ref["antecedente_medico_id"]!=medical[parent]
+
+
+def test_historico_persiste_estado_y_consultarlo_es_solo_lectura(client,db,crear_usuario):
+    uid=crear_usuario();created=create(client,uid,prioridad_id=2,mensaje="Registro histórico")
+    aid=created["alerta_id"]
+    assert close(client,uid,aid).status_code==200
+    with connect() as other:
+        stored=alertas.obtener(other,aid)
+        assert stored["estado_alerta"]=="FINALIZADA" and stored["fecha_cierre"] is not None
+    before=db.execute("SELECT (SELECT count(*) FROM historial_alerta WHERE alerta_id=%s) AS historial,(SELECT count(*) FROM envio_alerta WHERE alerta_id=%s) AS envios",(aid,aid)).fetchone()
+    for _ in range(2):
+        detail=client.get(f"{URL}/{aid}",headers=token(uid))
+        assert detail.status_code==200
+        assert detail.json()["estado_alerta"]=="FINALIZADA"
+        assert detail.json()["mensaje"]=="Registro histórico"
+        assert detail.json()["fecha_creacion"]==created["fecha_creacion"]
+        history=client.get(URL,headers=token(uid),params={"estado":"FINALIZADA"})
+        assert [row["alerta_id"] for row in history.json()]==[aid]
+    assert client.patch(f"{URL}/{aid}",headers=token(uid),json={"estado_alerta":"ACTIVA"}).status_code==405
+    assert client.delete(f"{URL}/{aid}",headers=token(uid)).status_code==405
+    after=db.execute("SELECT (SELECT count(*) FROM historial_alerta WHERE alerta_id=%s) AS historial,(SELECT count(*) FROM envio_alerta WHERE alerta_id=%s) AS envios",(aid,aid)).fetchone()
+    assert before==after and after["historial"]==2

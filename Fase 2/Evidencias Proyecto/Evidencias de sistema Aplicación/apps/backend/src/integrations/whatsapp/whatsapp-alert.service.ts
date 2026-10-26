@@ -20,7 +20,7 @@ export const RETRY_DELAYS_MS = [500, 1_500] as const;
 /**
  * API de notificaciones de emergencia por WhatsApp para el resto del backend.
  * Envía a todos los contactos en paralelo (HU-08) un texto con el mensaje, la ubicación
- * seguido del pin de ubicación nativo, si hay coordenadas. No incluye datos médicos.
+ * y los antecedentes médicos, seguido del pin de ubicación nativo, si hay coordenadas.
  *
  * No consulta la BD: el despachador SOS resuelve los números
  * desde CONTACTO_EMERGENCIA y registra el resultado en la bitácora.

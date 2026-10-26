@@ -36,13 +36,13 @@ describe('buildEmergencyAlertText', () => {
     expect(text).toContain('America/Santiago');
   });
 
-  it('omite la sección médica si no viene', () => {
+  it('informa si no hay antecedentes registrados', () => {
     const text = buildEmergencyAlertText({ message: 'Ayuda', location });
-    expect(text).not.toContain('médica');
+    expect(text).toContain('Sin antecedentes registrados.');
     expect(text).toContain('de correo no informado');
   });
 
-  it('excluye datos médicos incluso si un cliente anterior los proporciona', () => {
+  it('incluye un resumen médico sin incorporar enlaces ajenos al texto del SOS', () => {
     const text = buildEmergencyAlertText({
       message: 'Ayuda',
       location,
@@ -51,8 +51,30 @@ describe('buildEmergencyAlertText', () => {
         url: 'https://emergen.cl/f/abc',
       },
     });
-    expect(text).not.toContain('penicilina');
+    expect(text).toContain('Alergia a la penicilina');
     expect(text).not.toContain('https://emergen.cl/f/abc');
+  });
+
+  it('incluye los seis antecedentes sin truncarlos ni confundir vacío con ausencia de enfermedad', () => {
+    const text = buildEmergencyAlertText({
+      message: 'Ayuda',
+      medicalInfo: {
+        record: {
+          tipo_sangre: 'O+',
+          alergias: 'Penicilina',
+          enfermedades_cronicas: 'Asma',
+          medicamentos_actuales: 'X'.repeat(500),
+          discapacidad_presente: '',
+          donante_organos: false,
+        },
+      },
+    });
+    expect(text).toContain('Tipo de sangre: O+');
+    expect(text).toContain('Alergias: Penicilina');
+    expect(text).toContain('Enfermedades crónicas: Asma');
+    expect(text).toContain('Medicamentos actuales: ' + 'X'.repeat(500));
+    expect(text).toContain('Discapacidad: No informado');
+    expect(text).toContain('Donante de órganos: No');
   });
 
   it('explica la ausencia de ubicación sin inventar coordenadas', () => {

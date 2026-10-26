@@ -22,6 +22,7 @@ import type {
 } from '@repo/api-types';
 import { PHONE_NUMBER } from '../phone-number';
 import { MAX_RECIPIENTS } from '../whatsapp.constants';
+import { FichaMedicaDto } from '../../../perfil/dto/perfil.dto';
 
 export class EmergencyAlertLocationDto implements EmergencyAlertLocation {
   @IsLatitude()
@@ -38,6 +39,11 @@ export class EmergencyAlertLocationDto implements EmergencyAlertLocation {
 }
 
 export class EmergencyAlertMedicalInfoDto implements EmergencyAlertMedicalInfo {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => FichaMedicaDto)
+  record?: FichaMedicaDto;
+
   @IsOptional()
   @IsString()
   @Length(1, 500)

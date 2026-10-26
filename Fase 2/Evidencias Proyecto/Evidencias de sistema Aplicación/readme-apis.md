@@ -464,7 +464,7 @@ Envía la alerta de emergencia (HU-08) por WhatsApp a los contactos del usuario 
 
 - el **mensaje personalizado** del usuario;
 - la **ubicación**: dirección, link de Google Maps y un pin de ubicación nativo de WhatsApp;
-- Los **antecedentes médicos quedan excluidos** del flujo actual.
+- los **antecedentes médicos** del emisor: tipo de sangre, alergias, enfermedades crónicas, medicamentos, discapacidad y condición de donante.
 
 El SOS de FastAPI crea envíos pendientes y `WhatsappSosDispatcher` los consume desde NestJS. La configuración y prueba completa están en [SOS por WhatsApp](docs/WHATSAPP_SOS.md).
 
@@ -562,7 +562,7 @@ Estados (`state`): `disabled` · `connecting` · `waiting_for_link` (falta escan
 
 Cada contacto recibe dos mensajes: el texto de la alerta (que ya trae el link de Maps) y el pin de ubicación. Si solo falla el pin, el contacto igual cuenta como `sent`.
 
-`medicalInfo` se conserva como campo de compatibilidad del contrato manual, pero no se incorpora al texto ni al pin enviados.
+`medicalInfo.record` admite los seis campos de la ficha médica del perfil. En el flujo SOS se resuelven y descifran desde la ficha vinculada al emisor; el mensaje de cierre no los repite. `medicalInfo.summary` permite un resumen manual opcional; los enlaces temporales no se envían en este flujo.
 
 ### 7.5 Usar el servicio desde otro módulo del backend
 

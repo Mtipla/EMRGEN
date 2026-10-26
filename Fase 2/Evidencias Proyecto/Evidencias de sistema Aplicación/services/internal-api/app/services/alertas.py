@@ -49,8 +49,10 @@ def crear(conn: psycopg.Connection, usuario_id: int, datos: AlertaCrear) -> dict
     if user["estado_id"] == 2 and datos.mensaje is not None:
         raise HTTPException(403, "El acceso parcial usa el mensaje configurado")
     texto = datos.mensaje or (template["mensaje"] if template else settings.mensaje_predeterminado)
-    detail = conn.execute("INSERT INTO detalle_alerta(msj_personalizado_id,texto_mensaje) VALUES (%s,%s) RETURNING detalle_alerta_id",
-        (user["msj_personalizado_id"] if template and datos.mensaje is None else None, texto)).fetchone()["detalle_alerta_id"]
+    # Solo referencia la ficha del emisor; el descifrado y el envío ocurren en NestJS.
+    detail = conn.execute("""INSERT INTO detalle_alerta(msj_personalizado_id,texto_mensaje,antecedente_medico_id)
+        VALUES (%s,%s,(SELECT antecedente_medico_id FROM antecedente_medico WHERE usuario_id=%s)) RETURNING detalle_alerta_id""",
+        (user["msj_personalizado_id"] if template and datos.mensaje is None else None, texto, usuario_id)).fetchone()["detalle_alerta_id"]
     location = None
     if datos.ubicacion is not None:
         location = conn.execute("INSERT INTO ubicacion_alerta(ubicacion) VALUES (%s) RETURNING ubicacion_alerta_id", (datos.ubicacion,)).fetchone()["ubicacion_alerta_id"]
