@@ -10,11 +10,11 @@ const perfilDatos = perfilApi(apiFetch);
 const Perfil: React.FC = () => {
   const user = getUser();
 
-  async function guardar(nombre_usuario: string, correo_usuario: string) {
+  async function guardar(nombre_usuario: string, correo_usuario: string, PIN_principal?: string) {
     saveSession(
       await apiFetch<SessionUser>('/usuarios/me', {
         method: 'PATCH',
-        body: JSON.stringify({ nombre_usuario, correo_usuario }),
+        body: JSON.stringify({ nombre_usuario, correo_usuario, PIN_principal }),
       }),
     );
   }

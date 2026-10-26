@@ -23,7 +23,8 @@ import {
 import { Usuario } from '../usuarios/usuarios.entity';
 import { Pin } from '../usuarios/pin.entity';
 import { UsuariosService } from '../usuarios/usuarios.service';
-import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
+import { ActualizarMiUsuarioDto, ActualizarMiUsuarioPropioDto } from './dto/actualizar-mi-usuario.dto';
+import { verificarPinPrincipal } from './pin-principal';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -64,6 +65,12 @@ export class LoginService {
       throw new ForbiddenException(
         'El correo no coincide con la cuenta de Firebase Authentication',
       );
+    }
+    // CA-01.1: el duplicado se informa antes de exigir la confirmación, para que la web lo
+    // detecte apenas crea la cuenta de Firebase (las cuentas de apadrinados y soporte solo
+    // existen en la BD). prepararCuentaPrincipal y el índice único lo vuelven a cubrir.
+    if (await this.buscarPorCorreo(correo)) {
+      throw new ConflictException('El correo ingresado es inválido o ya se encuentra registrado');
     }
     // Solo se guarda en la BD cuando el usuario confirmó su correo con el enlace de Firebase.
     if (!firebaseUser.emailVerified) {
@@ -174,11 +181,18 @@ export class LoginService {
 
   async actualizarPropio(
     id: number,
-    cambios: ActualizarMiUsuarioDto,
+    cambios: ActualizarMiUsuarioPropioDto,
   ): Promise<UsuarioPublico> {
     try {
       const user = await this.usuarioRepository.findOneBy({ usuario_ID: id });
-      if (user?.estado_ID !== 1) throw new ForbiddenException('El acceso parcial no permite editar el perfil');
+      if (user?.estado_ID !== 1) {
+        // HU-10: un apadrinado parcial cambia sus datos solo con el PIN de su principal.
+        if (!user?.usuario_principal_ID) throw new ForbiddenException('El acceso parcial no permite editar el perfil');
+        if (!cambios.PIN_principal) {
+          throw new ForbiddenException('Para modificar esta cuenta se necesita el PIN de la cuenta principal');
+        }
+        await verificarPinPrincipal(this.dataSource, user.usuario_principal_ID, cambios.PIN_principal);
+      }
       return this.conPlan(
         await this.aplicarCambiosDePerfil(this.usuarioRepository, id, cambios),
       );

@@ -15,7 +15,7 @@ import {
   FirebaseAuthGuard,
   type FirebaseRequest,
 } from '../integrations/firebase-auth/firebase-auth.guard';
-import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
+import { ActualizarMiUsuarioPropioDto } from './dto/actualizar-mi-usuario.dto';
 import { CambiarPasswordDto } from './dto/cambiar-password.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { CrearPinDto } from './dto/crear-pin.dto';
@@ -68,7 +68,7 @@ export class LoginController {
   @Patch('me')
   actualizarMiUsuario(
     @Req() request: { user: UsuarioSesion },
-    @Body() cambios: ActualizarMiUsuarioDto,
+    @Body() cambios: ActualizarMiUsuarioPropioDto,
   ) {
     return this.loginService.actualizarPropio(request.user.sub, cambios);
   }

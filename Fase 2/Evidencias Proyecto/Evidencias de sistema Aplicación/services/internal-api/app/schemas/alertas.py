@@ -7,7 +7,8 @@ class AlertaCrear(BaseModel):
     clave_idempotencia: UUID
     prioridad_id: int = Field(ge=1, le=4)
     ubicacion: str | None = Field(None, min_length=1, max_length=150)
-    mensaje: str | None = Field(None, min_length=1, max_length=200)
+    # CA-05.1: mismo máximo que el mensaje personalizado (160).
+    mensaje: str | None = Field(None, min_length=1, max_length=160)
 
 class AlertaCerrar(BaseModel):
     model_config = ConfigDict(extra="forbid")

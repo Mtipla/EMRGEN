@@ -18,9 +18,9 @@
     "semantic_hash": "fa439650fa28a1a7aa8c2b6d81c8cc20"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/package.json": {
-    "mtime": 1793037959.1876578,
-    "seen": 1793038576.413839,
-    "ast_hash": "355c23e3acbf958c749d009d46f253d7",
+    "mtime": 1793043120.5568078,
+    "seen": 1793043569.2119527,
+    "ast_hash": "1010c423d5442952095cdf047570e058",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/app.controller.spec.ts": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/App.tsx": {
-    "mtime": 1793038427.5128393,
-    "seen": 1793038576.4187562,
-    "ast_hash": "e9d33cd73cb24686a25807426683f9e5",
+    "mtime": 1793042952.3869092,
+    "seen": 1793043001.6812112,
+    "ast_hash": "9340a719e44205893c73e9d98431e693",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/main.tsx": {
@@ -294,9 +294,9 @@
     "semantic_hash": "112d56c0d2b5042423bc48ce91a70418"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/init.sql": {
-    "mtime": 1793038427.5208397,
-    "seen": 1793038576.419461,
-    "ast_hash": "9b0532b4d9ff814e0b4b807c36b66485",
+    "mtime": 1793043836.6299791,
+    "seen": 1793044031.5627453,
+    "ast_hash": "93b2700ffea839d35b6daf18531e311a",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/package.json": {
@@ -360,10 +360,10 @@
     "semantic_hash": "96100e10c874166ad29bc1af9c1a83f6"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/package.json": {
-    "mtime": 1793037959.5746825,
-    "seen": 1793038576.4233718,
-    "ast_hash": "72b7b898f71f71ecc018f91c5fb4c9fb",
-    "semantic_hash": "72b7b898f71f71ecc018f91c5fb4c9fb"
+    "mtime": 1793043120.5578084,
+    "seen": 1793043569.251253,
+    "ast_hash": "dc531b219a11273640f0db72e08b2cbc",
+    "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/button.tsx": {
     "mtime": 1792612594.095193,
@@ -396,16 +396,16 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.4 Docker/README.md": {
-    "mtime": 1793037959.1546583,
-    "seen": 1793038576.425153,
-    "ast_hash": "56b3f05af43c66688f8ad545a31773ae",
-    "semantic_hash": "56b3f05af43c66688f8ad545a31773ae"
+    "mtime": 1793040592.988544,
+    "seen": 1793040674.6735477,
+    "ast_hash": "b1574a223feb1fb32b90b97a761abec4",
+    "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.4 Docker/docker-compose.yml": {
-    "mtime": 1793037959.1556568,
-    "seen": 1793038576.425203,
-    "ast_hash": "21b814855f5f784189dbb20681763a59",
-    "semantic_hash": "21b814855f5f784189dbb20681763a59"
+    "mtime": 1793040593.0860906,
+    "seen": 1793040674.67356,
+    "ast_hash": "12b7a556b7ac3f33dc609f8c5724027b",
+    "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/README.md": {
     "mtime": 1793037959.1846564,
@@ -450,9 +450,9 @@
     "semantic_hash": "1b55ce739c8e07a7abb1f1781dab0e15"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/docker-compose.yml": {
-    "mtime": 1793037959.5456815,
-    "seen": 1793038576.426848,
-    "ast_hash": "12b7a556b7ac3f33dc609f8c5724027b",
+    "mtime": 1793041721.7875078,
+    "seen": 1793042003.8557897,
+    "ast_hash": "a68fea6fac33984c918d8acb6b6b6b40",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/eslint-config/README.md": {
@@ -462,9 +462,9 @@
     "semantic_hash": "14b621259269a2e9d76773eaa9bcbb03"
   },
   "README.md": {
-    "mtime": 1793037959.6636827,
-    "seen": 1793038576.4270415,
-    "ast_hash": "2a425bf58ba78b197071f06d8e1f9b7c",
+    "mtime": 1793040586.382336,
+    "seen": 1793040674.6771567,
+    "ast_hash": "c2d4fc8b569740ecffe2341ccf26f299",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/3.3 Diagrama UML/Caso de Uso/Caso de Uso.png": {
@@ -570,16 +570,16 @@
     "semantic_hash": "e52c7eccfdd5072cde05dd42366bbc79"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.1 Diccionario de Datos - Modelo de Dominio/Diagrama ER.png": {
-    "mtime": 1793037959.1476562,
-    "seen": 1793038576.4306471,
-    "ast_hash": "1e6262e7f157c0ab26de3c13c85c2aee",
-    "semantic_hash": "1e6262e7f157c0ab26de3c13c85c2aee"
+    "mtime": 1793040585.2985988,
+    "seen": 1793040674.6851048,
+    "ast_hash": "9bc00be63d5ff4451dbad4749dfadeab",
+    "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.3 Arquitectura/Diagrama de Arquitectura.png": {
-    "mtime": 1793037959.1506567,
-    "seen": 1793038576.4306498,
-    "ast_hash": "91ebf6898da17294478ae894f0cf40fb",
-    "semantic_hash": "91ebf6898da17294478ae894f0cf40fb"
+    "mtime": 1793040592.7245245,
+    "seen": 1793040674.6851082,
+    "ast_hash": "60c9c5b62e605539c7abe3756877d795",
+    "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/public/favicon.svg": {
     "mtime": 1790192672.6475873,
@@ -618,21 +618,21 @@
     "semantic_hash": "cdbdd42898084f29eae3f483397cfa89"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/README_BDD.md": {
-    "mtime": 1793038427.484324,
-    "seen": 1793038576.4252331,
-    "ast_hash": "72539d548fbf26ed2a3a9aa4c55562a1",
+    "mtime": 1793043476.2965288,
+    "seen": 1793043569.2603927,
+    "ast_hash": "d6eb900c3b987c015592ea014ef608ce",
     "semantic_hash": ""
   },
   "graphify-out/converted/1.2.1 Hoja de ruta del proyecto_bee4036b.md": {
-    "mtime": 1793037960.1121936,
-    "seen": 1793038576.4270442,
-    "ast_hash": "ff0d172e68455c5871163aa8685fe3cd",
+    "mtime": 1793040659.9681697,
+    "seen": 1793040674.6771598,
+    "ast_hash": "66db46085ee2a333629fcff9411829b9",
     "semantic_hash": ""
   },
   "graphify-out/converted/1.2.2 Sprint-fase1_65e58cac.md": {
-    "mtime": 1793037960.113194,
-    "seen": 1793038576.4270465,
-    "ast_hash": "a7082fcbf932c208c08b860a2ba62438",
+    "mtime": 1793040660.0212266,
+    "seen": 1793040674.6771624,
+    "ast_hash": "12e7a6625ae69bf0dc145dac08cff375",
     "semantic_hash": ""
   },
   "graphify-out/converted/1.4_APT122_FormativaFase1_decb3081.md": {
@@ -648,34 +648,34 @@
     "semantic_hash": "87b9dcb6872eaa96226b2d0caef315f7"
   },
   "graphify-out/converted/2.1.1 PRODUCT BACKLOG_b8d86969.md": {
-    "mtime": 1793037960.1151948,
-    "seen": 1793038576.4270554,
-    "ast_hash": "fe34caa35a4688f17baa91140fa072db",
+    "mtime": 1793040661.1723607,
+    "seen": 1793040674.6776507,
+    "ast_hash": "2e0e9d094746e164f19906a2aa81b575",
     "semantic_hash": ""
   },
   "graphify-out/converted/2.1.2 TABLA MAESTRA DE PRODUCT BACKLOG_180d6498.md": {
-    "mtime": 1793037960.1151948,
-    "seen": 1793038576.4270575,
-    "ast_hash": "2d3cc1d669af83fa182897a5ce97acfa",
+    "mtime": 1793040661.3729675,
+    "seen": 1793040674.6776533,
+    "ast_hash": "21fa96abb25a07618873e4c0caba63d9",
     "semantic_hash": ""
   },
   "graphify-out/converted/Acta de constituci\u00f3n_3d7db4ee.md": {
-    "mtime": 1793037960.1161942,
-    "seen": 1793038576.42706,
-    "ast_hash": "6cf70f9c2d1c8632375cba47c8ab1a9c",
-    "semantic_hash": "6cf70f9c2d1c8632375cba47c8ab1a9c"
+    "mtime": 1793040660.2661922,
+    "seen": 1793040674.6776605,
+    "ast_hash": "5e7e3b881039b216b891b736137f756b",
+    "semantic_hash": ""
   },
   "graphify-out/converted/BDD con tipos de datos_eaa966f5.md": {
-    "mtime": 1793037960.1161942,
-    "seen": 1793038576.427062,
-    "ast_hash": "7d96c17a08844d2f8ddaed0fe809e3e5",
+    "mtime": 1793040662.675826,
+    "seen": 1793040674.677663,
+    "ast_hash": "f9276249627cef5363b342a027b5077c",
     "semantic_hash": ""
   },
   "graphify-out/converted/CRITERIOS DE ACEPTACI\u00d3N_daf2764b.md": {
-    "mtime": 1793037960.1161942,
-    "seen": 1793038576.4270644,
-    "ast_hash": "6255743501e255cea73921783650a26a",
-    "semantic_hash": "6255743501e255cea73921783650a26a"
+    "mtime": 1793040661.7188368,
+    "seen": 1793040674.6776652,
+    "ast_hash": "4070ff9e5df31f17487d16406a566ab3",
+    "semantic_hash": ""
   },
   "graphify-out/converted/Diego_Plaza_1.1_APT122_AutoevaluacionCompetenciasFase1_cd750005.md": {
     "mtime": 1793037960.1221948,
@@ -696,9 +696,9 @@
     "semantic_hash": "7b7869879526f73d39af1b5b2e6319e0"
   },
   "graphify-out/converted/Especificaci\u00f3n de Herramientas y Servicios del Proyecto_55e759a4.md": {
-    "mtime": 1793037960.1241941,
-    "seen": 1793038576.42708,
-    "ast_hash": "40506305049458912080444f7bece03b",
+    "mtime": 1793040663.8207269,
+    "seen": 1793040674.6787188,
+    "ast_hash": "b10b8b7883b214a423c6a2278302f6bb",
     "semantic_hash": ""
   },
   "graphify-out/converted/Gonzalez_Alonso_1.1_APT122_AutoevaluacionCompetenciasFase1_011da5b8.md": {
@@ -720,27 +720,27 @@
     "semantic_hash": "4f63e0a723b62ef444d537741a6aebe4"
   },
   "graphify-out/converted/Historias Usuario con instructivo_fa506d1a.md": {
-    "mtime": 1793037960.1261933,
-    "seen": 1793038576.4270885,
-    "ast_hash": "03ae5bf0bece45350ad4d099ff63f818",
+    "mtime": 1793040661.5521328,
+    "seen": 1793040674.679236,
+    "ast_hash": "8ff3545894c8e7894d1c058f2bc77a5f",
     "semantic_hash": ""
   },
   "graphify-out/converted/Horas hombre en relaci\u00f3n a Tareas_c7bcb968.md": {
-    "mtime": 1793037960.1261933,
-    "seen": 1793038576.4270911,
-    "ast_hash": "984ced540b2a1ff7c2b6c9cfbdebb092",
+    "mtime": 1793040661.0036292,
+    "seen": 1793040674.6792393,
+    "ast_hash": "c3a0b38d469f757dc9add58f3de14880",
     "semantic_hash": ""
   },
   "graphify-out/converted/Informe ERS_e14e1806.md": {
-    "mtime": 1793037960.1271937,
-    "seen": 1793038576.4270933,
-    "ast_hash": "68daeddd004d053fb986086d65d723bf",
-    "semantic_hash": "68daeddd004d053fb986086d65d723bf"
+    "mtime": 1793040660.3577445,
+    "seen": 1793040674.679242,
+    "ast_hash": "c4163a8bfaca8f9ba68e5ea98e42d557",
+    "semantic_hash": ""
   },
   "graphify-out/converted/Informe TEC_8faa1e0c.md": {
-    "mtime": 1793037960.1271937,
-    "seen": 1793038576.4270954,
-    "ast_hash": "acfe85ffd647d3607e34fa5f3acdbadb",
+    "mtime": 1793040661.049408,
+    "seen": 1793040674.6792653,
+    "ast_hash": "b41e893b45af69ee3fe97eb15fce684b",
     "semantic_hash": ""
   },
   "graphify-out/converted/Matriz RACI_dcb1f733.md": {
@@ -750,21 +750,21 @@
     "semantic_hash": "921c56dc67de66e6fed062fe42230aa7"
   },
   "graphify-out/converted/Matriz de trazabilidad de Pruebas_1d0421cd.md": {
-    "mtime": 1793037960.1281939,
-    "seen": 1793038576.427099,
-    "ast_hash": "afa447da5596154bd3ea9eb8d7829c4f",
-    "semantic_hash": "afa447da5596154bd3ea9eb8d7829c4f"
+    "mtime": 1793040661.6398082,
+    "seen": 1793040674.6794567,
+    "ast_hash": "35edabd40dbf08fe2c0ea16f21b50eaf",
+    "semantic_hash": ""
   },
   "graphify-out/converted/Plan de pruebas_3e777254.md": {
-    "mtime": 1793037960.1311927,
-    "seen": 1793038576.4271035,
-    "ast_hash": "f9b31a821353b55dbb4fd92aac807374",
-    "semantic_hash": "f9b31a821353b55dbb4fd92aac807374"
+    "mtime": 1793040661.693836,
+    "seen": 1793040674.6796317,
+    "ast_hash": "d3544ad1381714f10b94130b46679f15",
+    "semantic_hash": ""
   },
   "graphify-out/converted/Product backlog puntos historia_9a3a5144.md": {
-    "mtime": 1793037960.1311927,
-    "seen": 1793038576.4271052,
-    "ast_hash": "470e1007d54c18dccf4f65a9044f7e80",
+    "mtime": 1793040661.4029918,
+    "seen": 1793040674.679634,
+    "ast_hash": "3ba64b1ef8fd7be9fae256098cd19407",
     "semantic_hash": ""
   },
   "graphify-out/converted/Sprint 1_c57e4605.md": {
@@ -792,10 +792,10 @@
     "semantic_hash": "80494783fd0dde65122a8817126a8368"
   },
   "graphify-out/converted/Sprint backlog actividades horas_8a7c50c3.md": {
-    "mtime": 1793037960.1341927,
-    "seen": 1793038576.427115,
-    "ast_hash": "5c7c0e45ce670f595c0f62a93ee4f6b6",
-    "semantic_hash": "5c7c0e45ce670f595c0f62a93ee4f6b6"
+    "mtime": 1793040661.4235582,
+    "seen": 1793040674.68026,
+    "ast_hash": "3c6da6a4beaf48c95651967009ab21f6",
+    "semantic_hash": ""
   },
   "graphify-out/converted/Valencia_Gabriel_1.1_APT122_AutoevaluacionCompetenciasFase1_109c38ee.md": {
     "mtime": 1793037960.1341927,
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/login.service.ts": {
-    "mtime": 1793037959.3226814,
-    "seen": 1793038576.4148033,
-    "ast_hash": "726cc07676ea0c6e55be367fefe2d1d7",
+    "mtime": 1793042132.900061,
+    "seen": 1793042775.9805734,
+    "ast_hash": "66eb80f4f2e117f1bd83fca8ed7655f8",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/planes/plan-usuario.entity.ts": {
@@ -1212,15 +1212,15 @@
     "semantic_hash": "86c0b9ba7acd6c34dd846aec0a866883"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/vite.config.js": {
-    "mtime": 1793037959.4896832,
-    "seen": 1793038576.418589,
+    "mtime": 1793042715.0013373,
+    "seen": 1793042775.9938369,
     "ast_hash": "bbe3fd427610bde4cab485e7d58fda48",
     "semantic_hash": "bbe3fd427610bde4cab485e7d58fda48"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/AuthForm.tsx": {
-    "mtime": 1793037959.5216825,
-    "seen": 1793038576.4187655,
-    "ast_hash": "15369e721cbcbf9dd9fa6a8aade187dc",
+    "mtime": 1793042166.3517573,
+    "seen": 1793042775.9948137,
+    "ast_hash": "79769a0a3128f930d02b1cece0b65f62",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/UsersAdmin.tsx": {
@@ -1290,9 +1290,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/auth-admin.db.e2e-spec.ts": {
-    "mtime": 1793037959.3606827,
-    "seen": 1793038576.4148571,
-    "ast_hash": "8ce979163caf19399a76d653272de811",
+    "mtime": 1793042177.5168426,
+    "seen": 1793042775.9836013,
+    "ast_hash": "8028c9b7318266e1490f4c8b0112901e",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/load-root-env.ts": {
@@ -1710,9 +1710,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/core/config.py": {
-    "mtime": 1793038427.5358388,
-    "seen": 1793038576.4245446,
-    "ast_hash": "e93c6de5692ddcdfb633f282c7b368da",
+    "mtime": 1793043915.8015702,
+    "seen": 1793044031.5724032,
+    "ast_hash": "b5e370f24238ecf8bf2c9355482f07a7",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/core/errors.py": {
@@ -1776,9 +1776,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/schemas/alertas.py": {
-    "mtime": 1793037959.6566844,
-    "seen": 1793038576.4245632,
-    "ast_hash": "c129f42b439eb2bb7046bb7926bb91fc",
+    "mtime": 1793043915.7815683,
+    "seen": 1793044031.5736523,
+    "ast_hash": "a9568671968e54d55ae40209d3cb26d5",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/schemas/tickets.py": {
@@ -1812,9 +1812,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/test_alertas.py": {
-    "mtime": 1793038427.537839,
-    "seen": 1793038576.4250998,
-    "ast_hash": "9afff9b7895fe7e252feaf8eb67f79cc",
+    "mtime": 1793043913.687402,
+    "seen": 1793044031.5745285,
+    "ast_hash": "f8cd18a7f97e7026a5c1044627161f0b",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/test_auth.py": {
@@ -2028,9 +2028,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/cuentas-apadrinadas.tsx": {
-    "mtime": 1793037959.6046815,
-    "seen": 1793038576.4244854,
-    "ast_hash": "2495349dd0d5bf59c70c5d5125e857df",
+    "mtime": 1793042564.7543502,
+    "seen": 1793042776.0033593,
+    "ast_hash": "d68b54b37cc5ccf605aada6d58913fd7",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/mocks.tsx": {
@@ -2040,9 +2040,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/perfil-form.tsx": {
-    "mtime": 1793037959.6206825,
-    "seen": 1793038576.4244964,
-    "ast_hash": "1e43069896ab8e114b2726e2d510243f",
+    "mtime": 1793043850.3690567,
+    "seen": 1793044031.5695226,
+    "ast_hash": "421b49a0745287fdabc497bd776d0ba4",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/wireframe.tsx": {
@@ -2088,9 +2088,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/apadrinados.controller.ts": {
-    "mtime": 1793037959.1986573,
-    "seen": 1793038576.4138777,
-    "ast_hash": "4d1a906299beab5830ba92241888dfa0",
+    "mtime": 1793042463.5090296,
+    "seen": 1793042775.9671955,
+    "ast_hash": "203dc2a25563a37e931a8cb7ca17179a",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/apadrinados.module.ts": {
@@ -2100,15 +2100,15 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/apadrinados.service.spec.ts": {
-    "mtime": 1793037959.2176564,
-    "seen": 1793038576.4138832,
-    "ast_hash": "c27a3ddb8e2fa0275ea006f994f96f30",
+    "mtime": 1793042531.1008525,
+    "seen": 1793042775.9673874,
+    "ast_hash": "a21bd30f65a354ec5fef4d7ed3696c97",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/apadrinados.service.ts": {
-    "mtime": 1793037959.2256567,
-    "seen": 1793038576.4138856,
-    "ast_hash": "e682e94704106f03a48fd9ef2115d76c",
+    "mtime": 1793042501.4114344,
+    "seen": 1793042775.9673913,
+    "ast_hash": "7ba8ae0e4aa704b8df534e789db4c7db",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/dto/apadrinado.dto.ts": {
@@ -2124,9 +2124,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/perfil/dto/perfil.dto.ts": {
-    "mtime": 1793037959.3336816,
-    "seen": 1793038576.4148207,
-    "ast_hash": "a83e1310689015982ea3c7762002fa6f",
+    "mtime": 1793043835.7953582,
+    "seen": 1793044031.5442727,
+    "ast_hash": "a082aef309d68f7eb2d1b5a17bd27838",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/perfil/perfil.controller.ts": {
@@ -2142,9 +2142,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/perfil/perfil.service.ts": {
-    "mtime": 1793037959.3556821,
-    "seen": 1793038576.4148273,
-    "ast_hash": "5265b909c681e93c412381dd5eeee051",
+    "mtime": 1793043668.3039465,
+    "seen": 1793044031.544598,
+    "ast_hash": "95b820392c98ee4defd83b0d9afab7a5",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/avisos.tsx": {
@@ -2301,6 +2301,246 @@
     "mtime": 1793038427.518839,
     "seen": 1793038576.426857,
     "ast_hash": "a0a4a697ca501ee32efed418c2f93e41",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/2.4_GuiaEstudiante_Fase 2_DesarrolloProyecto APT_c81b5272.md": {
+    "mtime": 1793040659.7816513,
+    "seen": 1793040674.6776555,
+    "ast_hash": "aa22aa04245900df5ed30447e5e80be4",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/2.6_GuiaEstudiante_Fase 2_Informe Final Proyecto APT_e9ff2f65.md": {
+    "mtime": 1793040659.8196743,
+    "seen": 1793040674.6776576,
+    "ast_hash": "7701caaff09739ab906728d3f47ebebf",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/Cambios Pendientes_fcf6f522.md": {
+    "mtime": 1793040663.888327,
+    "seen": 1793040674.6778245,
+    "ast_hash": "ef6149169e0af89608d115cd2b16b4e8",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/Cambios Realizados (AUDITORIA CLAUDE)_f01e2ce3.md": {
+    "mtime": 1793040664.1672997,
+    "seen": 1793040674.6779854,
+    "ast_hash": "190ac568a199edf7b41eec396dd9b1b9",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/Cambios Realizados_bfc02d82.md": {
+    "mtime": 1793040664.2003021,
+    "seen": 1793040674.678145,
+    "ast_hash": "6ec95cd2ce70dfd0eab19ca7ff764f22",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/ENLACE DIAGRAMA ER_e841aa9d.md": {
+    "mtime": 1793040663.782727,
+    "seen": 1793040674.6787152,
+    "ast_hash": "c758d9064f6decd29ba6c3c65ad60714",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/GONZALEZ_ALONSO_2.1_APT122_DiarioReflexionFase2_61025162.md": {
+    "mtime": 1793040659.8661127,
+    "seen": 1793040674.6787205,
+    "ast_hash": "462f560b7dcf6c5cf8fcba0ac6565295",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/Matriz de verificaci\u00f3n cruzada_8c2d1282.md": {
+    "mtime": 1793040664.2960653,
+    "seen": 1793040674.6794603,
+    "ast_hash": "161e96435f5e667e420849e876b819e9",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/VALENCIA_GABRIEL_2.1_APT122_DiarioReflexionFase2_bd76d063.md": {
+    "mtime": 1793040659.9076278,
+    "seen": 1793040674.6802626,
+    "ast_hash": "1d8b89f9d7a711ed703df4185fda8564",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/datos_agrupados_trazable_5c3208f3.md": {
+    "mtime": 1793040664.5700984,
+    "seen": 1793040674.6809115,
+    "ast_hash": "929b88eb38b431789d74d9a1403ebdfd",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/4.1 Diccionario de Datos - Modelo de Dominio/Diagrama ER.pdf": {
+    "mtime": 1793040585.2920897,
+    "seen": 1793040674.6815748,
+    "ast_hash": "f7b92553d1846feec3bed875ab229c53",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/1.2 Sprint Planning/Evidencia/Evidencia Sprint, Fase 2.png": {
+    "mtime": 1793040585.2705476,
+    "seen": 1793040674.681578,
+    "ast_hash": "342afe0347d8b1ee654eb719c3cb766b",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/1.2 Sprint Planning/Evidencia/Evidencia invitaci\u00f3n Sprint Retrospective 20_10  .png": {
+    "mtime": 1793040585.2715464,
+    "seen": 1793040674.6815803,
+    "ast_hash": "f726400563e2af998dbfb323c173a389",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/1.2 Sprint Planning/Evidencia/Evidencias de Sprints,Daily Sprints Fase 1 (Captura 1).png": {
+    "mtime": 1793040585.2745433,
+    "seen": 1793040674.6815825,
+    "ast_hash": "1d6936965204f5eecc27507b6c240cee",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/1.2 Sprint Planning/Evidencia/Evidencias de Sprints,Daily Sprints Fase 1 (Captura 2).png": {
+    "mtime": 1793040585.2765427,
+    "seen": 1793040674.6815856,
+    "ast_hash": "af295e9cfc2ded11c95f3baf1d41384a",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/1.2 Sprint Planning/Sprint 1, Daily Meetings Evidencia/Evidencia Sprint 1, Daily Meetings.png": {
+    "mtime": 1793040585.2780726,
+    "seen": 1793040674.6819286,
+    "ast_hash": "5252d9392088e9183d3222be36eb0012",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/1.2 Sprint Planning/Sprint 2, Daily Meetings Evidencia/Evidencia Sprint 2, Daily Meetings.png": {
+    "mtime": 1793040585.2810607,
+    "seen": 1793040674.6819315,
+    "ast_hash": "6b5d269b769b0de49ccb844b1c8d801f",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/1.2 Sprint Planning/Sprint 3, Daily Meetings Evidencia/Captura de pantalla 2026-10-08 152205.png": {
+    "mtime": 1793040585.2830603,
+    "seen": 1793040674.6819344,
+    "ast_hash": "c99a0f897da513e05c441f60fcd08f44",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de documentaci\u00f3n/1.2 Sprint Planning/Sprint 4, Daily Meetings Evidencia/Captura de pantalla 2026-10-08 151912.png": {
+    "mtime": 1793040585.2860596,
+    "seen": 1793040674.681937,
+    "ast_hash": "a03b7f1dcd5f8d6438d3d8f0401b2043",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/public/favicon.svg": {
+    "mtime": 1793040621.2395465,
+    "seen": 1793040674.6864543,
+    "ast_hash": "7e840862161341271697daa99a40d76b",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/public/icons.svg": {
+    "mtime": 1793040621.2807794,
+    "seen": 1793040674.6864583,
+    "ast_hash": "21c7473c592c67dc87223d49892c8f0a",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/assets/hero.png": {
+    "mtime": 1793040621.3678362,
+    "seen": 1793040674.6864614,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/assets/react.svg": {
+    "mtime": 1793040621.4235375,
+    "seen": 1793040674.6864638,
+    "ast_hash": "f0402b67b6ce880f65666bb49e841696",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/assets/vite.svg": {
+    "mtime": 1793040621.4835238,
+    "seen": 1793040674.686467,
+    "ast_hash": "6d5180a782d64c8cf51ba01c2a2184d8",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/perfil/cifrado-medico.spec.ts": {
+    "mtime": 1793041685.8419943,
+    "seen": 1793042003.8241296,
+    "ast_hash": "22241739ce7594aa481d126247a0a188",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/perfil/cifrado-medico.ts": {
+    "mtime": 1793041631.6501849,
+    "seen": 1793042003.8241334,
+    "ast_hash": "b0344386455ef593168f7fc3032dd9ff",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/ficha-medica.db.e2e-spec.ts": {
+    "mtime": 1793041757.070884,
+    "seen": 1793042003.826472,
+    "ast_hash": "b79fe4f3f80493faf5f836334febfa0e",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/scripts/cifrar-fichas.cjs": {
+    "mtime": 1793041668.117334,
+    "seen": 1793042003.848606,
+    "ast_hash": "c7bc261ded93e7547c21315793bdbd8f",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/dto/pin-principal.dto.ts": {
+    "mtime": 1793042461.8231654,
+    "seen": 1793042775.9675653,
+    "ast_hash": "6f12d8661c7f714ff05f702b90acb53a",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/apadrinados-pin.db.e2e-spec.ts": {
+    "mtime": 1793042598.6937182,
+    "seen": 1793042775.9832745,
+    "ast_hash": "ee9afe531acf77143a8c3fe2336686fe",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/AuthForm.test.tsx": {
+    "mtime": 1793042283.963018,
+    "seen": 1793042775.9948099,
+    "ast_hash": "d08cf3371e6ec40995012063a37c06f2",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/cuenta/apadrinados-pin.test.tsx": {
+    "mtime": 1793042642.3344638,
+    "seen": 1793042775.9959526,
+    "ast_hash": "fb43f38143a6386ee008361417002797",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/usuarios-ruta.test.tsx": {
+    "mtime": 1793042936.1269543,
+    "seen": 1793043001.682229,
+    "ast_hash": "a4aa73b6ea074249b6e9623f13c46eb6",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/perfil/dto/perfil.dto.spec.ts": {
+    "mtime": 1793043249.9849358,
+    "seen": 1793043569.2298756,
+    "ast_hash": "45340354b91c7d0e8b5ea4e1a95eaaf3",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/contactos-duplicados.db.e2e-spec.ts": {
+    "mtime": 1793043876.0265062,
+    "seen": 1793044031.5467231,
+    "ast_hash": "5a5313f7f19ce87a2626d7b1bcee12dc",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/cuenta/contactos-duplicados.test.tsx": {
+    "mtime": 1793043405.552982,
+    "seen": 1793043569.245393,
+    "ast_hash": "52ae0df59b27384b039724cce8c24a07",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/migraciones/003_contacto_unico.sql": {
+    "mtime": 1793043214.8449259,
+    "seen": 1793043569.2471163,
+    "ast_hash": "d7726c54143b7dcecf36f0cfb4f7efc4",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/cuenta/contactos-borrar.test.tsx": {
+    "mtime": 1793043687.5735183,
+    "seen": 1793044031.5607243,
+    "ast_hash": "e63ab338fcf1f88efe161ba3e0fbdf77",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/cuenta/mensaje-160.test.tsx": {
+    "mtime": 1793043938.6376083,
+    "seen": 1793044031.5609074,
+    "ast_hash": "ed1e1a3e18b93e3c0d16bf755e457380",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/migraciones/004_mensaje_160.sql": {
+    "mtime": 1793043837.457207,
+    "seen": 1793044031.5632484,
+    "ast_hash": "4d637005527fcaf3fb2d7647699ec15c",
     "semantic_hash": ""
   }
 }

@@ -50,6 +50,9 @@ db('Contrato final: login, PIN, administración y auditoría PostgreSQL', () => 
   });
   it('correo global único, credenciales y JWT', async () => {
     await http().post('/usuarios/registro').set(auth(email)).send({nombre_usuario:'Duplicado',correo_usuario:email.toUpperCase(),password}).expect(409);
+    // CA-01.1: el duplicado se informa aunque el correo de Firebase aún no esté confirmado.
+    const dup=await http().post('/usuarios/registro').set(auth('unverified:'+email)).send({nombre_usuario:'Duplicado',correo_usuario:email,password}).expect(409);
+    expect(dup.body.message).toBe('El correo ingresado es inválido o ya se encuentra registrado');
     await http().post('/usuarios/login').send({correo_usuario:email,password:'incorrecta'}).expect(401);
     token=(await http().post('/usuarios/login').send({correo_usuario:email,password}).expect(201)).body.access_token;
     expect(token.split('.')).toHaveLength(3);

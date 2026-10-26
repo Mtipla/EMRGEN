@@ -25,7 +25,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    mensaje_predeterminado: str = Field("Necesito ayuda inmediata en mi ubicación.", min_length=1, max_length=200)
+    mensaje_predeterminado: str = Field("Necesito ayuda inmediata en mi ubicación.", min_length=1, max_length=160)
     intervalo_cierre_segundos: int = Field(30, ge=1, le=300)
     port: int = 8000
     cors_origins: str = Field(
