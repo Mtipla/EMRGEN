@@ -175,3 +175,11 @@ def test_borrar_usuario_no_deja_avisos_de_cierre_pendientes(client,db,crear_usua
     uid=crear_usuario();aid=create(client,uid)["alerta_id"]
     db.execute("DELETE FROM usuario WHERE usuario_id=%s",(uid,))
     assert db.execute("SELECT count(*) n FROM envio_alerta WHERE alerta_id=%s AND estado_envio_id=1",(aid,)).fetchone()["n"]==0
+
+def test_mensaje_puntual_maximo_160(client,crear_usuario):
+    # CA-05.1: el texto enviado al emitir el SOS tiene el mismo máximo que el mensaje personalizado.
+    uid=crear_usuario()
+    assert client.post(URL,headers=token(uid),json=body(mensaje="a"*161)).status_code==400
+    alerta=create(client,uid,mensaje="a"*160)
+    assert alerta["mensaje"]=="a"*160
+    assert close(client,uid,alerta["alerta_id"]).status_code==200

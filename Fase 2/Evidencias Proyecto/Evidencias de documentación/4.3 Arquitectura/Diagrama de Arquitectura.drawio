@@ -4,6 +4,15 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="GsSXGZKWV-LUHKZCFhCD-1" parent="1" style="shape=folder;fontStyle=1;spacingTop=-6;tabWidth=160;tabHeight=20;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;labelBackgroundColor=none;convertToSvg=0;svgWhiteSpace=wrap;spacing=5;spacingLeft=0;" value="APIs internas" vertex="1">
+          <mxGeometry height="100" width="330" x="1200" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="GsSXGZKWV-LUHKZCFhCD-2" parent="1" style="html=1;dropTarget=0;whiteSpace=wrap;" value="Fast API (Alertas de usuarios)" vertex="1">
+          <mxGeometry height="40" width="129.31428571428575" x="1225.0285714285715" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="GsSXGZKWV-LUHKZCFhCD-3" parent="1" style="html=1;dropTarget=0;whiteSpace=wrap;" value="Fast API (Soporte Usuario)" vertex="1">
+          <mxGeometry height="40" width="129.31428571428575" x="1375.9957142857143" y="720" as="geometry" />
+        </mxCell>
         <mxCell id="VYJXEmBKlQEUDkR4J9Np-1" parent="1" style="shape=folder;fontStyle=1;spacingTop=-6;tabWidth=120;tabHeight=20;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;labelBackgroundColor=none;convertToSvg=0;svgWhiteSpace=wrap;spacing=5;spacingLeft=0;" value="Hosting Web" vertex="1">
           <mxGeometry height="180" width="299" x="180" y="340" as="geometry" />
         </mxCell>
@@ -68,7 +77,18 @@
         <mxCell id="DmSQSGYOk6Cvu5gHqbJM-66" parent="VYJXEmBKlQEUDkR4J9Np-7" style="shape=datastore;whiteSpace=wrap;html=1;" value="Base de Datos&lt;br&gt;PostgreSQL" vertex="1">
           <mxGeometry height="70" width="155" x="30" y="220" as="geometry" />
         </mxCell>
-        <mxCell id="VYJXEmBKlQEUDkR4J9Np-9" parent="1" style="html=1;dropTarget=0;whiteSpace=wrap;" value="Archivos Estaticos&lt;br&gt;(React / Angular)" vertex="1">
+        <mxCell id="GsSXGZKWV-LUHKZCFhCD-12" edge="1" parent="VYJXEmBKlQEUDkR4J9Np-7" style="endArrow=classic;dashed=1;html=1;rounded=0;entryX=0;entryY=1;entryDx=0;entryDy=0;curved=1;exitX=0.38;exitY=1.005;exitDx=0;exitDy=0;exitPerimeter=0;endFill=1;strokeWidth=1;" target="GsSXGZKWV-LUHKZCFhCD-3" value="Generar historial arreglos de los trabajadores hacia&lt;br&gt;los usuarios">
+          <mxGeometry height="50" relative="1" width="50" x="0.1754" y="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="212.5" y="380" />
+              <mxPoint x="555" y="480" />
+            </Array>
+            <mxPoint x="238.5" y="110" as="sourcePoint" />
+            <mxPoint x="627.5" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VYJXEmBKlQEUDkR4J9Np-9" parent="1" style="html=1;dropTarget=0;whiteSpace=wrap;" value="Firebase Hosting" vertex="1">
           <mxGeometry height="40" width="155" x="252" y="420" as="geometry" />
         </mxCell>
         <mxCell id="VYJXEmBKlQEUDkR4J9Np-10" edge="1" parent="1" source="DmSQSGYOk6Cvu5gHqbJM-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;curved=1;" target="VYJXEmBKlQEUDkR4J9Np-9">
@@ -117,16 +137,17 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="VYJXEmBKlQEUDkR4J9Np-46" edge="1" parent="1" source="DmSQSGYOk6Cvu5gHqbJM-64" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;curved=1;dashed=1;dashPattern=1 4;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="DmSQSGYOk6Cvu5gHqbJM-56">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="VYJXEmBKlQEUDkR4J9Np-46" edge="1" parent="1" source="DmSQSGYOk6Cvu5gHqbJM-64" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;curved=1;dashed=1;dashPattern=1 4;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="DmSQSGYOk6Cvu5gHqbJM-56">
+          <mxGeometry relative="1" x="-0.0519" as="geometry">
             <Array as="points">
-              <mxPoint x="816.29" y="630" />
+              <mxPoint x="860" y="450" />
+              <mxPoint x="860" y="620" />
             </Array>
             <mxPoint x="1170" y="720" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="VYJXEmBKlQEUDkR4J9Np-47" connectable="0" parent="VYJXEmBKlQEUDkR4J9Np-46" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Valida Tokens/Correos de usuarios" vertex="1">
-          <mxGeometry relative="1" x="-0.1848" y="57" as="geometry">
+          <mxGeometry relative="1" x="-0.2519" y="57" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
@@ -154,6 +175,16 @@
         <mxCell id="9saXfbKNMhmFks1QtCXT-5" connectable="0" parent="9saXfbKNMhmFks1QtCXT-3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Genera Reportes de&amp;nbsp;&lt;div&gt;Usuario, Administrador y Soporte&lt;/div&gt;" vertex="1">
           <mxGeometry relative="1" x="-0.4084" y="-8" as="geometry">
             <mxPoint x="-158" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GsSXGZKWV-LUHKZCFhCD-11" edge="1" parent="1" source="DmSQSGYOk6Cvu5gHqbJM-64" style="endArrow=classic;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;curved=1;exitX=0.38;exitY=1.005;exitDx=0;exitDy=0;exitPerimeter=0;endFill=1;strokeWidth=1;" target="GsSXGZKWV-LUHKZCFhCD-2" value="Historial de alertas de emergencias de usuarios">
+          <mxGeometry height="50" relative="1" width="50" x="0.2813" y="28" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="810" y="720" />
+            </Array>
+            <mxPoint x="870" y="720" as="sourcePoint" />
+            <mxPoint x="980" y="740" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>

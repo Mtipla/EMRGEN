@@ -1,9 +1,8 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
-import { ActualizarEstadoDto } from '../admin/dto/actualizar-estado.dto';
-import { CrearPinDto } from '../login/dto/crear-pin.dto';
 import { JwtAuthGuard, type UsuarioSesion } from '../login/jwt-auth.guard';
 import { ApadrinadosService } from './apadrinados.service';
 import { CrearApadrinadoDto } from './dto/apadrinado.dto';
+import { CambiarAccesoApadrinadoDto, DefinirPinApadrinadoDto, PinPrincipalDto } from './dto/pin-principal.dto';
 
 type Solicitud = { user: UsuarioSesion };
 
@@ -23,22 +22,31 @@ export class ApadrinadosController {
     return this.apadrinados.crear(request.user, datos);
   }
 
+  // HU-10: las tres acciones críticas exigen el PIN del principal (PIN_principal).
   @Put('apadrinados/:id/pin')
-  definirPin(@Req() request: Solicitud, @Param('id', ParseIntPipe) id: number, @Body() { PIN }: CrearPinDto) {
-    return this.apadrinados.definirPin(request.user, id, PIN);
+  definirPin(
+    @Req() request: Solicitud,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() { PIN, PIN_principal }: DefinirPinApadrinadoDto,
+  ) {
+    return this.apadrinados.definirPin(request.user, id, PIN, PIN_principal);
   }
 
   @Put('apadrinados/:id/estado')
   cambiarAcceso(
     @Req() request: Solicitud,
     @Param('id', ParseIntPipe) id: number,
-    @Body() { estado_ID }: ActualizarEstadoDto,
+    @Body() { estado_ID, PIN_principal }: CambiarAccesoApadrinadoDto,
   ) {
-    return this.apadrinados.cambiarAcceso(request.user, id, estado_ID);
+    return this.apadrinados.cambiarAcceso(request.user, id, estado_ID, PIN_principal);
   }
 
   @Delete('apadrinados/:id')
-  eliminar(@Req() request: Solicitud, @Param('id', ParseIntPipe) id: number) {
-    return this.apadrinados.eliminar(request.user, id);
+  eliminar(
+    @Req() request: Solicitud,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() { PIN_principal }: PinPrincipalDto,
+  ) {
+    return this.apadrinados.eliminar(request.user, id, PIN_principal);
   }
 }

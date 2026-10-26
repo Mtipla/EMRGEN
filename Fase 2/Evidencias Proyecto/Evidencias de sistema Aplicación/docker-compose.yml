@@ -31,6 +31,7 @@ services:
       - PORT=3000
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env}
       - CORS_ORIGINS=${CORS_ORIGINS:-}
+      - MEDICAL_DATA_KEYS=${MEDICAL_DATA_KEYS:-}
       # Integraciones externas (ver readme-apis.md)
       - PAYPAL_MODE=${PAYPAL_MODE:-sandbox}
       - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}

@@ -38,12 +38,22 @@ services:
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
       - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-}
       - MINDICADOR_API_URL=${MINDICADOR_API_URL:-https://mindicador.cl/api}
+      # Opcional: CLP por USD para cobrar en PayPal si mindicador no responde.
+      - DOLAR_CLP_RESPALDO=${DOLAR_CLP_RESPALDO:-}
       # Dentro del contenedor "localhost" es el propio contenedor: jsReport corre en el PC.
       - JSREPORT_URL=${JSREPORT_URL_DOCKER:-http://host.docker.internal:5488}
       - JSREPORT_USERNAME=${JSREPORT_USERNAME:-}
       - JSREPORT_PASSWORD=${JSREPORT_PASSWORD:-}
+      # WhatsApp (Baileys): la sesión persiste en el volumen emergen_whatsapp_auth
+      - WHATSAPP_ENABLED=${WHATSAPP_ENABLED:-false}
+      - WHATSAPP_DEFAULT_COUNTRY_CODE=${WHATSAPP_DEFAULT_COUNTRY_CODE:-56}
+    volumes:
+      - emergen_whatsapp_auth:/app/apps/backend/auth_info_baileys
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    # PC:contenedor. Dentro del contenedor la API escucha en 3000 (PORT, arriba); en el PC se
+    # publica en 3001 para no chocar con el backend local (npm run start:dev, puerto 3000).
+    # Los frontends lo consumen con el modo docker de Vite (.env.docker -> localhost:3001).
     ports:
       - "3001:3000"
     depends_on:
@@ -54,6 +64,8 @@ services:
 volumes:
   emergen_postgres_data:
     name: volumen_emergen_postgres_data
+  emergen_whatsapp_auth:
+    name: volumen_emergen_whatsapp_auth
 networks:
   emergen_network:
     driver: bridge

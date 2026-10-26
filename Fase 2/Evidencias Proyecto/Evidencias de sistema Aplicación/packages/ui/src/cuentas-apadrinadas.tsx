@@ -205,12 +205,13 @@ export function apadrinadosApi(fetcher: Fetcher) {
     listar: () => fetcher<CuentaVinculada[]>("/usuarios/me/vinculadas"),
     crear: (datos: NuevaCuenta) =>
       enviar("POST", "/usuarios/me/apadrinados", datos),
-    definirPin: (id: number, PIN: string) =>
-      enviar("PUT", `/usuarios/me/apadrinados/${id}/pin`, { PIN }),
-    cambiarAcceso: (id: number, estado_ID: number) =>
-      enviar("PUT", `/usuarios/me/apadrinados/${id}/estado`, { estado_ID }),
-    eliminar: (id: number) =>
-      enviar("DELETE", `/usuarios/me/apadrinados/${id}`),
+    // HU-10: PIN_principal autoriza cada acción crítica; el backend lo verifica y bloquea.
+    definirPin: (id: number, PIN: string, PIN_principal: string) =>
+      enviar("PUT", `/usuarios/me/apadrinados/${id}/pin`, { PIN, PIN_principal }),
+    cambiarAcceso: (id: number, estado_ID: number, PIN_principal: string) =>
+      enviar("PUT", `/usuarios/me/apadrinados/${id}/estado`, { estado_ID, PIN_principal }),
+    eliminar: (id: number, PIN_principal: string) =>
+      enviar("DELETE", `/usuarios/me/apadrinados/${id}`, { PIN_principal }),
   };
 }
 
@@ -219,7 +220,13 @@ export type ApadrinadosApi = ReturnType<typeof apadrinadosApi>;
 type ModalReal =
   | { tipo: "crear"; numero: number }
   | { tipo: "pin"; cuenta: CuentaVinculada }
-  | { tipo: "eliminar"; cuenta: CuentaVinculada };
+  | { tipo: "eliminar"; cuenta: CuentaVinculada }
+  | {
+      tipo: "autorizar";
+      titulo: string;
+      accion: (pinPrincipal: string) => Promise<CuentaVinculada[]>;
+      exito: string;
+    };
 
 interface GestionApadrinadosProps {
   /** Cupos comprados (GET /compras/apadrinados); null si no se pudieron leer. */
@@ -287,14 +294,17 @@ export const GestionApadrinados = ({
       );
       return;
     }
-    void ejecutar(
-      () =>
+    setModal({
+      tipo: "autorizar",
+      titulo: `Ingresa tu PIN para dar acceso ${completo ? "completo" : "parcial"} a "${cuenta.nombre_usuario}"`,
+      accion: (pin) =>
         api.cambiarAcceso(
           cuenta.usuario_ID,
           completo ? ACCESO.COMPLETO : ACCESO.PARCIAL,
+          pin,
         ),
-      `"${cuenta.nombre_usuario}" ahora tiene acceso ${completo ? "completo" : "parcial"}.`,
-    );
+      exito: `"${cuenta.nombre_usuario}" ahora tiene acceso ${completo ? "completo" : "parcial"}.`,
+    });
   }
 
   const total = Math.max(cupos ?? 0, cuentas.length);
@@ -412,10 +422,26 @@ export const GestionApadrinados = ({
           title={`PIN de "${modal.cuenta.nombre_usuario}"`}
           info={`Debes crear el PIN de 4 dígitos de "${modal.cuenta.nombre_usuario}". Lo usará para ingresar y para cerrar sus alertas.`}
           onClose={cerrar}
+          onSubmit={(pin) => {
+            const cuenta = modal.cuenta;
+            setModal({
+              tipo: "autorizar",
+              titulo: `Ingresa tu PIN para guardar el PIN de "${cuenta.nombre_usuario}"`,
+              accion: (pinPrincipal) => api.definirPin(cuenta.usuario_ID, pin, pinPrincipal),
+              exito: `PIN de "${cuenta.nombre_usuario}" guardado.`,
+            });
+          }}
+        />
+      )}
+      {modal?.tipo === "autorizar" && (
+        <PinDialog
+          title={modal.titulo}
+          confirmar={false}
+          onClose={cerrar}
           onSubmit={async (pin) => {
-            // PinDialog muestra el error dentro del diálogo; aquí solo el aviso de éxito.
-            setCuentas(await api.definirPin(modal.cuenta.usuario_ID, pin));
-            avisar("exito", `PIN de "${modal.cuenta.nombre_usuario}" guardado.`);
+            // PinDialog muestra dentro el PIN incorrecto o el bloqueo de CA-10.1.
+            setCuentas(await modal.accion(pin));
+            avisar("exito", modal.exito);
             cerrar();
           }}
         />
@@ -427,11 +453,12 @@ export const GestionApadrinados = ({
           onCancel={cerrar}
           onConfirm={() => {
             const cuenta = modal.cuenta;
-            cerrar();
-            void ejecutar(
-              () => api.eliminar(cuenta.usuario_ID),
-              `"${cuenta.nombre_usuario}" fue eliminada de tus cuentas.`,
-            );
+            setModal({
+              tipo: "autorizar",
+              titulo: `Ingresa tu PIN para eliminar a "${cuenta.nombre_usuario}"`,
+              accion: (pin) => api.eliminar(cuenta.usuario_ID, pin),
+              exito: `"${cuenta.nombre_usuario}" fue eliminada de tus cuentas.`,
+            });
           }}
         />
       )}

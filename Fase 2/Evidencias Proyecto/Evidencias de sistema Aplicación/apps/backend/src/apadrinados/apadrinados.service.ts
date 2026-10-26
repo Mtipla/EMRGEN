@@ -12,6 +12,7 @@ import { codigoPostgres } from '../config/postgres-error';
 import { transaction } from '../config/transaction';
 import type { UsuarioSesion } from '../login/jwt-auth.guard';
 import { LoginService } from '../login/login.service';
+import { verificarPinPrincipal } from '../login/pin-principal';
 import { ACCESO } from '../login/roles.decorator';
 import { Pin } from '../usuarios/pin.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
@@ -105,8 +106,9 @@ export class ApadrinadosService {
   }
 
   /** PIN de primer ingreso que el principal define para su apadrinado (mockup web págs. 68-73). */
-  async definirPin(sesion: UsuarioSesion, id: number, pin: string): Promise<CuentaVinculada[]> {
-    await this.exigirPrincipal(sesion);
+  async definirPin(sesion: UsuarioSesion, id: number, pin: string, pinPrincipal: string): Promise<CuentaVinculada[]> {
+    await this.exigirPropio(sesion, id);
+    await this.verificarPinPrincipal(sesion, pinPrincipal);
     const pinHash = await bcrypt.hash(pin, 12);
     await transaction(this.dataSource, async (manager) => {
       const usuarios = manager.getRepository(Usuario);
@@ -125,16 +127,23 @@ export class ApadrinadosService {
     return this.vinculadas(sesion);
   }
 
-  async cambiarAcceso(sesion: UsuarioSesion, id: number, estadoId: number): Promise<CuentaVinculada[]> {
+  async cambiarAcceso(sesion: UsuarioSesion, id: number, estadoId: number, pinPrincipal: string): Promise<CuentaVinculada[]> {
     await this.exigirPropio(sesion, id);
+    await this.verificarPinPrincipal(sesion, pinPrincipal);
     await this.adminService.cambiarEstadoUsuario(id, estadoId, sesion);
     return this.vinculadas(sesion);
   }
 
-  async eliminar(sesion: UsuarioSesion, id: number): Promise<CuentaVinculada[]> {
+  async eliminar(sesion: UsuarioSesion, id: number, pinPrincipal: string): Promise<CuentaVinculada[]> {
     await this.exigirPropio(sesion, id);
+    await this.verificarPinPrincipal(sesion, pinPrincipal);
     await this.adminService.eliminarUsuarioApadrinado(id, sesion);
     return this.vinculadas(sesion);
+  }
+
+  /** HU-10 / CA-10.1: el PIN del principal (la sesión) autoriza la acción; bloqueo en login/pin-principal. */
+  private verificarPinPrincipal(sesion: UsuarioSesion, pin: string) {
+    return verificarPinPrincipal(this.dataSource, sesion.sub, pin);
   }
 
   /** Mismo criterio que ComprasService.titular: solo el principal con acceso completo gestiona cuentas. */
