@@ -235,9 +235,16 @@ export interface SendEmergencyAlertRequest {
   recipients: string[];
   /** Nombre del usuario que emite la alerta. */
   senderName?: string;
+  senderEmail?: string;
+  /** Fecha de creación del SOS, en ISO 8601. */
+  occurredAt?: string;
+  /** Tipo de emergencia seleccionado al generar el SOS. */
+  emergencyType?: string;
   /** Mensaje personalizado del usuario (máx. 200, como USUARIO_MENSAJE_PERSONALIZADO). */
   message: string;
-  location: EmergencyAlertLocation;
+  location?: EmergencyAlertLocation;
+  /** Ubicación descriptiva cuando no hay coordenadas; indica también las pruebas simuladas. */
+  locationLabel?: string;
   medicalInfo?: EmergencyAlertMedicalInfo;
 }
 

@@ -9,7 +9,17 @@ from app.schemas.alertas import AlertaCrear
 
 _SELECT = """
  SELECT a.alerta_id,a.usuario_id,u.ubicacion,d.texto_mensaje AS mensaje,
-        a.prioridad_id,a.clave_idempotencia,a.estado_alerta,a.fecha_creacion,a.fecha_cierre
+        a.prioridad_id,a.clave_idempotencia,a.estado_alerta,a.fecha_creacion,a.fecha_cierre,
+        (SELECT json_build_object(
+            'pendientes', count(*) FILTER (WHERE e.estado_envio_id=1),
+            'enviados', count(*) FILTER (WHERE e.estado_envio_id=2),
+            'fallidos', count(*) FILTER (WHERE e.estado_envio_id=3))
+         FROM envio_alerta e WHERE e.alerta_id=a.alerta_id AND e.tipo_notificacion='ACTIVACION') AS whatsapp,
+        (SELECT json_build_object(
+            'pendientes', count(*) FILTER (WHERE e.estado_envio_id=1),
+            'enviados', count(*) FILTER (WHERE e.estado_envio_id=2),
+            'fallidos', count(*) FILTER (WHERE e.estado_envio_id=3))
+         FROM envio_alerta e WHERE e.alerta_id=a.alerta_id AND e.tipo_notificacion='FINALIZACION') AS whatsapp_cierre
  FROM alerta a LEFT JOIN ubicacion_alerta u USING(ubicacion_alerta_id)
  JOIN detalle_alerta d USING(detalle_alerta_id)
 """
@@ -47,6 +57,10 @@ def crear(conn: psycopg.Connection, usuario_id: int, datos: AlertaCrear) -> dict
     alert = conn.execute("""INSERT INTO alerta(usuario_id,detalle_alerta_id,ubicacion_alerta_id,prioridad_id,clave_idempotencia,huella_solicitud)
         VALUES (%s,%s,%s,%s,%s,%s) RETURNING *""", (usuario_id,detail,location,datos.prioridad_id,datos.clave_idempotencia,fingerprint)).fetchone()
     conn.execute("INSERT INTO historial_alerta(alerta_id,detalle_alerta_id,estado_actual,fecha_cambio_estado) VALUES (%s,%s,'ACTIVA',%s)", (alert["alerta_id"],detail,alert["fecha_creacion"]))
+    # En la misma transacción: el worker de NestJS solo ve envíos confirmados.
+    conn.execute("""INSERT INTO envio_alerta(alerta_id,contacto_emergencia_id)
+        SELECT %s,contacto_emergencia_id FROM contacto_emergencia WHERE usuario_id=%s
+        ON CONFLICT (alerta_id,contacto_emergencia_id,tipo_notificacion) DO NOTHING""", (alert["alerta_id"],usuario_id))
     return obtener(conn, alert["alerta_id"])
 
 def _finalizar(conn: psycopg.Connection, row: dict) -> None:

@@ -3,6 +3,9 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsEmail,
+  IsISO8601,
+  IsIn,
   IsLatitude,
   IsLongitude,
   IsOptional,
@@ -51,7 +54,8 @@ export class SendEmergencyAlertDto implements SendEmergencyAlertRequest {
   @ArrayMaxSize(MAX_RECIPIENTS)
   @Matches(PHONE_NUMBER, {
     each: true,
-    message: 'cada número de recipients debe tener solo dígitos (8 a 15), con "+" opcional',
+    message:
+      'cada número de recipients debe tener solo dígitos (8 a 15), con "+" opcional',
   })
   recipients: string[];
 
@@ -60,14 +64,33 @@ export class SendEmergencyAlertDto implements SendEmergencyAlertRequest {
   @Length(1, 50)
   senderName?: string;
 
+  @IsOptional()
+  @IsEmail()
+  @Length(1, 100)
+  senderEmail?: string;
+
+  @IsOptional()
+  @IsISO8601()
+  occurredAt?: string;
+
+  @IsOptional()
+  @IsIn(['MEDICO', 'URBANO', 'EMERGENCIA', 'ADULTO MAYOR'])
+  emergencyType?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 150)
+  locationLabel?: string;
+
   // Mismo largo que USUARIO_MENSAJE_PERSONALIZADO.mensaje.
   @IsString()
   @Length(1, 200)
   message: string;
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => EmergencyAlertLocationDto)
-  location: EmergencyAlertLocationDto;
+  location?: EmergencyAlertLocationDto;
 
   @IsOptional()
   @ValidateNested()

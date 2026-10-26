@@ -56,7 +56,7 @@ BEGIN
   IF (SELECT estado_alerta FROM alerta WHERE alerta_id=alert)<>'FINALIZADA' THEN RAISE EXCEPTION 'Cierre por borrado'; END IF;
   IF (SELECT count(*) FROM historial_alerta WHERE alerta_id=alert)<>2 THEN RAISE EXCEPTION 'Historial duplicado'; END IF;
   IF (SELECT fecha_revocacion FROM enlace_medico WHERE alerta_id=alert) IS NULL THEN RAISE EXCEPTION 'Enlace activo'; END IF;
-  IF (SELECT estado_envio_id FROM envio_alerta WHERE alerta_id=alert)<>3 THEN RAISE EXCEPTION 'Envío no fallido'; END IF;
+  IF EXISTS(SELECT 1 FROM envio_alerta WHERE alerta_id=alert AND estado_envio_id<>3) THEN RAISE EXCEPTION 'Envío no fallido'; END IF;
   IF (SELECT texto_mensaje FROM detalle_alerta WHERE detalle_alerta_id=detail)<>'[Contenido eliminado]' THEN RAISE EXCEPTION 'Snapshot no depurado'; END IF;
   IF EXISTS(SELECT 1 FROM ubicacion_alerta WHERE ubicacion_alerta_id=loc) THEN RAISE EXCEPTION 'Ubicación no depurada'; END IF;
   IF NOT EXISTS(SELECT 1 FROM pin WHERE pin_id=pinid) THEN RAISE EXCEPTION 'PIN compartido eliminado'; END IF;

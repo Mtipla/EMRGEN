@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PRIORIDADES } from '@repo/ui/mocks';
 import { PinDialog } from '@repo/ui/wireframe';
-import { errorSos, finalizarSos, listarActivas, type Alerta } from '../lib/sos';
+import { errorSos, estadoWhatsapp, finalizarSos, listarActivas, type Alerta } from '../lib/sos';
 
 /** Solo muestra SOS propios; salir del Home desmonta el monitor y cancela la consulta. */
 export default function AlertasActivas({
@@ -98,6 +98,7 @@ export default function AlertasActivas({
             <p className="wf-muted">{new Date(a.fecha_creacion).toLocaleString('es-CL')}</p>
             <p>{a.mensaje}</p>
             {a.ubicacion && <p>Ubicación: {a.ubicacion}</p>}
+            <p>{estadoWhatsapp(a)}</p>
             <button
               type="button"
               className="wf-button"

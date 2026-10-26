@@ -4,6 +4,9 @@ import { vi } from 'vitest';
 import AlertaSos from './AlertaSos';
 import AlertasActivas from './AlertasActivas';
 import { enviarSos, finalizarSos, listarActivas, type Alerta } from '../lib/sos';
+import { obtenerUbicacionSos } from '../lib/ubicacion-sos';
+
+vi.mock('../lib/ubicacion-sos', () => ({ obtenerUbicacionSos: vi.fn() }));
 
 vi.mock('../lib/sos', async (original) => ({
   ...(await original<typeof import('../lib/sos')>()),
@@ -25,7 +28,10 @@ const alerta: Alerta = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubGlobal('crypto', { randomUUID: () => '084fd63f-080d-441e-aa30-05ec7593796c' });
+  vi.mocked(obtenerUbicacionSos).mockResolvedValue('SIMULADA: -33.4378,-70.6504');
+  vi.stubGlobal('crypto', {
+    randomUUID: () => '084fd63f-080d-441e-aa30-05ec7593796c',
+  });
 });
 afterEach(() => {
   cleanup();
@@ -37,11 +43,13 @@ test('conserva la selección de emergencia, muestra los teléfonos después de E
   const onRegistrada = vi.fn();
   render(<AlertaSos onClose={vi.fn()} onRegistrada={onRegistrada} />);
   const enviar = screen.getByRole('button', { name: 'Enviar SOS' });
-  const numeros = screen.getByRole('heading', { name: 'Números de emergencia' });
+  const numeros = screen.getByRole('heading', {
+    name: 'Números de emergencia',
+  });
   expect(enviar.compareDocumentPosition(numeros) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   fireEvent.change(screen.getByRole('combobox'), { target: { value: '1' } });
   await userEvent.click(enviar);
-  expect(enviarSos).toHaveBeenCalledWith(1, expect.any(String));
+  expect(enviarSos).toHaveBeenCalledWith(1, expect.any(String), 'SIMULADA: -33.4378,-70.6504');
   expect(await screen.findByText('ACTIVA')).not.toBeNull();
   expect(onRegistrada).toHaveBeenCalledOnce();
 });
@@ -58,6 +66,7 @@ test('un envío fallido permite reintentar con la misma clave sin mostrar un éx
   await userEvent.click(screen.getByRole('button', { name: 'Enviar SOS' }));
   expect(await screen.findByText('ACTIVA')).not.toBeNull();
   expect(vi.mocked(enviarSos).mock.calls[0]).toEqual(vi.mocked(enviarSos).mock.calls[1]);
+  expect(obtenerUbicacionSos).toHaveBeenCalledTimes(1);
 });
 
 test('el listado muestra únicamente alertas activas del usuario', async () => {
@@ -70,6 +79,21 @@ test('el listado muestra únicamente alertas activas del usuario', async () => {
   expect(await screen.findByRole('heading', { name: 'Alerta #81' })).not.toBeNull();
   expect(screen.queryByRole('heading', { name: 'Alerta #82' })).toBeNull();
   expect(screen.queryByRole('heading', { name: 'Alerta #83' })).toBeNull();
+});
+
+test('informa la causa de la ubicación no disponible y mantiene el envío del SOS', async () => {
+  vi.mocked(obtenerUbicacionSos).mockImplementationOnce(async (onUnavailable) => {
+    onUnavailable?.(
+      'El dispositivo no pudo determinar tu ubicación. Comprueba que la ubicación esté activada.',
+    );
+    return undefined;
+  });
+  vi.mocked(enviarSos).mockResolvedValue(alerta);
+  render(<AlertaSos onClose={vi.fn()} onRegistrada={vi.fn()} />);
+  await userEvent.click(screen.getByRole('button', { name: 'Enviar SOS' }));
+  expect(await screen.findByText(/El dispositivo no pudo determinar tu ubicación/)).not.toBeNull();
+  expect(screen.getByText('ACTIVA')).not.toBeNull();
+  expect(enviarSos).toHaveBeenCalledWith(3, expect.any(String), undefined);
 });
 
 test('solo finaliza con PIN válido; un PIN incorrecto conserva la alerta activa', async () => {

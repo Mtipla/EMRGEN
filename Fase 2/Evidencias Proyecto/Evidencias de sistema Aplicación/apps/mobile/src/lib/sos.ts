@@ -9,6 +9,8 @@ export type Alerta = {
   ubicacion: string | null;
   fecha_creacion: string;
   fecha_cierre: string | null;
+  whatsapp?: { pendientes: number; enviados: number; fallidos: number };
+  whatsapp_cierre?: { pendientes: number; enviados: number; fallidos: number };
 };
 
 export const MENSAJE_REQUIERE_PLAN = 'Esta es una opción que requiere un plan';
@@ -19,11 +21,24 @@ export const listarActivas = (usuarioId: number, signal: AbortSignal) =>
     cache: 'no-store',
   });
 
-export const enviarSos = (prioridadId: number, claveIdempotencia: string) =>
+export const enviarSos = (prioridadId: number, claveIdempotencia: string, ubicacion?: string) =>
   internalFetch<Alerta>('/alertas', {
     method: 'POST',
-    body: JSON.stringify({ clave_idempotencia: claveIdempotencia, prioridad_id: prioridadId }),
+    body: JSON.stringify({
+      clave_idempotencia: claveIdempotencia,
+      prioridad_id: prioridadId,
+      ubicacion,
+    }),
   });
+
+export const consultarSos = (alertaId: number, signal: AbortSignal) =>
+  internalFetch<Alerta>(`/alertas/${alertaId}`, { signal, cache: 'no-store' });
+
+export function estadoWhatsapp(alerta: Alerta): string {
+  const estado = alerta.whatsapp;
+  if (!estado) return 'WhatsApp: estado de envío no disponible.';
+  return `WhatsApp: ${estado.enviados} enviado(s), ${estado.pendientes} pendiente(s), ${estado.fallidos} fallido(s).`;
+}
 
 export const finalizarSos = (alertaId: number, pin: string) =>
   internalFetch<Alerta>(`/alertas/${alertaId}/cerrar`, {

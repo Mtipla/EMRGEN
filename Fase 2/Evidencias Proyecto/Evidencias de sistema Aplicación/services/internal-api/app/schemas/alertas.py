@@ -13,6 +13,11 @@ class AlertaCerrar(BaseModel):
     model_config = ConfigDict(extra="forbid")
     pin: str = Field(pattern=r"^\d{4}$", strict=True)
 
+class EstadoWhatsapp(BaseModel):
+    pendientes: int
+    enviados: int
+    fallidos: int
+
 class Alerta(BaseModel):
     alerta_id: int
     usuario_id: int | None
@@ -23,3 +28,5 @@ class Alerta(BaseModel):
     estado_alerta: str
     fecha_creacion: datetime
     fecha_cierre: datetime | None
+    whatsapp: EstadoWhatsapp
+    whatsapp_cierre: EstadoWhatsapp

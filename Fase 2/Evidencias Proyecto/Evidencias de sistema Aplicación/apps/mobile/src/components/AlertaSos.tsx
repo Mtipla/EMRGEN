@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PRIORIDADES } from '@repo/ui/mocks';
 import { Modal, NumerosEmergencia } from '@repo/ui/wireframe';
-import { enviarSos, errorSos, type Alerta } from '../lib/sos';
+import { consultarSos, enviarSos, errorSos, estadoWhatsapp, type Alerta } from '../lib/sos';
+import { obtenerUbicacionSos } from '../lib/ubicacion-sos';
 
 /** El éxito solo se muestra después de que la API confirma el registro del SOS. */
-const AlertaSos: React.FC<{ onClose: () => void; onRegistrada: () => void }> = ({
-  onClose,
-  onRegistrada,
-}) => {
+const AlertaSos: React.FC<{
+  onClose: () => void;
+  onRegistrada: () => void;
+}> = ({ onClose, onRegistrada }) => {
   const [solicitud, setSolicitud] = useState(() => ({
     prioridad: PRIORIDADES[2].id as number,
     clave: crypto.randomUUID(),
@@ -15,6 +16,28 @@ const AlertaSos: React.FC<{ onClose: () => void; onRegistrada: () => void }> = (
   const [alerta, setAlerta] = useState<Alerta | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
+  const [avisoUbicacion, setAvisoUbicacion] = useState('');
+  const contenido = useRef<{ clave: string; ubicacion?: string } | null>(null);
+  const alertaId = alerta?.alerta_id;
+  const pendientes = alerta?.whatsapp?.pendientes ?? 0;
+
+  useEffect(() => {
+    if (!alertaId || pendientes === 0) return;
+    const controller = new AbortController();
+    const timer = setInterval(() => {
+      void consultarSos(alertaId, controller.signal)
+        .then((actualizada) => {
+          if (!controller.signal.aborted) setAlerta(actualizada);
+        })
+        .catch(() => {
+          /* El listado permite volver a consultar si se pierde la conexión. */
+        });
+    }, 3000);
+    return () => {
+      clearInterval(timer);
+      controller.abort();
+    };
+  }, [alertaId, pendientes]);
 
   async function enviar() {
     if (enviando) return;
@@ -22,7 +45,18 @@ const AlertaSos: React.FC<{ onClose: () => void; onRegistrada: () => void }> = (
     setError('');
     try {
       // Un reintento conserva UUID y contenido para no duplicar un envío confirmado por el servidor.
-      const registrada = await enviarSos(solicitud.prioridad, solicitud.clave);
+      if (contenido.current?.clave !== solicitud.clave) {
+        setAvisoUbicacion('');
+        contenido.current = {
+          clave: solicitud.clave,
+          ubicacion: await obtenerUbicacionSos(setAvisoUbicacion),
+        };
+      }
+      const registrada = await enviarSos(
+        solicitud.prioridad,
+        solicitud.clave,
+        contenido.current.ubicacion,
+      );
       setAlerta(registrada);
       onRegistrada();
     } catch (causa) {
@@ -48,6 +82,13 @@ const AlertaSos: React.FC<{ onClose: () => void; onRegistrada: () => void }> = (
           Estado: <strong>{alerta.estado_alerta}</strong>. Puedes consultar y finalizar la alerta
           desde el apartado Alertas, ingresando tu PIN.
         </p>
+        <p role="status">{estadoWhatsapp(alerta)}</p>
+        <p>El estado enviado confirma el despacho, no la lectura del contacto.</p>
+        {!alerta.ubicacion && (
+          <p>
+            {avisoUbicacion || 'No se pudo obtener tu ubicación.'} La alerta se registró sin ella.
+          </p>
+        )}
       </Modal>
     );
 
@@ -61,13 +102,20 @@ const AlertaSos: React.FC<{ onClose: () => void; onRegistrada: () => void }> = (
       actions={null}
     >
       <div className="wf-form">
+        <p>
+          Se enviará tu mensaje de emergencia configurado y tu ubicación a tus contactos por
+          WhatsApp.
+        </p>
         <label>
           Tipo de emergencia
           <select
             value={solicitud.prioridad}
             disabled={enviando}
             onChange={(e) =>
-              setSolicitud({ prioridad: Number(e.target.value), clave: crypto.randomUUID() })
+              setSolicitud({
+                prioridad: Number(e.target.value),
+                clave: crypto.randomUUID(),
+              })
             }
           >
             {PRIORIDADES.map((p) => (

@@ -43,6 +43,7 @@ del model[("pin","pin")]
 model[("bitacora_sistema","usuario_id")]=("integer",True,False,False,True,False)
 extras={("venta",n) for n in ("orden_paypal_id","captura_paypal_id","monto_cobrado","moneda_cobrada")}
 extras|={("pin","intentos_fallidos"),("pin","bloqueado_hasta"),("alerta","huella_solicitud")}
+extras|={("envio_alerta","tipo_notificacion")}
 with connect() as db:
     columns=db.execute("""SELECT table_name,column_name,data_type,character_maximum_length,numeric_precision,numeric_scale,is_nullable,is_identity
         FROM information_schema.columns WHERE table_schema='public'""").fetchall()
@@ -70,5 +71,5 @@ with connect() as db:
     if failures or unplanned:
         print("DIFERENCIAS",failures,unplanned);sys.exit(1)
     print(f"Excel OK: {len(model)} columnas, {len(set(t for t,c in model))} tablas; tipos/nulabilidad/identity/PK/FK y UNIQUE explícitos.")
-    print("Excepciones: PIN hasheado, actor nullable; adicionales PayPal, límites PIN, huella SOS y reserva durable.")
+    print("Excepciones: PIN hasheado, actor nullable; adicionales PayPal, límites PIN, huella SOS, reserva durable y tipo de notificación WhatsApp.")
     print("SHA256",hashlib.sha256(path.read_bytes()).hexdigest())

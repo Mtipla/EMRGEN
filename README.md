@@ -24,7 +24,7 @@ Las aplicaciones se organizan en un monorepo con **npm workspaces y Turborepo**,
   - jsReport: reportes PDF y Excel.
   - Google Maps Platform: mapas y geocodificación.
   - mindicador.cl: indicadores económicos para la conversión de precios.
-  - WhatsApp mediante Baileys: módulo de mensajería, todavía separado del registro de SOS.
+  - WhatsApp mediante Baileys: envío de SOS a los contactos de emergencia con mensaje personalizado y ubicación.
 
 ---
 

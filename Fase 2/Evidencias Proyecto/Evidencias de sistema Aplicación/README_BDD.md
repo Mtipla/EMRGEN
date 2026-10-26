@@ -60,6 +60,8 @@ El registro público conserva la verificación de correo Firebase. Los apadrinad
 
 ## Validación reproducible
 
+La ampliación de WhatsApp distingue `ACTIVACION` y `FINALIZACION` con `envio_alerta.tipo_notificacion` y un aviso único por alerta, contacto y tipo. Para actualizar una instalación existente, detén NestJS y FastAPI, ejecuta `node scripts/migrate-whatsapp.cjs` y reinicia ambos con el código actualizado. La migración conserva los envíos previos y está incluida en `init.sql` para bases nuevas. `scripts/verify-excel.py` reconoce esta columna adicional al modelo de referencia. Detalles y verificación con proveedor simulado: [SOS por WhatsApp](docs/WHATSAPP_SOS.md).
+
 Ejecutar las suites de base **secuencialmente**, en el único entorno de desarrollo con fixtures ya existentes. Las pruebas usan cuentas temporales, hacen COMMIT en carreras reales y limpian sus cuentas; algunas evidencias históricas/auditorías de prueba permanecen por diseño. La prueba de último administrador cambia transitoriamente roles de fixtures y los restaura en finally: no ejecutarla mientras se usa el panel.
 
 ```powershell

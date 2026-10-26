@@ -132,6 +132,6 @@ Si no se cierra manualmente, FastAPI la finaliza tras 24 horas transcurridas med
 
 Para una alerta nueva, genera un UUID nuevo. Para reintentar la misma solicitud tras una interrupción de red, conserva tanto su UUID como su contenido.
 
-El registro guarda `ALERTA`, `DETALLE_ALERTA`, `HISTORIAL_ALERTA` y, si corresponde, `UBICACION_ALERTA` en una transacción. El historial interno de transiciones se persiste en BD; el GET de alertas devuelve el estado actual de cada evento. Este servicio todavía no realiza el envío a contactos por WhatsApp.
+El registro guarda `ALERTA`, `DETALLE_ALERTA`, `HISTORIAL_ALERTA`, un `ENVIO_ALERTA` pendiente por contacto y, si corresponde, `UBICACION_ALERTA` en una transacción. NestJS procesa esos envíos mediante la sesión de WhatsApp vinculada. El GET de alertas devuelve el estado del SOS y los contadores `whatsapp` de pendientes, enviados y fallidos. Consulta [SOS por WhatsApp](WHATSAPP_SOS.md) para la vinculación y la prueba con ubicación real o simulada.
 
 La pantalla móvil ya utiliza `POST /internal/v1/alertas` y `POST /internal/v1/alertas/{id}/cerrar` desde `apps/mobile/src/components/AlertaSos.tsx`. Estas pruebas permiten verificar su registro directamente en la API.

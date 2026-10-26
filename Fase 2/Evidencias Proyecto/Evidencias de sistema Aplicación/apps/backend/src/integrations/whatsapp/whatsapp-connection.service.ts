@@ -7,7 +7,10 @@ import {
   OnModuleDestroy,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import type { WhatsappConnectionState, WhatsappStatusResponse } from '@repo/api-types';
+import type {
+  WhatsappConnectionState,
+  WhatsappStatusResponse,
+} from '@repo/api-types';
 import type {
   AnyMessageContent,
   ConnectionState,
@@ -18,6 +21,7 @@ import { loadBaileys } from './baileys.loader';
 import { normalizePhoneNumber, toUserJid } from './phone-number';
 import { WhatsappAuthStateStore } from './whatsapp-auth-state.store';
 import { INTEGRATION, isWhatsappEnabled } from './whatsapp.constants';
+import { readEnv } from '../../config/env';
 
 const MAX_RECONNECT_DELAY_MS = 30_000;
 
@@ -26,7 +30,8 @@ const errorMessage = (error: unknown): string =>
 
 /** Baileys entrega el motivo del cierre como un Boom con `output.statusCode`. */
 const statusCodeOf = (error: unknown): number | undefined =>
-  (error as { output?: { statusCode?: number } } | undefined)?.output?.statusCode;
+  (error as { output?: { statusCode?: number } } | undefined)?.output
+    ?.statusCode;
 
 /**
  * Sesión de WhatsApp (Baileys) del número emisor de EMERGEN: conecta, expone el QR o el
@@ -92,7 +97,9 @@ export class WhatsappConnectionService
   }
 
   isReady(): boolean {
-    return this.state === 'open' && this.socket !== undefined;
+    return (
+      this.state === 'open' && this.socket !== undefined && this.senderMatches()
+    );
   }
 
   /** Lanza 503 si la sesión no está lista para enviar. */
@@ -114,7 +121,8 @@ export class WhatsappConnectionService
       );
     }
     const digits = normalizePhoneNumber(phoneNumber);
-    if (!digits) throw new BadRequestException('phoneNumber no es un número válido');
+    if (!digits)
+      throw new BadRequestException('phoneNumber no es un número válido');
     return this.socket.requestPairingCode(digits);
   }
 
@@ -125,9 +133,13 @@ export class WhatsappConnectionService
     this.generation++;
     this.socket = undefined;
     if (this.state === 'open' && socket) {
-      await socket.logout().catch((error: unknown) =>
-        this.logger.warn(`No se pudo cerrar la sesión en WhatsApp: ${errorMessage(error)}`),
-      );
+      await socket
+        .logout()
+        .catch((error: unknown) =>
+          this.logger.warn(
+            `No se pudo cerrar la sesión en WhatsApp: ${errorMessage(error)}`,
+          ),
+        );
     } else {
       socket?.end(undefined).catch(() => undefined);
     }
@@ -138,12 +150,16 @@ export class WhatsappConnectionService
 
   /** JID de la cuenta de WhatsApp del número, o `undefined` si no usa WhatsApp. */
   async findAccount(digits: string): Promise<string | undefined> {
-    const [result] = (await this.readySocket().onWhatsApp(toUserJid(digits))) ?? [];
+    const [result] =
+      (await this.readySocket().onWhatsApp(toUserJid(digits))) ?? [];
     return result?.exists ? result.jid : undefined;
   }
 
   /** Envía un mensaje y devuelve su id. */
-  async send(jid: string, content: AnyMessageContent): Promise<string | undefined> {
+  async send(
+    jid: string,
+    content: AnyMessageContent,
+  ): Promise<string | undefined> {
     const message = await this.readySocket().sendMessage(jid, content);
     return message?.key.id ?? undefined;
   }
@@ -164,10 +180,14 @@ export class WhatsappConnectionService
         version,
         auth: {
           creds: state.creds,
-          keys: baileys.makeCacheableSignalKeyStore(state.keys, this.baileysLogger),
+          keys: baileys.makeCacheableSignalKeyStore(
+            state.keys,
+            this.baileysLogger,
+          ),
         },
         logger: this.baileysLogger,
-        browser: baileys.Browsers.ubuntu('EMERGEN'),
+        // El código de vinculación necesita un navegador reconocido por WhatsApp.
+        browser: baileys.Browsers.ubuntu('Chrome'),
         // Cuenta solo emisora: no se marca "en línea" ni pide el historial completo.
         // No desactivar shouldSyncHistoryMessage: Baileys necesita la sincronización
         // inicial para los mapeos LID y sin ella la sesión se vuelve inestable.
@@ -178,7 +198,9 @@ export class WhatsappConnectionService
 
       socket.ev.on('creds.update', () => {
         saveCreds().catch((error: unknown) =>
-          this.logger.error(`No se pudieron guardar las credenciales: ${errorMessage(error)}`),
+          this.logger.error(
+            `No se pudieron guardar las credenciales: ${errorMessage(error)}`,
+          ),
         );
       });
       socket.ev.on('connection.update', (update) => {
@@ -212,10 +234,13 @@ export class WhatsappConnectionService
       this.lastError = undefined;
       this.reconnectAttempts = 0;
       this.setState('open');
-      this.logger.log(`Conectado como ${this.getStatus().phoneNumber ?? 'desconocido'}.`);
+      this.logger.log(
+        `Conectado como ${this.getStatus().phoneNumber ?? 'desconocido'}.`,
+      );
     }
 
-    if (connection === 'close') await this.onClose(generation, lastDisconnect?.error);
+    if (connection === 'close')
+      await this.onClose(generation, lastDisconnect?.error);
   }
 
   private async onClose(generation: number, error: unknown): Promise<void> {
@@ -229,7 +254,9 @@ export class WhatsappConnectionService
 
     switch (code) {
       case DisconnectReason.loggedOut:
-        this.logger.warn('La sesión se cerró desde el teléfono: se borran las credenciales.');
+        this.logger.warn(
+          'La sesión se cerró desde el teléfono: se borran las credenciales.',
+        );
         await this.authStore.clear();
         return this.scheduleReconnect(generation, 0);
       case DisconnectReason.restartRequired:
@@ -244,7 +271,9 @@ export class WhatsappConnectionService
         );
         return;
       default:
-        this.logger.warn(`Conexión cerrada (código ${code ?? '?'}); se reintentará.`);
+        this.logger.warn(
+          `Conexión cerrada (código ${code ?? '?'}); se reintentará.`,
+        );
         return this.scheduleReconnect(generation);
     }
   }
@@ -252,7 +281,8 @@ export class WhatsappConnectionService
   private scheduleReconnect(generation: number, delayMs?: number): void {
     if (this.stopped || generation !== this.generation) return;
     const wait =
-      delayMs ?? Math.min(1_000 * 2 ** this.reconnectAttempts++, MAX_RECONNECT_DELAY_MS);
+      delayMs ??
+      Math.min(1_000 * 2 ** this.reconnectAttempts++, MAX_RECONNECT_DELAY_MS);
     this.setState('connecting');
     clearTimeout(this.reconnectTimer);
     this.reconnectTimer = setTimeout(() => void this.connect(), wait);
@@ -289,6 +319,19 @@ export class WhatsappConnectionService
         `${INTEGRATION} no está conectado (estado: ${this.state}). Vincula el número emisor (ver readme-apis.md).`,
       );
     }
+    if (!this.senderMatches()) {
+      throw new ServiceUnavailableException(
+        'La cuenta de WhatsApp vinculada no coincide con WHATSAPP_SENDER_PHONE.',
+      );
+    }
     return this.socket;
+  }
+
+  private senderMatches(): boolean {
+    const expected = readEnv('WHATSAPP_SENDER_PHONE');
+    return (
+      !expected ||
+      normalizePhoneNumber(expected) === this.getStatus().phoneNumber
+    );
   }
 }
