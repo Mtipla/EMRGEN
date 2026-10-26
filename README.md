@@ -1,4 +1,4 @@
-﻿## 📖 Descripción del Proyecto
+## 📖 Descripción del Proyecto
 
 **EMERGEN** es una plataforma de alertas de emergencia con una web, una aplicación móvil y un panel administrativo de escritorio. Reúne la gestión de usuarios, cuentas apadrinadas, contactos, planes, compras, alertas SOS y soporte.
 

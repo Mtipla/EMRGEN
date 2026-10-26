@@ -1,0 +1,154 @@
+<!-- converted from Cambios Pendientes.docx -->
+
+Cambios Pendientes
+Estado al 17/10/2026. Este documento registra lo que todavía no está resuelto o validado. Las entradas de Fase 1 de abajo se mantienen tal como están porque tienen comentarios de que hay que hacer una revisión más extensa.
+Confirmado por el usuario (17/10/2026): las fechas de Sprint (Sprint 3, Sprint 4, daily scrums e hito de Sprint-fase2) se conservan. 
+RF5: el método de activación depende del tipo de usuario, con 5 segundos como configuración predeterminada para personas mayores o usuarios con acceso limitado; la prioridad Could Have sigue pendiente de confirmar. Autores confirmados: Acta v1.2 y ERS revisión 1.1, Gabriel Valencia.
+Estado verificado el 17/10/2026 (segunda revisión): las entradas de abajo de Sprint-fase1 («Sprint 3 — Periodo» y «Sprint 4 — Periodo») y de Sprint-fase2 (Daily Scrum de los Sprints 5 y 6 e hito académico del Sprint 6) ya están aplicadas en los documentos y registradas en Cambios Realizados ([AUDIT-031] a [AUDIT-035]). Se conservan sólo como historial. De ese bloque sigue pendiente el cambio de IDs  de F1-xx a TD-xx en Sprint-fase1 ([AUDIT-030]).
+Sigue pendiente: horizonte de 7 semanas, nota de fechas, DoD única y fechas del Product Backlog, IDs de F1-xx de Sprint-fase1, revisión del  RF14 del Acta de constitución.
+
+
+(07/10/2026) Hallazgo 1.2. Inconsistencia original: Hoja de ruta y Sprint Planning: Son reuniones “una vez a la semana” con un Sprint 4 de dos semanas, horizonte de 7 semanas para 5, MVP atribuido al Sprint 4, tres Definition of Done y fechas de cierre incoherentes.
+Texto anterior: Previsibilidad y Transparencia: Establece un horizonte claro de 7 semanas de trabajo donde los roles Scrum (PO, SM y Developers) comprenden el momento en que se entregará cada capacidad del sistema.
+Texto nuevo: Previsibilidad y Transparencia: Establece un horizonte claro de 5 semanas para la Fase 1 (cuatro Sprints, con el Sprint 4 de dos semanas) donde los roles Scrum (PO, SM y Developers) comprenden el momento en que se entregará cada capacidad del sistema.
+Justificación: Se anunciaba un horizonte de 7 semanas para 4 sprints que suman 5 semanas.
+
+(07/10/2026) Hallazgo 1.2. Inconsistencia original: Hoja de ruta y Sprint Planning: Son reuniones “una vez a la semana” con un Sprint 4 de dos semanas, horizonte de 7 semanas para 5, MVP atribuido al Sprint 4, tres Definition of Done y fechas de cierre incoherentes.
+Texto anterior: Fechas incoherentes: Sprint 4 termina el 14-09, el Hito 1 del Acta vence el 11-09 y el Backlog cerraba la Fase 1 el 06-09
+Texto nuevo: Nota de fechas (v1.1): la entrega del Hito N°1 del Acta (11-09-2026) se realiza dentro del Sprint 4. La Sprint Review y la Retrospectiva del Sprint 4 se registraron el 14-09-2026, que es la fecha de cierre de la Fase 1 (el Product Backlog se corrigieron para usar la misma fecha).
+Justificación: Se explicita la relación entre el hito y el cierre del sprint, y se unifica la fecha de cierre de la Fase 1.
+
+(07/10/2026) Hallazgo 1.2 / A-12. Inconsistencia original: Hoja de ruta y Sprint Planning: Son reuniones “una vez a la semana” con un Sprint 4 de dos semanas, horizonte de 7 semanas para 5, MVP atribuido al Sprint 4, tres Definition of Done y fechas de cierre incoherentes.
+Texto anterior: Dos Definition of Done: la primera (6 ítems) y, tras “La siguiente definición se aplica a todas las tarjetas y entregables de los cuatro Sprints.”, una segunda con 8 ítems: El entregable está completo  | Los criterios de aceptación aplicables fueron revisados y cumplidos. | El documento, diagrama o configuración fue revisado por otro integrante. | La evidencia se encuentra adjunta o vinculada desde la tarjeta correspondiente. | No existen errores críticos pendientes que impidan presentar el resultado. | La documentación y la trazabilidad relacionadas fueron actualizadas. | El resultado puede demostrarse en la Sprint Review y ser inspeccionado por el Product Owner. | La tarjeta queda marcada como completada solamente después de la validación correspondiente.
+Texto nuevo: Una sola Definition of Done de 8 ítems, que consiste en los 6 criterios  originales más 2 extra “La evidencia se encuentra adjunta o vinculada desde la tarjeta correspondiente” y “La tarjeta queda marcada como completada solamente después de la validación correspondiente”, seguida de la frase: “Esta Definition of Done es única para el proyecto: se aplica a todas las tarjetas y entregables de la Fase 1 y la Fase 2, y reemplaza a la segunda definición que tenía este documento y a la del Product Backlog.”
+Justificación: Había tres DoD distintas (dos aquí y una en el Product Backlog). Se fusionan sin perder criterios.
+
+
+1.2.2 Sprint-fase1.docx (1.2)
+(07/10/2026) Hallazgo 2.1 / A-10. Inconsistencia original: Product Backlog vs. Tabla Maestra: SP y dependencias distintas, features cruzadas, TD con IDs antiguos, TD-12 inexistente, features sin HU y 12 RF sin HU.
+Texto anterior: PBI de la Fase 1 identificados como F1-01 … F1-11
+Texto nuevo: PBI identificados como TD-01 … TD-11 (11 filas)
+Justificación: Los IDs F1-xx eran los antiguos; el Product Backlog y la Tabla Maestra usan TD-xx.
+(07/10/2026) Hallazgo 1.2. Inconsistencia original: Hoja de ruta y Sprint Planning: iteraciones “de una semana” con un Sprint 4 de dos, horizonte de 7 semanas para 5, MVP atribuido al Sprint 4, tres Definition of Done y fechas de cierre incoherentes.
+Texto anterior: Sprint 3 — Periodo: 31 de agosto al 14 de septiembre de 2026
+Texto nuevo: Sprint 3 — Periodo: 24 al 28 de agosto de 2026
+Justificación: El periodo del Sprint 3 estaba copiado del Sprint 4. Sus Daily Scrum (24–28 de agosto) y la Hoja de ruta confirman el 24 al 28 de agosto.
+(07/10/2026) Hallazgo 1.2. Inconsistencia original: Hoja de ruta y Sprint Planning: iteraciones “de una semana” con un Sprint 4 de dos, horizonte de 7 semanas para 5, MVP atribuido al Sprint 4, tres Definition of Done y fechas de cierre incoherentes.
+Texto anterior: Sprint 4 — Periodo: 31 de agosto  al 6 de septiembre de 2026.
+Texto nuevo: Sprint 4 — Periodo: 31 de agosto al 14 de septiembre de 2026 (incluye la entrega del Hito N°1 el 11-09-2026).
+Justificación: El Sprint 4 terminaba el 06-09 en el encabezado, pero sus Daily Scrum y su Review llegan al 14-09, como indica la hoja de ruta.
+1.2.3 Sprint-fase2.docx (1.2)
+(07/10/2026) Hallazgo 1.2 (conciliación). Inconsistencia original: Fechas de los Sprints 5 y 6 con el mes equivocado. Se detectó al conciliar la Hoja de ruta con los Sprint Planning.
+Texto anterior: Sprint 5 — Daily Scrum: 21, 22, 23, 24 y 25 de agosto.
+Texto nuevo: Sprint 5 — Daily Scrum: 21, 22, 23, 24 y 25 de septiembre.
+Justificación: Error de mes: el Sprint 5 transcurre del 21 al 25 de septiembre de 2026.
+(07/10/2026) Hallazgo 1.2 (conciliación). Inconsistencia original: Fechas de los Sprints 5 y 6 con el mes equivocado. Se detectó al conciliar la Hoja de ruta con los Sprint Planning.
+Texto anterior: Sprint 6 — Daily Scrum: 28, 29 y 30 de agosto 1, 2, 5, 6, 7, 8 y 9 de octubre
+Texto nuevo: Sprint 6 — Daily Scrum: 28, 29 y 30 de septiembre; 1, 2, 5, 6, 7, 8 y 9 de octubre.
+Justificación: Error de mes: el Sprint 6 transcurre del 28 de septiembre al 9 de octubre de 2026.
+(07/10/2026) Hallazgo 1.2 (conciliación). Inconsistencia original: Fechas de los Sprints 5 y 6 con el mes equivocado. Se detectó al conciliar la Hoja de ruta con los Sprint Planning.
+Texto anterior: Sprint 6 — Hito académico: revisión del avance y recepción de retroalimentación durante la clase semanal con el profesor. El día jueves 24 a las 1:40.
+Texto nuevo: Sprint 6 — Hito académico: revisión del avance y recepción de retroalimentación durante la clase semanal con el profesor. Los días jueves 1 y 8 de octubre a las 1:40.
+Justificación: El hito académico del Sprint 6 estaba copiado del Sprint 5 (jueves 24 de septiembre), fecha anterior al inicio del sprint.
+Visión del Producto.docx (1.1)
+(07/10/2026) Hallazgo I-08. Inconsistencia original: La Visión, RF14 y el Acta prometían comunicar a ambulancias y fuerzas de orden; la matriz y el Plan de pruebas lo reducían a mostrar números oficiales.
+Texto anterior: El proyecto “Emergen” busca entregar una solución rápida a las situaciones que requieran un llamado de emergencia ágil y efectivo (sean incidentes médicos, domésticos y/o accidentes urbanos). Su objetivo es comunicar a los contactos de emergencia del usuario y a los servicios de emergencia comunes (ambulancias o fuerzas de orden) toda la información necesaria para acudir en su auxilio en el momento en que se utilice la aplicación (información médica relevante, contexto del accidente y ubicación del incidente).
+Texto nuevo: El proyecto “Emergen” busca entregar una solución rápida a las situaciones que requieran un llamado de emergencia ágil y efectivo. Su objetivo es comunicar a los contactos de emergencia del usuario toda la información necesaria para acudir en su auxilio en el momento en que se utilice la aplicación y facilitar el contacto con los servicios de emergencia comunes (ambulancias, bomberos o fuerzas de orden) mostrando sus números oficiales.
+Justificación: La Visión prometía comunicar automáticamente a ambulancias y fuerzas del orden. El Plan de pruebas excluye la integración con centrales públicas y CP-RF14 solo muestra números oficiales. Se alinea la Visión con ese alcance, igual que RF14 del ERS y el Acta.
+(07/10/2026) Hallazgo I-08. Inconsistencia original: La Visión, RF14 y el Acta prometían comunicar a ambulancias y fuerzas de orden, mientras que  la matriz y el Plan de pruebas lo reducían a mostrar números oficiales.
+Texto anterior: “Emergen” busca solucionar los tiempos de espera en situaciones de emergencia, brindando una comunicación efectiva al círculo cercano de la persona y a los agentes de seguridad para el auxilio del usuario.
+Texto nuevo: “Emergen” busca solucionar los tiempos de espera en situaciones de emergencia, brindando una comunicación efectiva al círculo cercano de la persona y facilitando el contacto con los servicios de emergencia mediante los números oficiales (131, 132 y 133) para el auxilio del usuario.
+Justificación: Mismo texto de alcance que el Acta v1.2.
+
+Acta de constitución.docx (1.3)
+(07/10/2026) Hallazgo I-08. Inconsistencia original: La Visión, RF14 y el Acta prometían comunicar a ambulancias y fuerzas de orden; la matriz y el Plan de pruebas lo reducían a mostrar números oficiales.
+Texto anterior: “Emergen” busca solucionar los tiempos de espera en situaciones de emergencia, brindando una comunicación efectiva al círculo cercano de la persona y a los agentes de seguridad para el auxilio del usuario.
+Texto nuevo: “Emergen” busca solucionar los tiempos de espera en situaciones de emergencia, brindando una comunicación efectiva al círculo cercano de la persona y facilitando el contacto con los servicios de emergencia mediante los números oficiales para el auxilio del usuario.
+Justificación: La Visión y RF14 prometían comunicar a ambulancias y fuerzas de orden, pero la matriz (CP-RF14) y el Plan de pruebas ya lo reducían a mostrar los números oficiales. El objetivo se alinea con ese alcance real.
+(07/10/2026) Hallazgo RF5. Inconsistencia original: RF5 no era verificable (“a gusto del usuario”) y la activación en segundo plano no es factible solo con Capacitor (R-14).
+Texto anterior: RF5: El sistema debe poder personalizarse a gusto del usuario considerando el formato de activación en segundo plano.
+Texto nuevo: RF5: El sistema debe permitir al usuario configurar el método de activación del SOS. Mínimo verificable: botón SOS en la aplicación móvil con pulsación sostenida de 5 segundos (CA-06.1). La activación con la aplicación en segundo plano o cerrada (acceso directo, widget o botón físico) se implementará solo donde el sistema operativo lo permita sin código nativo adicional y se clasifica como Could Have.
+Justificación: 1.4 y R-14: “a gusto del usuario” no es verificable y la activación con la app cerrada no es factible solo con Capacitor. Se fija un mínimo verificable y lo demás queda como Could Have. Se replica el texto del ERS v1.1.
+(07/10/2026) Hallazgo RF14. Inconsistencia original: RF14 prometía informar a las redes de seguridad, pero el alcance real es mostrar números oficiales (I-08).
+Texto anterior: RF14: El sistema debe informar a las redes de seguridad más cercanas del usuario (números de emergencias)
+Texto nuevo: RF14: El sistema debe mostrar al usuario los números oficiales de emergencia de Chile (131 Ambulancia SAMU, 132 Bomberos y 133 Carabineros) con acceso directo a la llamada. El sistema no notifica automáticamente a estos organismos.
+Justificación: I-08: la matriz de pruebas (CP-RF14) y el Plan de pruebas ya reducían el alcance a mostrar números oficiales. Ahora el requisito lo dice explícitamente. Se replica el texto del ERS v1.1.
+
+
+
+### Pendientes de la auditoría (AUDIT-P01 a AUDIT-P13)
+[AUDIT-P01] Canal y proveedor de despacho de alertas (R-10, A-02). Firebase no envía correos de alerta ni llega a contactos sin la app instalada.
+Estado: Pendiente de decisión del equipo.
+Falta: canal (correo, SMS o push) y proveedor.
+[AUDIT-P02] Migración del esquema a init.sql y TypeORM (A-01): ENVIO_ALERTA, ENLACE_MEDICO, estado y timestamps de ALERTA, pin_hash, E.164 y cifrado de ANTECEDENTE_MEDICO.
+Estado: Pendiente de corrección en código.
+[AUDIT-P03] Worker outbox de ENVIO_ALERTA, regla de una alerta ACTIVA por usuario, guard con verificación de propiedad y pruebas e2e de IDOR (CP-RBAC-002).
+Estado: Pendiente de corrección en código.
+[AUDIT-P04] Refresh token rotativo y revocable, opción “cerrar todas las sesiones” y alineación de /auth/me (A-13, R-09).
+Estado: Pendiente de corrección en código.
+[AUDIT-P05] Configuración de seguridad de la ventana de Electron (A-05): no encontrada en apps/desktop; verificar con CP-SEG-002.
+Estado: Pendiente de corrección en código.
+[AUDIT-P06] Ecosistema del monorepo (A-15). Actualizado el 17/10/2026: el Dockerfile de 4.4 Docker ya usa Node 24.21.0 (ARG NODE_VERSION=24.21.0, igual que el del repositorio; esa parte está resuelta.
+Sigue pendiente: el package.json raíz no tiene el campo packageManager de nivel superior (solo devEngines.packageManager), turbo.json no declara env ni globalEnv, y el .env de 4.4 Docker sigue versionado con la contraseña de la base de datos local.
+Estado: Pendiente de corrección.
+[AUDIT-P07] Perfil qa en docker-compose, integración continua, hosting y plan de respaldo de la Fase 3 (A-16, A-19).
+Estado: Pendiente de decisión del equipo e infraestructura.
+[AUDIT-P08] Estimación de Story Points y de los Sprints de HU-14 a HU-19 y tareas TH, horas del trabajo fuera de las HU.
+Estado: Pendiente de planificación del equipo.
+Nota: HU-14 a HU-19 no aparecen como encabezados en el Product Backlog; confirmar.
+[AUDIT-P09] RACI: rebalanceo de la carga de Alonso (BD, web y móvil) (A-18).
+Estado: Pendiente de decisión del equipo.
+[AUDIT-P10] Privacidad (A-17): plazo de retención del historial cifrado (RNF9) y revisión del cumplimiento de la Ley 21.719 antes del 01-12-2026.
+Estado: Pendiente de decisión del Product Owner.
+[AUDIT-P11] Diagramas (I-09): ER y secuencia “Generar Alerta” sin actualizar con las tablas y estados nuevos.
+Estado: Pendiente de corrección.
+[AUDIT-P12] HU “Could Have” de seguridad personal (A-21): PIN de coacción, activación desde otro dispositivo, reporte de robo y tutor receptor.
+Estado: Pendiente de decisión del Product Owner.
+### Pendientes detectados en la verificación del 17/10/2026
+[AUDIT-029] Definition of Done única. La Hoja conserva sus dos listas y el Product Backlog mantiene su DoD de 6 ítems.
+Estado: pendiente de decisión.
+[AUDIT-060] Alcance de RF14: objetivo y alcance de la Visión (018 y 019), objetivo de alcance del Acta (037), RF14 del Acta (046) y RF14 del ERS (060). Decidir si hay notificación automática a servicios de emergencia o solo vínculo a los números oficiales.
+Estado: pendiente de decisión del equipo. No se ha modificado RF14.
+Corregido el 17/10/2026: esta entrada citaba solo [AUDIT-060], que corresponde al RF14 del ERS, no al del Acta.)
+[AUDIT-043] y [AUDIT-057] RF5 (Acta y ERS): método por tipo de usuario confirmado, con 5 segundos en el perfil predeterminado de personas mayores o usuarios con acceso limitado.
+Estado: pendiente solo la prioridad Could Have y el valor para el resto de perfiles.
+[AUDIT-052] Acta de constitución: versión 1.2 agregada.
+Resuelto 17/10/2026: autor Gabriel Valencia.
+[AUDIT-054] Informe ERS: revisión 1.1 agregada.
+Resuelto 17/10/2026: autor Gabriel Valencia.
+[AUDIT-157] Plan de pruebas: versión 1.1 agregada.
+Estado: pendiente de información.
+Falta: estado de la versión 1.1.
+[AUDIT-068] Informe ERS: el texto del índice ya no repite “Limitaciones” e incluye la sección 2.3 y los anexos.
+Estado: pendiente de validación de los números de página, que solo se pueden comprobar en Word.
+[AUDIT-053] Informe ERS: la frase de portada con la norma de requisitos ya no está en el archivo (ni IEEE 830 ni ISO/IEC/IEEE 29148:2018). Estado: pendiente de validación. Falta: confirmar con el autor qué norma debe citarse.
+[AUDIT-129] y [AUDIT-130] Tabla Maestra (2.1.2). Corregido el 17/10/2026 (segunda revisión): el texto original sí está en el archivo, en la hoja «Criterio de aceptacion»: CA-03.1 «Validación de formato numérico de teléfono.» y CA-08.1 «Notificación enviada exitosamente a la totalidad de contactos de la lista.». Los textos nuevos solo se aplicaron en CRITERIOS DE ACEPTACIÓN.xlsx.
+Estado: pendiente de corrección en la Tabla Maestra.
+Cambios Realizados: “Servicio Mensajería” verificado en el código (integración WhatsApp mediante Baileys) y añadido a la Especificación 4.2.
+Pendiente: decidir si cuenta como servicio externo o interno.
+Cambios Realizados: total de historias de usuario de 13 a 19. Sin registro en la bitácora. La hoja sigue en 13.
+Estado: pendiente de confirmación del total.
+Cambios Realizados: cancelación de la emergencia en F05.3.
+Estado: pendiente de confirmar si la cancelación queda cubierta por los estados de la alerta.
+### Pendientes detectados en la verificación cruzada del 17/10/2026 (no figuraban en ningún registro de seguimiento)
+Contraste de las 208 acciones de «Cambios Realizados (AUDITORIA CLAUDE)» con los archivos del proyecto. Las acciones siguientes no están aplicadas en los documentos y no figuraban ni en Cambios Pendientes ni en Cambios Realizados. El detalle por ID, con la evidencia, está en _verificacion_2026-10-17/Matriz de verificación cruzada.xlsx.
+Registrado como realizado, pero no reflejado en el archivo: [AUDIT-014] BDD, la tabla PLAN mantiene total_venta y fecha_venta (hoja PLANES, A10 y A11); [AUDIT-017] BDD, quedan tipos nvarchar e integer (4) (CONTACTO.correo_remitente, PIN.PIN). Estado: pendiente de corrección.
+Acta de constitución: [AUDIT-050] RNF4 sin la verificación de propiedad del recurso (comentario de Alonso González: «PENDIENTE pero poco considerado»). Estado: pendiente de decisión del equipo.
+Informe ERS: los cambios hechos en el Acta no se replicaron en el ERS: RF4 [AUDIT-056], RF12 [AUDIT-059], RF16 [AUDIT-061], RF20 [AUDIT-062], RNF4 [AUDIT-064] y RNF6 a RNF10 [AUDIT-065]. Tampoco existe la nota sobre la planificación por HU [AUDIT-066]. Estado: pendiente de corrección.
+Informe TEC y Horas hombre: falta la sección «Presupuesto de Infraestructura y Herramientas a Utilizar», aunque figura en el índice [AUDIT-073]; siguen las fórmulas =MULTIPLY y los totales escritos a mano [AUDIT-075]; el resumen por responsable sigue intercambiado: el detalle suma 12 h (Gabriel Valencia) y 29 h (Alonso González), y el resumen muestra 29 h y 12 h [AUDIT-076].
+Estado: pendiente de corrección.
+2.1.1 Product Backlog: no existen HU-14 a HU-19 [AUDIT-097] a [AUDIT-102], aunque la Hoja de ruta, HU-06 y HU-12 citan HU-14. Sin cambios: objetivo de trazabilidad [AUDIT-077], «eliminando redundancias comerciales» [AUDIT-080], F04.1 [AUDIT-081], PIN «encriptado» de HU-10 [AUDIT-089], consentimiento en HU-11 [AUDIT-091], rol ADMINISTRADOR en HU-13 [AUDIT-095], líneas «RF trazados» [AUDIT-103], §7 con cuatro Sprints de una semana y Sprint 4 hasta el 6-09 con TD-12 y 11 SP [AUDIT-104] y [AUDIT-105], Story Points de HU-09, HU-10 y HU-12 [AUDIT-107] a [AUDIT-109], tabla de la Fase 2 y nota de numeración [AUDIT-110] y [AUDIT-111], «8 Historias de Usuario críticas» en la Conclusión (la Hoja de ruta dice 9) [AUDIT-113] y «matriz de requisitos» [AUDIT-114]. Estado: pendiente de corrección o decisión del equipo.
+2.1.2 Tabla Maestra: No se aplicó ninguna corrección [AUDIT-115] a [AUDIT-134] (dependencias F1-xx, features de HU-01 y HU-02 cruzadas, dependencias de HU-09 a HU-13, hoja Tareas F1, F04.1, CA-02.1, CA-03.1, CA-08.1, CA-10.1, CA-12.1, CA-13.1, HU y CA nuevos). Además, CA-06.1 sigue con 2 segundos, mientras RF5, HU-06 y CRITERIOS DE ACEPTACIÓN indican 5. Estado: pendiente de corrección.
+Product backlog puntos historia [AUDIT-135], Épicas e Historias de Usuario [AUDIT-137] a [AUDIT-142] (MoSCoW de EP-01, EP-02 y EP-08; épicas de HU-01 y HU-02; HU-14 a HU-19) e Historias Usuario con instructivo [AUDIT-143] a [AUDIT-156] (escenarios de HU-02, HU-06, HU-09 a HU-13 y de HU-14 a HU-19): sin cambios.
+Estado: pendiente de corrección.
+Plan de pruebas [AUDIT-158] a [AUDIT-165] y Matriz de trazabilidad de Pruebas [AUDIT-166] y [AUDIT-168] a [AUDIT-170]: sin cambios, no se especifican pruebas de IDOR ni de rendimiento, Versión desplegada en QA, tres esquemas de ID, ejemplo con estado «Aprobado», alcances «Aclarar», «Condicionado» y «Futuro».
+Estado: pendiente de corrección.
+CRITERIOS DE ACEPTACIÓN: CA-02.1 con «24 hrs» [AUDIT-171], CA-10.1 [AUDIT-175], CA-12.1 [AUDIT-176], CA-13.1 [AUDIT-177] y CA-14.1 a CA-19.1 [AUDIT-178] sin cambios.
+Estado: pendiente de corrección.
+BDD con tipos de datos: El archivo no contiene ninguna de las columnas ni tablas nuevas [AUDIT-179] a [AUDIT-197]. 
+[AUDIT-P02] supone que están marcadas en amarillo en el Diccionario, pero el archivo del repositorio no las tiene.
+Estado: pendiente de corrección.
+Especificación 4.2: sin cambios en Capacitor [AUDIT-199], Electron [AUDIT-200], «30 tablas» [AUDIT-202], «2 servicios de API REST» [AUDIT-205], fuente de identidad y descripción de Firebase [AUDIT-206] y [AUDIT-207], y Google Maps como captura de ubicación [AUDIT-208].
+Estado: pendiente de corrección.
+Observación nueva: el Diagrama de Arquitectura no dice que los archivos estáticos serán renderizados por Reac/Angular, aunque el framework ya se fijó en React (I-03).
+Estado: pendiente de corrección.
