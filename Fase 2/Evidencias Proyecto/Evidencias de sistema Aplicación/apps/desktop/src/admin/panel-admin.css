@@ -1,0 +1,437 @@
+/* Complementos exclusivos de Desktop sobre los componentes compartidos wf-*. */
+.desktop-admin {
+  padding-top: 1rem;
+  color: var(--admin-text);
+}
+
+.desktop-admin h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  margin: 0 0 1rem;
+}
+
+.desktop-admin .wf-header {
+  margin-bottom: 0.75rem;
+}
+
+.desktop-admin-title {
+  font-weight: 600;
+}
+
+.desktop-admin-connection {
+  overflow-wrap: anywhere;
+  margin-bottom: 1rem;
+}
+
+.desktop-admin-session {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.desktop-admin-session p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.desktop-admin-session span {
+  display: block;
+}
+
+.desktop-admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.desktop-admin-nav a {
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  color: var(--admin-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.desktop-admin-nav a:hover,
+.desktop-admin-nav a[aria-current="page"] {
+  background: var(--admin-selected);
+  color: var(--admin-accent);
+}
+
+.desktop-admin :is(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 3px;
+}
+
+.desktop-admin-login {
+  max-width: 480px;
+  margin: 2rem auto;
+}
+
+.desktop-test-shortcuts,
+.desktop-test-toolbar {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.desktop-test-panel > section {
+  scroll-margin-top: 1rem;
+}
+
+.desktop-test-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.desktop-test-panel .wf-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+.desktop-test-group {
+  align-content: start;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+}
+
+.desktop-test-group legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
+  color: var(--admin-heading);
+}
+
+.desktop-test-result {
+  min-width: 0;
+  margin: 1.25rem 0 0;
+  padding: 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  background: var(--admin-subtle);
+}
+
+.desktop-test-result h3 {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.desktop-test-result pre {
+  margin: 0;
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.desktop-test-list {
+  margin-top: 1.25rem;
+}
+
+.desktop-test-audit .wf-table td:last-child {
+  min-width: 240px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Colores de las vistas compartidas, limitados al panel de Desktop. */
+.desktop-admin .wf-header,
+.desktop-admin .wf-card,
+.desktop-admin .wf-menu-list,
+.desktop-admin .wf-table th,
+.desktop-admin .wf-table td {
+  border-color: var(--admin-border);
+}
+
+.desktop-admin .wf-card,
+.desktop-admin .wf-menu-list {
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+}
+
+.desktop-admin :is(.wf-card, .wf-modal) :is(h1, h2, h3) {
+  color: var(--admin-heading);
+}
+
+.desktop-admin .wf-header a,
+.desktop-admin .wf-link {
+  color: var(--admin-text);
+}
+
+.desktop-admin .wf-brand {
+  color: var(--admin-brand) !important;
+}
+
+.desktop-admin .wf-muted {
+  color: var(--admin-muted);
+}
+
+.desktop-admin .wf-form :is(input, select, textarea),
+.desktop-admin .wf-search {
+  background: var(--admin-input);
+  color: var(--admin-heading);
+  border-color: var(--admin-input-border);
+  accent-color: var(--admin-primary);
+}
+
+.desktop-admin input::placeholder,
+.desktop-admin textarea::placeholder {
+  color: var(--admin-muted);
+  opacity: 1;
+}
+
+.desktop-admin .wf-button {
+  background: var(--admin-primary);
+  color: var(--admin-on-primary);
+  border-color: var(--admin-primary);
+}
+
+.desktop-admin .wf-button--secondary {
+  background: var(--admin-surface);
+  color: var(--admin-accent);
+  border-color: var(--admin-accent);
+}
+
+.desktop-admin .wf-button--secondary:hover:not(:disabled),
+.desktop-admin .wf-menu-list :is(a, button):hover {
+  background: var(--admin-selected);
+}
+
+.desktop-admin .wf-pending {
+  background: var(--admin-warning-bg);
+  color: var(--admin-warning-text);
+  border-color: var(--admin-warning-border);
+}
+
+.desktop-admin .wf-message {
+  background: var(--admin-success-bg);
+  color: var(--admin-success-text);
+}
+
+.desktop-admin .wf-message--error {
+  background: var(--admin-error-bg);
+  color: var(--admin-error-text);
+}
+
+.desktop-admin .wf-overlay {
+  background: var(--admin-overlay);
+}
+
+.desktop-admin .wf-modal {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border-top-color: var(--admin-muted);
+  box-shadow: var(--admin-shadow);
+}
+
+.desktop-admin .wf-modal--success {
+  border-top-color: var(--admin-success-border);
+}
+
+.desktop-admin .wf-modal--error {
+  border-top-color: var(--admin-error-border);
+}
+
+.desktop-admin .wf-table th {
+  background: var(--admin-subtle);
+  color: var(--admin-muted);
+}
+
+.desktop-admin .wf-table tbody tr:hover,
+.desktop-admin .wf-table tbody tr[aria-selected="true"] {
+  background: var(--admin-selected);
+}
+
+@media (max-width: 700px) {
+  .desktop-test-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.desktop-alerts {
+  min-width: 0;
+}
+
+.desktop-alert-heading,
+.desktop-alert-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.desktop-alert-heading h1,
+.desktop-alert-heading h2 {
+  margin-bottom: 0.5rem;
+}
+
+.desktop-alert-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.desktop-alert-summary p {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  background: var(--admin-subtle);
+}
+
+.desktop-alert-summary strong {
+  font-size: 1.75rem;
+  color: var(--admin-heading);
+}
+
+.desktop-alert-sync > span:first-child {
+  color: var(--admin-success-text);
+  font-weight: 600;
+}
+
+.desktop-alert-sync > .desktop-alert-offline {
+  color: var(--admin-error-text);
+}
+
+.desktop-alert-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.desktop-alert-filters label {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.desktop-alert-secondary {
+  display: block;
+  color: var(--admin-muted);
+  overflow-wrap: anywhere;
+  white-space: normal;
+  font-size: 0.85rem;
+}
+
+.desktop-alert-status {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--admin-subtle);
+  color: var(--admin-muted);
+}
+
+.desktop-alert-status--activa {
+  background: var(--admin-error-bg);
+  color: var(--admin-error-text);
+}
+
+.desktop-alert-status--finalizada {
+  background: var(--admin-success-bg);
+  color: var(--admin-success-text);
+}
+
+.desktop-alert-pagination {
+  margin-top: 1rem;
+}
+
+.desktop-alert-detail {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  background: var(--admin-subtle);
+}
+
+.desktop-alert-detail dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1.25rem;
+}
+
+.desktop-alert-detail dt {
+  color: var(--admin-muted);
+  margin-bottom: 0.25rem;
+}
+
+.desktop-alert-detail dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.desktop-sales-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.desktop-sales-filters label {
+  flex: 1 1 150px;
+  min-width: 0;
+}
+
+.desktop-sales .wf-table td:nth-child(5) {
+  min-width: 220px;
+  white-space: normal;
+}
+
+.desktop-sales-user,
+.desktop-sales-email,
+.desktop-sale-line {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.desktop-sales-user span,
+.desktop-sale-line span,
+.desktop-sale-charge {
+  display: block;
+  font-size: 0.85rem;
+}
+
+.desktop-sale-line + .desktop-sale-line {
+  margin-top: 0.75rem;
+}
+
+.desktop-sale-state {
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--admin-warning-bg);
+  color: var(--admin-warning-text);
+}
+
+.desktop-sale-state--pagado {
+  background: var(--admin-success-bg);
+  color: var(--admin-success-text);
+}
+
+.desktop-sale-state--rechazado,
+.desktop-sale-state--cancelado {
+  background: var(--admin-error-bg);
+  color: var(--admin-error-text);
+}

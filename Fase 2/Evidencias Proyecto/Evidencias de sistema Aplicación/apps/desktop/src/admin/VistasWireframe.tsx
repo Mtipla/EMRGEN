@@ -1,10 +1,54 @@
 import { useEffect, useState } from 'react'
-import { AdminCompras, AdminCuentas, AdminTrabajadores } from '@repo/ui/admin-views'
+import { AdminCuentas, AdminTrabajadores } from '@repo/ui/admin-views'
 import { PerfilForm } from '@repo/ui/perfil-form'
-import { BACKEND_SOPORTE, perfilDe, puede, requierePinTrabajador, type Perfil } from '@repo/ui/permisos'
+import {
+  BACKEND_SOPORTE,
+  perfilDe,
+  requierePinTrabajador,
+  type Perfil,
+} from '@repo/ui/permisos'
 import { adminApi, describirError, type Sesion, type UsuarioAdmin } from './api'
+import { SeccionBitacora } from './SeccionBitacora'
+import { SeccionSoporte } from './SeccionSoporte'
+import { SeccionUsuarios } from './SeccionUsuarios'
 
 const ROL_SOPORTE = 2 // ROLES[2] en ./api
+
+export { VistaCompras } from './VistaCompras'
+
+/** Herramientas de pruebas con la misma presentación que las demás vistas del panel. */
+export function VistaPruebas() {
+  return (
+    <div className="desktop-test-panel">
+      <section className="wf-card">
+        <h1>Panel de pruebas</h1>
+        <p className="wf-muted">
+          Consulta y modifica usuarios, crea cuentas de soporte y revisa la bitácora del sistema.
+          Cada apartado conserva el resultado de su última operación.
+        </p>
+        <nav className="wf-row desktop-test-shortcuts" aria-label="Apartados del panel de pruebas">
+          {[
+            { id: 'pruebas-usuarios', titulo: 'Gestión de usuarios' },
+            { id: 'pruebas-soporte', titulo: 'Crear cuenta de soporte' },
+            { id: 'pruebas-bitacora', titulo: 'Bitácora / auditoría' },
+          ].map(({ id, titulo }) => (
+            <button
+              key={id}
+              type="button"
+              className="wf-button wf-button--secondary"
+              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              {titulo}
+            </button>
+          ))}
+        </nav>
+      </section>
+      <SeccionUsuarios />
+      <SeccionSoporte />
+      <SeccionBitacora />
+    </div>
+  )
+}
 
 /** Listado de usuarios con adminApi; cada acción traduce el error de Axios y recarga. */
 function useUsuarios() {
@@ -63,18 +107,14 @@ export function VistaCuentas({ perfil }: { perfil: Perfil }) {
   )
 }
 
-export function VistaCompras({ perfil }: { perfil: Perfil }) {
-  return (
-    <AdminCompras
-      titulo="Administrar compras"
-      puedeEditar={puede(perfil, 'admin.compras.editar')}
-      pinParaEliminar={requierePinTrabajador(perfil)}
-    />
-  )
-}
-
 /** "Modificar Usuario" del personal (mockup págs. 12 y 32) con PATCH /usuarios/me. */
-export function VistaPerfil({ sesion, onActualizado }: { sesion: Sesion; onActualizado: (s: Sesion) => void }) {
+export function VistaPerfil({
+  sesion,
+  onActualizado,
+}: {
+  sesion: Sesion
+  onActualizado: (s: Sesion) => void
+}) {
   return (
     <PerfilForm
       nombreUsuario={sesion.usuario.nombre_usuario}

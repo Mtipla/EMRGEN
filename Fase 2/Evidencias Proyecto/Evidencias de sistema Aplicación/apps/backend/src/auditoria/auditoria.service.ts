@@ -6,6 +6,11 @@ import {
   JsreportService,
   RenderedReport,
 } from '../integrations/jsreport/jsreport.service';
+import {
+  type FormatoReporte,
+  plantillaReporte,
+  validarReporte,
+} from '../integrations/jsreport/formato-reporte';
 import { ROL } from '../login/roles.decorator';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { APLICACION, Aplicacion } from './aplicacion.entity';
@@ -21,7 +26,7 @@ import {
   type ValorAuditado,
 } from './bitacora.entity';
 import { ConsultarBitacoraDto } from './dto/consultar-bitacora.dto';
-import { PLANTILLA_BITACORA } from './plantilla-bitacora';
+import { PLANTILLA_BITACORA, PLANTILLA_BITACORA_EXCEL } from './plantilla-bitacora';
 
 /** Largo de BITACORA_SISTEMA.accion_realizada (VARCHAR(150)). */
 const LIMITE_POR_DEFECTO = 100;
@@ -224,23 +229,24 @@ export class AuditoriaService {
   }
 
   /**
-   * PDF de la bitácora que descarga un administrador; la exportación también queda
+   * Reporte de la bitácora que descarga un administrador; la exportación también queda
    * registrada. No usa `auditar` para no mantener una transacción abierta mientras
    * jsReport genera el documento.
    */
   async exportarReporte(
     filtros: ConsultarBitacoraDto,
     actor: ActorAuditoria,
+    formato: FormatoReporte = 'pdf',
   ): Promise<RenderedReport> {
     const evento: EventoAuditado = {
       actor,
-      accion: 'Exportación de la bitácora a PDF',
+      accion: `Exportación de la bitácora a ${formato === 'xlsx' ? 'Excel' : 'PDF'}`,
       tipo: TIPO_ACCION.EXPORTACION,
       entidad: ENTIDAD_AUDITADA.BITACORA_SISTEMA,
       usuario_afectado_ID: filtros.usuario_afectado_ID ?? null,
     };
     try {
-      const reporte = await this.generarReporte(filtros);
+      const reporte = await this.generarReporte(filtros, formato);
       await this.registrar(this.bitacoraRepository.manager, evento);
       return reporte;
     } catch (error) {
@@ -250,14 +256,17 @@ export class AuditoriaService {
   }
 
   /**
-   * PDF de la bitácora generado por jsReport. Si jsReport no está disponible responde 502,
+   * Reporte de la bitácora generado por jsReport. Si jsReport no está disponible responde 502,
    * pero el resto del backend (incluido GET /admin/auditoria) sigue funcionando.
    */
-  async generarReporte(filtros: ConsultarBitacoraDto = {}): Promise<RenderedReport> {
+  async generarReporte(
+    filtros: ConsultarBitacoraDto = {},
+    formato: FormatoReporte = 'pdf',
+  ): Promise<RenderedReport> {
     const entradas = await this.listar(filtros);
     try {
-      return await this.jsreportService.renderInline(
-        { content: PLANTILLA_BITACORA, chrome: { landscape: true } },
+      const reporte = await this.jsreportService.renderInline(
+        plantillaReporte(formato, PLANTILLA_BITACORA, PLANTILLA_BITACORA_EXCEL),
         {
           generado: FORMATO_CHILE.format(new Date()),
           filtros: this.describirFiltros(filtros),
@@ -278,6 +287,8 @@ export class AuditoriaService {
           })),
         },
       );
+      validarReporte(reporte, formato);
+      return reporte;
     } catch (error) {
       if (error instanceof BadGatewayException) {
         throw new BadGatewayException(

@@ -75,6 +75,21 @@ function App() {
 
   const hasSession = user !== null && !user.requiere_pin
 
+  async function refreshPurchasedUser() {
+    const token = localStorage.getItem('emergen.token')
+    try {
+      const response = await fetch(`${API_URL}/usuarios/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!response.ok) throw new Error('No se pudo actualizar la cuenta')
+      const currentUser = (await response.json()) as AuthenticatedUser
+      localStorage.setItem('emergen.user', JSON.stringify(currentUser))
+      setUser(currentUser)
+    } catch {
+      avisar('info', 'El pago se confirmó. Recarga la página para actualizar el estado de tu cuenta.')
+    }
+  }
+
   function closeSession() {
     localStorage.removeItem('emergen.user')
     localStorage.removeItem('emergen.token')
@@ -217,7 +232,7 @@ function App() {
             privatePage(<SinPermiso />)
           ) : hasSession ? (
             <main className="auth-page">
-              <PremiumPurchase onClose={() => navigate('/inicio')} />
+              <PremiumPurchase onClose={() => navigate('/inicio')} onPurchased={refreshPurchasedUser} />
             </main>
           ) : (
             <Navigate to="/login" replace />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IonButton,
   IonButtons,
@@ -15,32 +15,77 @@ import {
   IonTitle,
   IonToolbar,
   useIonRouter,
+  useIonViewWillEnter,
+  useIonViewDidLeave,
 } from '@ionic/react';
-import { MENSAJE_BLOQUEO, bloqueo } from '@repo/ui/permisos';
+import { bloqueo } from '@repo/ui/permisos';
 import { ResumenCuenta } from '@repo/ui/resumen-cuenta';
-import { NumerosEmergencia } from '@repo/ui/wireframe';
+import { Notice } from '@repo/ui/wireframe';
 import AlertaSos from '../components/AlertaSos';
+import AlertasActivas from '../components/AlertasActivas';
 import ConfigurarAlerta from '../components/ConfigurarAlerta';
-import { clearSession, getUser } from '../lib/session';
+import { apiFetch, clearSession, getUser, saveSession, type SessionUser } from '../lib/session';
+import { MENSAJE_REQUIERE_PLAN } from '../lib/sos';
 import './Home.css';
 
-/** Home con sesión: alerta rápida, alerta en segundo plano y menú de usuario. */
+/** Home con sesión: SOS y seguimiento propio disponibles con plan efectivo. */
 const Home: React.FC = () => {
   const router = useIonRouter();
-  const user = getUser();
-  // Menú según la matriz de permisos; el backend sigue autorizando cada llamada.
+  const [user, setUser] = useState(getUser);
+  const [visible, setVisible] = useState(true);
+  const [revision, setRevision] = useState(0);
+  const [versionAlertas, setVersionAlertas] = useState(0);
+  const [modal, setModal] = useState<'sos' | 'configurar' | 'plan' | null>(null);
   const cuentasBloqueadas = !user || bloqueo(user, 'cuentas.apadrinadas') !== null;
-  // shortcut: el SOS no se deshabilita aunque la sesión guardada diga "sin Premium" (puede estar desactualizada); el backend responde 409 con el motivo.
-  const sosSinPremium = user ? bloqueo(user, 'alertas.emitir') === 'premium' : false;
-  const [modal, setModal] = useState<'sos' | 'configurar' | null>(null);
+  const tienePlan = user?.plan_efectivo === true;
+
+  useIonViewWillEnter(() => {
+    setUser(getUser());
+    setVisible(true);
+    setRevision((v) => v + 1);
+  });
+  useIonViewDidLeave(() => {
+    setVisible(false);
+    setModal(null);
+  });
+
+  useEffect(() => {
+    if (!visible) return;
+    const peticion = new AbortController();
+    // Actualiza el plan al volver al Home; la sesión guardada puede anteceder una compra.
+    void apiFetch<SessionUser>('/usuarios/me', { signal: peticion.signal })
+      .then((actual) => {
+        if (!peticion.signal.aborted) {
+          saveSession(actual);
+          setUser(actual);
+        }
+      })
+      .catch(() => {
+        /* Se conserva la última sesión; cada operación sigue autorizándose en servidor. */
+      });
+    return () => peticion.abort();
+  }, [visible, revision]);
+
+  useEffect(() => {
+    const actualizar = () => setRevision((v) => v + 1);
+    window.addEventListener('focus', actualizar);
+    return () => window.removeEventListener('focus', actualizar);
+  }, []);
+
+  function abrir(accion: 'sos' | 'configurar') {
+    setModal(tienePlan ? accion : 'plan');
+  }
 
   function cerrarSesion() {
     clearSession();
+    setVisible(false);
+    setUser(null);
+    setModal(null);
     router.push('/login', 'root', 'replace');
   }
 
   return (
-    <IonPage>
+    <IonPage className="mobile-home">
       <IonHeader>
         <IonToolbar>
           <IonTitle>{user?.nombre_usuario ?? 'FIND ME'}</IonTitle>
@@ -65,28 +110,59 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonButton expand="block" color="danger" size="large" onClick={() => setModal('sos')}>
+        {/* abrir bloquea la acción; el control sigue recibiendo pulsaciones para explicar el requisito. */}
+        <button
+          type="button"
+          aria-disabled={!tienePlan}
+          className={`wf-button mobile-plan-action mobile-alerta-rapida${tienePlan ? '' : ' mobile-plan-locked'}`}
+          onClick={() => abrir('sos')}
+        >
           Alerta rápida en la APP
-        </IonButton>
-        {sosSinPremium && <p className="wf-message wf-message--error">{MENSAJE_BLOQUEO.premium}</p>}
+        </button>
 
         <IonCard>
           <IonCardHeader>
             <IonCardTitle>Configurar alerta en segundo plano</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            <p>Realiza una secuencia de botones determinada por usted en un tiempo de 20 segundos.</p>
-            <IonButton onClick={() => setModal('configurar')}>Configurar alerta</IonButton>
+            <p>
+              Realiza una secuencia de botones determinada por usted en un tiempo de 20 segundos.
+            </p>
+            <button
+              type="button"
+              aria-disabled={!tienePlan}
+              className={`wf-button mobile-plan-action mobile-configurar-alerta${tienePlan ? '' : ' mobile-plan-locked'}`}
+              onClick={() => abrir('configurar')}
+            >
+              Configurar alerta
+            </button>
           </IonCardContent>
         </IonCard>
 
         {user && <ResumenCuenta user={user} />}
-
-        <NumerosEmergencia />
-
-        {modal === 'sos' && <AlertaSos onClose={() => setModal(null)} />}
-        {modal === 'configurar' && <ConfigurarAlerta onClose={() => setModal(null)} />}
+        {tienePlan && user && visible && (
+          <AlertasActivas
+            key={user.usuario_ID}
+            usuarioId={user.usuario_ID}
+            version={versionAlertas}
+          />
+        )}
       </IonContent>
+
+      {modal === 'plan' && (
+        <Notice
+          title="Requiere un plan"
+          message={MENSAJE_REQUIERE_PLAN}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {tienePlan && modal === 'sos' && (
+        <AlertaSos
+          onClose={() => setModal(null)}
+          onRegistrada={() => setVersionAlertas((v) => v + 1)}
+        />
+      )}
+      {tienePlan && modal === 'configurar' && <ConfigurarAlerta onClose={() => setModal(null)} />}
     </IonPage>
   );
 };

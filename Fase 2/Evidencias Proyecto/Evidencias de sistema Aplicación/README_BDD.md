@@ -18,7 +18,7 @@ La recreación de desarrollo fue autorizada y ejecutada una vez. La reanudación
 
 ## Fixtures explícitos de desarrollo
 
-Una instalación nueva tiene catálogos y el producto adicional 1 (1000 CLP, máximo 5), pero no usuarios. Después de instalar las dependencias exactas con `npm ci --engine-strict=false`, el procedimiento de desarrollo es:
+Una instalación nueva tiene catálogos, el producto adicional 1 (1000 CLP, máximo 5) y el plan base 2 (5000 CLP, una unidad por cuenta), pero no usuarios. Después de instalar las dependencias exactas con `npm ci --engine-strict=false`, el procedimiento de desarrollo es:
 
 ```powershell
 node scripts/seed-dev.cjs
@@ -35,7 +35,7 @@ El script usa bcrypt 12 para contraseña y PIN, IDs del motor y una transacción
 | completo@emergen.test | Apadrinado completo del principal | PIN propio 1234; usa plan del principal |
 | parcial@emergen.test | Apadrinado parcial del principal | Sin PIN propio; cierre con PIN del principal 0007 |
 
-**Contraseña común exclusivamente de estas cuentas locales: `EmergenDev123!`.** Son valores de prueba, no secretos externos de configuración. Los contactos se rotulan ficticios y tienen formato internacional +56; las pruebas no envían mensajes. El plan base 2 “PLAN BASE DEMOSTRACION”, valor 0, existe solo como fixture administrativo: no representa una tarifa comercial ni se vende por PayPal.
+**Contraseña común exclusivamente de estas cuentas locales: `EmergenDev123!`.** Son valores de prueba, no secretos externos de configuración. Los contactos se rotulan ficticios y tienen formato internacional +56; las pruebas no envían mensajes. El plan base 2 “PLAN BASE DEMOSTRACION” cuesta 5000 CLP y puede comprarse con PayPal. Se activa con cero cupos; los cupos adicionales se compran por separado. Para una BD existente, aplicar `migraciones/002_precio_plan_base.sql` sin recrear el volumen. Ver [pruebas del flujo de compra](docs/PRUEBAS_COMPRA_PLAN.md).
 
 Login real:
 

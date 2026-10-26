@@ -3,6 +3,7 @@ import type { EstadoCompra } from '@repo/api-types';
 /** IDs fijos de los catálogos sembrados en init.sql (y migraciones/001_compras_paypal.sql). */
 export const METODO_PAGO_PAYPAL = 1;
 export const PLAN_CUENTA_APADRINADA = 1;
+export const PLAN_BASE = 2;
 
 export const ESTADO_PAGO = {
   PENDIENTE: 1,

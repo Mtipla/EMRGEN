@@ -42,6 +42,7 @@ export type Accion =
   | "perfil.pinTrabajador"
   | "cuentas.apadrinadas"
   | "compras.comprar"
+  | "compras.cupos"
   | "soporte.solicitar"
   | "soporte.gestionarTickets"
   | "alertas.verTodas"
@@ -83,7 +84,12 @@ export const PERMISOS: Record<
     },
     "compras.comprar": {
       perfiles: ["USUARIO"],
+      fuente: "Enlace a /premium para conocer y comprar Premium",
+    },
+    "compras.cupos": {
+      perfiles: ["USUARIO"],
       fuente: "POST /compras/apadrinados/ordenes",
+      premium: true,
     },
     "soporte.solicitar": {
       perfiles: TODOS,
@@ -172,7 +178,7 @@ export const FUNCIONES_BASICAS: { accion: Accion; etiqueta: string }[] = [
   { accion: "soporte.solicitar", etiqueta: "Solicitar soporte" },
   { accion: "alertas.emitir", etiqueta: "Alerta SOS" },
   { accion: "cuentas.apadrinadas", etiqueta: "Administrar cuentas apadrinadas" },
-  { accion: "compras.comprar", etiqueta: "Comprar cupos (Premium)" },
+  { accion: "compras.cupos", etiqueta: "Comprar cupos (Premium)" },
 ];
 
 /** Mockup págs. 15 y 22: SOPORTE pide el "PIN de trabajador del administrador" antes de eliminar. */

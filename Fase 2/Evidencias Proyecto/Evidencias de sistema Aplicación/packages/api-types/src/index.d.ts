@@ -58,6 +58,12 @@ export interface CapturePaypalOrderResponse {
 /** REVISION: resultado incierto o discrepancia; requiere conciliación, no acredita un cobro. */
 export type EstadoCompra = 'PENDIENTE' | 'PAGADO' | 'RECHAZADO' | 'CANCELADO' | 'REVISION';
 
+export type TipoCompra = 'PLAN' | 'CUPOS';
+
+export interface ResumenCompra extends ResumenCompraApadrinados {
+  tipoCompra: TipoCompra;
+}
+
 export interface ResumenCompraApadrinados {
   /** Nombre de la cuenta principal que recibe los cupos (de la sesión). */
   usuario: string;

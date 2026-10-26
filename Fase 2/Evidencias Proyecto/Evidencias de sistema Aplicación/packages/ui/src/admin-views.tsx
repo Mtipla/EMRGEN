@@ -286,7 +286,7 @@ export const AdminCuentas = ({
               }
             >
               {seleccion.estado_ID === ACCESO_COMPLETO
-                ? "Pasar a no acceso total"
+                ? "Pasar a Acceso Parcial "
                 : "Dar acceso total"}
             </button>
             {esApadrinada && (

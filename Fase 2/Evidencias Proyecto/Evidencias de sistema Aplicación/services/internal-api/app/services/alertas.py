@@ -87,8 +87,12 @@ def finalizar_vencidas(conn: psycopg.Connection) -> int:
         _finalizar(conn, row)
     return len(rows)
 
-def listar(conn: psycopg.Connection, usuario_id: int | None, limit: int, offset: int) -> list[dict]:
-    return conn.execute(_SELECT + " WHERE %(u)s::int IS NULL OR a.usuario_id=%(u)s ORDER BY a.fecha_creacion DESC,a.alerta_id DESC LIMIT %(l)s OFFSET %(o)s", {"u":usuario_id,"l":limit,"o":offset}).fetchall()
+def listar(conn: psycopg.Connection, usuario_id: int | None, limit: int, offset: int, estado: str | None = None) -> list[dict]:
+    return conn.execute(_SELECT + """
+        WHERE (%(u)s::int IS NULL OR a.usuario_id=%(u)s)
+          AND (%(estado)s::text IS NULL OR a.estado_alerta=%(estado)s)
+        ORDER BY a.fecha_creacion DESC,a.alerta_id DESC LIMIT %(l)s OFFSET %(o)s
+    """, {"u":usuario_id,"l":limit,"o":offset,"estado":estado}).fetchall()
 
 def obtener(conn: psycopg.Connection, alerta_id: int) -> dict | None:
     return conn.execute(_SELECT + " WHERE a.alerta_id=%s", (alerta_id,)).fetchone()

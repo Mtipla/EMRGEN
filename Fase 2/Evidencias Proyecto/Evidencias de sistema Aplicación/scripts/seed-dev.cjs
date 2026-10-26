@@ -5,7 +5,7 @@ const { client, bcrypt } = require('./db-dev.cjs');
   await db.connect();
   try {
     await db.query('BEGIN');
-    await db.query("INSERT INTO plan(plan_id,nombre_plan,precio_actual,limite_compra_max) VALUES (2,'PLAN BASE DEMOSTRACION',0,1) ON CONFLICT(plan_id) DO NOTHING");
+    await db.query("INSERT INTO plan(plan_id,nombre_plan,precio_actual,limite_compra_max) VALUES (2,'PLAN BASE DEMOSTRACION',5000,1) ON CONFLICT(plan_id) DO UPDATE SET precio_actual=EXCLUDED.precio_actual");
     const password = await bcrypt.hash('EmergenDev123!', 12);
     const pin = await bcrypt.hash('0007', 12);
     const childPin = await bcrypt.hash('1234', 12);
@@ -16,6 +16,7 @@ const { client, bcrypt } = require('./db-dev.cjs');
       ['sinplan','Sin Plan Demo',3,1,null,pin],
       ['completo','Apadrinado Completo',3,1,'principal',childPin],
       ['parcial','Apadrinado Parcial',3,2,'principal',null],
+      ['pruebacompraplan','Prueba compra plan',3,1,null,pin],
     ];
     const ids = {};
     for (const [name,label,role,state,parent,hash] of fixtures) {

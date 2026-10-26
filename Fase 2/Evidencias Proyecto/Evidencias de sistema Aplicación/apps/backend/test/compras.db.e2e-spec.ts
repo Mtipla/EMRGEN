@@ -42,6 +42,7 @@ db('Compras: reservas durables y conciliación con PostgreSQL real / PayPal simu
     paypal.captureOrder.mockReset();paypal.getOrder.mockReset();
     // Venta DELETE cascada detalle/reserva: nunca deja una cabecera sin detalle.
     await source.query('DELETE FROM venta WHERE usuario_id=$1',[id]);
+    await source.query('INSERT INTO plan_usuario(usuario_id,plan_id,cupos_apadrinados_adq) VALUES ($1,2,0) ON CONFLICT(usuario_id) DO NOTHING',[id]);
     await source.query('UPDATE plan_usuario SET cupos_apadrinados_adq=0 WHERE usuario_id=$1',[id]);
   });
   afterAll(async()=>{
@@ -55,6 +56,72 @@ db('Compras: reservas durables y conciliación con PostgreSQL real / PayPal simu
     const [line]=await source.query('SELECT * FROM detalle_venta WHERE venta_id=$1',[r.body.ventaId]);
     expect(line).toMatchObject({plan_id:2,tipo_compra:'CUPOS',cantidad:1,cupos_otorgados:1,precio_uni:1000});
     expect((await http().get('/compras/apadrinados').set(auth()).expect(200)).body.maxCantidad).toBe(4);
+  });
+  const sinPlan = () => source.query('DELETE FROM plan_usuario WHERE usuario_id=$1', [id]);
+  const comprarPlan = (cantidad = 1) => http().post('/compras/apadrinados/ordenes').set(auth()).send({ cantidad, tipo: 'PLAN' });
+
+  it('publica ambos precios y ofrece un solo plan a la cuenta sin plan', async () => {
+    await sinPlan();
+    expect((await http().get('/compras/precio').expect(200)).body).toMatchObject({ precioPlan: 5000, precioUnitario: 1000 });
+    await http().get('/compras/resumen').expect(401);
+    expect((await http().get('/compras/resumen').set(auth()).expect(200)).body).toMatchObject({ tipoCompra: 'PLAN', precioUnitario: 5000, maxCantidad: 1 });
+    await comprarPlan(2).expect(400);
+    await create().expect(409);
+    expect(paypal.createOrder).not.toHaveBeenCalled();
+  });
+
+  it('activa un plan sin cupos solo tras confirmar el pago y evita compras duplicadas', async () => {
+    await sinPlan();
+    const results = await Promise.all([comprarPlan(), comprarPlan()]);
+    expect(results.map(r => r.status).sort()).toEqual([201, 409]);
+    expect(paypal.createOrder).toHaveBeenCalledTimes(1);
+    const sale = results.find(r => r.status === 201)!.body;
+    expect(sale.totalClp).toBe(5000);
+    expect(sale.montoCobrado).toBe('5.27');
+    const [line] = await source.query('SELECT * FROM detalle_venta WHERE venta_id=$1', [sale.ventaId]);
+    expect(line).toMatchObject({ plan_id: 2, tipo_compra: 'PLAN', cantidad: 1, cupos_otorgados: 0, precio_uni: 5000 });
+    expect((await source.query('SELECT 1 FROM plan_usuario WHERE usuario_id=$1', [id])).length).toBe(0);
+    expect((await http().get('/compras/resumen').set(auth()).expect(200)).body.maxCantidad).toBe(0);
+    expect((await http().get('/compras/apadrinados/ventas/pendientes').set(auth()).expect(200)).body).toEqual([expect.objectContaining({ cantidad: 1, ventaId: sale.ventaId })]);
+    paypal.captureOrder.mockResolvedValue(ok(sale.orderId, '5.27'));
+    await capture(sale.orderId).expect(200);
+    await capture(sale.orderId).expect(200);
+    expect(paypal.captureOrder).toHaveBeenCalledTimes(1);
+    expect(await acquired()).toBe(0);
+    expect((await http().get('/usuarios/me').set(auth()).expect(200)).body.plan_efectivo).toBe(true);
+    expect((await http().get('/compras/resumen').set(auth()).expect(200)).body).toMatchObject({ tipoCompra: 'CUPOS', maxCantidad: 5, precioUnitario: 1000 });
+    await comprarPlan().expect(409);
+    const extra = (await create().expect(201)).body;
+    paypal.captureOrder.mockResolvedValue(ok(extra.orderId));
+    await capture(extra.orderId).expect(200);
+    expect(await acquired()).toBe(1);
+  });
+
+  it('un pago de plan incierto se concilia sin activar antes ni cobrar dos veces', async () => {
+    await sinPlan();
+    const sale = (await comprarPlan().expect(201)).body;
+    paypal.captureOrder.mockRejectedValue(new Error('timeout after remote capture'));
+    await capture(sale.orderId).expect(502);
+    await comprarPlan().expect(409);
+    expect((await source.query('SELECT 1 FROM plan_usuario WHERE usuario_id=$1', [id])).length).toBe(0);
+    paypal.getOrder.mockResolvedValue(ok(sale.orderId, '0.01'));
+    expect((await reconcile(sale.ventaId).expect(200)).body.estado).toBe('REVISION');
+    expect((await source.query('SELECT 1 FROM plan_usuario WHERE usuario_id=$1', [id])).length).toBe(0);
+    paypal.getOrder.mockResolvedValue(ok(sale.orderId, '5.27'));
+    expect((await reconcile(sale.ventaId).expect(200)).body.estado).toBe('PAGADO');
+    expect(await acquired()).toBe(0);
+    expect(paypal.captureOrder).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancelar o rechazar un plan libera la compra sin activar Premium', async () => {
+    await sinPlan();
+    const sale = (await comprarPlan().expect(201)).body;
+    await http().post('/compras/apadrinados/ordenes/' + sale.orderId + '/cancelar').set(auth()).expect(200);
+    const retry = (await comprarPlan().expect(201)).body;
+    paypal.captureOrder.mockResolvedValue(ok(retry.orderId, '5.27', 'DECLINED'));
+    expect((await capture(retry.orderId).expect(200)).body.estado).toBe('RECHAZADO');
+    expect((await http().get('/compras/resumen').set(auth()).expect(200)).body.maxCantidad).toBe(1);
+    expect((await source.query('SELECT 1 FROM plan_usuario WHERE usuario_id=$1', [id])).length).toBe(0);
   });
   it('dos órdenes distintas compiten por el último cupo antes de llamar a PayPal',async()=>{
     await source.query('UPDATE plan_usuario SET cupos_apadrinados_adq=4 WHERE usuario_id=$1',[id]);

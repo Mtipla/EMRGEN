@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SERVICE_DIR = Path(__file__).resolve().parents[2]
@@ -28,7 +28,10 @@ class Settings(BaseSettings):
     mensaje_predeterminado: str = Field("Necesito ayuda inmediata en mi ubicación.", min_length=1, max_length=200)
     intervalo_cierre_segundos: int = Field(30, ge=1, le=300)
     port: int = 8000
-    cors_origins: str = ""
+    cors_origins: str = Field(
+        "http://localhost:5173,http://localhost:5174,http://localhost:5175",
+        validation_alias=AliasChoices("INTERNAL_API_CORS_ORIGINS", "CORS_ORIGINS"),
+    )
     docs_enabled: bool = True
 
     db_host: str = Field("localhost", validation_alias="DB_HOST")

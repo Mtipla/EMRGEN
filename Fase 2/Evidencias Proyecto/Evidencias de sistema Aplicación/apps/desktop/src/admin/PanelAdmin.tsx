@@ -1,11 +1,17 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, Route, Routes } from 'react-router-dom'
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import { perfilDe, puede, type Perfil } from '@repo/ui/permisos'
 import { adminApi, API_URL, describirError, MODO_API, setToken, type Sesion } from './api'
-import { SeccionBitacora } from './SeccionBitacora'
-import { SeccionSoporte } from './SeccionSoporte'
-import { SeccionUsuarios } from './SeccionUsuarios'
-import { VistaCompras, VistaCuentas, VistaPerfil, VistaTrabajadores } from './VistasWireframe'
+import {
+  VistaCompras,
+  VistaCuentas,
+  VistaPerfil,
+  VistaPruebas,
+  VistaTrabajadores,
+} from './VistasWireframe'
+import './panel-admin.css'
+import { SelectorTema } from './SelectorTema'
+import { VistaAlertas } from './VistaAlertas'
 
 /** Panel de pruebas del administrador (y vistas del Trabajador/SOPORTE): cada sección consume sus endpoints con Axios. */
 export function PanelAdmin() {
@@ -32,7 +38,8 @@ export function PanelAdmin() {
   }
 
   // Quien no es SOPORTE superó la comprobación de GET /admin/usuarios: es ADMINISTRADOR.
-  const perfil: Perfil = sesion && perfilDe(sesion.usuario) === 'SOPORTE' ? 'SOPORTE' : 'ADMINISTRADOR'
+  const perfil: Perfil =
+    sesion && perfilDe(sesion.usuario) === 'SOPORTE' ? 'SOPORTE' : 'ADMINISTRADOR'
   const esSoporte = perfil === 'SOPORTE'
 
   function cerrarSesion() {
@@ -42,85 +49,111 @@ export function PanelAdmin() {
 
   if (!API_URL) {
     return (
-      <p role="alert" style={{ textAlign: 'left', padding: 16 }}>
-        VITE_API_URL no está definida. Agrégala al .env de la raíz del monorepo (backend local,
-        http://localhost:3000) o inicia el panel con el script dev:docker (backend de Docker,
-        http://localhost:3001).
-      </p>
+      <div className="wf-shell desktop-admin">
+        <SelectorTema />
+        <p role="alert" className="wf-message wf-message--error">
+          VITE_API_URL no está definida. Agrégala al .env de la raíz del monorepo (backend local,
+          http://localhost:3000) o inicia el panel con el script dev:docker (backend de Docker,
+          http://localhost:3001).
+        </p>
+      </div>
     )
   }
 
   return (
-    <div style={{ textAlign: 'left', padding: 16 }}>
-      <h2>EMERGEN - Panel de administrador (pruebas)</h2>
-      <p>
+    <div className="wf-shell desktop-admin">
+      <header className="wf-header">
+        <strong className="wf-brand">EMERGEN</strong>
+        <span className="desktop-admin-title">Panel administrativo</span>
+        <SelectorTema />
+      </header>
+      <p className="wf-muted desktop-admin-connection">
         API: {API_URL} ({MODO_API})
       </p>
 
       {!sesion ? (
-        <form onSubmit={(event) => void iniciarSesion(event)}>
+        <form
+          className="wf-card wf-form desktop-admin-login"
+          onSubmit={(event) => void iniciarSesion(event)}
+        >
+          <h1>Iniciar sesión</h1>
           <label>
-            Correo{' '}
+            Correo
             <input
               type="email"
+              autoComplete="username"
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
               required
             />
-          </label>{' '}
+          </label>
           <label>
-            Contraseña{' '}
+            Contraseña
             <input
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               minLength={8}
               required
             />
-          </label>{' '}
-          <button type="submit">Iniciar sesión</button>
-          {error && <p role="alert">{error}</p>}
+          </label>
+          <div className="wf-actions">
+            <button type="submit" className="wf-button">
+              Iniciar sesión
+            </button>
+          </div>
+          {error && (
+            <p role="alert" className="wf-message wf-message--error">
+              {error}
+            </p>
+          )}
         </form>
       ) : (
         <>
-          <p>
-            Sesión: {sesion.usuario.nombre_usuario} ({sesion.usuario.correo_usuario}), ID{' '}
-            {sesion.usuario.usuario_ID}{' '}
-            <button type="button" onClick={cerrarSesion}>
+          <div className="desktop-admin-session">
+            <p>
+              Sesión: <strong>{sesion.usuario.nombre_usuario}</strong>
+              <span className="wf-muted">
+                {sesion.usuario.correo_usuario} · ID {sesion.usuario.usuario_ID}
+              </span>
+            </p>
+            <button type="button" className="wf-button wf-button--secondary" onClick={cerrarSesion}>
               Cerrar sesión
             </button>
-          </p>
+          </div>
           {/* Las vistas de los wireframes viven dentro de la sesión: el token está solo en memoria. */}
-          <nav style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
-            {!esSoporte && <Link to="/">Panel de pruebas</Link>}
-            <Link to="/perfil">Modificar usuario</Link>
-            <Link to="/administracion/cuentas">Administrar cuentas</Link>
-            <Link to="/administracion/compras">Administrar compras</Link>
+          <nav className="desktop-admin-nav" aria-label="Secciones del panel administrativo">
+            {!esSoporte && (
+              <NavLink to="/" end>
+                Panel de pruebas
+              </NavLink>
+            )}
+            <NavLink to="/perfil">Modificar usuario</NavLink>
+            <NavLink to="/administracion/cuentas">Administrar cuentas</NavLink>
+            <NavLink to="/administracion/compras">Administrar compras</NavLink>
+            {!esSoporte && <NavLink to="/administracion/alertas">Alertas SOS</NavLink>}
             {puede(perfil, 'admin.trabajadores') && (
-              <Link to="/administracion/trabajadores">Administrar trabajadores</Link>
+              <NavLink to="/administracion/trabajadores">Administrar trabajadores</NavLink>
             )}
           </nav>
           {/* Las rutas que el Trabajador no tiene ni se registran: la URL cae en el redirect. */}
           <Routes>
-            {!esSoporte && (
-              <Route
-                path="/"
-                element={
-                  <>
-                    <SeccionUsuarios />
-                    <SeccionSoporte />
-                    <SeccionBitacora />
-                  </>
-                }
-              />
-            )}
-            <Route path="/perfil" element={<VistaPerfil sesion={sesion} onActualizado={setSesion} />} />
+            {!esSoporte && <Route path="/" element={<VistaPruebas />} />}
+            <Route
+              path="/perfil"
+              element={<VistaPerfil sesion={sesion} onActualizado={setSesion} />}
+            />
             <Route path="/administracion/cuentas" element={<VistaCuentas perfil={perfil} />} />
             <Route path="/administracion/compras" element={<VistaCompras perfil={perfil} />} />
+            {!esSoporte && <Route path="/administracion/alertas" element={<VistaAlertas />} />}
             {puede(perfil, 'admin.trabajadores') && (
               <Route path="/administracion/trabajadores" element={<VistaTrabajadores />} />
             )}
-            <Route path="*" element={<Navigate to={esSoporte ? '/administracion/cuentas' : '/'} replace />} />
+            <Route
+              path="*"
+              element={<Navigate to={esSoporte ? '/administracion/cuentas' : '/'} replace />}
+            />
           </Routes>
         </>
       )}
