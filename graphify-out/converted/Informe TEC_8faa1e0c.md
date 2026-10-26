@@ -32,6 +32,12 @@ Asignatura: Capstone
 
 
 Índice
+Introducción	3
+Propósito del documento	3
+Asignación de Responsabilidades y Roles	3
+Tarifas y Valorización de Horas	4
+Presupuesto de Infraestructura y Herramientas a Utilizar	4
+Resumen Financiero	5
 
 
 
@@ -91,6 +97,11 @@ Asignado a la codificación de la aplicación web y móvil, considerando tambié
 ## Tarifas y Valorización de Horas
 Para la valorización de horas se debe considerar principalmente que el equipo de desarrollo se presenta con un perfil de Junior en Informática y su remuneración considerando el valor como Freelance, por lo tanto se han establecido las tarifas (en $CLP) acorde al mercado nacional para dicho nivel de experiencia:
 
+| Responsable | Rol | $CLP/Hora |
+| --- | --- | --- |
+| Gabriel Valencia | Scrum Master / QA | $10.000CLP / Hora |
+| Diego Plaza | Arquitectura / Desarrollo Backend | $12.000CLP / Hora |
+| Alonso González | Desarrollo Frontend / Base de Datos | $12.000CLP / Hora |
 ## Presupuesto de Infraestructura y Herramientas a Utilizar
 Estos son los costos de infraestructura y herramientas considerados en el proyecto:
 Herramientas de desarrollo (Node.js 24.21.0, TypeScript, Turborepo, Docker Desktop, PostgreSQL 15 en contenedor, GitHub): $0 (licencias gratuitas o de uso educativo).
@@ -112,8 +123,3 @@ Fondo de Contingencia (Se considera el 15%): $154.800 CLP
 Fondo de Ganancia (Se considera el 30%): $309.600 CLP
 
 Con esta estimación realizada concluimos que el presupuesto total estimado para llevar a cabo el desarrollo e implementación del proyecto corresponde a $1.496.400 CLP tomando en cuenta todos los aspectos presentados en este documento.
-| Responsable | Rol | $CLP/Hora |
-| --- | --- | --- |
-| Gabriel Valencia | Scrum Master / QA | $10.000CLP / Hora |
-| Diego Plaza | Arquitectura / Desarrollo Backend | $12.000CLP / Hora |
-| Alonso González | Desarrollo Frontend / Base de Datos | $12.000CLP / Hora |

@@ -5,7 +5,7 @@
 | --- |
 | Id | Historia de Usuario | Puntos de Historia Estimados |  |
 | HU-01 | Registro de Usuario en el Sistema | 2.0 |
-| HU-02 | Autenticación de Usuario (Login JWT) | 4.0 |  | Total Puntos: | 44 |
+| HU-02 | Autenticación de Usuario (Login JWT) | 4.0 |  | Total Puntos: | 62 |
 | HU-03 | Registrar Contacto de Emergencia | 3.0 |
 | HU-04 | Editar y Eliminar Contactos SOS | 2.0 |
 | HU-05 | Configurar Mensaje y Tipo Emergencia | 4.0 |
@@ -17,9 +17,9 @@
 | HU-11 | Registrar Ficha Información Médica | 2.0 |
 | HU-12 | Acceso Restringido a Datos Médicos | 4.0 |
 | HU-13 | Panel Admin de Usuarios (Web/Desktop) | 3.0 |
-| HU-14 | Finalizar o Cancelar Emergencia |  |
-| HU-15 | Gestionar Perfil y Credenciales |  |
-| HU-16 | Adquirir Plan o Cupos (PayPal) |  |
-| HU-17 | Números Oficiales de Emergencia |  |
-| HU-18 | Enviar Solicitud de Soporte |  |
-| HU-19 | Informe Personal de Actividad |  |
+| HU-14 | Finalizar o Cancelar Emergencia | 2.0 |
+| HU-15 | Gestionar Perfil y Credenciales | 4.0 |
+| HU-16 | Adquirir Plan o Cupos (PayPal) | 5.0 |
+| HU-17 | Números Oficiales de Emergencia | 2.0 |
+| HU-18 | Enviar Solicitud de Soporte | 3.0 |
+| HU-19 | Informe Personal de Actividad | 2.0 |

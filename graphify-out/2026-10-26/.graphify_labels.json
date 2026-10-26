@@ -50,7 +50,6 @@
   "86": "dependencies",
   "87": "manifest.json",
   "88": "api-client/tsconfig.json",
-  "89": "jest.config.ts",
   "90": "ui/tsconfig.json",
   "92": ".oxlintrc.json",
   "93": "tsconfig.build.json",
