@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { AdminService } from '../admin/admin.service';
 import type { UsuarioSesion } from '../login/jwt-auth.guard';
+import type { JsreportService } from '../integrations/jsreport/jsreport.service';
 import { LoginService } from '../login/login.service';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { UsuariosService } from '../usuarios/usuarios.service';
@@ -20,6 +21,8 @@ describe('ApadrinadosService', () => {
   let cambiarEstadoUsuario: jest.Mock;
   let eliminarUsuarioApadrinado: jest.Mock;
   let query: jest.Mock;
+  let obtenerPropio: jest.Mock;
+  let renderInline: jest.Mock;
   let credencial: { pin_id: number; pin_hash: string; intentos_fallidos: number; bloqueado_hasta: Date | null; bloqueado: boolean };
   let service: ApadrinadosService;
   let hash1234: string;
@@ -41,13 +44,36 @@ describe('ApadrinadosService', () => {
     credencial = { pin_id: 5, pin_hash: hash1234, intentos_fallidos: 0, bloqueado_hasta: null, bloqueado: false };
     // Fila PIN del principal para verificarPinPrincipal (SELECT ... FOR UPDATE y UPDATE).
     query = jest.fn((sql: string) => Promise.resolve(sql.trimStart().startsWith('SELECT') ? [credencial] : []));
+    obtenerPropio = jest.fn();
+    renderInline = jest.fn().mockResolvedValue({ content: Buffer.from('%PDF-1.7'), contentType: 'application/pdf' });
     service = new ApadrinadosService(
       { query, transaction: (op: (m: unknown) => unknown) => op({ query }) } as unknown as DataSource,
       usuarios as unknown as Repository<Usuario>,
       { crearUsuarioApadrinado } as unknown as UsuariosService,
       { cambiarEstadoUsuario, eliminarUsuarioApadrinado } as unknown as AdminService,
-      { traducirCorreoDuplicado: (e: unknown) => e } as unknown as LoginService,
+      { traducirCorreoDuplicado: (e: unknown) => e, obtenerPropio } as unknown as LoginService,
+      { renderInline } as unknown as JsreportService,
     );
+  });
+
+  describe('HU-19: informe personal', () => {
+    it('el principal recibe su cuenta y la de sus apadrinados', async () => {
+      obtenerPropio.mockResolvedValue({ usuario_ID: 10, nombre_usuario: 'P', correo_usuario: 'p@x', estado_ID: 1, usuario_principal_ID: null, plan_efectivo: true });
+      usuarios.find.mockResolvedValue([{ usuario_ID: 11, nombre_usuario: 'H', correo_usuario: 'h@x', estado_ID: 2, PIN_ID: null }]);
+      await service.informe(PRINCIPAL);
+      expect(renderInline.mock.calls[0][1]).toMatchObject({
+        principal: true,
+        usuario: { nombre: 'P', acceso: 'Completo', premium: 'Sí' },
+        apadrinados: [{ nombre: 'H', correo: 'h@x', acceso: 'Parcial', pin: 'Sin PIN' }],
+      });
+    });
+
+    it('un apadrinado solo recibe su propia cuenta, nunca la de su principal', async () => {
+      obtenerPropio.mockResolvedValue({ usuario_ID: 11, nombre_usuario: 'H', correo_usuario: 'h@x', estado_ID: 2, usuario_principal_ID: 10 });
+      await service.informe({ ...PRINCIPAL, sub: 11 });
+      expect(usuarios.find).not.toHaveBeenCalled();
+      expect(renderInline.mock.calls[0][1]).toMatchObject({ principal: false, apadrinados: [] });
+    });
   });
 
   it('no permite cambiar el acceso de un apadrinado de otro principal', async () => {

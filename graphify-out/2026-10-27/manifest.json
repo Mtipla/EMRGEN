@@ -618,9 +618,9 @@
     "semantic_hash": "cdbdd42898084f29eae3f483397cfa89"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/README_BDD.md": {
-    "mtime": 1793125550.6801043,
-    "seen": 1793125653.9198074,
-    "ast_hash": "1a5837244ed698dff85e9b11787fb26d",
+    "mtime": 1793129873.6317787,
+    "seen": 1793129943.2368839,
+    "ast_hash": "11880d9349dc9d44eb1b7f44ca991139",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/assets/react.svg": {
@@ -936,9 +936,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/dto/login.dto.ts": {
-    "mtime": 1793128779.342666,
-    "seen": 1793129136.4775612,
-    "ast_hash": "d83f6f3662c14a80b83c59ea298ed32d",
+    "mtime": 1793129681.4640722,
+    "seen": 1793129943.2009466,
+    "ast_hash": "560b7a2c6de8ef545a0bec527766378b",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/jwt-auth.guard.ts": {
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/login.service.ts": {
-    "mtime": 1793128779.343668,
-    "seen": 1793129136.4780674,
-    "ast_hash": "47652e773c72432762ed869e2c772166",
+    "mtime": 1793129681.453547,
+    "seen": 1793129943.2014265,
+    "ast_hash": "7093feffc821cf18ba95ac421222f5bf",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/planes/plan-usuario.entity.ts": {
@@ -984,9 +984,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/usuarios/usuarios.service.ts": {
-    "mtime": 1793128779.3446693,
-    "seen": 1793129136.4804788,
-    "ast_hash": "df2033129ad51a6056a5e424c57ad2e9",
+    "mtime": 1793129681.4770865,
+    "seen": 1793129943.203999,
+    "ast_hash": "f6f765332bbc5873239916e267ce5a9f",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/app-testing-module.ts": {
@@ -1014,9 +1014,9 @@
     "semantic_hash": "bbe3fd427610bde4cab485e7d58fda48"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/AuthForm.tsx": {
-    "mtime": 1793128807.490641,
-    "seen": 1793129136.4938514,
-    "ast_hash": "5349efcbc1dba6af122a8ff0c685f041",
+    "mtime": 1793129819.3037505,
+    "seen": 1793129943.2178795,
+    "ast_hash": "27f7c0d229747755539aefe2522c69fc",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/UsersAdmin.tsx": {
@@ -1788,9 +1788,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/cuentas-apadrinadas.tsx": {
-    "mtime": 1793128835.4423387,
-    "seen": 1793129136.5034714,
-    "ast_hash": "450052aec2926042ecca08299728e7e4",
+    "mtime": 1793129854.7900207,
+    "seen": 1793129943.2284133,
+    "ast_hash": "588f7f5c3eeee7c6ba6ff5b4a42e65e3",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/mocks.tsx": {
@@ -1860,21 +1860,21 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/apadrinados.service.spec.ts": {
-    "mtime": 1793042531.1008525,
-    "seen": 1793125653.9191449,
-    "ast_hash": "a21bd30f65a354ec5fef4d7ed3696c97",
+    "mtime": 1793129739.775477,
+    "seen": 1793129943.187134,
+    "ast_hash": "0927b54c4b5b0bf4b3d448aafb876ed8",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/apadrinados.service.ts": {
-    "mtime": 1793128779.3416662,
-    "seen": 1793129136.4638684,
-    "ast_hash": "602fd93b2380fb2b6f70acfc4c9cdd05",
+    "mtime": 1793129694.5750976,
+    "seen": 1793129943.187138,
+    "ast_hash": "bd73ea01a16624fa59b133ac82585644",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/dto/apadrinado.dto.ts": {
-    "mtime": 1793037959.2316587,
-    "seen": 1793125653.9191496,
-    "ast_hash": "1030d2ccd9345267cb7410e13318ab7b",
+    "mtime": 1793129694.5615833,
+    "seen": 1793129943.1871412,
+    "ast_hash": "1a0e6930b5ecccad4bfcd2f816094762",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/dto/cambiar-password.dto.ts": {
@@ -2184,15 +2184,15 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/AuthForm.test.tsx": {
-    "mtime": 1793128819.7294765,
-    "seen": 1793129136.4938488,
-    "ast_hash": "bcd5204cb9a5e6cc9c5db244510deca7",
+    "mtime": 1793129819.3047512,
+    "seen": 1793129943.217876,
+    "ast_hash": "39fc92a121a2d71d9460bb18b2650fa7",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/cuenta/apadrinados-pin.test.tsx": {
-    "mtime": 1793128835.4778557,
-    "seen": 1793129136.495169,
-    "ast_hash": "119496da95dde4afca28e26cbdaf629a",
+    "mtime": 1793129854.8228073,
+    "seen": 1793129943.219164,
+    "ast_hash": "46922209c6429a65b928afebc081dc2c",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/usuarios-ruta.test.tsx": {
@@ -2640,9 +2640,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/login-pin.spec.ts": {
-    "mtime": 1793128746.0241132,
-    "seen": 1793129136.477738,
-    "ast_hash": "fad00cd39fb9f8e3a63cf416cf97c7c2",
+    "mtime": 1793129717.973728,
+    "seen": 1793129943.201109,
+    "ast_hash": "4daed7cb7f3fc3c2a4088bc397e23362",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/migraciones/005_pin_temporal.sql": {

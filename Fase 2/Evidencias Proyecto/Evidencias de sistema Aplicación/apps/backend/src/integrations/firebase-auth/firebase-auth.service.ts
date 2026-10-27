@@ -14,6 +14,7 @@ interface FirebaseTokenPayload extends JwtPayload {
   email_verified?: boolean;
   name?: string;
   firebase?: { sign_in_provider?: string };
+  auth_time?: number;
 }
 
 /**
@@ -69,6 +70,7 @@ export class FirebaseAuthService {
       emailVerified: payload.email_verified ?? false,
       name: payload.name,
       signInProvider: payload.firebase?.sign_in_provider,
+      authTime: payload.auth_time,
     };
   }
 }

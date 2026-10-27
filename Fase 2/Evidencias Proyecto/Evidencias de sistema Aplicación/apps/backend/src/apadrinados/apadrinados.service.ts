@@ -9,6 +9,8 @@ import * as bcrypt from 'bcrypt';
 import { DataSource, Repository } from 'typeorm';
 import { AdminService } from '../admin/admin.service';
 import { codigoPostgres } from '../config/postgres-error';
+import { validarReporte } from '../integrations/jsreport/formato-reporte';
+import { JsreportService, type RenderedReport } from '../integrations/jsreport/jsreport.service';
 import { transaction } from '../config/transaction';
 import type { UsuarioSesion } from '../login/jwt-auth.guard';
 import { LoginService } from '../login/login.service';
@@ -18,8 +20,16 @@ import { Pin } from '../usuarios/pin.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { CrearApadrinadoDto } from './dto/apadrinado.dto';
+import { PLANTILLA_INFORME } from './plantilla-informe';
 
 const PG_CHECK_VIOLATION = '23514';
+
+const FECHA_CHILE = new Intl.DateTimeFormat('es-CL', {
+  dateStyle: 'short',
+  timeStyle: 'short',
+  timeZone: 'America/Santiago',
+});
+const acceso = (estado_ID?: number) => (estado_ID === ACCESO.COMPLETO ? 'Completo' : 'Parcial');
 
 /** Cuenta vinculada visible para la sesión. Correo, acceso y PIN solo los ve el principal (RF9). */
 export type CuentaVinculada = {
@@ -44,7 +54,38 @@ export class ApadrinadosService {
     private readonly usuariosService: UsuariosService,
     private readonly adminService: AdminService,
     private readonly loginService: LoginService,
+    private readonly jsreport: JsreportService,
   ) {}
+
+  /** HU-19 / RF22: PDF con los datos de la propia cuenta y, si es principal, de sus apadrinados. */
+  async informe(sesion: UsuarioSesion): Promise<RenderedReport> {
+    const yo = await this.loginService.obtenerPropio(sesion.sub);
+    const principal = yo.usuario_principal_ID === null;
+    // Un apadrinado ve solo su cuenta: vinculadas() le devolvería la de su principal.
+    const apadrinados = principal ? await this.vinculadas(sesion) : [];
+    const reporte = await this.jsreport.renderInline(
+      { content: PLANTILLA_INFORME },
+      {
+        generado: FECHA_CHILE.format(new Date()),
+        principal,
+        usuario: {
+          nombre: yo.nombre_usuario,
+          correo: yo.correo_usuario,
+          tipo: principal ? 'Cuenta principal' : 'Cuenta apadrinada',
+          acceso: acceso(yo.estado_ID),
+          premium: yo.plan_efectivo ? 'Sí' : 'No',
+        },
+        apadrinados: apadrinados.map((a) => ({
+          nombre: a.nombre_usuario,
+          correo: a.correo_usuario,
+          acceso: acceso(a.estado_ID),
+          pin: a.tiene_pin ? 'Configurado' : 'Sin PIN',
+        })),
+      },
+    );
+    validarReporte(reporte, 'pdf');
+    return reporte;
+  }
 
   async vinculadas(sesion: UsuarioSesion): Promise<CuentaVinculada[]> {
     const yo = await this.usuarios.findOneBy({ usuario_ID: sesion.sub });

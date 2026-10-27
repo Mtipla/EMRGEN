@@ -30,7 +30,7 @@ Una instalación nueva tiene catálogos, el producto adicional 1 (1000 CLP, máx
 node scripts/seed-dev.cjs
 ```
 
-El script usa bcrypt 12 para contraseña y PIN, IDs del motor y una transacción. Inserta cuentas faltantes y conserva las existentes; no restablece contraseñas, compras ni cupos de cuentas ya existentes. Para regenerar hashes de fixtures, usarlo en una instalación de desarrollo vacía expresamente autorizada; no borrar volúmenes con datos que se deban preservar.
+El script usa bcrypt 12 para contraseña y PIN, IDs del motor y una transacción. Inserta cuentas faltantes y conserva las existentes (solo asigna el PIN de fixture a una cuenta existente que no tenga ninguno); no restablece contraseñas, compras ni cupos de cuentas ya existentes. Para regenerar hashes de fixtures, usarlo en una instalación de desarrollo vacía expresamente autorizada; no borrar volúmenes con datos que se deban preservar.
 
 | Correo ficticio | Rol / acceso | Plan y PIN de desarrollo |
 |---|---|---|
@@ -39,7 +39,7 @@ El script usa bcrypt 12 para contraseña y PIN, IDs del motor y una transacción
 | principal@emergen.test | Usuario completo | Plan base 2, capacidad 3; PIN 0007 |
 | sinplan@emergen.test | Usuario completo | Sin plan; PIN 0007; SOS rechazado por falta de plan |
 | completo@emergen.test | Apadrinado completo del principal | PIN propio 1234; usa plan del principal |
-| parcial@emergen.test | Apadrinado parcial del principal | Sin PIN propio; cierre con PIN del principal 0007 |
+| parcial@emergen.test | Apadrinado parcial del principal | PIN fijo 5678 (no se cambia); cierre de SOS también con PIN del principal 0007 |
 
 **Contraseña común exclusivamente de estas cuentas locales: `EmergenDev123!`.** Son valores de prueba, no secretos externos de configuración. Los contactos se rotulan ficticios y tienen formato internacional +56; las pruebas no envían mensajes. El plan base 2 “PLAN BASE DEMOSTRACION” cuesta 5000 CLP y puede comprarse con PayPal. Se activa con cero cupos; los cupos adicionales se compran por separado. Para una BD existente, aplicar `migraciones/002_precio_plan_base.sql` sin recrear el volumen. Ver [pruebas del flujo de compra](docs/PRUEBAS_COMPRA_PLAN.md).
 

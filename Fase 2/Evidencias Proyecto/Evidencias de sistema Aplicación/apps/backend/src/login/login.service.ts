@@ -253,6 +253,29 @@ export class LoginService {
     }
   }
 
+  /**
+   * Recuperación de contraseña: Firebase envía el enlace y guarda la contraseña nueva; aquí se
+   * copia a la BD, que es la que valida el login. Solo cuentas principales con acceso completo.
+   */
+  async sincronizarPasswordFirebase(firebaseUser: FirebaseAuthUser, password: string) {
+    if (!this.passwordCabeEnBcrypt(password)) {
+      throw new BadRequestException('La contraseña supera el límite de 72 bytes');
+    }
+    // Un token refrescado conserva auth_time: exigir un ingreso reciente evita reutilizar uno viejo.
+    const ingresoReciente = Date.now() / 1000 - (firebaseUser.authTime ?? 0) < 5 * 60;
+    if (!firebaseUser.emailVerified || !ingresoReciente || !firebaseUser.email) {
+      throw new UnauthorizedException('Vuelve a iniciar sesión con tu nueva contraseña');
+    }
+    const usuario = await this.buscarPorCorreo(firebaseUser.email.trim().toLowerCase());
+    if (!usuario || usuario.usuario_principal_ID !== null || usuario.estado_ID !== 1) {
+      throw new UnauthorizedException('Correo o contraseña incorrectos');
+    }
+    await this.usuarioRepository.update(usuario.usuario_ID, {
+      contra_usuario: await bcrypt.hash(password, BCRYPT_COSTO),
+    });
+    return { mensaje: 'Contraseña actualizada' };
+  }
+
   /** Mismo criterio que actualizarPropio: el acceso parcial no cambia sus credenciales. */
   async cambiarPassword(id: number, actual: string, nueva: string) {
     if (!this.passwordCabeEnBcrypt(nueva)) {

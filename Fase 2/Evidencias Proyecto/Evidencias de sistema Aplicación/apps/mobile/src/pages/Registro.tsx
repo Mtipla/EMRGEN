@@ -41,7 +41,7 @@ const Registro: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/login" />
+            <IonBackButton defaultHref="/login" text="Volver" />
           </IonButtons>
           <IonTitle>Registrar usuario</IonTitle>
         </IonToolbar>

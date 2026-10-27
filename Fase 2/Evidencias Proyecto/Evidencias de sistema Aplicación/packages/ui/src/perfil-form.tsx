@@ -152,9 +152,6 @@ export const PerfilForm = ({
   const conDatos = Boolean(api) && variante === "usuario";
   const [usuario, setUsuario] = useState(nombreUsuario);
   const [email, setEmail] = useState(correo);
-  // Sin endpoint: estos campos viven solo en el estado del formulario.
-  const [nombre, setNombre] = useState("");
-  const [telefono, setTelefono] = useState("");
   // 0 = sin finalidad (PRIORIDAD_ID nulo).
   const [prioridad, setPrioridad] = useState<number>(conDatos ? 0 : PRIORIDADES[0].id);
   const [contactos, setContactos] = useState<ContactoEmergencia[]>([]);
@@ -347,22 +344,14 @@ export const PerfilForm = ({
               : ""}{" "}
           aún no se guardan
         </Pendiente>
+        {/* Deshabilitados: la tabla usuario no tiene columnas para nombre ni teléfono. */}
         <label>
           Nombre
-          <input
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Federico Arturo"
-          />
+          <input disabled placeholder="Federico Arturo" />
         </label>
         <label>
           Número telefónico
-          <input
-            type="tel"
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            placeholder="+569…"
-          />
+          <input type="tel" disabled placeholder="+569…" />
         </label>
 
         {variante === "soporte" ? null : carga.cargando ? (

@@ -24,7 +24,7 @@ const Perfil: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/home" />
+            <IonBackButton defaultHref="/home" text="Volver" />
           </IonButtons>
           <IonTitle>Modificar usuario</IonTitle>
         </IonToolbar>

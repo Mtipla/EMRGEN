@@ -19,6 +19,7 @@ import { ActualizarMiUsuarioPropioDto } from './dto/actualizar-mi-usuario.dto';
 import { CambiarPasswordDto } from './dto/cambiar-password.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { CrearPinDto } from './dto/crear-pin.dto';
+import { SincronizarPasswordDto } from './dto/sincronizar-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard, type UsuarioSesion } from './jwt-auth.guard';
 import { LoginService } from './login.service';
@@ -35,6 +36,14 @@ export class LoginController {
   @Post('registro')
   registrar(@Req() request: FirebaseRequest, @Body() datos: CrearUsuarioDto) {
     return this.loginService.crear(datos, request.firebaseUser!);
+  }
+
+  // Tras restablecer la contraseña con el correo de Firebase: el ID token recién emitido con la
+  // contraseña nueva prueba que el dueño del correo la conoce, y se copia a la BD.
+  @UseGuards(FirebaseAuthGuard)
+  @Post('password/firebase')
+  sincronizarPassword(@Req() request: FirebaseRequest, @Body() datos: SincronizarPasswordDto) {
+    return this.loginService.sincronizarPasswordFirebase(request.firebaseUser!, datos.password);
   }
 
   @Post('login')

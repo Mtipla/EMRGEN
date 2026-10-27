@@ -34,7 +34,7 @@ const Cuentas: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/home" />
+            <IonBackButton defaultHref="/home" text="Volver" />
           </IonButtons>
           <IonTitle>Administrar cuentas</IonTitle>
         </IonToolbar>
