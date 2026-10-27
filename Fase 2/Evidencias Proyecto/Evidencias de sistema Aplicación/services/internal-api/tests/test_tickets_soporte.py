@@ -50,3 +50,12 @@ def test_bandeja_staff_aislamiento_y_respuesta_visible_al_solicitante(client, cr
     assert respuesta["estado"] == "CERRADO"
     assert respuesta["solucion"] == "Acceso restablecido"
     assert client.get(f"{URL}/{tid}", headers=token(otro)).status_code == 404
+
+
+def test_ticket_cerrado_no_se_reabre_sin_motivo(client, crear_usuario):
+    user = crear_usuario(); staff = crear_usuario(rol_id=2)
+    tid = client.post(URL, headers=token(user), json={"descripcion": "Caso", "categoria_id": 1}).json()["ticket_id"]
+    assert client.patch(f"{URL}/{tid}", headers=token(staff), json={"estado": "CERRADO", "solucion": "Rechazada: fuera de alcance"}).status_code == 200
+    assert client.patch(f"{URL}/{tid}", headers=token(staff), json={"estado": "EN PROCESO"}).status_code == 400
+    r = client.patch(f"{URL}/{tid}", headers=token(staff), json={"estado": "EN PROCESO", "solucion": "Reabierto: faltaban datos"})
+    assert r.status_code == 200 and r.json()["estado"] == "EN PROCESO"

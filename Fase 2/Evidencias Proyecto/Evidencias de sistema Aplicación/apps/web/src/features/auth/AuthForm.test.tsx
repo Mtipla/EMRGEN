@@ -72,3 +72,36 @@ test('regresión: con el correo ya confirmado se crea la cuenta como antes', asy
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(firebaseAuth.sendEmailVerification).not.toHaveBeenCalled()
 })
+
+test('cuenta tipo Netflix: contraseña de la principal, perfil, PIN y cambio obligatorio del PIN temporal', async () => {
+  const onAuthenticated = vi.fn()
+  fetchMock
+    .mockResolvedValueOnce(respuesta(201, { perfiles: [
+      { usuario_ID: 3, nombre_usuario: 'Principal', tipo: 'PRINCIPAL', tiene_pin: true },
+      { usuario_ID: 5, nombre_usuario: 'Ana', tipo: 'APADRINADO', tiene_pin: true },
+      { usuario_ID: 6, nombre_usuario: 'Luis', tipo: 'APADRINADO', tiene_pin: false },
+    ] }))
+    .mockResolvedValueOnce(respuesta(201, { cambio_pin_requerido: true }))
+    .mockResolvedValueOnce(respuesta(201, { access_token: 't', usuario: { usuario_ID: 5 } }))
+  render(<MemoryRouter><AuthForm onAuthenticated={onAuthenticated} /></MemoryRouter>)
+  fireEvent.change(screen.getByLabelText('Correo Electrónico'), { target: { value: 'principal@emergen.test' } })
+  fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'EmergenDev123!' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
+
+  await screen.findByRole('heading', { name: '¿Quién eres?' })
+  expect((screen.getByRole('button', { name: /Luis/ }) as HTMLButtonElement).disabled).toBe(true)
+  fireEvent.click(screen.getByRole('button', { name: 'Ana' }))
+  expect(screen.getByRole('heading', { name: 'PIN de Ana' })).toBeTruthy()
+  fireEvent.change(screen.getByLabelText('PIN'), { target: { value: '1234' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
+
+  fireEvent.change(await screen.findByLabelText('PIN nuevo'), { target: { value: '4321' } })
+  fireEvent.change(screen.getByLabelText('Repite el PIN nuevo'), { target: { value: '4321' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Cambiar PIN e ingresar' }))
+
+  await waitFor(() => expect(onAuthenticated).toHaveBeenCalled())
+  const cuerpos = fetchMock.mock.calls.map(([, init]) => JSON.parse(String(init?.body)))
+  expect(cuerpos[0]).not.toHaveProperty('PIN')
+  expect(cuerpos[1]).toMatchObject({ correo_usuario: 'principal@emergen.test', perfil_ID: 5, PIN: '1234' })
+  expect(cuerpos[2]).toMatchObject({ perfil_ID: 5, PIN: '1234', PIN_nuevo: '4321' })
+})

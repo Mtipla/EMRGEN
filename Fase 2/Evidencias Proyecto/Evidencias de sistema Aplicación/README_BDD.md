@@ -51,7 +51,7 @@ $auth = @{ Authorization = "Bearer " + $sesion.access_token }
 Invoke-RestMethod -Uri http://localhost:3001/usuarios/me -Headers $auth
 ```
 
-El registro público conserva la verificación de correo Firebase. Los apadrinados tienen correo y contraseña propios y pueden iniciar sesión; no existe login global solo por PIN ni cambio de perfil. Una cuenta principal recién registrada queda parcial hasta configurar su PIN mediante `POST /usuarios/me/pin` con `{"PIN":"0007"}`. No se admiten números que pierdan ceros iniciales. La creación interna de apadrinados completos exige PIN propio y lo hashea; no se añadió una nueva UI de alta de apadrinados.
+El registro público conserva la verificación de correo Firebase. Ingreso tipo Netflix: se inicia sesión con el correo y la contraseña de la cuenta principal, se elige un perfil (la principal o uno de sus apadrinados) y se abre con el PIN de ese perfil. Los apadrinados no inician sesión con su propio correo. El apadrinado con acceso completo recibe un PIN de primer acceso que debe cambiar al entrar; el parcial recibe un PIN fijo que no puede cambiar (`pin.pin_temporal`, migraciones/005_pin_temporal.sql). Una cuenta principal recién registrada queda parcial hasta configurar su PIN mediante `POST /usuarios/me/pin` con `{"PIN":"0007"}`. No se admiten números que pierdan ceros iniciales. La creación interna de apadrinados completos exige PIN propio y lo hashea; no se añadió una nueva UI de alta de apadrinados.
 
 ## Reglas operativas
 

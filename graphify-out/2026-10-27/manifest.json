@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/App.tsx": {
-    "mtime": 1793042952.3869092,
-    "seen": 1793125653.9195538,
-    "ast_hash": "9340a719e44205893c73e9d98431e693",
+    "mtime": 1793127475.3235729,
+    "seen": 1793127494.4669452,
+    "ast_hash": "4a1767a49b3e09e151a689a76606cf73",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/main.tsx": {
@@ -294,9 +294,9 @@
     "semantic_hash": "112d56c0d2b5042423bc48ce91a70418"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/init.sql": {
-    "mtime": 1793125550.6947236,
-    "seen": 1793125653.9196136,
-    "ast_hash": "fae37ec067e9b11e292cb008e30d78ab",
+    "mtime": 1793128779.3466673,
+    "seen": 1793129136.4972432,
+    "ast_hash": "d7308271752bcef0b8497e04a8d6b8c7",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/package.json": {
@@ -828,9 +828,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/admin/admin.controller.ts": {
-    "mtime": 1793037959.1886575,
-    "seen": 1793125653.919118,
-    "ast_hash": "83b0dbbbb1cf84288c16e742b4aa33c9",
+    "mtime": 1793127475.315572,
+    "seen": 1793127494.436539,
+    "ast_hash": "a4cb7731556482cd56348e86926394da",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/admin/admin.module.ts": {
@@ -936,10 +936,10 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/dto/login.dto.ts": {
-    "mtime": 1793037959.307169,
-    "seen": 1793125653.9193347,
-    "ast_hash": "548ab318843b8f047d5030e4c963e7b4",
-    "semantic_hash": "548ab318843b8f047d5030e4c963e7b4"
+    "mtime": 1793128779.342666,
+    "seen": 1793129136.4775612,
+    "ast_hash": "d83f6f3662c14a80b83c59ea298ed32d",
+    "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/jwt-auth.guard.ts": {
     "mtime": 1793037959.307169,
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/login.service.ts": {
-    "mtime": 1793044216.9746406,
-    "seen": 1793125653.919343,
-    "ast_hash": "9466d52cd5d7a6eb8981b9dda1032720",
+    "mtime": 1793128779.343668,
+    "seen": 1793129136.4780674,
+    "ast_hash": "47652e773c72432762ed869e2c772166",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/planes/plan-usuario.entity.ts": {
@@ -984,9 +984,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/usuarios/usuarios.service.ts": {
-    "mtime": 1793037959.3586836,
-    "seen": 1793125653.9193816,
-    "ast_hash": "9185c681209400b6b2edb5638d71bf9f",
+    "mtime": 1793128779.3446693,
+    "seen": 1793129136.4804788,
+    "ast_hash": "df2033129ad51a6056a5e424c57ad2e9",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/app-testing-module.ts": {
@@ -1014,9 +1014,9 @@
     "semantic_hash": "bbe3fd427610bde4cab485e7d58fda48"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/AuthForm.tsx": {
-    "mtime": 1793042166.3517573,
-    "seen": 1793125653.9195626,
-    "ast_hash": "79769a0a3128f930d02b1cece0b65f62",
+    "mtime": 1793128807.490641,
+    "seen": 1793129136.4938514,
+    "ast_hash": "5349efcbc1dba6af122a8ff0c685f041",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/UsersAdmin.tsx": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/auth-admin.db.e2e-spec.ts": {
-    "mtime": 1793042177.5168426,
-    "seen": 1793125653.9193964,
-    "ast_hash": "8028c9b7318266e1490f4c8b0112901e",
+    "mtime": 1793127475.3175726,
+    "seen": 1793127494.455778,
+    "ast_hash": "01b6d4ec372b25436970b5fcbdda2024",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/load-root-env.ts": {
@@ -1128,9 +1128,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/integrations/whatsapp/emergency-alert.message.ts": {
-    "mtime": 1793125550.6821034,
-    "seen": 1793125653.9192934,
-    "ast_hash": "6f2142409907c8f7b804c71851882868",
+    "mtime": 1793127475.3165727,
+    "seen": 1793127494.4489017,
+    "ast_hash": "d30d201b15fcd5e6559edf1409a3e532",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/integrations/whatsapp/phone-number.spec.ts": {
@@ -1374,9 +1374,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/usuarios/pin.entity.ts": {
-    "mtime": 1793037959.3576825,
-    "seen": 1793125653.9193747,
-    "ast_hash": "427fc3af1057178ffefd6c5499d1cd39",
+    "mtime": 1793128779.343668,
+    "seen": 1793129136.4801662,
+    "ast_hash": "d9488d265ecdb386cb88340fb3c25d17",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/manual/probar-auditoria.ps1": {
@@ -1398,9 +1398,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/admin/PanelAdmin.tsx": {
-    "mtime": 1793038427.500323,
-    "seen": 1793125653.9194357,
-    "ast_hash": "664d987dba36d4cd576670abc3be0b11",
+    "mtime": 1793127475.318572,
+    "seen": 1793127494.4583132,
+    "ast_hash": "58414d59de87d8500acf2ddfb1784be8",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/admin/SeccionBitacora.tsx": {
@@ -1422,9 +1422,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/admin/api.ts": {
-    "mtime": 1793038427.506325,
-    "seen": 1793125653.9194546,
-    "ast_hash": "d95ba8fcff896f94755b5044e0fe809a",
+    "mtime": 1793127475.3215735,
+    "seen": 1793127494.459274,
+    "ast_hash": "950cdc128dec14830a534524bb97c394",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/admin/usePeticion.ts": {
@@ -1452,9 +1452,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/docs/cuentas-temporales-pruebas.md": {
-    "mtime": 1793038427.5198388,
-    "seen": 1793125653.919831,
-    "ast_hash": "81a3c8ebe702db0cb25988ac613bfded",
+    "mtime": 1793127475.3295734,
+    "seen": 1793127494.4862673,
+    "ast_hash": "e7c6391d859b35b396e14e2000d66409",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/__init__.py": {
@@ -1494,9 +1494,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/readme.apis.internas.md": {
-    "mtime": 1793125550.6987238,
-    "seen": 1793125653.9198372,
-    "ast_hash": "fdf5d01883ee5f0fed1f919878c10126",
+    "mtime": 1793127475.3345752,
+    "seen": 1793127494.4866152,
+    "ast_hash": "bd1956f394a44b04d1182869de399d0d",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/README.md": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/schemas/tickets.py": {
-    "mtime": 1793037959.6576838,
-    "seen": 1793125653.9197664,
-    "ast_hash": "4ce3cf670c9199a569ca685c4232361b",
+    "mtime": 1793127475.335574,
+    "seen": 1793127494.4819994,
+    "ast_hash": "c82323a7d829734ab836ee797296b89d",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/services/alertas.py": {
@@ -1554,9 +1554,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/app/services/tickets.py": {
-    "mtime": 1793037959.6586835,
-    "seen": 1793125653.9197707,
-    "ast_hash": "bd7d2b31182f4f00ea91f36cbf9b084b",
+    "mtime": 1793128915.5041566,
+    "seen": 1793129136.5088043,
+    "ast_hash": "04f3baae4dcf4c15663ee550ec833c69",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/sql/001_catalogos_soporte.sql": {
@@ -1584,9 +1584,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/test_tickets_soporte.py": {
-    "mtime": 1793037959.6626842,
-    "seen": 1793125653.9197893,
-    "ast_hash": "689f9a6c77b69f7877cc9bbcaeda1516",
+    "mtime": 1793128915.5041566,
+    "seen": 1793129136.510076,
+    "ast_hash": "6db3871c95a1e3bbf719ff066977a1f5",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/config/postgres-exception.filter.spec.ts": {
@@ -1614,9 +1614,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/pruebas_init.sql": {
-    "mtime": 1793125550.6967204,
-    "seen": 1793125653.9197152,
-    "ast_hash": "de18b5ab6424a5f80b4d5359d11d3444",
+    "mtime": 1793125971.328267,
+    "seen": 1793127494.4783204,
+    "ast_hash": "580e4d997992aace66b6e992b5115a4c",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/scripts/db-dev.cjs": {
@@ -1692,9 +1692,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/admin/VistasWireframe.tsx": {
-    "mtime": 1793038427.5053272,
-    "seen": 1793125653.9194524,
-    "ast_hash": "93e6e4dfe6787c70c3836e5c008efc9d",
+    "mtime": 1793127475.320574,
+    "seen": 1793127494.4592714,
+    "ast_hash": "3285fd03558c536759447f7ca93a88b9",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/components/ConfigurarAlerta.tsx": {
@@ -1716,9 +1716,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/lib/wireframe.test.ts": {
-    "mtime": 1793037959.4426816,
-    "seen": 1793125653.9195201,
-    "ast_hash": "f28ca8313a6e6d7bebf964069dd66f96",
+    "mtime": 1793127475.3225715,
+    "seen": 1793127494.4644427,
+    "ast_hash": "03af07774e51feb7f2c885e94b456e2a",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/pages/Cuentas.tsx": {
@@ -1752,15 +1752,15 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/administracion/AdminPages.tsx": {
-    "mtime": 1793037959.501681,
-    "seen": 1793125653.919558,
-    "ast_hash": "7e242d1f40f6b955b36ddfbdd9c2f420",
+    "mtime": 1793127475.3255737,
+    "seen": 1793127494.467122,
+    "ast_hash": "535c43536ded1195bdacaab26a490d7a",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/cuenta/AppShell.tsx": {
-    "mtime": 1793038427.515839,
-    "seen": 1793125653.9195786,
-    "ast_hash": "59b46402d718dddcc330858df7f99b1c",
+    "mtime": 1793127475.3275745,
+    "seen": 1793127494.4684374,
+    "ast_hash": "680738b37ce308860abdcfc71c8adcfc",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/cuenta/CuentaPages.tsx": {
@@ -1776,9 +1776,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/admin-views.tsx": {
-    "mtime": 1793038427.529839,
-    "seen": 1793125653.9196827,
-    "ast_hash": "0a795773f1e07298baa83532bb0d0775",
+    "mtime": 1793127475.3315742,
+    "seen": 1793127494.476256,
+    "ast_hash": "00e5101dfc83bc968bf1b2bda081e289",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/css.d.ts": {
@@ -1788,9 +1788,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/cuentas-apadrinadas.tsx": {
-    "mtime": 1793042564.7543502,
-    "seen": 1793125653.9196947,
-    "ast_hash": "d68b54b37cc5ccf605aada6d58913fd7",
+    "mtime": 1793128835.4423387,
+    "seen": 1793129136.5034714,
+    "ast_hash": "450052aec2926042ecca08299728e7e4",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/mocks.tsx": {
@@ -1818,15 +1818,15 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/permisos.tsx": {
-    "mtime": 1793038427.5308385,
-    "seen": 1793125653.919705,
-    "ast_hash": "100acc9bbfae5f951396a2d8cf272e2f",
+    "mtime": 1793127475.3315742,
+    "seen": 1793127494.4778569,
+    "ast_hash": "431c958db0d0fb8cd552a5853af9924b",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/soporte.tsx": {
-    "mtime": 1793037959.6296835,
-    "seen": 1793125653.919709,
-    "ast_hash": "196e4165d95b59f8ec2359634fa7cf00",
+    "mtime": 1793128928.25697,
+    "seen": 1793129136.5044124,
+    "ast_hash": "4318ad1abebcb9560ade03de4603d81c",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/CHANGELOG_DESARROLLO.md": {
@@ -1866,9 +1866,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/apadrinados.service.ts": {
-    "mtime": 1793044198.5159066,
-    "seen": 1793125653.9191473,
-    "ast_hash": "885da611be9c3e92b4ccd9d7a1941e3c",
+    "mtime": 1793128779.3416662,
+    "seen": 1793129136.4638684,
+    "ast_hash": "602fd93b2380fb2b6f70acfc4c9cdd05",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/apadrinados/dto/apadrinado.dto.ts": {
@@ -1932,9 +1932,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/admin/admin-ventas.controller.ts": {
-    "mtime": 1793038427.486324,
-    "seen": 1793125653.919113,
-    "ast_hash": "a04a335c880679dc365317358eadd3ad",
+    "mtime": 1793127475.314572,
+    "seen": 1793127494.4363654,
+    "ast_hash": "1936219299dc5576fc267c6d9f20af9d",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/admin/admin-ventas.service.ts": {
@@ -1974,9 +1974,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/test/admin-ventas.db.e2e-spec.ts": {
-    "mtime": 1793038427.4983237,
-    "seen": 1793125653.919386,
-    "ast_hash": "a035f44f1729773a1d261621d6fea8e7",
+    "mtime": 1793127475.3175726,
+    "seen": 1793127494.4553058,
+    "ast_hash": "a3a9b7a61ee1400b0eed9e195aa19982",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/admin/BotonDescargarReporte.tsx": {
@@ -2004,9 +2004,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/admin/VistaCompras.tsx": {
-    "mtime": 1793038427.5053272,
-    "seen": 1793125653.91945,
-    "ast_hash": "a050d9a567a4c2206ce75c473f1e53af",
+    "mtime": 1793127475.3195746,
+    "seen": 1793127494.4592652,
+    "ast_hash": "7f7a530943dc0121cae54d3bcb5ee359",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/components/AlertasActivas.tsx": {
@@ -2184,15 +2184,15 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/AuthForm.test.tsx": {
-    "mtime": 1793042283.963018,
-    "seen": 1793125653.9195602,
-    "ast_hash": "d08cf3371e6ec40995012063a37c06f2",
+    "mtime": 1793128819.7294765,
+    "seen": 1793129136.4938488,
+    "ast_hash": "bcd5204cb9a5e6cc9c5db244510deca7",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/cuenta/apadrinados-pin.test.tsx": {
-    "mtime": 1793042642.3344638,
-    "seen": 1793125653.9195833,
-    "ast_hash": "fb43f38143a6386ee008361417002797",
+    "mtime": 1793128835.4778557,
+    "seen": 1793129136.495169,
+    "ast_hash": "119496da95dde4afca28e26cbdaf629a",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/usuarios-ruta.test.tsx": {
@@ -2298,9 +2298,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/docs/WHATSAPP_SOS.md": {
-    "mtime": 1793125550.6931028,
-    "seen": 1793125653.919829,
-    "ast_hash": "feff8a9bfdb081e862ceb8bd720a9298",
+    "mtime": 1793127475.328575,
+    "seen": 1793127494.4862645,
+    "ast_hash": "c9424298530a114574b9da68d45302ca",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/services/internal-api/tests/test_swagger_auth.py": {
@@ -2601,6 +2601,54 @@
     "mtime": 1793037960.138194,
     "seen": 1793125653.9199173,
     "ast_hash": "14092f9f7b2ec05aa84daae48d46035c",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/admin/admin-acceso.spec.ts": {
+    "mtime": 1793127475.314572,
+    "seen": 1793127494.436036,
+    "ast_hash": "6bf1088726c6eb27a10da8883640c84a",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/desktop/src/admin/VistaTickets.tsx": {
+    "mtime": 1793127475.3195746,
+    "seen": 1793127494.4592683,
+    "ast_hash": "8a4cdf75a3a3c303d331b7bd33acae1c",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/administracion/AdminComprasPage.tsx": {
+    "mtime": 1793127475.324575,
+    "seen": 1793127494.4671183,
+    "ast_hash": "6f5d1a325085cb2c64109e2abaae51ae",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/administracion/admin-soporte.test.tsx": {
+    "mtime": 1793128944.980739,
+    "seen": 1793129136.493845,
+    "ast_hash": "135faa6de9f124dfc0388b4c6ced8f71",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/admin-tickets.tsx": {
+    "mtime": 1793127475.3295734,
+    "seen": 1793127494.4762487,
+    "ast_hash": "df1f8d676bce46398cdc3ae2b001a2b7",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/packages/ui/src/admin-ventas.tsx": {
+    "mtime": 1793127475.3305757,
+    "seen": 1793127494.4762523,
+    "ast_hash": "2f163e1c6c494ffb1b597bce8e66e08c",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/backend/src/login/login-pin.spec.ts": {
+    "mtime": 1793128746.0241132,
+    "seen": 1793129136.477738,
+    "ast_hash": "fad00cd39fb9f8e3a63cf416cf97c7c2",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/migraciones/005_pin_temporal.sql": {
+    "mtime": 1793128695.7887838,
+    "seen": 1793129136.4978654,
+    "ast_hash": "570c578c6fcdc2b07734209a536bfd71",
     "semantic_hash": ""
   }
 }

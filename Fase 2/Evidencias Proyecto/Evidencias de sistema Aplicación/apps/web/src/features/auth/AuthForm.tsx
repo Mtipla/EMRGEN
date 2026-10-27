@@ -7,6 +7,14 @@ import { firebaseAuth } from '../../lib/api'
 
 type Mode = 'login' | 'registro' | 'verificacion'
 
+/**
+ * Cuenta tipo Netflix: correo y contraseña de la principal, elegir perfil y su PIN; si es un PIN
+ * temporal (apadrinado con acceso completo), cambio obligatorio antes de entrar.
+ */
+type PasoIngreso = 'credenciales' | 'perfil' | 'pin' | 'cambio'
+
+type Perfil = { usuario_ID: number; nombre_usuario: string; tipo: 'PRINCIPAL' | 'APADRINADO'; tiene_pin: boolean }
+
 type FirebaseSession = Awaited<ReturnType<typeof firebaseAuth.signUp>>
 
 /** Cuenta de Firebase que espera la confirmación del correo antes de guardarse en la BD. */
@@ -64,6 +72,12 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   const [password, setPassword] = useState('')
   const [confirmacion, setConfirmacion] = useState('')
   const [pending, setPending] = useState<PendingAccount | null>(null)
+  const [paso, setPaso] = useState<PasoIngreso>('credenciales')
+  const [perfiles, setPerfiles] = useState<Perfil[]>([])
+  const [perfil, setPerfil] = useState<Perfil | null>(null)
+  const [pin, setPin] = useState('')
+  const [pinNuevo, setPinNuevo] = useState('')
+  const [pinConfirmacion, setPinConfirmacion] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -223,7 +237,23 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
         await startRegistration()
         return
       }
-      const data = await postUsuarios('login', { correo_usuario: correo, password })
+      if (paso === 'cambio' && pinNuevo !== pinConfirmacion) throw new Error('Los PIN no coinciden.')
+      const data = await postUsuarios('login', {
+        correo_usuario: correo,
+        password,
+        ...(perfil && paso !== 'credenciales' && { perfil_ID: perfil.usuario_ID, PIN: pin }),
+        ...(paso === 'cambio' && { PIN_nuevo: pinNuevo }),
+      })
+      if (data.perfiles) {
+        setPerfiles(data.perfiles)
+        setPaso('perfil')
+        return
+      }
+      if (data.cambio_pin_requerido) {
+        setPaso('cambio')
+        informar('Es tu primer ingreso: reemplaza el PIN temporal por uno propio.')
+        return
+      }
       localStorage.setItem('emergen.token', data.access_token)
       localStorage.setItem('emergen.user', JSON.stringify(data.usuario))
       onAuthenticated(data.usuario as AuthenticatedUser)
@@ -303,7 +333,15 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
 
       <main className="auth-main">
         <section className="auth-card">
-          <h1>{isRegister ? 'Crear cuenta' : 'Inicio de sesión'}</h1>
+          <h1>
+            {isRegister
+              ? 'Crear cuenta'
+              : paso === 'perfil'
+                ? '¿Quién eres?'
+                : paso !== 'credenciales' && perfil
+                  ? `PIN de ${perfil.nombre_usuario}`
+                  : 'Inicio de sesión'}
+          </h1>
 
           <form onSubmit={handleSubmit}>
             {isRegister && (
@@ -319,29 +357,104 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
               </label>
             )}
 
-            <label className="auth-field">
-              <span>Correo Electrónico</span>
-              <input
-                type="email"
-                autoComplete="email"
-                value={correo}
-                onChange={(event) => setCorreo(event.target.value)}
-                required
-              />
-            </label>
+            {paso === 'credenciales' && (
+              <>
+                <label className="auth-field">
+                  <span>Correo Electrónico</span>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    value={correo}
+                    onChange={(event) => setCorreo(event.target.value)}
+                    required
+                  />
+                </label>
 
-            <label className="auth-field">
-              <span>Contraseña</span>
-              <input
-                type="password"
-                autoComplete={isRegister ? 'new-password' : 'current-password'}
-                className={isRegister && password ? (passwordOk ? 'wf-valido' : 'wf-invalido') : undefined}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                minLength={isRegister ? 8 : undefined}
-                required
-              />
-            </label>
+                <label className="auth-field">
+                  <span>Contraseña</span>
+                  <input
+                    type="password"
+                    autoComplete={isRegister ? 'new-password' : 'current-password'}
+                    className={isRegister && password ? (passwordOk ? 'wf-valido' : 'wf-invalido') : undefined}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    minLength={isRegister ? 8 : undefined}
+                    required
+                  />
+                </label>
+              </>
+            )}
+
+            {!isRegister && paso === 'perfil' && (
+              <div className="auth-perfiles">
+                {perfiles.map((p) => (
+                  <button
+                    key={p.usuario_ID}
+                    type="button"
+                    className="secondary-button"
+                    disabled={!p.tiene_pin}
+                    title={p.tiene_pin ? undefined : 'La cuenta principal aún no genera su PIN'}
+                    onClick={() => {
+                      setPerfil(p)
+                      setPin('')
+                      setPaso('pin')
+                    }}
+                  >
+                    {p.nombre_usuario}
+                    {p.tipo === 'PRINCIPAL' ? ' (principal)' : ''}
+                    {!p.tiene_pin && ' · sin PIN'}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {!isRegister && (paso === 'pin' || paso === 'cambio') && (
+              <label className="auth-field">
+                <span>{paso === 'cambio' ? 'PIN temporal' : 'PIN'}</span>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  pattern="[0-9]{4}"
+                  maxLength={4}
+                  value={pin}
+                  readOnly={paso === 'cambio'}
+                  onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                  required
+                />
+              </label>
+            )}
+
+            {!isRegister && paso === 'cambio' && (
+              <>
+                <label className="auth-field">
+                  <span>PIN nuevo</span>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    pattern="[0-9]{4}"
+                    maxLength={4}
+                    value={pinNuevo}
+                    onChange={(event) => setPinNuevo(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                    required
+                  />
+                </label>
+                <label className="auth-field">
+                  <span>Repite el PIN nuevo</span>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    pattern="[0-9]{4}"
+                    maxLength={4}
+                    value={pinConfirmacion}
+                    onChange={(event) => setPinConfirmacion(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                    required
+                  />
+                </label>
+              </>
+            )}
 
             {isRegister && (
               <p className={`password-hint wf-ayuda ${password ? (passwordOk ? 'wf-ayuda--ok' : 'wf-ayuda--error') : ''}`}>
@@ -387,15 +500,22 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
                 className="secondary-button"
                 type="button"
                 onClick={() => {
-                  setMode(isRegister ? 'login' : 'registro')
                   setMessage('')
                   setError('')
+                  setPin('')
+                  if (!isRegister && paso !== 'credenciales') {
+                    setPaso(paso === 'perfil' ? 'credenciales' : 'perfil')
+                    return
+                  }
+                  setMode(isRegister ? 'login' : 'registro')
                 }}
               >
-                {isRegister ? 'Ya tengo cuenta' : 'No tengo cuenta'}
+                {!isRegister && paso !== 'credenciales'
+                  ? 'Volver'
+                  : isRegister ? 'Ya tengo cuenta' : 'No tengo cuenta'}
               </button>
 
-              <button
+              {paso !== 'perfil' && <button
                 className="primary-button"
                 type="submit"
                 disabled={loading}
@@ -404,8 +524,10 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
                   ? 'Procesando…'
                   : isRegister
                     ? 'Registrarme'
-                    : 'Siguiente'}
-              </button>
+                    : paso === 'cambio'
+                      ? 'Cambiar PIN e ingresar'
+                      : 'Siguiente'}
+              </button>}
             </div>
           </form>
 

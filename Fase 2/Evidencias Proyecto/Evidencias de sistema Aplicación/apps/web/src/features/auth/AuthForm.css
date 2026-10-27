@@ -206,3 +206,10 @@
 .auth-field input.wf-invalido {
   border-color: #dc2626;
 }
+
+/* Selector de perfiles (cuenta principal + apadrinados) */
+.auth-perfiles {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}

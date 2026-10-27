@@ -78,7 +78,7 @@ test('SOPORTE responde un ticket de usuario y cambia su estado en la API interna
   fireEvent.click(fila)
   expect(screen.getByText(ticket.descripcion)).toBeTruthy()
   const acciones = screen.getByRole('button', { name: /^Cerrar$/ }).parentElement
-  expect(Array.from(acciones?.querySelectorAll('button') ?? []).map((boton) => boton.textContent)).toEqual(['Cerrar', 'Guardar cambios'])
+  expect(Array.from(acciones?.querySelectorAll('button') ?? []).map((boton) => boton.textContent)).toEqual(['Cerrar', 'Marcar como leído', 'Solucionado', 'Rechazar', 'Guardar cambios'])
   fireEvent.change(screen.getByLabelText('Estado'), { target: { value: 'CERRADO' } })
   fireEvent.change(screen.getByLabelText('Solución'), { target: { value: 'Acceso restablecido' } })
   fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }))
@@ -115,4 +115,17 @@ test('el administrador conserva los controles de las cuentas', async () => {
   fireEvent.click(await screen.findByText('Principal Demo'))
   expect(screen.getByRole('button', { name: 'Añadir' })).toBeTruthy()
   expect(screen.getByRole('button', { name: 'Modificar / Guardar cambios' })).toBeTruthy()
+})
+
+test('SOPORTE rechaza un ticket: exige el motivo y lo envía como CERRADO', async () => {
+  await abrir('/administracion/tickets')
+  fireEvent.click(await screen.findByText('Principal Demo (ID 9)'))
+  fireEvent.click(screen.getByRole('button', { name: 'Rechazar' }))
+  expect(await screen.findByText('Escribe la solución o el motivo antes de continuar.')).toBeTruthy()
+  expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PATCH')).toBe(false)
+  fireEvent.change(screen.getByLabelText('Solución'), { target: { value: 'Rechazada: fuera de alcance' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Rechazar' }))
+  expect(await screen.findByText('Ticket actualizado.')).toBeTruthy()
+  const peticion = fetchMock.mock.calls.find(([, init]) => init?.method === 'PATCH')
+  expect(JSON.parse(String(peticion?.[1]?.body))).toEqual({ estado: 'CERRADO', solucion: 'Rechazada: fuera de alcance' })
 })

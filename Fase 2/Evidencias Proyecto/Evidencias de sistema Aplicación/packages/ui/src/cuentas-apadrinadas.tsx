@@ -348,7 +348,7 @@ export const GestionApadrinados = ({
                 disabled={ocupado}
                 onClick={() => setModal({ tipo: "pin", cuenta })}
               >
-                {cuenta.tiene_pin ? "Cambiar PIN" : "Crear PIN"}
+                {cuenta.tiene_pin ? "Regenerar PIN" : "Generar PIN"}
               </button>
             </p>
             <label className="wf-row">
@@ -420,7 +420,11 @@ export const GestionApadrinados = ({
       {modal?.tipo === "pin" && (
         <PinDialog
           title={`PIN de "${modal.cuenta.nombre_usuario}"`}
-          info={`Debes crear el PIN de 4 dígitos de "${modal.cuenta.nombre_usuario}". Lo usará para ingresar y para cerrar sus alertas.`}
+          info={
+            modal.cuenta.estado_ID === ACCESO.COMPLETO
+              ? `PIN de primer acceso para "${modal.cuenta.nombre_usuario}". Al entrar a su perfil deberá reemplazarlo por uno propio.`
+              : `PIN del perfil de "${modal.cuenta.nombre_usuario}". Con acceso parcial no podrá cambiarlo.`
+          }
           onClose={cerrar}
           onSubmit={(pin) => {
             const cuenta = modal.cuenta;
@@ -490,7 +494,7 @@ const NuevaCuentaDialog = ({
     nombre: nombre ? nombre.trim().length >= 2 : null,
     correo: correo ? CORREO.test(correo.trim()) : null,
     password: password ? password.length >= 8 : null,
-    pin: completo ? (pin ? /^\d{4}$/.test(pin) : null) : true,
+    pin: pin ? /^\d{4}$/.test(pin) : null,
   };
   const clase = (ok: boolean | null) =>
     ok === null ? undefined : ok ? "wf-valido" : "wf-invalido";
@@ -513,7 +517,7 @@ const NuevaCuentaDialog = ({
       correo_usuario: correo.trim(),
       password,
       acceso_completo: completo,
-      ...(completo && { PIN: pin }),
+      PIN: pin,
     });
     setEnviando(false);
   }
@@ -567,24 +571,22 @@ const NuevaCuentaDialog = ({
         </label>
         <p className="wf-muted">
           {completo
-            ? "Con acceso completo la cuenta edita su perfil y usa su propio PIN."
-            : "Con acceso parcial la cuenta no edita su perfil y usa tu PIN para cerrar alertas."}
+            ? "Con acceso completo la cuenta edita su perfil; el PIN que defines es de primer acceso y deberá cambiarlo al entrar."
+            : "Con acceso parcial la cuenta no edita su perfil ni puede cambiar el PIN que defines; usa tu PIN para cerrar alertas."}
         </p>
-        {completo && (
-          <label>
-            PIN de 4 dígitos de la cuenta
-            <input
-              type="password"
-              inputMode="numeric"
-              className={clase(estados.pin)}
-              value={pin}
-              onChange={(e) =>
-                setPin(e.target.value.replace(/\D/g, "").slice(0, 4))
-              }
-            />
-            {ayuda(estados.pin, "PIN válido", "Deben ser 4 dígitos")}
-          </label>
-        )}
+        <label>
+          {completo ? "PIN de primer acceso" : "PIN del perfil"}
+          <input
+            type="password"
+            inputMode="numeric"
+            className={clase(estados.pin)}
+            value={pin}
+            onChange={(e) =>
+              setPin(e.target.value.replace(/\D/g, "").slice(0, 4))
+            }
+          />
+          {ayuda(estados.pin, "PIN válido", "Deben ser 4 dígitos")}
+        </label>
         <div className="wf-actions">
           <button
             type="button"

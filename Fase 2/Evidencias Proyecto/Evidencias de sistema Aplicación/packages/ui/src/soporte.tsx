@@ -329,6 +329,26 @@ export const GestionTickets = ({
     };
     if (Object.keys(cambios).length === 0)
       return setResultado({ ok: false, texto: "No hay cambios." });
+    await enviar(cambios);
+  }
+
+  /** Leído → EN PROCESO; solucionado → RESUELTO y rechazado → CERRADO, ambos con solución obligatoria. */
+  async function accionRapida(nuevoEstado: string, exigeSolucion: boolean) {
+    if (!seleccion || guardando) return;
+    if (exigeSolucion && !solucion.trim())
+      return setResultado({
+        ok: false,
+        texto: "Escribe la solución o el motivo antes de continuar.",
+      });
+    setEstado(nuevoEstado);
+    await enviar({
+      estado: nuevoEstado,
+      ...(solucion.trim() && { solucion: solucion.trim() }),
+    });
+  }
+
+  async function enviar(cambios: { estado?: string; solucion?: string }) {
+    if (!seleccion) return;
     setGuardando(true);
     try {
       await onActualizar(seleccion.ticket_id, cambios);
@@ -416,6 +436,30 @@ export const GestionTickets = ({
               onClick={cerrar}
             >
               Cerrar
+            </button>
+            <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={guardando}
+              onClick={() => void accionRapida("EN PROCESO", false)}
+            >
+              Marcar como leído
+            </button>
+            <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={guardando}
+              onClick={() => void accionRapida("RESUELTO", true)}
+            >
+              Solucionado
+            </button>
+            <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={guardando}
+              onClick={() => void accionRapida("CERRADO", true)}
+            >
+              Rechazar
             </button>
             <button
               type="submit"

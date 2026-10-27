@@ -25,6 +25,7 @@ import { Pin } from '../usuarios/pin.entity';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { ActualizarMiUsuarioDto, ActualizarMiUsuarioPropioDto } from './dto/actualizar-mi-usuario.dto';
 import { verificarPinPrincipal } from './pin-principal';
+import { ROL } from './roles.decorator';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -124,12 +125,63 @@ export class LoginService {
     if (!usuario || !passwordValida) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
+    // Modelo de perfiles: los apadrinados entran desde la sesión de su principal.
+    if (usuario.usuario_principal_ID !== null) {
+      throw new ForbiddenException('Ingresa con el correo de la cuenta principal y elige tu perfil');
+    }
+    let sesion = usuario;
+    if (usuario.rol_ID === ROL.USUARIO && usuario.PIN_ID !== null) {
+      const paso = await this.elegirPerfil(usuario, datos);
+      if (!('usuario_ID' in paso)) return paso;
+      sesion = paso;
+    }
 
     const access_token = await this.jwtService.signAsync({
-      sub: usuario.usuario_ID,
-      email: usuario.correo_usuario,
+      sub: sesion.usuario_ID,
+      email: sesion.correo_usuario,
     });
-    return { access_token, usuario: await this.conPlan(usuario) };
+    return { access_token, usuario: await this.conPlan(sesion) };
+  }
+
+  /**
+   * Cuenta tipo Netflix: tras la contraseña de la principal se elige un perfil (la principal o
+   * uno de sus apadrinados) y se abre solo con el PIN de ese perfil. Mismo contador y bloqueo de
+   * 5 minutos que verificarPinPrincipal, en la fila PIN del perfil. Un PIN temporal (apadrinado con
+   * acceso completo) solo deja entrar cambiándolo; el del parcial no es temporal y no se cambia.
+   */
+  private async elegirPerfil(principal: Usuario, datos: LoginDto) {
+    const perfiles = await this.usuarioRepository.find({
+      where: [{ usuario_ID: principal.usuario_ID }, { usuario_principal_ID: principal.usuario_ID }],
+      order: { usuario_ID: 'ASC' },
+    });
+    if (datos.perfil_ID === undefined) {
+      return {
+        perfiles: perfiles.map((p) => ({
+          usuario_ID: p.usuario_ID,
+          nombre_usuario: p.nombre_usuario,
+          tipo: p.usuario_principal_ID === null ? 'PRINCIPAL' : 'APADRINADO',
+          tiene_pin: p.PIN_ID !== null,
+        })),
+      };
+    }
+    const perfil = perfiles.find((p) => p.usuario_ID === datos.perfil_ID);
+    if (!perfil) throw new NotFoundException('No se encontró el perfil');
+    if (perfil.PIN_ID === null) {
+      throw new ConflictException('La cuenta principal aún no genera el PIN de este perfil');
+    }
+    if (!datos.PIN) throw new BadRequestException('Ingresa el PIN del perfil');
+    await verificarPinPrincipal(this.dataSource, perfil.usuario_ID, datos.PIN);
+    const pin = await this.dataSource.getRepository(Pin).findOneByOrFail({ PIN_ID: perfil.PIN_ID });
+    if (!pin.pin_temporal) return perfil;
+    if (!datos.PIN_nuevo) return { cambio_pin_requerido: true as const };
+    if (datos.PIN_nuevo === datos.PIN) {
+      throw new BadRequestException('El PIN nuevo debe ser distinto del PIN temporal');
+    }
+    await this.dataSource.getRepository(Pin).update(pin.PIN_ID, {
+      pin_hash: await bcrypt.hash(datos.PIN_nuevo, BCRYPT_COSTO),
+      pin_temporal: false,
+    });
+    return perfil;
   }
 
   async crearPinInicial(usuarioId: number, pinIngresado: string) {

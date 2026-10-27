@@ -116,11 +116,13 @@ export class ApadrinadosService {
       if (!apadrinado || apadrinado.usuario_principal_ID !== sesion.sub) {
         throw new NotFoundException('No se encontró la cuenta apadrinada');
       }
+      // Completo: PIN de primer acceso que debe cambiar. Parcial: PIN fijo que no puede cambiar.
+      const pin_temporal = apadrinado.estado_ID === ACCESO.COMPLETO;
       if (apadrinado.PIN_ID !== null) {
-        await manager.update(Pin, { PIN_ID: apadrinado.PIN_ID }, { pin_hash: pinHash });
+        await manager.update(Pin, { PIN_ID: apadrinado.PIN_ID }, { pin_hash: pinHash, pin_temporal });
         return;
       }
-      const nuevo = await manager.save(Pin, manager.create(Pin, { pin_hash: pinHash }));
+      const nuevo = await manager.save(Pin, manager.create(Pin, { pin_hash: pinHash, pin_temporal }));
       apadrinado.PIN_ID = nuevo.PIN_ID;
       await usuarios.save(apadrinado);
     });
@@ -131,6 +133,11 @@ export class ApadrinadosService {
     await this.exigirPropio(sesion, id);
     await this.verificarPinPrincipal(sesion, pinPrincipal);
     await this.adminService.cambiarEstadoUsuario(id, estadoId, sesion);
+    // Al pasar a completo el PIN dado por la principal pasa a ser de primer acceso; al pasar a parcial, fijo.
+    await this.dataSource.query(
+      'UPDATE pin SET pin_temporal = $2 FROM usuario u WHERE u.pin_id = pin.pin_id AND u.usuario_id = $1',
+      [id, estadoId === ACCESO.COMPLETO],
+    );
     return this.vinculadas(sesion);
   }
 
