@@ -1,7 +1,8 @@
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useEffect, useState, type FormEvent } from "react";
 import { avisar, mensajeError } from "./avisos";
 import { MAX_CONTACTOS, NUMERO_E164, PRIORIDADES } from "./mocks";
-import { Notice, Pendiente, PinDialog } from "./wireframe";
+import { ConfirmDialog, Notice, Pendiente, PinDialog } from "./wireframe";
 
 interface PerfilFormProps {
   nombreUsuario: string;
@@ -14,8 +15,8 @@ interface PerfilFormProps {
   variante?: "usuario" | "soporte" | "administrador";
   /** Acceso parcial: el backend rechaza PATCH /usuarios/me (403); se pide autorización del principal. */
   accesoParcial?: boolean;
-  /** PATCH /usuarios/me (nombre_usuario y correo_usuario). */
-  onGuardar: (nombreUsuario: string, correo: string) => Promise<void>;
+  /** PATCH /usuarios/me (nombre_usuario y correo_usuario); con acceso parcial, más el PIN del principal (HU-10). */
+  onGuardar: (nombreUsuario: string, correo: string, pinPrincipal?: string) => Promise<void>;
   /** Variante "usuario": guarda finalidad, contactos, mensaje y ficha médica. Sin ella solo viven en el formulario. */
   api?: PerfilApi;
   /** PATCH /usuarios/me/password (HU-15). Sin ella el cambio de contraseña sigue pendiente. */
@@ -44,11 +45,35 @@ function validarNombreContacto(nombre: string): Validacion {
     : { ok: false, texto: "Entre 1 y 20 caracteres" };
 }
 
-function validarNumero(numero: string): Validacion {
+/**
+ * CA-03.1: lleva el número a E.164 igual que el backend (ContactoDto): acepta "+56 9 1234 5678",
+ * "(9) 1234-5678" o "912345678", con Chile por defecto. Si no se reconoce, solo quita espacios.
+ */
+export function normalizarTelefono(valor: string): string {
+  const numero = parsePhoneNumberFromString(valor, "CL");
+  return numero?.isPossible() ? numero.number : valor.replace(/\s/g, "");
+}
+
+/** CA-05.1: máximo del mensaje personalizado (backend @MaxLength y CHECK en la BD). */
+const MAX_MENSAJE = 160;
+
+const NUMERO_DUPLICADO ="Ese número ya está en tu lista de contactos de emergencia";
+/** Texto de CA-04.1; el backend responde lo mismo (PerfilService.eliminarContacto). */
+const UNICO_CONTACTO =
+  "Debe mantener al menos un contacto activo en su red de auxilio. Se recomienda editar el contacto activo";
+
+function validarNumero(
+  numero: string,
+  contactos: ContactoEmergencia[],
+  editando: number | null,
+): Validacion {
   if (!numero) return null;
-  return NUMERO_E164.test(numero.replace(/\s/g, ""))
-    ? { ok: true, texto: "Número válido" }
-    : { ok: false, texto: "Usa formato internacional, p. ej. +56912345678" };
+  const e164 = normalizarTelefono(numero);
+  if (!NUMERO_E164.test(e164))
+    return { ok: false, texto: "Usa formato internacional, p. ej. +56912345678" };
+  if (contactos.some((c) => c.num_emergencia === e164 && c.contacto_emergencia_ID !== editando))
+    return { ok: false, texto: NUMERO_DUPLICADO };
+  return { ok: true, texto: `Número válido: ${e164}` };
 }
 
 export interface ContactoEmergencia {
@@ -136,6 +161,8 @@ export const PerfilForm = ({
   const [nuevo, setNuevo] = useState({ nombre: "", numero: "" });
   const [editando, setEditando] = useState<number | null>(null);
   const [errorContacto, setErrorContacto] = useState("");
+  const [borrando, setBorrando] = useState<ContactoEmergencia | null>(null);
+  const validacionNumero = validarNumero(nuevo.numero, contactos, editando);
   const [carga, setCarga] = useState({ cargando: conDatos, error: "" });
   const [mensaje, setMensaje] = useState("");
   const [medico, setMedico] = useState<Record<string, string>>({});
@@ -207,7 +234,7 @@ export const PerfilForm = ({
   async function guardarContacto() {
     const datos = {
       nombre_contacto: nuevo.nombre.trim(),
-      num_emergencia: nuevo.numero.replace(/\s/g, ""),
+      num_emergencia: normalizarTelefono(nuevo.numero),
     };
     const rechazar = (texto: string) => {
       setErrorContacto(texto);
@@ -219,6 +246,7 @@ export const PerfilForm = ({
       return rechazar("El nombre debe tener entre 1 y 20 caracteres.");
     if (!NUMERO_E164.test(datos.num_emergencia))
       return rechazar("Número en formato internacional, p. ej. +56912345678.");
+    if (validacionNumero?.texto === NUMERO_DUPLICADO) return rechazar(NUMERO_DUPLICADO);
     setErrorContacto("");
     if (api && conDatos) {
       try {
@@ -246,6 +274,16 @@ export const PerfilForm = ({
     }
     setNuevo({ nombre: "", numero: "" });
     setEditando(null);
+  }
+
+  /** CA-04.1: el único contacto no se borra (aviso inmediato); los demás piden confirmación. */
+  function pedirBorrado(contacto: ContactoEmergencia) {
+    if (contactos.length <= 1) {
+      setErrorContacto(UNICO_CONTACTO);
+      avisar("error", UNICO_CONTACTO);
+      return;
+    }
+    setBorrando(contacto);
   }
 
   async function borrarContacto(id: number) {
@@ -415,7 +453,7 @@ export const PerfilForm = ({
                         <button
                           type="button"
                           className="wf-button wf-button--secondary"
-                          onClick={() => void borrarContacto(c.contacto_emergencia_ID)}
+                          onClick={() => pedirBorrado(c)}
                         >
                           Borrar
                         </button>
@@ -452,7 +490,7 @@ export const PerfilForm = ({
                   type="tel"
                   aria-label="Número del contacto"
                   placeholder="+569…"
-                  className={claseCampo(validarNumero(nuevo.numero))}
+                  className={claseCampo(validacionNumero)}
                   value={nuevo.numero}
                   onChange={(e) =>
                     setNuevo({ ...nuevo, numero: e.target.value })
@@ -461,7 +499,11 @@ export const PerfilForm = ({
                 <button
                   type="button"
                   className="wf-button wf-button--secondary"
-                  disabled={editando === null && contactos.length >= MAX_CONTACTOS}
+                  // CA-03.1: un número inválido o repetido bloquea el guardado.
+                  disabled={
+                    (editando === null && contactos.length >= MAX_CONTACTOS) ||
+                    validacionNumero?.ok === false
+                  }
                   onClick={() => void guardarContacto()}
                 >
                   {editando === null ? "Agregar contacto +" : "Guardar contacto"}
@@ -480,20 +522,30 @@ export const PerfilForm = ({
                 )}
               </div>
               <Ayuda v={validarNombreContacto(nuevo.nombre)} />
-              <Ayuda v={validarNumero(nuevo.numero)} />
+              <Ayuda v={validacionNumero} />
               {errorContacto && (
                 <p className="wf-message wf-message--error">{errorContacto}</p>
               )}
             </fieldset>
 
             <label>
-              Mensaje personalizado ({mensaje.length}/200)
+              {/* Un solo hijo: el label es flex en columna. CA-05.1: el contador cambia a rojo en el límite. */}
+              <span>
+                Mensaje personalizado (
+                <span
+                  className={mensaje.length >= MAX_MENSAJE ? "wf-ayuda--error" : undefined}
+                  aria-live="polite"
+                >
+                  {mensaje.length}/{MAX_MENSAJE}
+                </span>
+                )
+              </span>
               <textarea
                 rows={3}
                 disabled={accesoParcial}
                 value={mensaje}
                 onChange={(e) => setMensaje(e.target.value)}
-                maxLength={200}
+                maxLength={MAX_MENSAJE}
               />
             </label>
 
@@ -543,6 +595,19 @@ export const PerfilForm = ({
         <CambioPassword bloqueado={accesoParcial} onCambiar={onCambiarPassword} />
       )}
 
+      {borrando && (
+        <ConfirmDialog
+          title={`Eliminar a "${borrando.nombre_contacto}"`}
+          message={`¿Está seguro que desea eliminar a "${borrando.nombre_contacto}" (${borrando.num_emergencia}) de sus contactos de emergencia? Dejará de recibir sus alertas.`}
+          onCancel={() => setBorrando(null)}
+          onConfirm={() => {
+            const id = borrando.contacto_emergencia_ID;
+            setBorrando(null);
+            void borrarContacto(id);
+          }}
+        />
+      )}
+
       {/* Fuera del <form>: PinDialog tiene su propio formulario y no se pueden anidar. */}
       {modal === "pin" && (
         <PinDialog
@@ -564,7 +629,14 @@ export const PerfilForm = ({
           info="Para modificar esta cuenta se necesita el PIN de la cuenta principal."
           confirmar={false}
           onClose={() => setModal(null)}
-          onSubmit={() => setModal("autorizacion-pendiente")}
+          onSubmit={async (pin) => {
+            // HU-10: el backend verifica el PIN del principal; el error (incorrecto o bloqueo) queda en el diálogo.
+            await onGuardar(usuario.trim(), email.trim(), pin);
+            const texto = "Nombre de usuario y correo actualizados con la autorización de la cuenta principal.";
+            setEstado({ ok: true, texto });
+            avisar("exito", texto);
+            setModal(null);
+          }}
         />
       )}
       {modal === "autorizacion-pendiente" && (

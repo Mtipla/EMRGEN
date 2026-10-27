@@ -202,7 +202,9 @@ function App() {
       <Route
         path="/usuarios"
         element={
-          esSoporte ? (
+          // CA-13.1: solo ADMINISTRADOR, igual que el enlace del menú y GET /usuarios (@Roles).
+          // No usa 'admin.cuentas.ver': esa acción también admite SOPORTE.
+          user && hasSession && perfil !== 'ADMINISTRADOR' ? (
             privatePage(<SinPermiso />)
           ) : user && hasSession ? (
             <main className="auth-page">

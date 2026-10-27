@@ -99,10 +99,10 @@ const perfilDatos = perfilApi(apiFetch)
 export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
   const perfil = perfilDe(user)
 
-  async function guardar(nombre_usuario: string, correo_usuario: string) {
+  async function guardar(nombre_usuario: string, correo_usuario: string, PIN_principal?: string) {
     const updated = await apiFetch<AuthenticatedUser>('/usuarios/me', {
       method: 'PATCH',
-      body: JSON.stringify({ nombre_usuario, correo_usuario }),
+      body: JSON.stringify({ nombre_usuario, correo_usuario, PIN_principal }),
     })
     localStorage.setItem('emergen.user', JSON.stringify(updated))
     onUserUpdated(updated)

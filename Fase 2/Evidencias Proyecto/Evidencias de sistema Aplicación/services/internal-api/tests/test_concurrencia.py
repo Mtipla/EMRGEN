@@ -65,6 +65,10 @@ def test_dos_bajas_ultimo_administrador(db,crear_usuario,operation):
 @pytest.mark.parametrize("ending",["cierre","borrado"])
 def test_insert_compite_con_cierre_o_borrado(client,db,crear_usuario,operation,ending):
     uid=crear_usuario();aid=create(client,uid)["alerta_id"]
+    # Esta prueba prepara un envío nuevo que compite con el cierre/borrado;
+    # elimina primero el envío que ahora registra automáticamente la creación del SOS.
+    if operation=="envio":
+        db.execute("DELETE FROM envio_alerta WHERE alerta_id=%s",(aid,))
     cid=db.execute("SELECT contacto_emergencia_id FROM contacto_emergencia WHERE usuario_id=%s",(uid,)).fetchone()["contacto_emergencia_id"]
     waiting=Event();pid=[]
     def insert():
@@ -100,7 +104,8 @@ def test_insert_compite_con_cierre_o_borrado(client,db,crear_usuario,operation,e
                     owner.execute("DELETE FROM usuario WHERE usuario_id=%s",(uid,))
             assert future.result(timeout=6)=="23514"
     table="envio_alerta" if operation=="envio" else "enlace_medico"
-    assert db.execute(f"SELECT count(*) n FROM {table} WHERE alerta_id=%s",(aid,)).fetchone()["n"]==0
+    filtro=" AND tipo_notificacion='ACTIVACION'" if operation=="envio" else ""
+    assert db.execute(f"SELECT count(*) n FROM {table} WHERE alerta_id=%s{filtro}",(aid,)).fetchone()["n"]==0
 
 def test_insert_antes_de_cierre_revoca_enlace(client,db,crear_usuario):
     uid=crear_usuario();aid=create(client,uid)["alerta_id"]

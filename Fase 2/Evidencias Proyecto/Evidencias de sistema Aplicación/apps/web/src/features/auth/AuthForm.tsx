@@ -79,7 +79,9 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     })
     const data = await response.json()
     if (!response.ok) {
-      throw new Error(data.message ?? 'No se pudo completar la solicitud')
+      throw Object.assign(new Error(data.message ?? 'No se pudo completar la solicitud'), {
+        status: response.status,
+      })
     }
     return data
   }
@@ -155,6 +157,23 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
       await completeRegistration(account)
       return
     }
+    // CA-01.1: antes de enviar la confirmación se pregunta al backend. Con un correo ya
+    // registrado responde 409 (se borra la cuenta de Firebase recién creada); un 403 solo
+    // significa que falta confirmar el correo, y se sigue con la verificación.
+    try {
+      await postUsuarios(
+        'registro',
+        { nombre_usuario: nombre, correo_usuario: correo, password },
+        account.session.idToken,
+      )
+    } catch (cause) {
+      if ((cause as { status?: number }).status !== 403) {
+        if (account.created && !(cause instanceof TypeError)) {
+          await firebaseAuth.deleteAccount(account.session.idToken).catch(() => undefined)
+        }
+        throw cause
+      }
+    }
     await firebaseAuth.sendEmailVerification(account.session.idToken)
     setPending(account)
     setMode('verificacion')
@@ -212,38 +231,59 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   }
 
   if (mode === 'verificacion' && pending) {
+    // Mismo marco que login y registro (auth-layout, barra FIND ME), con clases de AuthForm.css.
     return (
-      <section className="auth-card">
-        <p className="eyebrow">EMERGEN</p>
-        <h1>Confirma tu correo</h1>
-        <p className="auth-intro">
-          Enviamos un enlace de confirmación a <strong>{pending.session.email}</strong>. Ábrelo
-          y luego vuelve aquí para terminar de crear tu cuenta.
-        </p>
+      <div className="auth-layout">
+        <header className="auth-navbar">
+          <Link to="/" className="find-me">
+            <span>📍</span>
+            FIND ME
+          </Link>
+        </header>
 
-        {message && <p className="form-message success">{message}</p>}
-        {error && <p className="form-message failure">{error}</p>}
+        <main className="auth-main">
+          <section className="auth-card">
+            <h1>Confirma tu correo</h1>
+            <p>
+              Enviamos un enlace de confirmación a <strong>{pending.session.email}</strong>. Ábrelo
+              y luego vuelve aquí para terminar de crear tu cuenta.
+            </p>
 
-        <button
-          className="primary-button"
-          type="button"
-          onClick={checkVerification}
-          disabled={loading}
-        >
-          {loading ? 'Procesando…' : 'Ya confirmé mi correo'}
-        </button>
+            {message && <p className="form-message success">{message}</p>}
+            {error && <p className="form-message failure">{error}</p>}
 
-        <p className="auth-switch">
-          ¿No te llegó?{' '}
-          <button type="button" onClick={resendVerification} disabled={loading}>
-            Reenviar correo
-          </button>
-          {' · '}
-          <button type="button" onClick={cancelVerification} disabled={loading}>
-            Cancelar registro
-          </button>
-        </p>
-      </section>
+            <div className="auth-actions">
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={cancelVerification}
+                disabled={loading}
+              >
+                Cancelar registro
+              </button>
+              <button
+                className="primary-button"
+                type="button"
+                onClick={checkVerification}
+                disabled={loading}
+              >
+                {loading ? 'Procesando…' : 'Ya confirmé mi correo'}
+              </button>
+            </div>
+
+            <a
+              href="#reenviar"
+              className="forgot-password"
+              onClick={(event) => {
+                event.preventDefault()
+                if (!loading) void resendVerification()
+              }}
+            >
+              ¿No te llegó? Reenviar correo
+            </a>
+          </section>
+        </main>
+      </div>
     )
   }
 

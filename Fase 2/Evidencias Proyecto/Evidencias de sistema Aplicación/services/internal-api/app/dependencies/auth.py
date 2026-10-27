@@ -8,7 +8,8 @@ from dataclasses import dataclass
 
 import jwt
 import psycopg
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.config import settings
 from app.core.db import get_db
@@ -16,6 +17,15 @@ from app.core.db import get_db
 # IDs fijos de ROL y ESTADO_USUARIO (init.sql; apps/backend/src/login/roles.decorator.ts).
 ROL_ADMINISTRADOR = 1
 ROL_SOPORTE = 2
+
+# Esquema de seguridad real: Swagger añade Authorization mediante Authorize.
+# auto_error=False conserva la respuesta 401 propia cuando faltan credenciales.
+sesion_bearer = HTTPBearer(
+    scheme_name="SesionEMERGEN",
+    bearerFormat="JWT",
+    description="JWT de POST /usuarios/login en NestJS. Pega solo el token, sin el prefijo Bearer ni comillas.",
+    auto_error=False,
+)
 
 
 @dataclass(frozen=True)
@@ -31,18 +41,17 @@ class UsuarioSesion:
 
 
 def usuario_actual(
-    authorization: str | None = Header(None),
+    credentials: HTTPAuthorizationCredentials | None = Depends(sesion_bearer),
     db: psycopg.Connection = Depends(get_db),
 ) -> UsuarioSesion:
-    partes = (authorization or "").split()
-    if len(partes) != 2 or partes[0].lower() != "bearer":
+    if credentials is None:
         raise HTTPException(401, "Debes iniciar sesión")
     if not settings.jwt_secret:
         raise HTTPException(503, "Autenticación no configurada: define JWT_SECRET en el archivo .env")
 
     try:
         payload = jwt.decode(
-            partes[1],
+            credentials.credentials,
             settings.jwt_secret,
             algorithms=["HS256"],
             issuer="emergen-api",

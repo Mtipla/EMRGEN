@@ -10,9 +10,13 @@ import { codigoPostgres } from '../config/postgres-error';
 import { transaction } from '../config/transaction';
 import type { UsuarioSesion } from '../login/jwt-auth.guard';
 import { ACCESO } from '../login/roles.decorator';
+import { cifrarFicha, descifrarFicha } from './cifrado-medico';
 import { ActualizarPerfilDto, ContactoDto, FichaMedicaDto } from './dto/perfil.dto';
 
 const PG_CHECK_VIOLATION = '23514';
+const PG_UNIQUE_VIOLATION = '23505';
+/** CA-03.1: c_contacto_emergencia_03 UNIQUE (usuario_id, num_emergencia). */
+const NUMERO_DUPLICADO = 'Ese número ya está en tu lista de contactos de emergencia';
 
 export type PerfilEmergencia = {
   prioridad_ID: number | null;
@@ -47,7 +51,7 @@ export class PerfilService {
          FROM antecedente_medico WHERE usuario_id = $1`,
       [usuarioId],
     );
-    return { ...usuario, contactos, ficha_medica: ficha ?? null };
+    return { ...usuario, contactos, ficha_medica: ficha ? descifrarFicha(usuarioId, ficha) : null };
   }
 
   async actualizar(usuario: UsuarioSesion, cambios: ActualizarPerfilDto): Promise<PerfilEmergencia> {
@@ -87,7 +91,8 @@ export class PerfilService {
       if (cambios.ficha_medica === null) {
         await manager.query('DELETE FROM antecedente_medico WHERE usuario_id = $1', [id]);
       } else if (cambios.ficha_medica) {
-        const f = cambios.ficha_medica;
+        // Cifrado dentro de la transacción: si falla, no se guarda nada (CA-11.1).
+        const cifrada = cifrarFicha(id, cambios.ficha_medica);
         await manager.query(
           `INSERT INTO antecedente_medico (usuario_id, tipo_sangre, alergias, enfermedades_cronicas,
                                            medicamentos_actuales, discapacidad_presente, donante_organos)
@@ -95,7 +100,7 @@ export class PerfilService {
            ON CONFLICT (usuario_id) DO UPDATE SET tipo_sangre = EXCLUDED.tipo_sangre, alergias = EXCLUDED.alergias,
              enfermedades_cronicas = EXCLUDED.enfermedades_cronicas, medicamentos_actuales = EXCLUDED.medicamentos_actuales,
              discapacidad_presente = EXCLUDED.discapacidad_presente, donante_organos = EXCLUDED.donante_organos`,
-          [id, f.tipo_sangre, f.alergias, f.enfermedades_cronicas, f.medicamentos_actuales, f.discapacidad_presente, f.donante_organos],
+          [id, ...cifrada],
         );
       }
       return this.obtener(id, manager);
@@ -117,11 +122,14 @@ export class PerfilService {
   async actualizarContacto(usuario: UsuarioSesion, contactoId: number, datos: ContactoDto): Promise<PerfilEmergencia> {
     this.exigirAccesoCompleto(usuario);
     // CTE: TypeORM devuelve filas solo para SELECT, así se sabe si el contacto era de este usuario.
-    const [{ n }] = await this.dataSource.query(
-      `WITH c AS (UPDATE contacto_emergencia SET nombre_contacto = $3, num_emergencia = $4
-                   WHERE contacto_emergencia_id = $1 AND usuario_id = $2 RETURNING 1)
-       SELECT count(*)::int AS n FROM c`,
-      [contactoId, usuario.sub, datos.nombre_contacto, datos.num_emergencia],
+    const [{ n }] = await this.conLimite(
+      this.dataSource.query(
+        `WITH c AS (UPDATE contacto_emergencia SET nombre_contacto = $3, num_emergencia = $4
+                     WHERE contacto_emergencia_id = $1 AND usuario_id = $2 RETURNING 1)
+         SELECT count(*)::int AS n FROM c`,
+        [contactoId, usuario.sub, datos.nombre_contacto, datos.num_emergencia],
+      ),
+      'Los datos del contacto no son válidos',
     );
     if (!n) throw new NotFoundException('No se encontró el contacto');
     return this.obtener(usuario.sub);
@@ -135,7 +143,8 @@ export class PerfilService {
          SELECT count(*)::int AS n FROM c`,
         [contactoId, usuario.sub],
       ),
-      'Debes conservar al menos un contacto de emergencia; agrega otro antes de borrar este',
+      // Texto de CA-04.1.
+      'Debe mantener al menos un contacto activo en su red de auxilio. Se recomienda editar el contacto activo',
     );
     if (!n) throw new NotFoundException('No se encontró el contacto');
     return this.obtener(usuario.sub);
@@ -152,7 +161,9 @@ export class PerfilService {
     try {
       return await consulta;
     } catch (error) {
-      if (codigoPostgres(error) === PG_CHECK_VIOLATION) throw new ConflictException(mensaje);
+      const codigo = codigoPostgres(error);
+      if (codigo === PG_CHECK_VIOLATION) throw new ConflictException(mensaje);
+      if (codigo === PG_UNIQUE_VIOLATION) throw new ConflictException(NUMERO_DUPLICADO);
       throw error;
     }
   }

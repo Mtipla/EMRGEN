@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class ActualizarMiUsuarioDto {
   @IsOptional()
@@ -11,4 +11,11 @@ export class ActualizarMiUsuarioDto {
   @IsEmail()
   @MaxLength(100)
   correo_usuario?: string;
+}
+
+/** PATCH /usuarios/me. Solo aquí (no en /admin): un apadrinado parcial autoriza con el PIN de su principal (HU-10). */
+export class ActualizarMiUsuarioPropioDto extends ActualizarMiUsuarioDto {
+  @IsOptional()
+  @Matches(/^\d{4}$/, { message: 'El PIN de la cuenta principal debe tener exactamente 4 dígitos' })
+  PIN_principal?: string;
 }

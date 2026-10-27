@@ -180,11 +180,11 @@ Los cinco servicios externos descritos en la especificación de herramientas cum
 | Google Maps Platform    | Visualización de mapas y conversión de coordenadas en direcciones mediante Geocoding.                                               | `GOOGLE_MAPS_API_KEY` para servidor, `VITE_GOOGLE_MAPS_API_KEY` para navegador y `VITE_GOOGLE_MAPS_MAP_ID` opcional. |
 | mindicador.cl           | Consulta de indicadores y del dólar para convertir los precios en CLP a USD en el flujo de PayPal.                                  | `MINDICADOR_API_URL`; `DOLAR_CLP_RESPALDO` permite configurar un valor de respaldo.                                  |
 
-El backend también integra **WhatsApp mediante Baileys**. Este módulo mantiene la sesión de un número emisor y permite enviar mensajes de emergencia, ubicación e información médica opcional a entre uno y cinco destinatarios. Baileys no es una API oficial de WhatsApp. El módulo no procesa conversaciones entrantes.
+El backend también integra **WhatsApp mediante Baileys**. Este módulo mantiene la sesión de un número emisor y envía el tipo de emergencia, el mensaje, la ubicación y los antecedentes médicos a entre uno y cinco contactos. La ficha se descifra en NestJS mediante la configuración `MEDICAL_DATA_KEYS` incorporada por el módulo de perfil. Baileys no es una API oficial de WhatsApp. El módulo no procesa conversaciones entrantes.
 
 Para habilitarlo, define `WHATSAPP_ENABLED=true`, reinicia el backend y vincula el número mediante QR o código de emparejamiento. Las rutas de gestión y envío manual están bajo `/notifications/whatsapp` y requieren una sesión de administrador. El procedimiento completo está en [la guía de integraciones](readme-apis.md).
 
-**El registro de SOS y el envío por WhatsApp son flujos separados en la implementación actual.** Crear una alerta en FastAPI la registra en PostgreSQL; todavía no dispara el transporte WhatsApp ni registra automáticamente `ENVIO_ALERTA`. Consulta el alcance de SOS, soporte y servicios médicos en [el contrato de APIs internas](readme.apis.internas.md).
+**El registro de SOS está conectado al envío por WhatsApp.** FastAPI registra la alerta y un `ENVIO_ALERTA` pendiente por contacto en la misma transacción. NestJS consume esa cola con la sesión del emisor vinculada y envía el tipo de emergencia, el mensaje y la ubicación. Al pasar a `FINALIZADA`, se encola un aviso de cierre por contacto, tanto con PIN como en el cierre automático. El móvil muestra los envíos de activación pendientes, enviados y fallidos. Las instalaciones existentes requieren la migración descrita en la [guía de SOS por WhatsApp](docs/WHATSAPP_SOS.md).
 
 Puedes iniciar el backend sin configurar todos los proveedores. Las integraciones que requieren credenciales validan su configuración al usarse y pueden responder `503` si faltan valores. El registro público necesita Firebase configurado; para las pruebas locales puedes usar los datos de desarrollo de la sección 6.3.
 
@@ -392,6 +392,8 @@ Las suites de NestJS que prueban la base real se habilitan con `DB_E2E=1`; las d
 Para reparar una instalación local, comienza por `npm ci`. Si npm informa errores de caché, puedes comprobarla con `npm cache verify` y volver a instalar. Regenerar `package-lock.json` es un cambio de dependencias que debe revisarse y compartirse con el equipo; no es parte de la limpieza habitual.
 
 ## 10. Documentación de apoyo
+
+- [SOS por WhatsApp](docs/WHATSAPP_SOS.md): vinculación del emisor, mensaje y ubicación, prueba móvil y estados de envío.
 
 - [Especificación de Herramientas y Servicios del Proyecto](<../Evidencias de documentación/4.2 Especificación de Herramientas y Servicios del Proyecto/Especificación de Herramientas y Servicios del Proyecto.docx>): decisiones de herramientas, servicios y responsabilidades previstas.
 - [README_BDD.md](README_BDD.md): esquema vigente, cuentas de demostración y validación de la base de datos.

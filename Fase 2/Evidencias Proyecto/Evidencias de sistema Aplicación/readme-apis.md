@@ -9,7 +9,7 @@ Guía para el equipo sobre las seis integraciones externas del proyecto: para qu
 | 3 | **jsReport** | Generar reportes PDF (alertas, ventas, bitácora) | `apps/backend/src/integrations/jsreport/` |
 | 4 | **Google Maps Platform** | Mostrar mapas y convertir coordenadas GPS en direcciones | `apps/backend/src/integrations/google-maps/` y `packages/api-client/` |
 | 5 | **mindicador API** | Indicadores económicos de Chile (UF, dólar) para mostrar precios en CLP | `apps/backend/src/integrations/mindicador/` |
-| 6 | **WhatsApp (Baileys)** | Notificaciones de emergencia a los contactos: mensaje, ubicación e información médica | `apps/backend/src/integrations/whatsapp/` |
+| 6 | **WhatsApp (Baileys)** | Notificaciones SOS a los contactos: mensaje personalizado y ubicación | `apps/backend/src/integrations/whatsapp/` |
 
 > Todos los comandos se ejecutan en la raíz del monorepo (`Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/`), igual que en el [README principal](README.md).
 
@@ -464,17 +464,20 @@ Envía la alerta de emergencia (HU-08) por WhatsApp a los contactos del usuario 
 
 - el **mensaje personalizado** del usuario;
 - la **ubicación**: dirección, link de Google Maps y un pin de ubicación nativo de WhatsApp;
-- la **información médica** (opcional): un resumen breve y/o un enlace a la ficha médica.
+- los **antecedentes médicos** del emisor: tipo de sangre, alergias, enfermedades crónicas, medicamentos, discapacidad y condición de donante.
+
+El SOS de FastAPI crea envíos pendientes y `WhatsappSosDispatcher` los consume desde NestJS. La configuración y prueba completa están en [SOS por WhatsApp](docs/WHATSAPP_SOS.md).
 
 Usa [Baileys](https://github.com/WhiskeySockets/Baileys) (`@whiskeysockets/baileys`), que se conecta a WhatsApp por WebSocket como un "dispositivo vinculado" de un número normal. No necesita navegador ni API key: **la credencial es la sesión del número emisor**.
 
-El módulo tiene tres piezas, cada una con una sola responsabilidad:
+El módulo separa la conexión, el envío, la persistencia de sesión y el consumo de la cola SOS:
 
 | Pieza | Archivo | Responsabilidad |
 |---|---|---|
 | `WhatsappConnectionService` | `whatsapp-connection.service.ts` | Sesión: conexión en segundo plano, QR / código de emparejamiento, reconexión con backoff, envío de bajo nivel. |
 | `WhatsappAlertService` | `whatsapp-alert.service.ts` | **API pública para el resto del backend**: arma y envía la alerta a todos los contactos en paralelo, con reintentos (CA-08.1). |
 | `WhatsappAuthStateStore` | `whatsapp-auth-state.store.ts` | Dónde se guarda la sesión. Hoy en archivos (`MultiFileAuthStateStore`); se puede cambiar por PostgreSQL sin tocar lo demás. |
+| `WhatsappSosDispatcher` | `whatsapp-sos-dispatcher.service.ts` | Procesa los `ENVIO_ALERTA` pendientes confirmados por FastAPI y registra su resultado. |
 
 > ⚠️ **Baileys no es una API oficial de WhatsApp.** Usa un **número dedicado** a EMERGEN (no uno personal): WhatsApp puede bloquear números que envían mensajes automáticos.
 
@@ -559,11 +562,11 @@ Estados (`state`): `disabled` · `connecting` · `waiting_for_link` (falta escan
 
 Cada contacto recibe dos mensajes: el texto de la alerta (que ya trae el link de Maps) y el pin de ubicación. Si solo falla el pin, el contacto igual cuenta como `sent`.
 
-> 🩺 **Información médica:** todo lo que va en `summary` queda guardado en el chat del contacto y **no se puede revocar**. Para cumplir HU-12 (acceso solo mientras la emergencia está activa), prefiere enviar solo `url` con un enlace temporal y deja `summary` para datos mínimos que el usuario acepte compartir.
+`medicalInfo.record` admite los seis campos de la ficha médica del perfil. En el flujo SOS se resuelven y descifran desde la ficha vinculada al emisor; el mensaje de cierre no los repite. `medicalInfo.summary` permite un resumen manual opcional; los enlaces temporales no se envían en este flujo.
 
 ### 7.5 Usar el servicio desde otro módulo del backend
 
-Así se integra en el flujo "Generar Alerta" (el futuro módulo de alertas). Se importa `WhatsappModule` y se inyecta `WhatsappAlertService`; no hace falta tocar la conexión:
+El flujo SOS ya está conectado por la cola de PostgreSQL. El siguiente ejemplo muestra el uso manual del servicio desde otro módulo; no debe añadirse al registro de FastAPI porque duplicaría los envíos:
 
 ```ts
 // alertas.module.ts
@@ -585,7 +588,7 @@ export class AlertasService {
   constructor(private readonly whatsapp: WhatsappAlertService) {}
 
   async notificarContactos(alertaId: number) {
-    // 1. Leer de la BD: números de CONTACTO_EMERGENCIA, mensaje, ubicación y ficha médica.
+    // 1. Leer de la BD: números de CONTACTO_EMERGENCIA, mensaje y ubicación.
     const contactos = ['912345678', '987654321']; // CONTACTO_EMERGENCIA.num_emergencia
 
     try {
@@ -594,7 +597,6 @@ export class AlertasService {
         senderName: 'Ana Pérez',
         message: 'Me caí y no puedo levantarme',
         location: { lat: -33.4378, lng: -70.6504, address: 'Plaza de Armas, Santiago' },
-        medicalInfo: { url: `https://emergen.cl/ficha/${alertaId}` },
       });
 
       // 2. Registrar en BITACORA_SISTEMA los envíos fallidos (CA-08.1).
@@ -602,7 +604,7 @@ export class AlertasService {
         this.logger.warn(`Alerta ${alertaId}: ${envio.phoneNumber} → ${envio.status}`);
       return resultado;
     } catch (error) {
-      // 503: WhatsApp deshabilitado o sin sesión → usar el respaldo por SMS (HU-08).
+      // 503: WhatsApp deshabilitado o sin sesión. El flujo SOS conserva su cola pendiente.
       if (error instanceof ServiceUnavailableException) { /* fallback */ }
       throw error;
     }

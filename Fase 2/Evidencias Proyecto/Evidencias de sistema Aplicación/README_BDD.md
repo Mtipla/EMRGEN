@@ -14,6 +14,12 @@ PostgreSQL se publica en localhost:5433 y Nest en localhost:3001. Se conserva Po
 
 El entrypoint ejecuta `init.sql` solamente al crear un volumen vacío. Cambiar este archivo no actualiza un volumen existente. El script rechaza una base que ya tenga tablas del modelo. No ejecutar los scripts históricos de `migraciones/`, `apps/backend/migrations/` o el catálogo Python sobre esta instalación.
 
+Cambios posteriores al init consolidado. Una instalación nueva ya los trae en `init.sql`; un volumen existente los aplica una vez (ambos son repetibles):
+
+- CA-11.1, ficha médica cifrada: definir `MEDICAL_DATA_KEYS` en `.env` (ver `example.env`) y ejecutar `node scripts/cifrar-fichas.cjs`.
+- CA-03.1, contacto sin número repetido: `Get-Content migraciones/003_contacto_unico.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'`.
+- CA-05.1, mensaje personalizado de hasta 160 caracteres: igual, con `migraciones/004_mensaje_160.sql`.
+
 La recreación de desarrollo fue autorizada y ejecutada una vez. La reanudación conservó los volúmenes; no requiere volver a ejecutar `down -v`. Para cualquier base anterior cuyos datos deban conservarse se necesita una migración explícita y un respaldo verificado; este init no es esa migración.
 
 ## Fixtures explícitos de desarrollo
@@ -59,6 +65,8 @@ El registro público conserva la verificación de correo Firebase. Los apadrinad
 - Bitácora conserva once columnas, instante con zona y actor/afectado anulables al borrar. El evento se registra antes del borrado, en la misma transacción; las FK mantienen rol histórico. SET NULL no anonimiza textos libres.
 
 ## Validación reproducible
+
+La ampliación de WhatsApp distingue `ACTIVACION` y `FINALIZACION` con `envio_alerta.tipo_notificacion` y un aviso único por alerta, contacto y tipo. Para actualizar una instalación existente, detén NestJS y FastAPI, ejecuta `node scripts/migrate-whatsapp.cjs` y reinicia ambos con el código actualizado. La migración conserva los envíos previos y está incluida en `init.sql` para bases nuevas. `scripts/verify-excel.py` reconoce esta columna adicional al modelo de referencia. Detalles y verificación con proveedor simulado: [SOS por WhatsApp](docs/WHATSAPP_SOS.md).
 
 Ejecutar las suites de base **secuencialmente**, en el único entorno de desarrollo con fixtures ya existentes. Las pruebas usan cuentas temporales, hacen COMMIT en carreras reales y limpian sus cuentas; algunas evidencias históricas/auditorías de prueba permanecen por diseño. La prueba de último administrador cambia transitoriamente roles de fixtures y los restaura en finally: no ejecutarla mientras se usa el panel.
 
