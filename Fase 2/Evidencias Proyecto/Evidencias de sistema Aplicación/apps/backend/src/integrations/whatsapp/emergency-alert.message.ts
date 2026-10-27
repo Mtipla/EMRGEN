@@ -33,14 +33,14 @@ export function buildEmergencyAlertText({
     : (locationLabel ?? 'No disponible');
   const lines = [
     'MENSAJE MEDIANTE APLICACIÓN EMERGEN',
-    '',
+    '------------------------------------',
     `El usuario ${senderName ?? 'de EMERGEN'} de correo ${senderEmail ?? 'no informado'} ha generado una alerta`,
-    '',
+    '------------------------------------',
     `TIPO DE EMERGENCIA: ${emergencyType ?? 'No informado'}`,
     `FECHA/HORA: ${date} (America/Santiago)`,
     `UBICACIÓN: ${place}`,
     `"${message}"`,
-    '',
+    '------------------------------------',
     'ANTECEDENTES MÉDICOS:',
   ];
   const ficha = medicalInfo?.record;
@@ -66,7 +66,7 @@ export function buildFinalizedAlertText({
 }: Pick<SendEmergencyAlertRequest, 'senderName' | 'senderEmail'>): string {
   return [
     'MENSAJE MEDIANTE APLICACIÓN EMERGEN',
-    '',
+    '------------------------------------',
     `La alerta reciente del usuario ${senderName ?? 'de EMERGEN'} de correo ${senderEmail ?? 'no informado'}, ha sido FINALIZADA`,
   ].join('\n');
 }

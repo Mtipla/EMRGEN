@@ -1,9 +1,12 @@
-import { AdminCompras, AdminCuentas, AdminTrabajadores, type UsuarioAdminFila } from '@repo/ui/admin-views'
-import { BACKEND_SOPORTE, puede, requierePinTrabajador, type Perfil } from '@repo/ui/permisos'
-import { AlertasTabla, GestionTickets, type Alerta, type Ticket } from '@repo/ui/soporte'
+import { AdminCuentas, AdminTrabajadores, type UsuarioAdminFila } from '@repo/ui/admin-views'
+import { puede, type Perfil } from '@repo/ui/permisos'
+import { AlertasTabla, type Alerta, type Ticket } from '@repo/ui/soporte'
+import { AdminTickets } from '@repo/ui/admin-tickets'
 import { apiFetch, internalFetch, useRemote } from '../cuenta/session'
 
 const ROL_SOPORTE = 2
+
+export { AdminComprasPage } from './AdminComprasPage'
 
 /** Listado de GET /admin/usuarios (rol Administrador) y acciones que lo recargan al terminar. */
 function useAdminUsuarios() {
@@ -35,9 +38,7 @@ export function AdminCuentasPage({ perfil }: { perfil: Perfil | null }) {
       usuarios={usuarios}
       cargando={cargando}
       error={error}
-      // Inconsistencia I-02: la UI sigue el mockup del Trabajador, el backend aún lo rechaza (403).
-      aviso={perfil === 'SOPORTE' ? BACKEND_SOPORTE : undefined}
-      pinParaEliminar={requierePinTrabajador(perfil)}
+      soloLectura={!editar}
       onGuardar={
         editar
           ? conRecarga((id: number, nombre_usuario: string, correo_usuario: string) =>
@@ -54,16 +55,6 @@ export function AdminCuentasPage({ perfil }: { perfil: Perfil | null }) {
           ? conRecarga((id: number) => apiFetch(`/admin/usuarios/apadrinado/${id}`, { method: 'DELETE' }))
           : undefined
       }
-    />
-  )
-}
-
-export function AdminComprasPage({ perfil }: { perfil: Perfil | null }) {
-  return (
-    <AdminCompras
-      titulo="Administrar compras"
-      puedeEditar={puede(perfil, 'admin.compras.editar')}
-      pinParaEliminar={requierePinTrabajador(perfil)}
     />
   )
 }
@@ -88,28 +79,20 @@ export function AdminTrabajadoresPage() {
 }
 
 /** Función documentada de SOPORTE (ERS/HU-18): responder tickets y cambiar su estado. */
-export function AdminTicketsPage() {
-  const tickets = useRemote(() => internalFetch<Ticket[]>('/tickets-soporte?limit=100'), [])
-  const estados = useRemote(
-    () =>
-      internalFetch<{ estado_id: number; nombre: string }[]>('/tickets-soporte/estados').then((filas) =>
-        filas.map((f) => ({ id: f.estado_id, nombre: f.nombre })),
-      ),
-    [],
+const listarTickets = (consulta: { estado: string; limit: number; offset: number }, signal: AbortSignal) => {
+  const params = new URLSearchParams({ limit: String(consulta.limit), offset: String(consulta.offset) })
+  if (consulta.estado) params.set('estado', consulta.estado)
+  return internalFetch<Ticket[]>(`/tickets-soporte?${params}`, { signal })
+}
+const listarEstados = (signal: AbortSignal) =>
+  internalFetch<{ estado_id: number; nombre: string }[]>('/tickets-soporte/estados', { signal }).then((filas) =>
+    filas.map((f) => ({ id: f.estado_id, nombre: f.nombre })),
   )
+const actualizarTicket = (id: number, cambios: { estado?: string; solucion?: string }) =>
+  internalFetch(`/tickets-soporte/${id}`, { method: 'PATCH', body: JSON.stringify(cambios) })
 
-  return (
-    <GestionTickets
-      tickets={tickets.data}
-      estados={estados.data}
-      cargando={tickets.cargando}
-      error={tickets.error || estados.error}
-      onActualizar={async (id, cambios) => {
-        await internalFetch(`/tickets-soporte/${id}`, { method: 'PATCH', body: JSON.stringify(cambios) })
-        tickets.recargar()
-      }}
-    />
-  )
+export function AdminTicketsPage() {
+  return <AdminTickets listar={listarTickets} listarEstados={listarEstados} actualizar={actualizarTicket} />
 }
 
 export function AdminAlertasPage() {

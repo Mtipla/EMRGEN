@@ -71,7 +71,7 @@ db('Contrato final: login, PIN, administración y auditoría PostgreSQL', () => 
   it('roles, body no confiable y eliminación de estado 3',async()=>{
     await http().get('/admin/usuarios').expect(401);
     await http().get('/admin/usuarios').set(auth()).expect(403);
-    await http().get('/admin/usuarios').set(auth(support)).expect(403);
+    await http().get('/admin/usuarios').set(auth(support)).expect(200);
     await http().get('/admin/usuarios').set(auth(admin)).expect(200);
     await http().put('/admin/usuarios/'+id+'/estado').set(auth(admin)).send({estado_ID:3}).expect(400);
     await http().put('/admin/usuarios/'+id+'/estado').set(auth(admin)).send({estado_ID:2,admin_ID:id}).expect(400);

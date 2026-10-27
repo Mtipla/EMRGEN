@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { Fragment, useId, useState, type FormEvent } from "react";
 import { avisar, mensajeError } from "./avisos";
 import { PRIORIDADES } from "./mocks";
 import { DataTable, type Column } from "./wireframe";
@@ -17,6 +17,8 @@ export interface Catalogo {
 export interface Ticket {
   ticket_id: number;
   usuario_id: number;
+  nombre_usuario?: string | null;
+  correo_usuario?: string | null;
   descripcion: string;
   estado: string;
   solucion: string | null;
@@ -54,12 +56,115 @@ const EstadoCarga = ({ cargando, error }: Carga) => (
 
 const columnasTicket: Column<Ticket>[] = [
   { header: "Ticket", render: (t) => t.ticket_id },
-  { header: "Usuario", render: (t) => t.usuario_id },
+  {
+    header: "Usuario",
+    render: (t) =>
+      t.nombre_usuario
+        ? `${t.nombre_usuario} (ID ${t.usuario_id})`
+        : t.usuario_id,
+  },
+  { header: "Correo", render: (t) => t.correo_usuario ?? "—" },
   { header: "Categoría", render: (t) => t.categoria },
-  { header: "Descripción", render: (t) => t.descripcion },
   { header: "Estado", render: (t) => t.estado },
-  { header: "Solución", render: (t) => t.solucion ?? "—" },
 ];
+
+/** Resumen de las solicitudes propias, con la respuesta desplegable bajo cada fila. */
+function MisSolicitudes({ tickets }: { tickets: Ticket[] }) {
+  const [abierto, setAbierto] = useState<number | null>(null);
+  const prefijo = useId();
+  const alternar = (id: number) =>
+    setAbierto((actual) => (actual === id ? null : id));
+
+  if (tickets.length === 0) {
+    return <p className="wf-muted">Aún no tienes solicitudes.</p>;
+  }
+
+  return (
+    <>
+      <p className="wf-muted">Selecciona una solicitud para ver su solución.</p>
+      <table
+        className="wf-table wf-support-requests"
+        aria-label="Mis solicitudes"
+      >
+        <colgroup>
+          <col className="wf-support-requests-id" />
+          <col className="wf-support-requests-category" />
+          <col />
+          <col className="wf-support-requests-status" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Ticket</th>
+            <th scope="col">Categoría</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tickets.map((ticket) => {
+            const expandido = abierto === ticket.ticket_id;
+            const idDetalle = `${prefijo}-solucion-${ticket.ticket_id}`;
+            const idBoton = `${prefijo}-ticket-${ticket.ticket_id}`;
+            return (
+              <Fragment key={ticket.ticket_id}>
+                <tr
+                  className="wf-support-request"
+                  data-expanded={expandido}
+                  onClick={() => alternar(ticket.ticket_id)}
+                >
+                  <td>
+                    <button
+                      type="button"
+                      id={idBoton}
+                      className="wf-link wf-support-toggle"
+                      aria-expanded={expandido}
+                      aria-controls={idDetalle}
+                      aria-label={`${expandido ? "Ocultar" : "Ver"} solución del ticket ${ticket.ticket_id}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        alternar(ticket.ticket_id);
+                      }}
+                    >
+                      <span aria-hidden="true">{expandido ? "▾" : "▸"}</span>#
+                      {ticket.ticket_id}
+                    </button>
+                  </td>
+                  <td>{ticket.categoria}</td>
+                  <td>
+                    <span className="wf-support-summary">
+                      {ticket.descripcion}
+                    </span>
+                  </td>
+                  <td>{ticket.estado}</td>
+                </tr>
+                {expandido && (
+                  <tr className="wf-support-detail-row">
+                    <td colSpan={4}>
+                      <div
+                        id={idDetalle}
+                        role="region"
+                        aria-labelledby={idBoton}
+                        className="wf-support-detail"
+                      >
+                        <h3>Descripción completa</h3>
+                        <p>{ticket.descripcion}</p>
+                        <h3>Solución</h3>
+                        <p className={ticket.solucion ? undefined : "wf-muted"}>
+                          {ticket.solucion ||
+                            "Aún no hay una solución registrada para esta solicitud."}
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
+  );
+}
 
 interface SolicitudSoporteProps extends Carga {
   categorias: Catalogo[];
@@ -77,6 +182,7 @@ export const SolicitudSoporte = ({
 }: SolicitudSoporteProps) => {
   const [categoria, setCategoria] = useState(0);
   const [descripcion, setDescripcion] = useState("");
+  const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<{
     ok: boolean;
     texto: string;
@@ -86,7 +192,8 @@ export const SolicitudSoporte = ({
     event.preventDefault();
     // El <select> muestra la primera categoría aunque el estado siga en 0.
     const categoriaId = categoria || categorias[0]?.id;
-    if (!categoriaId) return;
+    if (!categoriaId || !descripcion.trim() || enviando) return;
+    setEnviando(true);
     try {
       await onCrear(descripcion.trim(), categoriaId);
       setDescripcion("");
@@ -97,6 +204,8 @@ export const SolicitudSoporte = ({
       const texto = mensajeError(causa, "No se pudo enviar");
       setResultado({ ok: false, texto });
       avisar("error", texto);
+    } finally {
+      setEnviando(false);
     }
   }
 
@@ -107,10 +216,12 @@ export const SolicitudSoporte = ({
         onSubmit={(event) => void enviar(event)}
       >
         <h1>Solicitar soporte</h1>
+        <EstadoCarga cargando={cargando} error={error} />
         <label>
           Categoría
           <select
-            value={categoria}
+            value={categoria || categorias[0]?.id || ""}
+            disabled={enviando || categorias.length === 0}
             onChange={(e) => setCategoria(Number(e.target.value))}
             required
           >
@@ -145,21 +256,18 @@ export const SolicitudSoporte = ({
           <button
             type="submit"
             className="wf-button"
-            disabled={categorias.length === 0}
+            disabled={
+              enviando || categorias.length === 0 || !descripcion.trim()
+            }
           >
-            Enviar solicitud
+            {enviando ? "Enviando…" : "Enviar solicitud"}
           </button>
         </div>
       </form>
       <section className="wf-card">
         <h2>Mis solicitudes</h2>
         <EstadoCarga cargando={cargando} error={error} />
-        <DataTable
-          columns={columnasTicket}
-          rows={tickets}
-          rowKey={(t) => t.ticket_id}
-          empty="Aún no tienes solicitudes."
-        />
+        <MisSolicitudes tickets={tickets} />
       </section>
     </>
   );
@@ -187,21 +295,31 @@ export const GestionTickets = ({
   const seleccion = tickets.find((t) => t.ticket_id === seleccionId) ?? null;
   const [estado, setEstado] = useState("");
   const [solucion, setSolucion] = useState("");
+  const [guardando, setGuardando] = useState(false);
   const [resultado, setResultado] = useState<{
     ok: boolean;
     texto: string;
   } | null>(null);
 
   function seleccionar(t: Ticket) {
+    if (guardando) return;
+    if (seleccionId === t.ticket_id) return cerrar();
     setSeleccionId(t.ticket_id);
     setEstado(t.estado);
     setSolucion(t.solucion ?? "");
     setResultado(null);
   }
 
+  function cerrar() {
+    setSeleccionId(null);
+    setEstado("");
+    setSolucion("");
+    setResultado(null);
+  }
+
   async function guardar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!seleccion) return;
+    if (!seleccion || guardando) return;
     const cambios = {
       ...(estado !== seleccion.estado && { estado }),
       ...(solucion.trim() &&
@@ -211,6 +329,7 @@ export const GestionTickets = ({
     };
     if (Object.keys(cambios).length === 0)
       return setResultado({ ok: false, texto: "No hay cambios." });
+    setGuardando(true);
     try {
       await onActualizar(seleccion.ticket_id, cambios);
       setResultado({ ok: true, texto: "Ticket actualizado." });
@@ -219,19 +338,24 @@ export const GestionTickets = ({
         ok: false,
         texto: causa instanceof Error ? causa.message : "No se pudo actualizar",
       });
+    } finally {
+      setGuardando(false);
     }
   }
 
   return (
-    <section className="wf-card">
-      <h1>Tickets de soporte</h1>
+    <section className="wf-card wf-support-admin">
+      <h1>Administrar Tickets de soporte</h1>
+      <p className="wf-muted">
+        Selecciona un ticket para ver su descripción y responder.
+      </p>
       <EstadoCarga cargando={cargando} error={error} />
       <DataTable
         columns={columnasTicket}
         rows={tickets}
         rowKey={(t) => t.ticket_id}
         searchText={(t) =>
-          `${t.ticket_id} ${t.usuario_id} ${t.categoria} ${t.estado} ${t.descripcion}`
+          `${t.ticket_id} ${t.usuario_id} ${t.nombre_usuario ?? ""} ${t.correo_usuario ?? ""} ${t.categoria} ${t.estado} ${t.descripcion}`
         }
         selectedKey={seleccion?.ticket_id}
         onSelect={seleccionar}
@@ -240,14 +364,25 @@ export const GestionTickets = ({
       />
       {seleccion && (
         <form
-          className="wf-card wf-form"
+          className="wf-card wf-form wf-support-editor"
           onSubmit={(event) => void guardar(event)}
         >
           <h2>Ticket {seleccion.ticket_id}</h2>
-          <p>{seleccion.descripcion}</p>
+          <p>
+            {seleccion.nombre_usuario ?? `Usuario ${seleccion.usuario_id}`} ·{" "}
+            {seleccion.categoria}
+          </p>
+          <div>
+            <h3>Descripción</h3>
+            <p className="wf-support-description">{seleccion.descripcion}</p>
+          </div>
           <label>
             Estado
-            <select value={estado} onChange={(e) => setEstado(e.target.value)}>
+            <select
+              value={estado}
+              disabled={guardando || estados.length === 0}
+              onChange={(e) => setEstado(e.target.value)}
+            >
               {estados.map((e) => (
                 <option key={e.id}>{e.nombre}</option>
               ))}
@@ -260,6 +395,7 @@ export const GestionTickets = ({
               value={solucion}
               onChange={(e) => setSolucion(e.target.value)}
               maxLength={500}
+              disabled={guardando}
             />
           </label>
           {resultado && (
@@ -273,8 +409,20 @@ export const GestionTickets = ({
             </p>
           )}
           <div className="wf-actions">
-            <button type="submit" className="wf-button">
-              Guardar cambios
+            <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={guardando}
+              onClick={cerrar}
+            >
+              Cerrar
+            </button>
+            <button
+              type="submit"
+              className="wf-button"
+              disabled={guardando || estados.length === 0}
+            >
+              {guardando ? "Guardando…" : "Guardar cambios"}
             </button>
           </div>
         </form>

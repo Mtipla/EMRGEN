@@ -92,15 +92,16 @@ export const PERMISOS: Record<
       premium: true,
     },
     "soporte.solicitar": {
-      perfiles: TODOS,
+      perfiles: ["USUARIO", "APADRINADO", "ADMINISTRADOR"],
       fuente: "POST /internal/v1/tickets-soporte",
     },
     "soporte.gestionarTickets": {
       perfiles: PERSONAL,
       fuente: "PATCH /internal/v1/tickets-soporte (solo_staff)",
+      soloCompleto: true,
     },
     "alertas.verTodas": {
-      perfiles: PERSONAL,
+      perfiles: ["ADMINISTRADOR"],
       fuente: "GET /internal/v1/alertas (es_staff)",
     },
     // El parcial puede emitir, pero solo con el mensaje configurado (403 si envía otro).
@@ -109,30 +110,31 @@ export const PERMISOS: Record<
       fuente: "POST /internal/v1/alertas (409 sin plan del principal)",
       premium: true,
     },
-    // Mockup "Trabajador": buscar, añadir, modificar, descargar; eliminar con PIN de trabajador.
-    // El backend aún limita /admin/* a ADMINISTRADOR: SOPORTE recibe 403 (BACKEND_SOPORTE).
+    // SOPORTE solo consulta cuentas y compras; las escrituras son exclusivas del administrador.
     "admin.cuentas.ver": {
       perfiles: PERSONAL,
       fuente: "mockup págs. 13-18; GET /admin/usuarios",
+      soloCompleto: true,
     },
     "admin.cuentas.editar": {
-      perfiles: PERSONAL,
+      perfiles: ["ADMINISTRADOR"],
       fuente: "mockup págs. 13, 17; PATCH /admin/usuarios/:id",
     },
     "admin.cuentas.eliminar": {
-      perfiles: PERSONAL,
+      perfiles: ["ADMINISTRADOR"],
       fuente: "mockup págs. 14-15; DELETE /admin/usuarios/apadrinado/:id",
     },
     "admin.compras.ver": {
       perfiles: PERSONAL,
-      fuente: "mockup págs. 19-23 (sin endpoint: MOCK)",
+      fuente: "GET /admin/ventas",
+      soloCompleto: true,
     },
     "admin.compras.editar": {
-      perfiles: PERSONAL,
+      perfiles: ["ADMINISTRADOR"],
       fuente: "mockup pág. 20 (sin endpoint)",
     },
     "admin.compras.eliminar": {
-      perfiles: PERSONAL,
+      perfiles: ["ADMINISTRADOR"],
       fuente: "mockup págs. 21-22 (sin endpoint)",
     },
     "admin.trabajadores": {
@@ -181,17 +183,9 @@ export const FUNCIONES_BASICAS: { accion: Accion; etiqueta: string }[] = [
   { accion: "compras.cupos", etiqueta: "Comprar cupos (Premium)" },
 ];
 
-/** Mockup págs. 15 y 22: SOPORTE pide el "PIN de trabajador del administrador" antes de eliminar. */
-export const requierePinTrabajador = (perfil: Perfil | null) =>
-  perfil === "SOPORTE";
-
 export const ETIQUETA_PERFIL: Record<Perfil, string> = {
   USUARIO: "Usuario principal",
   APADRINADO: "Usuario apadrinado",
   SOPORTE: "Soporte (Trabajador)",
   ADMINISTRADOR: "Administrador",
 };
-
-/** Aviso para SOPORTE en rutas que la UI permite pero el backend todavía no. */
-export const BACKEND_SOPORTE =
-  "PENDIENTE PERMISO BACKEND PARA SOPORTE: /admin/* aún solo admite ADMINISTRADOR, por lo que estas acciones responderán 403";

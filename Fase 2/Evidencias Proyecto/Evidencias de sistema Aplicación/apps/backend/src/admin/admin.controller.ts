@@ -8,7 +8,7 @@ import { AdminService } from './admin.service';
 import { ActualizarEstadoDto } from './dto/actualizar-estado.dto';
 import { GuardarPlanDto } from './dto/guardar-plan.dto';
 
-// Todas las rutas exigen sesión válida y rol Administrador (RBAC leído desde la BD).
+// SOPORTE consulta cuentas; las modificaciones requieren ADMINISTRADOR.
 // El actor de la bitácora sale del token verificado, nunca del body.
 @Controller('admin/usuarios')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -17,6 +17,7 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get()
+  @Roles(ROL.ADMINISTRADOR, ROL.SOPORTE)
   obtenerTodos() {
     return this.adminService.listarUsuarios();
   }
@@ -31,6 +32,7 @@ export class AdminController {
   }
 
   @Get(':id')
+  @Roles(ROL.ADMINISTRADOR, ROL.SOPORTE)
   obtenerExpediente(
     @Req() request: { user: UsuarioSesion },
     @Param('id', ParseIntPipe) id: number,

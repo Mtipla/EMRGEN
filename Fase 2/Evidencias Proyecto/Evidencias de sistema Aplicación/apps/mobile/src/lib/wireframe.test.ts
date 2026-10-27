@@ -15,7 +15,7 @@ test('mismaSecuencia compara orden y largo, y rechaza secuencias vacías', () =>
   expect(mismaSecuencia([], [])).toBe(false);
 });
 
-import { bloqueo, perfilDe, puede, requierePinTrabajador } from '@repo/ui/permisos';
+import { bloqueo, perfilDe, puede } from '@repo/ui/permisos';
 
 test('matriz de permisos: perfil por rol y cuenta principal', () => {
   expect(perfilDe({ rol_ID: 1 })).toBe('ADMINISTRADOR');
@@ -28,14 +28,12 @@ test('matriz de permisos: perfil por rol y cuenta principal', () => {
 test('matriz de permisos: SOPORTE = Trabajador de los mockups, con menos privilegios que ADMINISTRADOR', () => {
   expect(puede('USUARIO', 'admin.cuentas.ver')).toBe(false);
   expect(puede('APADRINADO', 'cuentas.apadrinadas')).toBe(false);
-  // Mockup Trabajador: cuentas y compras (buscar, añadir, modificar, eliminar con PIN, descargar).
-  for (const accion of ['admin.cuentas.editar', 'admin.cuentas.eliminar', 'admin.compras.editar', 'soporte.gestionarTickets'] as const) {
+  // SOPORTE consulta cuentas y compras, y atiende los tickets de los usuarios.
+  for (const accion of ['admin.cuentas.ver', 'admin.compras.ver', 'soporte.gestionarTickets'] as const) {
     expect(puede('SOPORTE', accion)).toBe(true);
   }
-  expect(requierePinTrabajador('SOPORTE')).toBe(true);
-  expect(requierePinTrabajador('ADMINISTRADOR')).toBe(false);
   // Exclusivo del administrador.
-  for (const accion of ['admin.trabajadores', 'perfil.pinTrabajador'] as const) {
+  for (const accion of ['admin.cuentas.editar', 'admin.cuentas.eliminar', 'admin.compras.editar', 'admin.compras.eliminar', 'admin.trabajadores', 'perfil.pinTrabajador', 'alertas.verTodas'] as const) {
     expect(puede('SOPORTE', accion)).toBe(false);
     expect(puede('ADMINISTRADOR', accion)).toBe(true);
   }
