@@ -56,6 +56,21 @@ export class LoginService {
     private readonly dataSource: DataSource,
   ) {}
 
+  /**
+   * Revisa los datos del registro antes de crear la cuenta de Firebase, para no dejar cuentas
+   * sueltas en Firebase cuando el backend las rechazaría. `crear` vuelve a validar todo.
+   */
+  async validarRegistro(datos: CrearUsuarioDto): Promise<{ valido: true }> {
+    if (!this.passwordCabeEnBcrypt(datos.password)) {
+      throw new BadRequestException('La contraseña supera el límite de 72 bytes');
+    }
+    // Mismo mensaje que `crear`: el registro ya informa duplicados (CA-01.1).
+    if (await this.buscarPorCorreo(datos.correo_usuario.trim().toLowerCase())) {
+      throw new ConflictException('El correo ingresado es inválido o ya se encuentra registrado');
+    }
+    return { valido: true };
+  }
+
   async crear(
     datos: CrearUsuarioDto,
     firebaseUser: FirebaseAuthUser,
@@ -287,6 +302,9 @@ export class LoginService {
       .where('usuario.usuario_ID = :id', { id })
       .getOne();
     if (!usuario) throw new NotFoundException('No se encontró la cuenta');
+    if (!usuario.contra_usuario) {
+      throw new ForbiddenException('Las cuentas apadrinadas usan la contraseña de la cuenta principal');
+    }
     if (usuario.estado_ID !== 1) throw new ForbiddenException('El acceso parcial no permite cambiar la contraseña');
     if (!(await bcrypt.compare(actual, usuario.contra_usuario))) {
       throw new UnauthorizedException('La contraseña actual no es correcta');
@@ -311,6 +329,9 @@ export class LoginService {
     }
     if (!cambios.nombre_usuario && !cambios.correo_usuario) {
       throw new BadRequestException('Debes indicar el nombre o el correo a modificar');
+    }
+    if (cambios.correo_usuario && usuario.usuario_principal_ID !== null) {
+      throw new BadRequestException('Las cuentas apadrinadas no tienen correo propio');
     }
 
     const nuevoCorreo = cambios.correo_usuario?.trim().toLowerCase();
@@ -400,7 +421,8 @@ export class LoginService {
       rol_ID,
       estado_ID,
       usuario_principal_ID,
-      requiere_pin: usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
+      // Administradores y trabajadores no usan PIN.
+      requiere_pin: usuario.rol_ID === ROL.USUARIO && usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
     };
   }
 

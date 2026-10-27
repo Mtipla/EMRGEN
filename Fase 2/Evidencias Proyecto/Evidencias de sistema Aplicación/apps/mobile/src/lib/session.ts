@@ -9,7 +9,8 @@ const INTERNAL_API_URL = import.meta.env.VITE_INTERNAL_API_URL ?? 'http://localh
 export type SessionUser = {
   usuario_ID: number;
   nombre_usuario: string;
-  correo_usuario: string;
+  /** null en cuentas apadrinadas (entran con la cuenta principal). */
+  correo_usuario: string | null;
   requiere_pin: boolean;
   /** Opcionales: los añadió el backend el 2026-10-21. */
   rol_ID?: number;

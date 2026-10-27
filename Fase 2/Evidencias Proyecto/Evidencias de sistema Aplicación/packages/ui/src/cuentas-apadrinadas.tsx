@@ -174,20 +174,18 @@ export const CuentasApadrinadas = ({
   );
 };
 
-/** Fila de GET /usuarios/me/vinculadas. Correo, acceso y PIN solo llegan al principal. */
+/** Fila de GET /usuarios/me/vinculadas. Acceso y PIN solo llegan al principal. */
 export interface CuentaVinculada {
   usuario_ID: number;
   nombre_usuario: string;
   tipo: "PRINCIPAL" | "APADRINADO";
-  correo_usuario?: string;
   estado_ID?: number;
   tiene_pin?: boolean;
 }
 
+/** Sin correo ni contraseña: el apadrinado entra con los de la cuenta principal y su PIN. */
 export interface NuevaCuenta {
   nombre_usuario: string;
-  correo_usuario: string;
-  password: string;
   acceso_completo: boolean;
   PIN?: string;
 }
@@ -332,8 +330,6 @@ export const GestionApadrinados = ({
             <h3>Cuenta {i + 1}</h3>
             <p>
               Cuenta usada por: <strong>{cuenta.nombre_usuario}</strong>
-              <br />
-              <span className="wf-muted">{cuenta.correo_usuario}</span>
             </p>
             <p>
               PIN de ingreso:{" "}
@@ -344,7 +340,7 @@ export const GestionApadrinados = ({
               )}{" "}
               <button
                 type="button"
-                className="wf-link"
+                className="wf-button wf-button--secondary"
                 disabled={ocupado}
                 onClick={() => setModal({ tipo: "pin", cuenta })}
               >
@@ -470,8 +466,6 @@ export const GestionApadrinados = ({
   );
 };
 
-const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 /** Alta de un apadrinado con validación en vivo (verde = correcto, rojo = revisar). */
 const NuevaCuentaDialog = ({
   numero,
@@ -483,8 +477,6 @@ const NuevaCuentaDialog = ({
   onCrear: (datos: NuevaCuenta) => Promise<void>;
 }) => {
   const [nombre, setNombre] = useState("");
-  const [correo, setCorreo] = useState("");
-  const [password, setPassword] = useState("");
   const [completo, setCompleto] = useState(false);
   const [pin, setPin] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -492,8 +484,6 @@ const NuevaCuentaDialog = ({
   // null = campo vacío (sin color); true/false = válido/inválido.
   const estados = {
     nombre: nombre ? nombre.trim().length >= 2 : null,
-    correo: correo ? CORREO.test(correo.trim()) : null,
-    password: password ? password.length >= 8 : null,
     pin: pin ? /^\d{4}$/.test(pin) : null,
   };
   const clase = (ok: boolean | null) =>
@@ -514,8 +504,6 @@ const NuevaCuentaDialog = ({
     setEnviando(true);
     await onCrear({
       nombre_usuario: nombre.trim(),
-      correo_usuario: correo.trim(),
-      password,
       acceso_completo: completo,
       PIN: pin,
     });
@@ -536,31 +524,10 @@ const NuevaCuentaDialog = ({
           />
           {ayuda(estados.nombre, "Nombre válido", "Mínimo 2 caracteres")}
         </label>
-        <label>
-          Correo de la cuenta
-          <input
-            type="email"
-            className={clase(estados.correo)}
-            value={correo}
-            maxLength={100}
-            onChange={(e) => setCorreo(e.target.value)}
-            required
-          />
-          {ayuda(estados.correo, "Correo válido", "Correo no válido")}
-        </label>
-        <label>
-          Contraseña
-          <input
-            type="password"
-            autoComplete="new-password"
-            className={clase(estados.password)}
-            value={password}
-            maxLength={72}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          {ayuda(estados.password, "Largo suficiente", "Mínimo 8 caracteres")}
-        </label>
+        <p className="wf-muted">
+          Esta cuenta no tiene correo ni contraseña: entra con los de tu cuenta
+          principal, elige su perfil y escribe su PIN.
+        </p>
         <label className="wf-row">
           <input
             type="checkbox"

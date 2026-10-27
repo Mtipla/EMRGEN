@@ -15,7 +15,7 @@ type PublicSiteProps = {
   onBuy: () => void
 }
 
-/** Páginas públicas de FIND ME: se ven sin iniciar sesión. */
+/** Páginas públicas de EMERGEN: se ven sin iniciar sesión. */
 export function PublicSite({ view, isAuthenticated, onNavigate, onAccount, onBuy }: PublicSiteProps) {
   return (
     <main className="public-page">
@@ -33,9 +33,9 @@ type PublicNavProps = Pick<PublicSiteProps, 'isAuthenticated' | 'onNavigate' | '
 
 function PublicNav({ isAuthenticated, onNavigate, onAccount }: PublicNavProps) {
   return (
-    <nav className="purchase-nav public-nav" aria-label="FIND ME">
+    <nav className="purchase-nav public-nav" aria-label="EMERGEN">
       <button type="button" className="public-logo" onClick={() => onNavigate('inicio')}>
-        FIND ME
+        EMERGEN
       </button>
       {/* Las secciones viven en la página de inicio; Landing hace scroll al hash al montarse. */}
       <a href="#como-funciona" onClick={() => onNavigate('inicio')}>¿Cómo funciona?</a>
@@ -61,10 +61,10 @@ function Landing({ onNavigate }: Pick<PublicSiteProps, 'onNavigate'>) {
     <>
       <section className="public-hero">
         <div>
-          <h1>FIND ME</h1>
+          <h1>EMERGEN</h1>
           <p className="public-subtitle">Ayuda rápida cuando más la necesitas.</p>
           <p>
-            FIND ME es una aplicación pensada para situaciones de emergencia: incidentes médicos,
+            EMERGEN es una aplicación pensada para situaciones de emergencia: incidentes médicos,
             domésticos o accidentes urbanos. Complementa tu llamado de ayuda con información clave,
             como tu ubicación y tu contexto, para que el personal de rescate y tus contactos de
             emergencia sepan dónde estás y qué ocurre.

@@ -127,7 +127,7 @@ export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
   async function guardar(nombre_usuario: string, correo_usuario: string, PIN_principal?: string) {
     const updated = await apiFetch<AuthenticatedUser>('/usuarios/me', {
       method: 'PATCH',
-      body: JSON.stringify({ nombre_usuario, correo_usuario, PIN_principal }),
+      body: JSON.stringify({ nombre_usuario, correo_usuario: correo_usuario || undefined, PIN_principal }),
     })
     localStorage.setItem('emergen.user', JSON.stringify(updated))
     onUserUpdated(updated)

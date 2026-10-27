@@ -25,12 +25,12 @@ export function PremiumPurchase({ onClose, onPurchased }: PremiumPurchaseProps) 
 
   return (
     <section className="purchase">
-      <nav className="purchase-nav" aria-label="FIND ME">
-        <strong>FIND ME</strong>
+      <nav className="purchase-nav" aria-label="EMERGEN">
+        <strong>EMERGEN</strong>
         {/* Destinos pendientes: estas páginas aún no existen en la web. */}
-        <a href="#como-funciona">¿Como Funciona?</a>
+        <a href="#como-funciona">¿Cómo funciona?</a>
         <a href="#descargar-app">Descargar App</a>
-        <a href="#preguntas-frecuentes">Preguntas Frecuentes</a>
+        <a href="#preguntas-frecuentes">Preguntas frecuentes</a>
       </nav>
 
       <div className="purchase-card" aria-busy={processing || !summary}>
@@ -76,7 +76,7 @@ export function PremiumPurchase({ onClose, onPurchased }: PremiumPurchaseProps) 
               <dd>{order ? order.ventaId : <small>se asigna al iniciar el pago</small>}</dd>
               <dt>Precio</dt>
               <dd className="purchase-price">
-                ({clp.format(summary.precioUnitario * cantidad)})
+                {clp.format(summary.precioUnitario * cantidad)}
                 {order && (
                   <small>
                     {' '}
@@ -128,11 +128,11 @@ export function PremiumPurchase({ onClose, onPurchased }: PremiumPurchaseProps) 
                 >
                   Verificar pago
                 </button>
-              ) : (
+              ) : !checkoutOpen && (
                 <button
                   type="button"
                   className="purchase-primary"
-                  disabled={soldOut || checkoutOpen || processing}
+                  disabled={soldOut || processing}
                   onClick={purchase.openCheckout}
                 >
                   Continuar con PayPal

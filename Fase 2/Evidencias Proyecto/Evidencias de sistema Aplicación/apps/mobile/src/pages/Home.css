@@ -16,10 +16,36 @@
 
 .mobile-alerta-rapida {
   width: 100%;
-  min-height: 3.5rem;
-  margin: 4px 0;
-  font-size: 1.1rem;
+  min-height: 5.5rem;
+  margin: 8px 0 16px;
+  border-radius: 24px;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  animation: mobile-pulso 2.2s ease-out infinite;
+}
+
+.mobile-alerta-rapida.mobile-plan-locked {
+  animation: none;
+}
+
+@keyframes mobile-pulso {
+  0% {
+    box-shadow: 0 10px 24px rgb(230 75 53 / 35%), 0 0 0 0 rgb(230 75 53 / 45%);
+  }
+  70% {
+    box-shadow: 0 10px 24px rgb(230 75 53 / 35%), 0 0 0 18px rgb(230 75 53 / 0%);
+  }
+  100% {
+    box-shadow: 0 10px 24px rgb(230 75 53 / 35%), 0 0 0 0 rgb(230 75 53 / 0%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-alerta-rapida {
+    animation: none;
+  }
 }
 
 .mobile-configurar-alerta {

@@ -61,7 +61,7 @@ export function PinSetupForm({ user, onPinCreated, onLogout }: PinSetupFormProps
   return (
     <div className="auth-layout">
       <header className="auth-navbar">
-        <Link to="/" className="find-me">FIND ME</Link>
+        <Link to="/" className="find-me">EMERGEN</Link>
       </header>
 
       <main className="auth-main">

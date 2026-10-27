@@ -44,32 +44,34 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-test('CA-01.1: correo ya registrado en la BD se rechaza sin pedir confirmación y se borra la cuenta de Firebase', async () => {
+test('CA-01.1: correo ya registrado en la BD se rechaza antes de crear la cuenta de Firebase', async () => {
   fetchMock.mockResolvedValue(respuesta(409, { message: 'El correo ingresado es inválido o ya se encuentra registrado' }))
   registrarse('apadrinado@emergen.test')
   expect((await screen.findAllByText('El correo ingresado es inválido o ya se encuentra registrado')).length).toBeGreaterThan(0)
-  expect(firebaseAuth.deleteAccount).toHaveBeenCalledWith(token(false))
+  expect(String(fetchMock.mock.calls[0][0])).toMatch(/\/usuarios\/registro\/validar$/)
+  expect(firebaseAuth.signUp).not.toHaveBeenCalled()
   expect(firebaseAuth.sendEmailVerification).not.toHaveBeenCalled()
   expect(screen.getByRole('heading', { name: 'Crear cuenta' })).toBeTruthy()
 })
 
 test('correo nuevo: el 403 del backend lleva a "Confirma tu correo" con el marco de la web', async () => {
-  fetchMock.mockResolvedValue(respuesta(403, { message: 'Debes confirmar tu correo antes de crear la cuenta' }))
+  fetchMock
+    .mockResolvedValueOnce(respuesta(201, { valido: true }))
+    .mockResolvedValue(respuesta(403, { message: 'Debes confirmar tu correo antes de crear la cuenta' }))
   registrarse('nueva@emergen.test')
   await screen.findByRole('heading', { name: 'Confirma tu correo' })
   expect(firebaseAuth.sendEmailVerification).toHaveBeenCalledWith(token(false))
   expect(firebaseAuth.deleteAccount).not.toHaveBeenCalled()
-  expect(screen.getByRole('link', { name: /FIND ME/ })).toBeTruthy()
-  expect(screen.queryByText('EMERGEN')).toBeNull()
+  expect(screen.getByRole('link', { name: /EMERGEN/ })).toBeTruthy()
   expect(document.querySelector('.auth-layout .auth-main .auth-card')).not.toBeNull()
 })
 
 test('regresión: con el correo ya confirmado se crea la cuenta como antes', async () => {
   vi.mocked(firebaseAuth.signUp).mockResolvedValue(sesion('ok@emergen.test', true))
-  fetchMock.mockResolvedValue(respuesta(201, { usuario_ID: 1 }))
+  fetchMock.mockImplementation(async () => respuesta(201, { usuario_ID: 1 }))
   registrarse('ok@emergen.test')
   await waitFor(() => expect(screen.getAllByText(/Correo confirmado y cuenta creada/).length).toBeGreaterThan(0))
-  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledTimes(2)
   expect(firebaseAuth.sendEmailVerification).not.toHaveBeenCalled()
 })
 

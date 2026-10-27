@@ -14,7 +14,7 @@ const Perfil: React.FC = () => {
     saveSession(
       await apiFetch<SessionUser>('/usuarios/me', {
         method: 'PATCH',
-        body: JSON.stringify({ nombre_usuario, correo_usuario, PIN_principal }),
+        body: JSON.stringify({ nombre_usuario, correo_usuario: correo_usuario || undefined, PIN_principal }),
       }),
     );
   }

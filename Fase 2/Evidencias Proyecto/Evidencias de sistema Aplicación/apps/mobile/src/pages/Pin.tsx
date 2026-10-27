@@ -26,7 +26,7 @@ const Pin: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>FIND ME</IonTitle>
+          <IonTitle>EMERGEN</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">

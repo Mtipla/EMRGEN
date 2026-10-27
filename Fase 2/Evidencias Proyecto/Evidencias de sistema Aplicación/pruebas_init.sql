@@ -23,7 +23,7 @@ BEGIN
   INSERT INTO usuario(nombre_usuario,correo_usuario,contra_usuario,estado_id) VALUES ('Sin plan','sql.other.'||gen_random_uuid()||'@emergen.test','test-no-login',2) RETURNING usuario_id INTO other;
   PERFORM pg_temp.must_fail(format('INSERT INTO usuario(nombre_usuario,correo_usuario,contra_usuario) VALUES (''Duplicate'',''SQL.INIT@emergen.test'',''x'')'),'23505');
   INSERT INTO plan_usuario(usuario_id,plan_id,cupos_apadrinados_adq) VALUES(u,2,1);
-  INSERT INTO usuario(nombre_usuario,correo_usuario,contra_usuario,usuario_principal_id,estado_id) VALUES ('Child','sql.child@emergen.test','test-no-login',u,2) RETURNING usuario_id INTO child;
+  INSERT INTO usuario(nombre_usuario,usuario_principal_id,estado_id) VALUES ('Child',u,2) RETURNING usuario_id INTO child;
   PERFORM pg_temp.must_fail(format('INSERT INTO plan_usuario(usuario_id,plan_id) VALUES (%s,2)',child),'23514');
   PERFORM pg_temp.must_fail(format('UPDATE plan_usuario SET cupos_apadrinados_adq=0 WHERE usuario_id=%s',u),'23514');
   PERFORM pg_temp.must_fail(format('DELETE FROM usuario WHERE usuario_id=%s',u),'23503');

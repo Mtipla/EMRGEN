@@ -19,6 +19,7 @@ Cambios posteriores al init consolidado. Una instalación nueva ya los trae en `
 - CA-11.1, ficha médica cifrada: definir `MEDICAL_DATA_KEYS` en `.env` (ver `example.env`) y ejecutar `node scripts/cifrar-fichas.cjs`.
 - CA-03.1, contacto sin número repetido: `Get-Content migraciones/003_contacto_unico.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'`.
 - CA-05.1, mensaje personalizado de hasta 160 caracteres: igual, con `migraciones/004_mensaje_160.sql`.
+- Apadrinados sin correo ni contraseña propios (entran con la cuenta principal y su PIN): igual, con `migraciones/006_apadrinado_sin_credenciales.sql`. Borra las credenciales que tuvieran los apadrinados existentes.
 
 La recreación de desarrollo fue autorizada y ejecutada una vez. La reanudación conservó los volúmenes; no requiere volver a ejecutar `down -v`. Para cualquier base anterior cuyos datos deban conservarse se necesita una migración explícita y un respaldo verificado; este init no es esa migración.
 
@@ -38,8 +39,8 @@ El script usa bcrypt 12 para contraseña y PIN, IDs del motor y una transacción
 | soporte@emergen.test | Soporte completo | PIN 0007; sin plan de consumo |
 | principal@emergen.test | Usuario completo | Plan base 2, capacidad 3; PIN 0007 |
 | sinplan@emergen.test | Usuario completo | Sin plan; PIN 0007; SOS rechazado por falta de plan |
-| completo@emergen.test | Apadrinado completo del principal | PIN propio 1234; usa plan del principal |
-| parcial@emergen.test | Apadrinado parcial del principal | PIN fijo 5678 (no se cambia); cierre de SOS también con PIN del principal 0007 |
+| Apadrinado Completo (sin correo) | Apadrinado completo del principal | PIN propio 1234; usa plan del principal |
+| Apadrinado Parcial (sin correo) | Apadrinado parcial del principal | PIN fijo 5678 (no se cambia); cierre de SOS también con PIN del principal 0007 |
 
 **Contraseña común exclusivamente de estas cuentas locales: `EmergenDev123!`.** Son valores de prueba, no secretos externos de configuración. Los contactos se rotulan ficticios y tienen formato internacional +56; las pruebas no envían mensajes. El plan base 2 “PLAN BASE DEMOSTRACION” cuesta 5000 CLP y puede comprarse con PayPal. Se activa con cero cupos; los cupos adicionales se compran por separado. Para una BD existente, aplicar `migraciones/002_precio_plan_base.sql` sin recrear el volumen. Ver [pruebas del flujo de compra](docs/PRUEBAS_COMPRA_PLAN.md).
 
@@ -51,7 +52,7 @@ $auth = @{ Authorization = "Bearer " + $sesion.access_token }
 Invoke-RestMethod -Uri http://localhost:3001/usuarios/me -Headers $auth
 ```
 
-El registro público conserva la verificación de correo Firebase. Ingreso tipo Netflix: se inicia sesión con el correo y la contraseña de la cuenta principal, se elige un perfil (la principal o uno de sus apadrinados) y se abre con el PIN de ese perfil. Los apadrinados no inician sesión con su propio correo. El apadrinado con acceso completo recibe un PIN de primer acceso que debe cambiar al entrar; el parcial recibe un PIN fijo que no puede cambiar (`pin.pin_temporal`, migraciones/005_pin_temporal.sql). Una cuenta principal recién registrada queda parcial hasta configurar su PIN mediante `POST /usuarios/me/pin` con `{"PIN":"0007"}`. No se admiten números que pierdan ceros iniciales. La creación interna de apadrinados completos exige PIN propio y lo hashea; no se añadió una nueva UI de alta de apadrinados.
+El registro público conserva la verificación de correo Firebase. Ingreso tipo Netflix: se inicia sesión con el correo y la contraseña de la cuenta principal, se elige un perfil (la principal o uno de sus apadrinados) y se abre con el PIN de ese perfil. Los apadrinados no tienen correo ni contraseña propios: la principal los crea solo con nombre, PIN y tipo de acceso (completo o parcial). El apadrinado con acceso completo recibe un PIN de primer acceso que debe cambiar al entrar; el parcial recibe un PIN fijo que no puede cambiar (`pin.pin_temporal`, migraciones/005_pin_temporal.sql). Una cuenta principal recién registrada queda parcial hasta configurar su PIN mediante `POST /usuarios/me/pin` con `{"PIN":"0007"}`. No se admiten números que pierdan ceros iniciales. La creación interna de apadrinados completos exige PIN propio y lo hashea; no se añadió una nueva UI de alta de apadrinados.
 
 ## Reglas operativas
 

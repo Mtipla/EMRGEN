@@ -22,9 +22,9 @@ export const PLANTILLA_INFORME = `<!DOCTYPE html>
   {{#if principal}}
   <h2>Cuentas apadrinadas ({{apadrinados.length}})</h2>
   <table>
-    <thead><tr><th>Nombre</th><th>Correo</th><th>Acceso</th><th>PIN</th></tr></thead>
-    <tbody>{{#each apadrinados}}<tr><td>{{nombre}}</td><td>{{correo}}</td><td>{{acceso}}</td><td>{{pin}}</td></tr>
-    {{else}}<tr><td colspan="4">Sin cuentas apadrinadas.</td></tr>{{/each}}</tbody>
+    <thead><tr><th>Nombre</th><th>Acceso</th><th>PIN</th></tr></thead>
+    <tbody>{{#each apadrinados}}<tr><td>{{nombre}}</td><td>{{acceso}}</td><td>{{pin}}</td></tr>
+    {{else}}<tr><td colspan="3">Sin cuentas apadrinadas.</td></tr>{{/each}}</tbody>
   </table>
   {{/if}}
 </body></html>`;

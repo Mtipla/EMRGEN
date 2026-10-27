@@ -22,8 +22,11 @@ const { client, bcrypt } = require('./db-dev.cjs');
     ];
     const ids = {};
     for (const [name,label,role,state,parent,hash] of fixtures) {
-      const email = name+'@emergen.test';
-      let row = (await db.query('SELECT usuario_id, pin_id FROM usuario WHERE correo_usuario=$1',[email])).rows[0];
+      // Los apadrinados no tienen correo ni contraseña: se identifican por nombre dentro de su principal.
+      const email = parent ? null : name+'@emergen.test';
+      let row = (await db.query(parent
+        ? 'SELECT usuario_id, pin_id FROM usuario WHERE usuario_principal_id=$2 AND nombre_usuario=$1'
+        : 'SELECT usuario_id, pin_id FROM usuario WHERE correo_usuario=$1', parent ? [label, ids[parent]] : [email])).rows[0];
       if (row && row.pin_id === null && hash) {
         // Instalaciones sembradas antes de que el parcial tuviera PIN: solo se completa el que falta.
         const pinId = (await db.query('INSERT INTO pin(pin_hash) VALUES ($1) RETURNING pin_id',[hash])).rows[0].pin_id;
@@ -31,7 +34,7 @@ const { client, bcrypt } = require('./db-dev.cjs');
       }
       if (!row) {
         const pinId = hash ? (await db.query('INSERT INTO pin(pin_hash) VALUES ($1) RETURNING pin_id',[hash])).rows[0].pin_id : null;
-        row = (await db.query('INSERT INTO usuario(nombre_usuario,correo_usuario,contra_usuario,rol_id,estado_id,usuario_principal_id,pin_id,prioridad_id) VALUES ($1,$2,$3,$4,$5,$6,$7,3) RETURNING usuario_id',[label,email,password,role,state,parent ? ids[parent] : null,pinId])).rows[0];
+        row = (await db.query('INSERT INTO usuario(nombre_usuario,correo_usuario,contra_usuario,rol_id,estado_id,usuario_principal_id,pin_id,prioridad_id) VALUES ($1,$2,$3,$4,$5,$6,$7,3) RETURNING usuario_id',[label,email,parent ? null : password,role,state,parent ? ids[parent] : null,pinId])).rows[0];
       }
       ids[name] = row.usuario_id;
       if (name === 'principal') await db.query('INSERT INTO plan_usuario(usuario_id,plan_id,cupos_apadrinados_adq) VALUES ($1,2,3) ON CONFLICT(usuario_id) DO NOTHING',[row.usuario_id]);
@@ -41,7 +44,7 @@ const { client, bcrypt } = require('./db-dev.cjs');
     }
     await db.query("SELECT setval(pg_get_serial_sequence('plan','plan_id'),(SELECT max(plan_id) FROM plan),true)");
     await db.query('COMMIT');
-    console.log('Fixtures disponibles:', Object.keys(ids).map(x=>x+'@emergen.test').join(', '));
+    console.log('Fixtures disponibles:', fixtures.map(([name,label,,,parent])=>parent ? label+' (perfil de '+parent+')' : name+'@emergen.test').join(', '));
     console.log('No se enviaron mensajes ni se contactó a proveedores de pago.');
   } catch (error) {
     await db.query('ROLLBACK');

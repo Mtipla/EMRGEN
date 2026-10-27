@@ -594,6 +594,7 @@ interface AdminTrabajadoresProps extends EstadoCarga {
     password: string,
   ) => Promise<unknown>;
   onCambiarAcceso?: (id: number, estadoId: number) => Promise<unknown>;
+  onEliminar?: (id: number) => Promise<unknown>;
 }
 
 /** "Administrar Trabajadores" (solo administrador). Nunca muestra contraseñas. */
@@ -603,18 +604,18 @@ export const AdminTrabajadores = ({
   error,
   onCrear,
   onCambiarAcceso,
+  onEliminar,
 }: AdminTrabajadoresProps) => {
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [resultado, setResultado] = useState<Resultado>(null);
+  const [aEliminar, setAEliminar] = useState<UsuarioAdminFila | null>(null);
 
   const columnas: Column<UsuarioAdminFila>[] = [
     { header: "ID trabajador", render: (t) => t.usuario_ID },
     { header: "Nombre trabajador", render: (t) => t.nombre_usuario },
     { header: "Correo trabajador", render: (t) => t.correo_usuario },
-    // El backend crea al trabajador con acceso parcial y él configura su PIN al ingresar.
-    { header: "Primer PIN", render: () => "Lo crea el trabajador" },
     {
       header: "Estado",
       render: (t) => (
@@ -641,6 +642,23 @@ export const AdminTrabajadores = ({
       ),
       value: (t) =>
         t.estado_ID === ACCESO_COMPLETO ? "Habilitado" : "Deshabilitado",
+    },
+    {
+      header: "Eliminar",
+      render: (t) => (
+        <button
+          type="button"
+          className="wf-button wf-button--secondary"
+          disabled={!onEliminar}
+          onClick={(event) => {
+            event.stopPropagation();
+            setAEliminar(t);
+          }}
+        >
+          Eliminar
+        </button>
+      ),
+      value: () => "",
     },
   ];
 
@@ -674,10 +692,18 @@ export const AdminTrabajadores = ({
         }
         empty="No hay trabajadores registrados."
       />
-      <Pendiente>
-        "Primer PIN" y "Eliminar" trabajador del mockup (págs. 47-51) no tienen
-        endpoint
-      </Pendiente>
+      {aEliminar && onEliminar && (
+        <ConfirmDialog
+          title={`Eliminar a "${aEliminar.nombre_usuario}"`}
+          message={`¿Está seguro que desea eliminar a "${aEliminar.nombre_usuario}"?`}
+          onCancel={() => setAEliminar(null)}
+          onConfirm={() => {
+            const { usuario_ID } = aEliminar;
+            setAEliminar(null);
+            void ejecutar(() => onEliminar(usuario_ID), "Trabajador eliminado.").then(setResultado);
+          }}
+        />
+      )}
 
       <form className="wf-card wf-form" onSubmit={(event) => void crear(event)}>
         <h2>Añadir trabajador</h2>

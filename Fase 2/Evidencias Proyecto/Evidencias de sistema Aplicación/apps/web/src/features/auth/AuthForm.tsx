@@ -26,7 +26,8 @@ type PendingAccount = {
 export type AuthenticatedUser = {
   usuario_ID: number
   nombre_usuario: string
-  correo_usuario: string
+  /** null en cuentas apadrinadas (entran con la cuenta principal). */
+  correo_usuario: string | null
   requiere_pin: boolean
   /** Opcionales: el backend los añadió el 2026-10-21; las sesiones guardadas antes no los traen. */
   rol_ID?: number
@@ -81,7 +82,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function postUsuarios(path: 'registro' | 'login' | 'password/firebase', body: object, idToken?: string) {
+  async function postUsuarios(path: 'registro' | 'registro/validar' | 'login' | 'password/firebase', body: object, idToken?: string) {
     const response = await fetch(`${API_URL}/usuarios/${path}`, {
       method: 'POST',
       headers: {
@@ -157,6 +158,8 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   /** Crea (o retoma) la cuenta en Firebase y envía el correo de confirmación. */
   async function startRegistration() {
     const email = correo.trim()
+    // Primero el backend: si rechaza el correo o los datos, no se crea nada en Firebase.
+    await postUsuarios('registro/validar', { nombre_usuario: nombre, correo_usuario: correo, password })
     let account: PendingAccount
     try {
       account = { session: await firebaseAuth.signUp(email, password), created: true }
@@ -272,13 +275,13 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   }
 
   if (mode === 'verificacion' && pending) {
-    // Mismo marco que login y registro (auth-layout, barra FIND ME), con las clases de index.css.
+    // Mismo marco que login y registro (auth-layout, barra EMERGEN), con las clases de index.css.
     return (
       <div className="auth-layout">
         <header className="auth-navbar">
           <Link to="/" className="find-me">
             <span>📍</span>
-            FIND ME
+            EMERGEN
           </Link>
         </header>
 
@@ -337,7 +340,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     <div className="auth-layout">
       <header className="auth-navbar">
         <Link to="/" className="find-me">
-          FIND ME
+          EMERGEN
         </Link>
       </header>
 

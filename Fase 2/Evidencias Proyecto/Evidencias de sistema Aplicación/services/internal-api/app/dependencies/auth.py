@@ -31,7 +31,7 @@ sesion_bearer = HTTPBearer(
 @dataclass(frozen=True)
 class UsuarioSesion:
     id: int
-    email: str
+    email: str | None  # None en apadrinados: no tienen correo propio
     rol_id: int
     estado_id: int
 

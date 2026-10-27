@@ -53,7 +53,8 @@ test('SOPORTE ve cuentas y detalles sin formularios ni acciones de escritura', a
   expect(screen.queryByRole('button', { name: 'Descargar' })).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: /Soporte Demo/ }))
   const menu = screen.getByRole('navigation', { name: 'Menú de usuario' })
-  expect(Array.from(menu.querySelectorAll('a')).map((a) => a.getAttribute('href'))).toEqual([
+  // Los enlaces de secciones (.wf-menu-secciones) son la copia del encabezado para pantallas angostas.
+  expect(Array.from(menu.querySelectorAll(':scope > a')).map((a) => a.getAttribute('href'))).toEqual([
     '/administracion/cuentas', '/administracion/compras', '/administracion/tickets',
   ])
 })

@@ -1,4 +1,4 @@
-import { Fragment, useId, useState, type FormEvent } from "react";
+import { Fragment, useId, useState, type FormEvent, type ReactNode } from "react";
 import { avisar, mensajeError } from "./avisos";
 import { PRIORIDADES } from "./mocks";
 import { DataTable, type Column } from "./wireframe";
@@ -281,6 +281,8 @@ interface GestionTicketsProps extends Carga {
     ticketId: number,
     cambios: { estado?: string; solucion?: string },
   ) => Promise<unknown>;
+  /** Filtros que se muestran bajo el título. */
+  filtros?: ReactNode;
 }
 
 /** Gestión de tickets del personal (función documentada del rol SOPORTE). */
@@ -290,6 +292,7 @@ export const GestionTickets = ({
   cargando,
   error,
   onActualizar,
+  filtros,
 }: GestionTicketsProps) => {
   const [seleccionId, setSeleccionId] = useState<number | null>(null);
   const seleccion = tickets.find((t) => t.ticket_id === seleccionId) ?? null;
@@ -366,6 +369,7 @@ export const GestionTickets = ({
   return (
     <section className="wf-card wf-support-admin">
       <h1>Administrar Tickets de soporte</h1>
+      {filtros}
       <p className="wf-muted">
         Selecciona un ticket para ver su descripción y responder.
       </p>

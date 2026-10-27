@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/App.tsx": {
-    "mtime": 1793132742.852011,
-    "seen": 1793132950.4391053,
-    "ast_hash": "69d11f14ad1d120e2d59f587387bebb5",
+    "mtime": 1793133829.703169,
+    "seen": 1793134300.0210495,
+    "ast_hash": "062bd842bc24bec06a85b2ec9633545e",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/main.tsx": {
@@ -1008,10 +1008,10 @@
     "semantic_hash": "86c0b9ba7acd6c34dd846aec0a866883"
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/vite.config.js": {
-    "mtime": 1793042715.0013373,
-    "seen": 1793125653.919545,
-    "ast_hash": "bbe3fd427610bde4cab485e7d58fda48",
-    "semantic_hash": "bbe3fd427610bde4cab485e7d58fda48"
+    "mtime": 1793133915.2872155,
+    "seen": 1793134300.0205665,
+    "ast_hash": "4ff0432de7f4ab7bef03eaef6a4df1f1",
+    "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/auth/AuthForm.tsx": {
     "mtime": 1793132742.8550074,
@@ -1746,9 +1746,9 @@
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/src/pages/Registro.tsx": {
-    "mtime": 1793132202.1147351,
-    "seen": 1793132564.9161274,
-    "ast_hash": "1fe1f725082ebc43fc9ce9ac18b14359",
+    "mtime": 1793133893.0958474,
+    "seen": 1793134300.0197449,
+    "ast_hash": "2c406aee937088aca3da23631dff05df",
     "semantic_hash": ""
   },
   "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/web/src/features/administracion/AdminPages.tsx": {
@@ -2649,6 +2649,12 @@
     "mtime": 1793132904.8339396,
     "seen": 1793132950.4378479,
     "ast_hash": "d58c5862f23a7fc56cf60e4e7ef5e359",
+    "semantic_hash": ""
+  },
+  "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicaci\u00f3n/apps/mobile/vite.config.d.ts": {
+    "mtime": 1793133915.3003793,
+    "seen": 1793134300.020563,
+    "ast_hash": "b18e8a6874a901d6ecd8e0cbb7a7a6d6",
     "semantic_hash": ""
   }
 }

@@ -40,11 +40,14 @@ function correoConfirmado(idToken: string) {
   }
 }
 
-/** POST /usuarios/registro con el ID token de Firebase. Lanza el status para distinguir el 403 (falta confirmar). */
-async function registrarEnBackend(nombre: string, correo: string, password: string, idToken: string) {
-  const response = await fetch(`${env.apiUrl}/usuarios/registro`, {
+/**
+ * POST /usuarios/registro con el ID token de Firebase, o /usuarios/registro/validar sin token (antes
+ * de crear la cuenta de Firebase). Lanza el status para distinguir el 403 (falta confirmar).
+ */
+async function registrarEnBackend(nombre: string, correo: string, password: string, idToken?: string) {
+  const response = await fetch(`${env.apiUrl}/usuarios/${idToken ? 'registro' : 'registro/validar'}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+    headers: { 'Content-Type': 'application/json', ...(idToken && { Authorization: `Bearer ${idToken}` }) },
     body: JSON.stringify({ nombre_usuario: nombre, correo_usuario: correo, password }),
   });
   if (response.ok) return;
@@ -107,6 +110,8 @@ const Registro: React.FC = () => {
 
   async function iniciarRegistro() {
     const email = correo.trim();
+    // Primero el backend: si rechaza el correo o los datos, no se crea nada en Firebase.
+    await registrarEnBackend(nombre.trim(), email, password);
     let cuenta: Pendiente;
     try {
       cuenta = { sesion: await firebaseAuth.signUp(email, password), creada: true };
@@ -202,7 +207,15 @@ const Registro: React.FC = () => {
             </IonButton>
           </>
         ) : (
-          <form onSubmit={enviar}>
+          <form onSubmit={enviar}
+            // IonButton no es un botón nativo: sin esto, Enter en un campo no envía el formulario.
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
+                event.preventDefault();
+                event.currentTarget.requestSubmit();
+              }
+            }}
+          >
             <IonInput label="Nombre" labelPlacement="stacked" value={nombre} {...campo(setNombre)} minlength={2} required />
             <IonInput label="Correo electrónico" labelPlacement="stacked" type="email" value={correo} {...campo(setCorreo)} required />
             <IonInput label="Contraseña" labelPlacement="stacked" type="password" value={password} {...campo(setPassword)} required />

@@ -31,6 +31,12 @@ import { RolesGuard } from './roles.guard';
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
+  // Sin token: se llama antes de crear la cuenta en Firebase.
+  @Post('registro/validar')
+  validarRegistro(@Body() datos: CrearUsuarioDto) {
+    return this.loginService.validarRegistro(datos);
+  }
+
   // Exige el ID token de la cuenta recién creada en Firebase (Authorization: Bearer).
   @UseGuards(FirebaseAuthGuard)
   @Post('registro')

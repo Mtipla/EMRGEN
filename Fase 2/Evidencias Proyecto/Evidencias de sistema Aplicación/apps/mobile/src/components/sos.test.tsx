@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import AlertaSos from './AlertaSos';
 import AlertasActivas from './AlertasActivas';
-import { enviarSos, finalizarSos, listarActivas, type Alerta } from '../lib/sos';
+import { enviarSos, finalidadPerfil, finalizarSos, listarActivas, type Alerta } from '../lib/sos';
 import { obtenerUbicacionSos } from '../lib/ubicacion-sos';
 
 vi.mock('../lib/ubicacion-sos', () => ({ obtenerUbicacionSos: vi.fn() }));
@@ -11,6 +11,7 @@ vi.mock('../lib/ubicacion-sos', () => ({ obtenerUbicacionSos: vi.fn() }));
 vi.mock('../lib/sos', async (original) => ({
   ...(await original<typeof import('../lib/sos')>()),
   enviarSos: vi.fn(),
+  finalidadPerfil: vi.fn(),
   finalizarSos: vi.fn(),
   listarActivas: vi.fn(),
 }));
@@ -29,6 +30,7 @@ const alerta: Alerta = {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(obtenerUbicacionSos).mockResolvedValue('SIMULADA: -33.4378,-70.6504');
+  vi.mocked(finalidadPerfil).mockResolvedValue(null);
   vi.stubGlobal('crypto', {
     randomUUID: () => '084fd63f-080d-441e-aa30-05ec7593796c',
   });
@@ -52,6 +54,12 @@ test('conserva la selección de emergencia, muestra los teléfonos después de E
   expect(enviarSos).toHaveBeenCalledWith(1, expect.any(String), 'SIMULADA: -33.4378,-70.6504');
   expect(await screen.findByText('ACTIVA')).not.toBeNull();
   expect(onRegistrada).toHaveBeenCalledOnce();
+});
+
+test('el tipo de SOS parte con la finalidad del perfil', async () => {
+  vi.mocked(finalidadPerfil).mockResolvedValue(1);
+  render(<AlertaSos onClose={vi.fn()} onRegistrada={vi.fn()} />);
+  await waitFor(() => expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('1'));
 });
 
 test('un envío fallido permite reintentar con la misma clave sin mostrar un éxito falso', async () => {

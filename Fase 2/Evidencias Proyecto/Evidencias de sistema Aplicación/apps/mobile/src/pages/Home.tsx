@@ -88,7 +88,7 @@ const Home: React.FC = () => {
     <IonPage className="mobile-home">
       <IonHeader>
         <IonToolbar>
-          <IonTitle>{user?.nombre_usuario ?? 'FIND ME'}</IonTitle>
+          <IonTitle>{user?.nombre_usuario ?? 'EMERGEN'}</IonTitle>
           <IonButtons slot="end">
             <IonButton id="menu-usuario">Menú ▾</IonButton>
           </IonButtons>

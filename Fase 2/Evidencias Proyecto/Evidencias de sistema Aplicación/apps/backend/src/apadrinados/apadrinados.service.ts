@@ -31,12 +31,11 @@ const FECHA_CHILE = new Intl.DateTimeFormat('es-CL', {
 });
 const acceso = (estado_ID?: number) => (estado_ID === ACCESO.COMPLETO ? 'Completo' : 'Parcial');
 
-/** Cuenta vinculada visible para la sesión. Correo, acceso y PIN solo los ve el principal (RF9). */
+/** Cuenta vinculada visible para la sesión. Acceso y PIN solo los ve el principal (RF9). */
 export type CuentaVinculada = {
   usuario_ID: number;
   nombre_usuario: string;
   tipo: 'PRINCIPAL' | 'APADRINADO';
-  correo_usuario?: string;
   estado_ID?: number;
   tiene_pin?: boolean;
 };
@@ -70,14 +69,14 @@ export class ApadrinadosService {
         principal,
         usuario: {
           nombre: yo.nombre_usuario,
-          correo: yo.correo_usuario,
+          // Un apadrinado no tiene correo propio.
+          correo: yo.correo_usuario ?? 'Sin correo (usa el de la cuenta principal)',
           tipo: principal ? 'Cuenta principal' : 'Cuenta apadrinada',
           acceso: acceso(yo.estado_ID),
           premium: yo.plan_efectivo ? 'Sí' : 'No',
         },
         apadrinados: apadrinados.map((a) => ({
           nombre: a.nombre_usuario,
-          correo: a.correo_usuario,
           acceso: acceso(a.estado_ID),
           pin: a.tiene_pin ? 'Configurado' : 'Sin PIN',
         })),
@@ -100,7 +99,6 @@ export class ApadrinadosService {
         usuario_ID: a.usuario_ID,
         nombre_usuario: a.nombre_usuario,
         tipo: 'APADRINADO',
-        correo_usuario: a.correo_usuario,
         estado_ID: a.estado_ID,
         tiene_pin: a.PIN_ID !== null,
       }));
@@ -122,16 +120,10 @@ export class ApadrinadosService {
 
   async crear(sesion: UsuarioSesion, datos: CrearApadrinadoDto): Promise<CuentaVinculada[]> {
     await this.exigirPrincipal(sesion);
-    const correo = datos.correo_usuario.trim().toLowerCase();
-    if (await this.usuarios.findOneBy({ correo_usuario: correo })) {
-      throw new ConflictException('Ya existe una cuenta con ese correo');
-    }
     try {
       // El trigger emergen_validar_vinculo comprueba plan y cupos dentro de la misma escritura.
       await this.usuariosService.crearUsuarioApadrinado(sesion.sub, {
         nombre_usuario: datos.nombre_usuario,
-        correo_usuario: correo,
-        password: datos.password,
         estado_ID: datos.acceso_completo ? ACCESO.COMPLETO : ACCESO.PARCIAL,
         pin: datos.PIN,
       });
@@ -141,7 +133,7 @@ export class ApadrinadosService {
           'No tienes cupos libres: compra un cupo de cuenta apadrinada para añadir otra cuenta',
         );
       }
-      throw this.loginService.traducirCorreoDuplicado(error);
+      throw error;
     }
     return this.vinculadas(sesion);
   }

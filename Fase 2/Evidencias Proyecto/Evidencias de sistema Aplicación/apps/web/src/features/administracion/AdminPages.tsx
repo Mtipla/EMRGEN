@@ -74,6 +74,7 @@ export function AdminTrabajadoresPage() {
         }),
       )}
       onCambiarAcceso={cambiarAcceso}
+      onEliminar={conRecarga((id: number) => apiFetch(`/admin/usuarios/soporte/${id}`, { method: 'DELETE' }))}
     />
   )
 }

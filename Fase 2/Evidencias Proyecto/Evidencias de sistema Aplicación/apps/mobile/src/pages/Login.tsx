@@ -87,14 +87,22 @@ const Login: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>FIND ME</IonTitle>
+          <IonTitle>EMERGEN</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         <h1>
           {paso === 'credenciales' ? 'Inicio de sesión' : paso === 'perfil' ? '¿Quién eres?' : `PIN de ${perfil?.nombre_usuario}`}
         </h1>
-        <form onSubmit={(event) => void entrar(event)}>
+        <form onSubmit={(event) => void entrar(event)}
+          // IonButton no es un botón nativo: sin esto, Enter en un campo no envía el formulario.
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
+              event.preventDefault();
+              event.currentTarget.requestSubmit();
+            }
+          }}
+        >
           {paso === 'credenciales' && (
             <>
               <IonInput

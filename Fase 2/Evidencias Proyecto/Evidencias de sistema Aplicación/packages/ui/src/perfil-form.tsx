@@ -6,7 +6,8 @@ import { ConfirmDialog, Notice, Pendiente, PinDialog } from "./wireframe";
 
 interface PerfilFormProps {
   nombreUsuario: string;
-  correo: string;
+  /** null en cuentas apadrinadas: usan el correo y la contraseña de la principal. */
+  correo: string | null;
   /**
    * "usuario": finalidad, contactos, mensaje y ficha médica.
    * "soporte" (Trabajador, mockup pág. 12): solo datos personales.
@@ -137,7 +138,7 @@ const CAMPOS_MEDICOS = [
 ] as const;
 
 type Modal =
-  "pin" | "pin-pendiente" | "autorizacion" | "autorizacion-pendiente" | null;
+  "autorizacion" | "autorizacion-pendiente" | null;
 
 /** Pantalla "Modificar Usuario" de los wireframes, con los campos del modelo de datos. */
 export const PerfilForm = ({
@@ -151,7 +152,7 @@ export const PerfilForm = ({
 }: PerfilFormProps) => {
   const conDatos = Boolean(api) && variante === "usuario";
   const [usuario, setUsuario] = useState(nombreUsuario);
-  const [email, setEmail] = useState(correo);
+  const [email, setEmail] = useState(correo ?? "");
   // 0 = sin finalidad (PRIORIDAD_ID nulo).
   const [prioridad, setPrioridad] = useState<number>(conDatos ? 0 : PRIORIDADES[0].id);
   const [contactos, setContactos] = useState<ContactoEmergencia[]>([]);
@@ -324,53 +325,40 @@ export const PerfilForm = ({
             required
           />
         </label>
-        <label>
-          Correo electrónico
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            maxLength={100}
-            required
-          />
-        </label>
+        {correo !== null && (
+          <label>
+            Correo electrónico
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              maxLength={100}
+              required
+            />
+          </label>
+        )}
 
-        <Pendiente>
-          nombre, teléfono{onCambiarPassword ? "" : ", cambio de contraseña"}
-          {variante === "administrador"
-            ? " y PIN de trabajador"
-            : variante === "usuario" && !conDatos
-              ? ", finalidad, contactos, mensaje y ficha médica"
-              : ""}{" "}
-          aún no se guardan
-        </Pendiente>
-        {/* Deshabilitados: la tabla usuario no tiene columnas para nombre ni teléfono. */}
-        <label>
-          Nombre
-          <input disabled placeholder="Federico Arturo" />
-        </label>
-        <label>
-          Número telefónico
-          <input type="tel" disabled placeholder="+569…" />
-        </label>
+        {/* Nombre y teléfono no se muestran: la tabla usuario no tiene esas columnas. */}
+        {(!onCambiarPassword || (variante === "usuario" && !conDatos)) && (
+          <Pendiente>
+            {[
+              !onCambiarPassword && "cambio de contraseña",
+              variante === "usuario" && !conDatos &&
+                "finalidad, contactos, mensaje y ficha médica",
+            ]
+              .filter(Boolean)
+              .join(", ")}{" "}
+            aún no se guardan
+          </Pendiente>
+        )}
 
-        {variante === "soporte" ? null : carga.cargando ? (
+        {/* Administradores y trabajadores no usan PIN ni datos de emergencia. */}
+        {variante !== "usuario" ? null : carga.cargando ? (
           <p className="wf-muted">Cargando…</p>
         ) : carga.error ? (
           <p className="wf-message wf-message--error">
             Error al cargar la información: {carga.error}
           </p>
-        ) : variante === "administrador" ? (
-          <div className="wf-row">
-            <span>PIN de verificación de trabajador: ****</span>
-            <button
-              type="button"
-              className="wf-button wf-button--secondary"
-              onClick={() => setModal("pin")}
-            >
-              Modificar PIN
-            </button>
-          </div>
         ) : (
           <>
             <label>
@@ -580,7 +568,7 @@ export const PerfilForm = ({
         </div>
       </form>
 
-      {onCambiarPassword && (
+      {onCambiarPassword && correo !== null && (
         <CambioPassword bloqueado={accesoParcial} onCambiar={onCambiarPassword} />
       )}
 
@@ -598,20 +586,6 @@ export const PerfilForm = ({
       )}
 
       {/* Fuera del <form>: PinDialog tiene su propio formulario y no se pueden anidar. */}
-      {modal === "pin" && (
-        <PinDialog
-          title="Modificar PIN de trabajador"
-          onClose={() => setModal(null)}
-          onSubmit={() => setModal("pin-pendiente")}
-        />
-      )}
-      {modal === "pin-pendiente" && (
-        <Notice
-          title="PIN no guardado"
-          message="El backend aún no tiene un endpoint para modificar el PIN de trabajador."
-          onClose={() => setModal(null)}
-        />
-      )}
       {modal === "autorizacion" && (
         <PinDialog
           title="Autorización de la cuenta principal"

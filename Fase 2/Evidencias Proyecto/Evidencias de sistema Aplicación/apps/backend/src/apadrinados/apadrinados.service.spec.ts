@@ -59,17 +59,17 @@ describe('ApadrinadosService', () => {
   describe('HU-19: informe personal', () => {
     it('el principal recibe su cuenta y la de sus apadrinados', async () => {
       obtenerPropio.mockResolvedValue({ usuario_ID: 10, nombre_usuario: 'P', correo_usuario: 'p@x', estado_ID: 1, usuario_principal_ID: null, plan_efectivo: true });
-      usuarios.find.mockResolvedValue([{ usuario_ID: 11, nombre_usuario: 'H', correo_usuario: 'h@x', estado_ID: 2, PIN_ID: null }]);
+      usuarios.find.mockResolvedValue([{ usuario_ID: 11, nombre_usuario: 'H', correo_usuario: null, estado_ID: 2, PIN_ID: null }]);
       await service.informe(PRINCIPAL);
       expect(renderInline.mock.calls[0][1]).toMatchObject({
         principal: true,
         usuario: { nombre: 'P', acceso: 'Completo', premium: 'Sí' },
-        apadrinados: [{ nombre: 'H', correo: 'h@x', acceso: 'Parcial', pin: 'Sin PIN' }],
+        apadrinados: [{ nombre: 'H', acceso: 'Parcial', pin: 'Sin PIN' }],
       });
     });
 
     it('un apadrinado solo recibe su propia cuenta, nunca la de su principal', async () => {
-      obtenerPropio.mockResolvedValue({ usuario_ID: 11, nombre_usuario: 'H', correo_usuario: 'h@x', estado_ID: 2, usuario_principal_ID: 10 });
+      obtenerPropio.mockResolvedValue({ usuario_ID: 11, nombre_usuario: 'H', correo_usuario: null, estado_ID: 2, usuario_principal_ID: 10 });
       await service.informe({ ...PRINCIPAL, sub: 11 });
       expect(usuarios.find).not.toHaveBeenCalled();
       expect(renderInline.mock.calls[0][1]).toMatchObject({ principal: false, apadrinados: [] });
@@ -141,8 +141,6 @@ describe('ApadrinadosService', () => {
     await expect(
       service.crear(PRINCIPAL, {
         nombre_usuario: 'Hija',
-        correo_usuario: 'hija@emergen.test',
-        password: 'segura1234',
         acceso_completo: false,
         PIN: '1234',
       }),
