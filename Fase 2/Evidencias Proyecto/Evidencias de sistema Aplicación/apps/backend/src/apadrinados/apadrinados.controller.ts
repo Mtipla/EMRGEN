@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Req, StreamableFile, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard, type UsuarioSesion } from '../login/jwt-auth.guard';
 import { ApadrinadosService } from './apadrinados.service';
 import { CrearApadrinadoDto } from './dto/apadrinado.dto';
@@ -15,6 +15,16 @@ export class ApadrinadosController {
   @Get('vinculadas')
   vinculadas(@Req() request: Solicitud) {
     return this.apadrinados.vinculadas(request.user);
+  }
+
+  @Get('informe')
+  @Header('Cache-Control', 'no-store')
+  async informe(@Req() request: Solicitud) {
+    const reporte = await this.apadrinados.informe(request.user);
+    return new StreamableFile(reporte.content, {
+      type: reporte.contentType,
+      disposition: `attachment; filename="informe-personal-${new Date().toISOString().slice(0, 10)}.pdf"`,
+    });
   }
 
   @Post('apadrinados')

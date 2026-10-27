@@ -47,7 +47,7 @@ test('HU-10: cambiar el acceso y el PIN del apadrinado también exigen el PIN de
   await ingresarPin('1234')
   await waitFor(() => expect(api.cambiarAcceso).toHaveBeenCalledWith(11, 1, '1234'))
 
-  fireEvent.click(await screen.findByRole('button', { name: 'Cambiar PIN' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Regenerar PIN' }))
   fireEvent.click(await screen.findByRole('button', { name: 'Ok, entiendo' }))
   fireEvent.change(await screen.findByLabelText('PIN'), { target: { value: '5555' } })
   fireEvent.change(screen.getByLabelText('Confirmar PIN'), { target: { value: '5555' } })

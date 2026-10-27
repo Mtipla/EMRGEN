@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { AuthenticatedUser } from './AuthForm'
-import './UsersAdmin.css'
+import { AppShell } from '../cuenta/AppShell'
 
 type UsersAdminProps = {
   user: AuthenticatedUser
@@ -15,7 +15,7 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [nombre, setNombre] = useState(user.nombre_usuario)
-  const [correo, setCorreo] = useState(user.correo_usuario)
+  const [correo, setCorreo] = useState(user.correo_usuario ?? '')
   const [profileMessage, setProfileMessage] = useState('')
   const token = localStorage.getItem('emergen.token')
 
@@ -35,7 +35,7 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
         throw new Error(message ?? 'No se pudo actualizar el perfil')
       }
       setNombre(data.nombre_usuario)
-      setCorreo(data.correo_usuario)
+      setCorreo(data.correo_usuario ?? '')
       localStorage.setItem('emergen.user', JSON.stringify(data))
       onUserUpdated(data as AuthenticatedUser)
       setProfileMessage('Tus datos se actualizaron.')
@@ -78,20 +78,7 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
 
   return (
     <div className="users-admin">
-      <header className="ua-navbar">
-        <a className="ua-brand" href="#usuarios" aria-label="Inicio">⌖ <span>FIND ME</span></a>
-        <nav className="ua-nav-links" aria-label="Navegación principal">
-          <a href="#como-funciona">¿Cómo funciona?</a>
-          <a href="#descargar">Descargar App</a>
-          <a href="#preguntas">Preguntas frecuentes</a>
-        </nav>
-        <div className="ua-account">
-          <span className="ua-account-icon" aria-hidden="true">●</span>
-          <span className="ua-account-name">{user.nombre_usuario}</span>
-          <button type="button" onClick={onLogout}>Cerrar sesión</button>
-        </div>
-      </header>
-
+      <AppShell user={user} onLogout={onLogout}>
       <main className="ua-main" id="usuarios">
         <section className="ua-users-panel" aria-labelledby="ua-title">
           <div className="ua-panel-heading">
@@ -133,6 +120,7 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
           </form>
         </section>
       </main>
+      </AppShell>
     </div>
   )
 }

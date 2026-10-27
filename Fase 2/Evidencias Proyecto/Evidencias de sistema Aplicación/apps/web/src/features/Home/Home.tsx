@@ -1,6 +1,5 @@
 
 import { Link } from 'react-router-dom'
-import './Home.css'
 
 export function Home() {
     return (
@@ -8,7 +7,7 @@ export function Home() {
             <nav className="navbar">
                 <a href="#inicio" className="nav-logo">
                     <span className="location-icon">📍</span>
-                    FIND ME
+                    EMERGEN
                 </a>
 
                 <a href="#como-funciona" className="nav-link">

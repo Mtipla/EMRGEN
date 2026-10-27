@@ -25,7 +25,7 @@ def test_ultimo_cupo(db,crear_usuario):
     uid=crear_usuario()
     db.execute("UPDATE plan_usuario SET cupos_apadrinados_adq=1 WHERE usuario_id=%s",(uid,))
     def insert(conn):
-        conn.execute("INSERT INTO usuario(nombre_usuario,correo_usuario,contra_usuario,usuario_principal_id,estado_id) VALUES ('Carrera',%s,'test',%s,2)",("race."+uuid4().hex+"@emergen.test",uid))
+        conn.execute("INSERT INTO usuario(nombre_usuario,usuario_principal_id,estado_id) VALUES ('Carrera',%s,2)",(uid,))
         return "ok"
     try:
         assert sorted(race([insert,insert]))==["23514","ok"]

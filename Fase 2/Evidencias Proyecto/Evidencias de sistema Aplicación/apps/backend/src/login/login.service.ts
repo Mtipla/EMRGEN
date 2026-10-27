@@ -56,6 +56,21 @@ export class LoginService {
     private readonly dataSource: DataSource,
   ) {}
 
+  /**
+   * Revisa los datos del registro antes de crear la cuenta de Firebase, para no dejar cuentas
+   * sueltas en Firebase cuando el backend las rechazaría. `crear` vuelve a validar todo.
+   */
+  async validarRegistro(datos: CrearUsuarioDto): Promise<{ valido: true }> {
+    if (!this.passwordCabeEnBcrypt(datos.password)) {
+      throw new BadRequestException('La contraseña supera el límite de 72 bytes');
+    }
+    // Mismo mensaje que `crear`: el registro ya informa duplicados (CA-01.1).
+    if (await this.buscarPorCorreo(datos.correo_usuario.trim().toLowerCase())) {
+      throw new ConflictException('El correo ingresado es inválido o ya se encuentra registrado');
+    }
+    return { valido: true };
+  }
+
   async crear(
     datos: CrearUsuarioDto,
     firebaseUser: FirebaseAuthUser,
@@ -125,12 +140,63 @@ export class LoginService {
     if (!usuario || !passwordValida) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
+    // Modelo de perfiles: los apadrinados entran desde la sesión de su principal.
+    if (usuario.usuario_principal_ID !== null) {
+      throw new ForbiddenException('Ingresa con el correo de la cuenta principal y elige tu perfil');
+    }
+    let sesion = usuario;
+    if (usuario.rol_ID === ROL.USUARIO && usuario.PIN_ID !== null) {
+      const paso = await this.elegirPerfil(usuario, datos);
+      if (!('usuario_ID' in paso)) return paso;
+      sesion = paso;
+    }
 
     const access_token = await this.jwtService.signAsync({
-      sub: usuario.usuario_ID,
-      email: usuario.correo_usuario,
+      sub: sesion.usuario_ID,
+      email: sesion.correo_usuario,
     });
-    return { access_token, usuario: await this.conPlan(usuario) };
+    return { access_token, usuario: await this.conPlan(sesion) };
+  }
+
+  /**
+   * Cuenta tipo Netflix: tras la contraseña de la principal se elige un perfil (la principal o
+   * uno de sus apadrinados) y se abre solo con el PIN de ese perfil. Mismo contador y bloqueo de
+   * 5 minutos que verificarPinPrincipal, en la fila PIN del perfil. Un PIN temporal (apadrinado con
+   * acceso completo) solo deja entrar cambiándolo; el del parcial no es temporal y no se cambia.
+   */
+  private async elegirPerfil(principal: Usuario, datos: LoginDto) {
+    const perfiles = await this.usuarioRepository.find({
+      where: [{ usuario_ID: principal.usuario_ID }, { usuario_principal_ID: principal.usuario_ID }],
+      order: { usuario_ID: 'ASC' },
+    });
+    if (datos.perfil_ID === undefined) {
+      return {
+        perfiles: perfiles.map((p) => ({
+          usuario_ID: p.usuario_ID,
+          nombre_usuario: p.nombre_usuario,
+          tipo: p.usuario_principal_ID === null ? 'PRINCIPAL' : 'APADRINADO',
+          tiene_pin: p.PIN_ID !== null,
+        })),
+      };
+    }
+    const perfil = perfiles.find((p) => p.usuario_ID === datos.perfil_ID);
+    if (!perfil) throw new NotFoundException('No se encontró el perfil');
+    if (perfil.PIN_ID === null) {
+      throw new ConflictException('La cuenta principal aún no genera el PIN de este perfil');
+    }
+    if (!datos.PIN) throw new BadRequestException('Ingresa el PIN del perfil');
+    await verificarPinPrincipal(this.dataSource, perfil.usuario_ID, datos.PIN);
+    const pin = await this.dataSource.getRepository(Pin).findOneByOrFail({ PIN_ID: perfil.PIN_ID });
+    if (!pin.pin_temporal) return perfil;
+    if (!datos.PIN_nuevo) return { cambio_pin_requerido: true as const };
+    if (datos.PIN_nuevo === datos.PIN) {
+      throw new BadRequestException('El PIN nuevo debe ser distinto del PIN temporal');
+    }
+    await this.dataSource.getRepository(Pin).update(pin.PIN_ID, {
+      pin_hash: await bcrypt.hash(datos.PIN_nuevo, BCRYPT_COSTO),
+      pin_temporal: false,
+    });
+    return perfil;
   }
 
   async crearPinInicial(usuarioId: number, pinIngresado: string) {
@@ -222,6 +288,29 @@ export class LoginService {
     }
   }
 
+  /**
+   * Recuperación de contraseña: Firebase envía el enlace y guarda la contraseña nueva; aquí se
+   * copia a la BD, que es la que valida el login. Solo cuentas principales con acceso completo.
+   */
+  async sincronizarPasswordFirebase(firebaseUser: FirebaseAuthUser, password: string) {
+    if (!this.passwordCabeEnBcrypt(password)) {
+      throw new BadRequestException('La contraseña supera el límite de 72 bytes');
+    }
+    // Un token refrescado conserva auth_time: exigir un ingreso reciente evita reutilizar uno viejo.
+    const ingresoReciente = Date.now() / 1000 - (firebaseUser.authTime ?? 0) < 5 * 60;
+    if (!firebaseUser.emailVerified || !ingresoReciente || !firebaseUser.email) {
+      throw new UnauthorizedException('Vuelve a iniciar sesión con tu nueva contraseña');
+    }
+    const usuario = await this.buscarPorCorreo(firebaseUser.email.trim().toLowerCase());
+    if (!usuario || usuario.usuario_principal_ID !== null || usuario.estado_ID !== 1) {
+      throw new UnauthorizedException('Correo o contraseña incorrectos');
+    }
+    await this.usuarioRepository.update(usuario.usuario_ID, {
+      contra_usuario: await bcrypt.hash(password, BCRYPT_COSTO),
+    });
+    return { mensaje: 'Contraseña actualizada' };
+  }
+
   /** Mismo criterio que actualizarPropio: el acceso parcial no cambia sus credenciales. */
   async cambiarPassword(id: number, actual: string, nueva: string) {
     if (!this.passwordCabeEnBcrypt(nueva)) {
@@ -235,6 +324,9 @@ export class LoginService {
     if (!usuario) throw new NotFoundException('No se encontró la cuenta');
     if (usuario.rol_ID === ROL.SOPORTE || usuario.rol_ID === ROL.ADMINISTRADOR) {
       throw new ForbiddenException('El perfil del personal no permite cambiar la contraseña');
+    }
+    if (!usuario.contra_usuario) {
+      throw new ForbiddenException('Las cuentas apadrinadas usan la contraseña de la cuenta principal');
     }
     if (usuario.estado_ID !== 1) throw new ForbiddenException('El acceso parcial no permite cambiar la contraseña');
     if (!(await bcrypt.compare(actual, usuario.contra_usuario))) {
@@ -260,6 +352,9 @@ export class LoginService {
     }
     if (!cambios.nombre_usuario && !cambios.correo_usuario && !(cambios as ActualizarMiUsuarioPropioDto).PIN) {
       throw new BadRequestException('Debes indicar los datos a modificar');
+    }
+    if (cambios.correo_usuario && usuario.usuario_principal_ID !== null) {
+      throw new BadRequestException('Las cuentas apadrinadas no tienen correo propio');
     }
 
     const nuevoCorreo = cambios.correo_usuario?.trim().toLowerCase();
@@ -366,7 +461,8 @@ export class LoginService {
       rol_ID,
       estado_ID,
       usuario_principal_ID,
-      requiere_pin: usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
+      // Administradores y trabajadores no usan PIN.
+      requiere_pin: usuario.rol_ID === ROL.USUARIO && usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
     };
   }
 

@@ -14,9 +14,16 @@ const Perfil: React.FC = () => {
     saveSession(
       await apiFetch<SessionUser>('/usuarios/me', {
         method: 'PATCH',
-        body: JSON.stringify({ nombre_usuario, correo_usuario, PIN_principal }),
+        body: JSON.stringify({ nombre_usuario, correo_usuario: correo_usuario || undefined, PIN_principal }),
       }),
     );
+  }
+
+  async function cambiarPassword(password_actual: string, password_nueva: string) {
+    await apiFetch('/usuarios/me/password', {
+      method: 'PATCH',
+      body: JSON.stringify({ password_actual, password_nueva }),
+    });
   }
 
   return (
@@ -24,7 +31,7 @@ const Perfil: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/home" />
+            <IonBackButton defaultHref="/home" text="Volver" />
           </IonButtons>
           <IonTitle>Modificar usuario</IonTitle>
         </IonToolbar>
@@ -37,6 +44,7 @@ const Perfil: React.FC = () => {
             accesoParcial={user.estado_ID !== undefined && !accesoCompleto(user)}
             onGuardar={guardar}
             api={perfilDatos}
+            onCambiarPassword={cambiarPassword}
           />
         )}
       </IonContent>

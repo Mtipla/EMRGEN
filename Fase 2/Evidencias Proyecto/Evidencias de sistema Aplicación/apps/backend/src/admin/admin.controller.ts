@@ -102,4 +102,12 @@ export class AdminController {
   ) {
     return this.adminService.eliminarUsuarioApadrinado(id, request.user);
   }
+
+  @Delete('soporte/:id')
+  eliminarTrabajadorSoporte(
+    @Req() request: { user: UsuarioSesion },
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.adminService.eliminarTrabajadorSoporte(id, request.user);
+  }
 }

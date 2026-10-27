@@ -1,4 +1,4 @@
-import { Fragment, useId, useState, type FormEvent } from "react";
+import { Fragment, useId, useState, type FormEvent, type ReactNode } from "react";
 import { avisar, mensajeError } from "./avisos";
 import { PRIORIDADES } from "./mocks";
 import { ConfirmDialog, DataTable, type Column } from "./wireframe";
@@ -292,6 +292,8 @@ interface GestionTicketsProps extends Carga {
     ticketId: number,
     cambios: CambiosTicket,
   ) => Promise<unknown>;
+  /** Filtros que se muestran bajo el título. */
+  filtros?: ReactNode;
 }
 
 /** Gestión de tickets del personal (función documentada del rol SOPORTE). */
@@ -304,6 +306,7 @@ export const GestionTickets = ({
   cargando,
   error,
   onActualizar,
+  filtros,
 }: GestionTicketsProps) => {
   const [ticketSeleccionado, setTicketSeleccionado] = useState<Ticket | null>(edicionInicial?.ticket ?? null);
   const seleccion = tickets.find((t) => t.ticket_id === ticketSeleccionado?.ticket_id) ?? ticketSeleccionado;
@@ -355,6 +358,30 @@ export const GestionTickets = ({
     };
     if (Object.keys(cambios).length === 0)
       return setResultado({ ok: false, texto: "No hay cambios." });
+    await enviar(cambios);
+  }
+
+  /** Leído → EN PROCESO; solucionado → RESUELTO y rechazado → CERRADO, ambos con solución obligatoria. */
+  async function accionRapida(nuevoEstado: string, exigeSolucion: boolean) {
+    if (!seleccion || guardando || soloLectura) return;
+    if (exigeSolucion && !solucion.trim())
+      return setResultado({
+        ok: false,
+        texto: "Escribe la solución o el motivo antes de continuar.",
+      });
+    setEstado(nuevoEstado);
+    if (nuevoEstado === "CERRADO" && seleccion.estado !== "CERRADO") {
+      setConfirmandoCierre(true);
+      return;
+    }
+    await enviar({
+      estado: nuevoEstado,
+      ...(solucion.trim() && { solucion: solucion.trim() }),
+    });
+  }
+
+  async function enviar(cambios: CambiosTicket) {
+    if (!seleccion) return;
     setGuardando(true);
     try {
       await onActualizar(seleccion.ticket_id, cambios);
@@ -363,8 +390,8 @@ export const GestionTickets = ({
         ...(cambios.estado && { estado: cambios.estado }),
         ...(cambios.solucion && { solucion: cambios.solucion }),
       });
-      if (verificar) setEstado("EN PROCESO");
-      setResultado({ ok: true, texto: verificar ? "Verificación enviada al administrador. Ticket EN PROCESO." : "Ticket actualizado." });
+      if (cambios.enviar_verificacion) setEstado("EN PROCESO");
+      setResultado({ ok: true, texto: cambios.enviar_verificacion ? "Verificación enviada al administrador. Ticket EN PROCESO." : "Ticket actualizado." });
     } catch (causa) {
       setResultado({
         ok: false,
@@ -378,6 +405,7 @@ export const GestionTickets = ({
   return (
     <section className="wf-card wf-support-admin">
       <h1>Administrar Tickets de soporte</h1>
+      {filtros}
       <p className="wf-muted">
         Selecciona un ticket para ver su descripción y responder.
       </p>
@@ -464,6 +492,30 @@ export const GestionTickets = ({
             </button>
             {!soloLectura && !esAdministrador && <button type="button" className="wf-button wf-button--secondary"
               disabled={guardando} onClick={() => void guardar(false, true)}>Enviar verificación a Administrador</button>}
+            {!soloLectura && esAdministrador && <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={guardando}
+              onClick={() => void accionRapida("EN PROCESO", false)}
+            >
+              Marcar como leído
+            </button>}
+            {!soloLectura && <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={guardando}
+              onClick={() => void accionRapida("RESUELTO", true)}
+            >
+              Solucionado
+            </button>}
+            {!soloLectura && <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={guardando}
+              onClick={() => void accionRapida("CERRADO", true)}
+            >
+              Rechazar
+            </button>}
             {!soloLectura && <button
               type="submit"
               className="wf-button"

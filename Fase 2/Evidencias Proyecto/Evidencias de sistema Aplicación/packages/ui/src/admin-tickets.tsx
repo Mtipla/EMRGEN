@@ -99,32 +99,6 @@ export function AdminTickets({
 
   return (
     <>
-      <section className="wf-card wf-form" aria-label="Filtros de tickets">
-        <p className="wf-muted">
-          Solicitudes enviadas por los usuarios desde Solicitar soporte. La
-          bandeja se actualiza cada 15 segundos.
-        </p>
-        <label>
-          Filtrar por estado
-          <select
-            value={consulta.estado}
-            onChange={(e) => cambiarConsulta(e.target.value, 0)}
-          >
-            <option value="">Todos los estados</option>
-            {estados.map((estado) => (
-              <option key={estado.id}>{estado.nombre}</option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="button"
-          className="wf-button wf-button--secondary"
-          disabled={bandeja.cargando}
-          onClick={() => setVersion((v) => v + 1)}
-        >
-          Actualizar tickets
-        </button>
-      </section>
       <GestionTickets
         esAdministrador={esAdministrador}
         edicionInicial={retorno?.edicion}
@@ -134,6 +108,34 @@ export function AdminTickets({
         estados={estados}
         cargando={bandeja.cargando}
         error={bandeja.error || errorEstados}
+        filtros={
+          <div className="wf-form" aria-label="Filtros de tickets">
+            <p className="wf-muted">
+              Solicitudes enviadas por los usuarios desde Solicitar soporte. La
+              bandeja se actualiza cada 15 segundos.
+            </p>
+            <label>
+              Filtrar por estado
+              <select
+                value={consulta.estado}
+                onChange={(e) => cambiarConsulta(e.target.value, 0)}
+              >
+                <option value="">Todos los estados</option>
+                {estados.map((estado) => (
+                  <option key={estado.id}>{estado.nombre}</option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={bandeja.cargando}
+              onClick={() => setVersion((v) => v + 1)}
+            >
+              Actualizar tickets
+            </button>
+          </div>
+        }
         onActualizar={async (id, cambios) => {
           await actualizar(id, cambios);
           setBandeja((actual) => ({ ...actual, tickets: actual.tickets.map((t) => t.ticket_id === id ? {

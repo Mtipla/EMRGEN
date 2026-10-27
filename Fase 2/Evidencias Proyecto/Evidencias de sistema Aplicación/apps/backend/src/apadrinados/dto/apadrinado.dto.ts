@@ -1,13 +1,17 @@
-import { IsBoolean, IsOptional, Matches } from 'class-validator';
-import { CrearUsuarioDto } from '../../login/dto/crear-usuario.dto';
+import { IsBoolean, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
-/** Cuenta apadrinada nueva: correo y contraseña propios (UsuariosService.crearUsuarioApadrinado). */
-export class CrearApadrinadoDto extends CrearUsuarioDto {
+/** Cuenta apadrinada nueva: solo nombre, acceso y PIN; entra con el correo y la contraseña de la principal. */
+export class CrearApadrinadoDto {
+  // Largo máximo de USUARIO.nombre_usuario.
+  @IsString()
+  @MinLength(2)
+  @MaxLength(50)
+  nombre_usuario!: string;
+
   @IsBoolean()
   acceso_completo!: boolean;
 
-  // Obligatorio con acceso completo; con acceso parcial el apadrinado usa el PIN de su principal.
-  @IsOptional()
+  // PIN del perfil: temporal con acceso completo (lo cambia al entrar); fijo con acceso parcial.
   @Matches(/^\d{4}$/, { message: 'El PIN debe tener exactamente 4 dígitos' })
-  PIN?: string;
+  PIN!: string;
 }

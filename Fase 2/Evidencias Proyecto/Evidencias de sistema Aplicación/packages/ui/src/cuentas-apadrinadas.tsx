@@ -174,20 +174,18 @@ export const CuentasApadrinadas = ({
   );
 };
 
-/** Fila de GET /usuarios/me/vinculadas. Correo, acceso y PIN solo llegan al principal. */
+/** Fila de GET /usuarios/me/vinculadas. Acceso y PIN solo llegan al principal. */
 export interface CuentaVinculada {
   usuario_ID: number;
   nombre_usuario: string;
   tipo: "PRINCIPAL" | "APADRINADO";
-  correo_usuario?: string;
   estado_ID?: number;
   tiene_pin?: boolean;
 }
 
+/** Sin correo ni contraseña: el apadrinado entra con los de la cuenta principal y su PIN. */
 export interface NuevaCuenta {
   nombre_usuario: string;
-  correo_usuario: string;
-  password: string;
   acceso_completo: boolean;
   PIN?: string;
 }
@@ -332,8 +330,6 @@ export const GestionApadrinados = ({
             <h3>Cuenta {i + 1}</h3>
             <p>
               Cuenta usada por: <strong>{cuenta.nombre_usuario}</strong>
-              <br />
-              <span className="wf-muted">{cuenta.correo_usuario}</span>
             </p>
             <p>
               PIN de ingreso:{" "}
@@ -344,11 +340,11 @@ export const GestionApadrinados = ({
               )}{" "}
               <button
                 type="button"
-                className="wf-link"
+                className="wf-button wf-button--secondary"
                 disabled={ocupado}
                 onClick={() => setModal({ tipo: "pin", cuenta })}
               >
-                {cuenta.tiene_pin ? "Cambiar PIN" : "Crear PIN"}
+                {cuenta.tiene_pin ? "Regenerar PIN" : "Generar PIN"}
               </button>
             </p>
             <label className="wf-row">
@@ -420,7 +416,11 @@ export const GestionApadrinados = ({
       {modal?.tipo === "pin" && (
         <PinDialog
           title={`PIN de "${modal.cuenta.nombre_usuario}"`}
-          info={`Debes crear el PIN de 4 dígitos de "${modal.cuenta.nombre_usuario}". Lo usará para ingresar y para cerrar sus alertas.`}
+          info={
+            modal.cuenta.estado_ID === ACCESO.COMPLETO
+              ? `PIN de primer acceso para "${modal.cuenta.nombre_usuario}". Al entrar a su perfil deberá reemplazarlo por uno propio.`
+              : `PIN del perfil de "${modal.cuenta.nombre_usuario}". Con acceso parcial no podrá cambiarlo.`
+          }
           onClose={cerrar}
           onSubmit={(pin) => {
             const cuenta = modal.cuenta;
@@ -466,8 +466,6 @@ export const GestionApadrinados = ({
   );
 };
 
-const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 /** Alta de un apadrinado con validación en vivo (verde = correcto, rojo = revisar). */
 const NuevaCuentaDialog = ({
   numero,
@@ -479,8 +477,6 @@ const NuevaCuentaDialog = ({
   onCrear: (datos: NuevaCuenta) => Promise<void>;
 }) => {
   const [nombre, setNombre] = useState("");
-  const [correo, setCorreo] = useState("");
-  const [password, setPassword] = useState("");
   const [completo, setCompleto] = useState(false);
   const [pin, setPin] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -488,9 +484,7 @@ const NuevaCuentaDialog = ({
   // null = campo vacío (sin color); true/false = válido/inválido.
   const estados = {
     nombre: nombre ? nombre.trim().length >= 2 : null,
-    correo: correo ? CORREO.test(correo.trim()) : null,
-    password: password ? password.length >= 8 : null,
-    pin: completo ? (pin ? /^\d{4}$/.test(pin) : null) : true,
+    pin: pin ? /^\d{4}$/.test(pin) : null,
   };
   const clase = (ok: boolean | null) =>
     ok === null ? undefined : ok ? "wf-valido" : "wf-invalido";
@@ -510,10 +504,8 @@ const NuevaCuentaDialog = ({
     setEnviando(true);
     await onCrear({
       nombre_usuario: nombre.trim(),
-      correo_usuario: correo.trim(),
-      password,
       acceso_completo: completo,
-      ...(completo && { PIN: pin }),
+      PIN: pin,
     });
     setEnviando(false);
   }
@@ -532,31 +524,10 @@ const NuevaCuentaDialog = ({
           />
           {ayuda(estados.nombre, "Nombre válido", "Mínimo 2 caracteres")}
         </label>
-        <label>
-          Correo de la cuenta
-          <input
-            type="email"
-            className={clase(estados.correo)}
-            value={correo}
-            maxLength={100}
-            onChange={(e) => setCorreo(e.target.value)}
-            required
-          />
-          {ayuda(estados.correo, "Correo válido", "Correo no válido")}
-        </label>
-        <label>
-          Contraseña
-          <input
-            type="password"
-            autoComplete="new-password"
-            className={clase(estados.password)}
-            value={password}
-            maxLength={72}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          {ayuda(estados.password, "Largo suficiente", "Mínimo 8 caracteres")}
-        </label>
+        <p className="wf-muted">
+          Esta cuenta no tiene correo ni contraseña: entra con los de tu cuenta
+          principal, elige su perfil y escribe su PIN.
+        </p>
         <label className="wf-row">
           <input
             type="checkbox"
@@ -567,24 +538,22 @@ const NuevaCuentaDialog = ({
         </label>
         <p className="wf-muted">
           {completo
-            ? "Con acceso completo la cuenta edita su perfil y usa su propio PIN."
-            : "Con acceso parcial la cuenta no edita su perfil y usa tu PIN para cerrar alertas."}
+            ? "Con acceso completo la cuenta edita su perfil; el PIN que defines es de primer acceso y deberá cambiarlo al entrar."
+            : "Con acceso parcial la cuenta no edita su perfil ni puede cambiar el PIN que defines; usa tu PIN para cerrar alertas."}
         </p>
-        {completo && (
-          <label>
-            PIN de 4 dígitos de la cuenta
-            <input
-              type="password"
-              inputMode="numeric"
-              className={clase(estados.pin)}
-              value={pin}
-              onChange={(e) =>
-                setPin(e.target.value.replace(/\D/g, "").slice(0, 4))
-              }
-            />
-            {ayuda(estados.pin, "PIN válido", "Deben ser 4 dígitos")}
-          </label>
-        )}
+        <label>
+          {completo ? "PIN de primer acceso" : "PIN del perfil"}
+          <input
+            type="password"
+            inputMode="numeric"
+            className={clase(estados.pin)}
+            value={pin}
+            onChange={(e) =>
+              setPin(e.target.value.replace(/\D/g, "").slice(0, 4))
+            }
+          />
+          {ayuda(estados.pin, "PIN válido", "Deben ser 4 dígitos")}
+        </label>
         <div className="wf-actions">
           <button
             type="button"

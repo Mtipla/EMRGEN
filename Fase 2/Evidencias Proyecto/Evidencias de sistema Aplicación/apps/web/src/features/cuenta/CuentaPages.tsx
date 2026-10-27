@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { downloadBlob } from '@repo/api-client'
 import { GestionApadrinados, apadrinadosApi } from '@repo/ui/cuentas-apadrinadas'
 import { PerfilForm, perfilApi } from '@repo/ui/perfil-form'
 import { ResumenCuenta } from '@repo/ui/resumen-cuenta'
 import { accesoCompleto, perfilDe, visible, type Accion } from '@repo/ui/permisos'
 import { SolicitudSoporte, type Catalogo, type Ticket } from '@repo/ui/soporte'
-import { NumerosEmergencia, Pendiente } from '@repo/ui/wireframe'
+import { NumerosEmergencia } from '@repo/ui/wireframe'
 import type { AuthenticatedUser } from '../auth/AuthForm'
 import { apiFetch, internalFetch, useCupos, useRemote } from './session'
 
@@ -45,11 +47,34 @@ export function HomePage({ user }: { user: AuthenticatedUser }) {
         <section className="wf-card">
           <h2>Cuentas vinculadas</h2>
           <CuentasVinculadas esPrincipal={perfil === 'USUARIO'} />
-          {/* HU-19 / RF22: no hay endpoint de informe personal (jsReport solo se usa en la bitácora). */}
-          <Pendiente>informe personal de actividad (HU-19)</Pendiente>
-          <button type="button" className="wf-button wf-button--secondary" disabled>Descargar informe</button>
+          <DescargarInforme />
         </section>
       )}
+    </>
+  )
+}
+
+/** HU-19 / RF22: GET /usuarios/me/informe, PDF de jsReport con la cuenta propia y sus apadrinados. */
+function DescargarInforme() {
+  const [estado, setEstado] = useState({ cargando: false, error: '' })
+
+  async function descargar() {
+    setEstado({ cargando: true, error: '' })
+    try {
+      const pdf = await apiFetch<Blob>('/usuarios/me/informe', { headers: { Accept: 'application/pdf' } })
+      downloadBlob(pdf, `informe-personal-${new Date().toISOString().slice(0, 10)}.pdf`)
+      setEstado({ cargando: false, error: '' })
+    } catch (cause) {
+      setEstado({ cargando: false, error: (cause as Error).message })
+    }
+  }
+
+  return (
+    <>
+      <button type="button" className="wf-button wf-button--secondary" disabled={estado.cargando} onClick={() => void descargar()}>
+        {estado.cargando ? 'Generando informe…' : 'Descargar informe'}
+      </button>
+      {estado.error && <p className="wf-message wf-message--error" role="alert">No se pudo generar el informe: {estado.error}</p>}
     </>
   )
 }
@@ -102,7 +127,7 @@ export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
   async function guardar(nombre_usuario: string, correo_usuario: string, PIN_principal?: string) {
     const updated = await apiFetch<AuthenticatedUser>('/usuarios/me', {
       method: 'PATCH',
-      body: JSON.stringify({ nombre_usuario, correo_usuario, PIN_principal }),
+      body: JSON.stringify({ nombre_usuario, correo_usuario: correo_usuario || undefined, PIN_principal }),
     })
     localStorage.setItem('emergen.user', JSON.stringify(updated))
     onUserUpdated(updated)

@@ -77,7 +77,7 @@ describe('WhatsappAlertService', () => {
     expect(result.sent).toBe(1);
     expect(connection.send).toHaveBeenCalledTimes(1);
     expect(connection.send.mock.calls[0][1]).toEqual({
-      text: 'MENSAJE MEDIANTE APLICACIÓN EMERGEN\n\nLa alerta reciente del usuario Ana de correo ana@emergen.test, ha sido FINALIZADA',
+      text: 'MENSAJE MEDIANTE APLICACIÓN EMERGEN\n------------------------------------\nLa alerta reciente del usuario Ana de correo ana@emergen.test, ha sido FINALIZADA',
     });
   });
 

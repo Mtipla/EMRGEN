@@ -1,2 +1,152 @@
-/* For information on how to create your own theme, please refer to:
-http://ionicframework.com/docs/theming/ */
+/* Tema móvil de EMERGEN: mismo acento coral que la web, con más contraste y profundidad.
+   Ionic: http://ionicframework.com/docs/theming/ */
+:root {
+  --ion-color-primary: #e64b35;
+  --ion-color-primary-rgb: 230, 75, 53;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #ca422f;
+  --ion-color-primary-tint: #e95d49;
+
+  --ion-color-secondary: #1e2a44;
+  --ion-color-secondary-rgb: 30, 42, 68;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #1a253c;
+  --ion-color-secondary-tint: #353f57;
+
+  /* Tokens que lee wireframe.css (UI compartida). */
+  --color-accent: #e64b35;
+  --color-heading: #162235;
+  --color-border: #e2e8f0;
+
+  --mobile-gradiente: linear-gradient(135deg, #ff6a3d 0%, #e64b35 45%, #b8233f 100%);
+  --mobile-fondo: linear-gradient(180deg, #fff4f1 0%, #f6f7fb 55%);
+  --mobile-sombra: 0 14px 34px rgb(184 35 63 / 18%);
+}
+
+/* Barra superior con degradado de marca. */
+ion-toolbar {
+  --background: var(--mobile-gradiente);
+  --color: #fff;
+  --border-width: 0;
+}
+
+ion-toolbar ion-title {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+ion-toolbar ion-button,
+ion-toolbar ion-back-button {
+  --color: #fff;
+  font-weight: 700;
+}
+
+ion-header {
+  box-shadow: var(--mobile-sombra);
+}
+
+ion-content {
+  --background: var(--mobile-fondo);
+}
+
+ion-content h1 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Botones de Ionic: más altos, redondeados y con sombra. */
+ion-button {
+  --border-radius: 14px;
+  min-height: 3rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
+ion-button[fill="solid"],
+ion-button:not([fill]) {
+  --background: var(--mobile-gradiente);
+  --box-shadow: var(--mobile-sombra);
+}
+
+ion-button[fill="outline"] {
+  --border-width: 2px;
+}
+
+ion-input {
+  --background: #fff;
+  --color: #162235;
+  --placeholder-color: #64748b;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --highlight-color-focused: var(--ion-color-primary);
+  margin-bottom: 0.75rem;
+  border-radius: 12px;
+}
+
+/* IonCard con el mismo aspecto que .wf-card: fondo blanco, tinta y títulos iguales. */
+ion-card {
+  --background: #fff;
+  --color: #263449;
+  margin-inline: 0;
+  border-radius: 20px;
+  box-shadow: var(--mobile-sombra);
+}
+
+ion-card-title {
+  --color: #162235;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.wf-card,
+.wf-modal {
+  font-family: var(--ion-font-family, inherit);
+}
+
+.wf-card h1,
+.wf-card h2,
+.wf-modal h2 {
+  font-weight: 800;
+}
+
+/* Tarjetas compartidas (wireframe.css) sobre el fondo con degradado. */
+.wf-card {
+  border: 0;
+  border-radius: 20px;
+  box-shadow: var(--mobile-sombra);
+}
+
+.wf-button {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 14px;
+  background: var(--mobile-gradiente);
+  box-shadow: 0 8px 18px rgb(230 75 53 / 28%);
+}
+
+.wf-button--secondary {
+  border: 2px solid var(--color-accent);
+  background: #fff;
+  box-shadow: none;
+}
+
+.wf-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Celular: las tarjetas de cuentas apadrinadas ocupan todo el ancho. */
+@media (max-width: 600px) {
+  .wf-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wf-actions {
+    justify-content: stretch;
+  }
+
+  .wf-actions > .wf-button {
+    flex: 1 1 auto;
+  }
+}

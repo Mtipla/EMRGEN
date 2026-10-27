@@ -128,3 +128,12 @@ def test_en_proceso_solo_admin_puede_modificar_sin_escrituras_de_soporte(client,
     assert r.json()["solucion"] == "Respuesta revisada"
     assert client.patch(f"{URL}/{tid}", headers=token(admin), json={"estado": "ABIERTO"}).status_code == 200
     assert client.patch(f"{URL}/{tid}", headers=token(soporte), json={"solucion": "Respuesta tras reapertura"}).status_code == 200
+
+
+def test_ticket_cerrado_no_se_reabre_sin_motivo(client, crear_usuario):
+    user = crear_usuario(); staff = crear_usuario(rol_id=1)
+    tid = client.post(URL, headers=token(user), json={"descripcion": "Caso", "categoria_id": 1}).json()["ticket_id"]
+    assert client.patch(f"{URL}/{tid}", headers=token(staff), json={"estado": "CERRADO", "solucion": "Rechazada: fuera de alcance", "confirmar_cierre": True}).status_code == 200
+    assert client.patch(f"{URL}/{tid}", headers=token(staff), json={"estado": "EN PROCESO"}).status_code == 400
+    r = client.patch(f"{URL}/{tid}", headers=token(staff), json={"estado": "EN PROCESO", "solucion": "Reabierto: faltaban datos"})
+    assert r.status_code == 200 and r.json()["estado"] == "EN PROCESO"

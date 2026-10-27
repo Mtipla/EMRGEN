@@ -24,23 +24,29 @@ const MENU: { to: string; label: string; accion: Accion }[] = [
   { to: '/soporte', label: 'Solicitar soporte', accion: 'soporte.solicitar' },
 ]
 
-/** Cabecera FIND ME con el menú de usuario; el backend sigue siendo quien autoriza cada acción. */
+/** Cabecera EMERGEN con el menú de usuario; el backend sigue siendo quien autoriza cada acción. */
 export function AppShell({ user, onLogout, children }: AppShellProps) {
   const perfil = perfilDe(user)
   const [open, setOpen] = useState(false)
+  const enlaces = (
+    <>
+      <Link to="/#como-funciona">¿Cómo funciona?</Link>
+      <Link to="/#descargar-app">Descargar App</Link>
+      <Link to="/#preguntas-frecuentes">Preguntas frecuentes</Link>
+      {visible(user, 'compras.comprar') && (
+        <Link to={user.plan_efectivo ? '/comprar' : '/premium'}>
+          {user.plan_efectivo ? 'Comprar cupos de cuentas' : 'Comprar Premium'}
+        </Link>
+      )}
+    </>
+  )
 
   return (
     <div className="wf-shell">
       <header className="wf-header">
-        <Link to="/inicio" className="wf-brand">FIND ME</Link>
-        <Link to="/#como-funciona">¿Cómo funciona?</Link>
-        <Link to="/#descargar-app">Descargar App</Link>
-        <Link to="/#preguntas-frecuentes">Preguntas frecuentes</Link>
-        {visible(user, 'compras.comprar') && (
-          <Link to={user.plan_efectivo ? '/comprar' : '/premium'}>
-            {user.plan_efectivo ? 'Comprar cupos de cuentas' : 'Comprar Premium'}
-          </Link>
-        )}
+        <Link to="/inicio" className="wf-brand">EMERGEN</Link>
+        {/* En pantallas angostas estos enlaces pasan al menú de usuario (wireframe.css). */}
+        <nav className="wf-header-links" aria-label="Secciones">{enlaces}</nav>
 
         <div className="wf-menu">
           <button type="button" className="wf-link" aria-expanded={open} onClick={() => setOpen(!open)}>
@@ -49,6 +55,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
           {open && (
             <nav className="wf-menu-list" aria-label="Menú de usuario" onClick={() => setOpen(false)}>
               <span className="wf-muted">{perfil ? ETIQUETA_PERFIL[perfil] : 'Perfil sin rol (vuelve a iniciar sesión)'}</span>
+              <div className="wf-menu-secciones">{enlaces}</div>
               {/* Mockup pág. 29: sin Premium no aparece "Administrar cuentas". */}
               {MENU.filter((item) => visible(user, item.accion) &&
                 (perfil !== 'SOPORTE' || item.to === '/perfil' || item.to.startsWith('/administracion/'))).map((item) => (

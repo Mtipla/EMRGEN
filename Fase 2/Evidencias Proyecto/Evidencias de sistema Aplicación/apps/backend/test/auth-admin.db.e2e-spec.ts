@@ -76,13 +76,14 @@ db('Contrato final: login, PIN, administración y auditoría PostgreSQL', () => 
     await http().put('/admin/usuarios/'+id+'/estado').set(auth(admin)).send({estado_ID:3}).expect(400);
     await http().put('/admin/usuarios/'+id+'/estado').set(auth(admin)).send({estado_ID:2,admin_ID:id}).expect(400);
   });
-  it('plan vigente, capacidad derivada y apadrinado con login independiente',async()=>{
+  it('plan vigente, capacidad derivada y apadrinado como perfil de la principal',async()=>{
     const plan=await http().put('/admin/usuarios/'+id+'/plan').set(auth(admin)).send({plan_ID:2,cupos_apadrinados_adq:2}).expect(200);
     expect(plan.body).toMatchObject({plan_ID:2,cupos_ocupados:0,cupos_disponibles:2});
-    await expect(users.crearUsuarioApadrinado(id,{nombre_usuario:'Hijo',correo_usuario:'child.'+suffix+'@emergen.test',password,estado_ID:1})).rejects.toThrow('PIN');
-    const row=await users.crearUsuarioApadrinado(id,{nombre_usuario:'Hijo',correo_usuario:'child.'+suffix+'@emergen.test',password,estado_ID:1,pin:'1234'});
-    child=row.usuario_ID;
-    const r=await http().post('/usuarios/login').send({correo_usuario:row.correo_usuario,password}).expect(201);
+    await expect(users.crearUsuarioApadrinado(id,{nombre_usuario:'Hijo',estado_ID:1})).rejects.toThrow('PIN');
+    const row=await users.crearUsuarioApadrinado(id,{nombre_usuario:'Hijo',estado_ID:1,pin:'1234'});
+    child=row.usuario_ID;expect(row.correo_usuario).toBeNull();
+    // Entra con el correo y la contraseña de la principal; su PIN temporal se cambia en el mismo ingreso.
+    const r=await http().post('/usuarios/login').send({correo_usuario:email,password,perfil_ID:child,PIN:'1234',PIN_nuevo:'4321'}).expect(201);
     expect(r.body.usuario.usuario_ID).toBe(child);expect(r.body.usuario.requiere_pin).toBe(false);
     await http().put('/admin/usuarios/'+child+'/plan').set(auth(admin)).send({plan_ID:2,cupos_apadrinados_adq:1}).expect(400);
     const expediente=await http().get('/admin/usuarios/'+id).set(auth(admin)).expect(200);
@@ -90,9 +91,9 @@ db('Contrato final: login, PIN, administración y auditoría PostgreSQL', () => 
     await http().put('/admin/usuarios/'+id+'/plan').set(auth(admin)).send({plan_ID:2,cupos_apadrinados_adq:0}).expect(400);
     await http().delete('/usuarios/'+id).set(auth(admin)).expect(409);
   });
-  it('correo del apadrinado editable y único; borrar conserva capacidad y auditoría',async()=>{
-    await http().patch('/admin/usuarios/'+child).set(auth(admin)).send({correo_usuario:email}).expect(409);
-    await http().patch('/admin/usuarios/'+child).set(auth(admin)).send({correo_usuario:'renamed.'+suffix+'@emergen.test'}).expect(200);
+  it('el apadrinado no admite correo propio; borrar conserva capacidad y auditoría',async()=>{
+    await http().patch('/admin/usuarios/'+child).set(auth(admin)).send({correo_usuario:'renamed.'+suffix+'@emergen.test'}).expect(400);
+    await http().patch('/admin/usuarios/'+child).set(auth(admin)).send({nombre_usuario:'Hijo renombrado'}).expect(200);
     const removed=child;
     await http().delete('/admin/usuarios/apadrinado/'+child).set(auth(admin)).expect(200);child=0;
     const [plan]=await source.query('SELECT cupos_apadrinados_adq FROM plan_usuario WHERE usuario_id=$1',[id]);
@@ -101,10 +102,11 @@ db('Contrato final: login, PIN, administración y auditoría PostgreSQL', () => 
     expect(log).toHaveLength(1);expect(log[0].usuario_afectado_id).toBeNull();
     expect(log[0].rol_actor_id).toBe(1);expect(log[0].fecha_accion).toBeInstanceOf(Date);
   });
-  it('soporte inicia parcial y configura su PIN antes de tener facultades; errores no filtran SQL',async()=>{
+  it('soporte nace habilitado sin PIN y se puede eliminar; errores no filtran SQL',async()=>{
     const r=await http().post('/admin/usuarios/soporte').set(auth(admin)).send({nombre_usuario:'Soporte Prueba',correo_usuario:'staff.'+suffix+'@emergen.test',password}).expect(201);
-    created.push(r.body.usuario_ID);expect(r.body.estado_ID).toBe(2);
-    await http().put('/admin/usuarios/'+r.body.usuario_ID+'/estado').set(auth(admin)).send({estado_ID:1}).expect(400);
+    expect(r.body.estado_ID).toBe(1);
+    await http().delete('/admin/usuarios/soporte/'+id).set(auth(admin)).expect(400);
+    await http().delete('/admin/usuarios/soporte/'+r.body.usuario_ID).set(auth(admin)).expect(200);
     const fail=await http().put('/admin/usuarios/'+id+'/plan').set(auth(admin)).send({plan_ID:999999,cupos_apadrinados_adq:2}).expect(409);
     expect(JSON.stringify(fail.body)).not.toMatch(/INSERT INTO|constraint|QueryFailed/);
   });

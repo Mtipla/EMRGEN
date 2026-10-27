@@ -69,7 +69,7 @@ def test_parcial_pin_tutor_completo_pin_propio(client,db,crear_usuario):
     assert close(client,parent,aid).status_code==200
     aid=create(client,complete)["alerta_id"]
     # El propio no se copia del principal: se sustituye por hash real de fixture completo (1234).
-    db.execute("UPDATE pin SET pin_hash=(SELECT p.pin_hash FROM pin p JOIN usuario u USING(pin_id) WHERE u.correo_usuario='completo@emergen.test') WHERE pin_id=(SELECT pin_id FROM usuario WHERE usuario_id=%s)",(complete,))
+    db.execute("UPDATE pin SET pin_hash=(SELECT p.pin_hash FROM pin p JOIN usuario u USING(pin_id) WHERE u.nombre_usuario='Apadrinado Completo' AND u.usuario_principal_id IS NOT NULL LIMIT 1) WHERE pin_id=(SELECT pin_id FROM usuario WHERE usuario_id=%s)",(complete,))
     assert close(client,parent,aid).status_code==403
     assert close(client,complete,aid,"1234").status_code==200
 

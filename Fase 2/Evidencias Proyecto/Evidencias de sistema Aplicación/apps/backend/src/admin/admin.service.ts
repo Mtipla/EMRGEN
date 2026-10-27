@@ -246,7 +246,8 @@ export class AdminService {
           throw new NotFoundException('El usuario no existe en la base de datos');
         }
 
-        if (nuevoEstadoId === 1 && usuario.PIN_ID === null) {
+        // Solo las cuentas de usuario usan PIN; administradores y trabajadores no.
+        if (nuevoEstadoId === 1 && usuario.rol_ID === ROL.USUARIO && usuario.PIN_ID === null) {
           throw new BadRequestException('Configura el PIN propio antes de habilitar acceso completo');
         }
         const estadoAnterior = usuario.estado_ID;
@@ -323,10 +324,33 @@ export class AdminService {
 
   // DELETE: Eliminar un usuario apadrinado
   async eliminarUsuarioApadrinado(idUsuario: number, actor: ActorAuditoria): Promise<void> {
+    return this.eliminarCuenta(idUsuario, actor, 'usuario apadrinado', (usuario) => {
+      if (usuario.usuario_principal_ID === null) {
+        throw new BadRequestException('No se puede eliminar una cuenta principal desde este método');
+      }
+    });
+  }
+
+  // DELETE: Eliminar un trabajador (rol SOPORTE)
+  async eliminarTrabajadorSoporte(idUsuario: number, actor: ActorAuditoria): Promise<void> {
+    return this.eliminarCuenta(idUsuario, actor, 'trabajador', (usuario) => {
+      if (usuario.rol_ID !== ROL.SOPORTE) {
+        throw new BadRequestException('La cuenta indicada no es un trabajador');
+      }
+    });
+  }
+
+  private async eliminarCuenta(
+    idUsuario: number,
+    actor: ActorAuditoria,
+    tipoCuenta: string,
+    validar: (usuario: Usuario) => void,
+  ): Promise<void> {
+    const accion = `Eliminación de ${tipoCuenta} ${idUsuario}`;
     return this.auditoriaService.auditar(
       {
         actor,
-        accion: `Eliminación de usuario apadrinado ${idUsuario}`,
+        accion,
         tipo: TIPO_ACCION.ELIMINACION,
         entidad: ENTIDAD_AUDITADA.USUARIO,
         usuario_afectado_ID: idUsuario,
@@ -338,18 +362,16 @@ export class AdminService {
         if (!usuario) {
           throw new NotFoundException('El usuario no existe en la base de datos');
         }
-        if (usuario.usuario_principal_ID === null) {
-          throw new BadRequestException('No se puede eliminar una cuenta principal desde este método');
-        }
+        validar(usuario);
 
         try {
-          await this.auditoriaService.registrar(manager, { actor, accion: `Eliminación de usuario apadrinado ${idUsuario}`, tipo: TIPO_ACCION.ELIMINACION, entidad: ENTIDAD_AUDITADA.USUARIO, usuario_afectado_ID: idUsuario });
+          await this.auditoriaService.registrar(manager, { actor, accion, tipo: TIPO_ACCION.ELIMINACION, entidad: ENTIDAD_AUDITADA.USUARIO, usuario_afectado_ID: idUsuario });
           await usuarios.delete(idUsuario);
         } catch (error) {
-          // Otras tablas (contactos, alertas, planes...) referencian al apadrinado.
+          // Otras tablas (contactos, alertas, tickets...) referencian a la cuenta.
           if (codigoPostgres(error) === PG_FOREIGN_KEY_VIOLATION) {
             throw new ConflictException(
-              'Resuelve los registros pendientes antes de eliminar el apadrinado',
+              `Resuelve los registros pendientes antes de eliminar el ${tipoCuenta}`,
             );
           }
           throw error;
@@ -357,7 +379,7 @@ export class AdminService {
         return {
           valor: undefined,
           auditoriaRegistrada: true,
-          // El usuario deja de existir: la bitácora conserva quién era y de quién dependía.
+          // La cuenta deja de existir: la bitácora conserva quién era y de quién dependía.
           cambios: {
             nombre_usuario: { antes: usuario.nombre_usuario, despues: null },
             usuario_principal_ID: { antes: usuario.usuario_principal_ID, despues: null },
@@ -384,9 +406,9 @@ export class AdminService {
 
         let usuarioGuardado: Usuario;
         try {
-          // Se fuerza el rol SOPORTE, con acceso parcial hasta configurar el PIN.
+          // Se fuerza el rol SOPORTE; el personal no usa PIN, así que nace habilitado.
           usuarioGuardado = await usuarios.save(
-            usuarios.create({ ...cuenta, rol_ID: ROL.SOPORTE, estado_ID: 2, usuario_principal_ID: null }),
+            usuarios.create({ ...cuenta, rol_ID: ROL.SOPORTE, estado_ID: 1, usuario_principal_ID: null }),
           );
         } catch (error) {
           throw this.loginService.traducirCorreoDuplicado(error);

@@ -9,13 +9,12 @@ import { createEmergenApi, createFirebaseAuth, initFirebase } from '@repo/api-cl
  */
 export const env = {
   apiUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:3000',
-  paypalClientId: import.meta.env.VITE_PAYPAL_CLIENT_ID ?? '',
   googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? '',
   googleMapsMapId: import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || undefined,
   firebaseApiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? '',
 };
 
-/** Cliente del backend: pagos, autenticación, reportes, geocodificación e indicadores económicos. */
+/** Cliente del backend: autenticación, reportes, geocodificación e indicadores económicos. Los pagos solo se hacen en la web. */
 export const api = createEmergenApi(env.apiUrl);
 
 /** Registro, inicio de sesión y refresco de tokens con Firebase Authentication. */

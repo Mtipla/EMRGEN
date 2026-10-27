@@ -44,31 +44,66 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-test('CA-01.1: correo ya registrado en la BD se rechaza sin pedir confirmación y se borra la cuenta de Firebase', async () => {
+test('CA-01.1: correo ya registrado en la BD se rechaza antes de crear la cuenta de Firebase', async () => {
   fetchMock.mockResolvedValue(respuesta(409, { message: 'El correo ingresado es inválido o ya se encuentra registrado' }))
   registrarse('apadrinado@emergen.test')
   expect((await screen.findAllByText('El correo ingresado es inválido o ya se encuentra registrado')).length).toBeGreaterThan(0)
-  expect(firebaseAuth.deleteAccount).toHaveBeenCalledWith(token(false))
+  expect(String(fetchMock.mock.calls[0][0])).toMatch(/\/usuarios\/registro\/validar$/)
+  expect(firebaseAuth.signUp).not.toHaveBeenCalled()
   expect(firebaseAuth.sendEmailVerification).not.toHaveBeenCalled()
   expect(screen.getByRole('heading', { name: 'Crear cuenta' })).toBeTruthy()
 })
 
 test('correo nuevo: el 403 del backend lleva a "Confirma tu correo" con el marco de la web', async () => {
-  fetchMock.mockResolvedValue(respuesta(403, { message: 'Debes confirmar tu correo antes de crear la cuenta' }))
+  fetchMock
+    .mockResolvedValueOnce(respuesta(201, { valido: true }))
+    .mockResolvedValue(respuesta(403, { message: 'Debes confirmar tu correo antes de crear la cuenta' }))
   registrarse('nueva@emergen.test')
   await screen.findByRole('heading', { name: 'Confirma tu correo' })
   expect(firebaseAuth.sendEmailVerification).toHaveBeenCalledWith(token(false))
   expect(firebaseAuth.deleteAccount).not.toHaveBeenCalled()
-  expect(screen.getByRole('link', { name: /FIND ME/ })).toBeTruthy()
-  expect(screen.queryByText('EMERGEN')).toBeNull()
+  expect(screen.getByRole('link', { name: /EMERGEN/ })).toBeTruthy()
   expect(document.querySelector('.auth-layout .auth-main .auth-card')).not.toBeNull()
 })
 
 test('regresión: con el correo ya confirmado se crea la cuenta como antes', async () => {
   vi.mocked(firebaseAuth.signUp).mockResolvedValue(sesion('ok@emergen.test', true))
-  fetchMock.mockResolvedValue(respuesta(201, { usuario_ID: 1 }))
+  fetchMock.mockImplementation(async () => respuesta(201, { usuario_ID: 1 }))
   registrarse('ok@emergen.test')
   await waitFor(() => expect(screen.getAllByText(/Correo confirmado y cuenta creada/).length).toBeGreaterThan(0))
-  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledTimes(2)
   expect(firebaseAuth.sendEmailVerification).not.toHaveBeenCalled()
+})
+
+test('cuenta tipo Netflix: contraseña de la principal, perfil, PIN y cambio obligatorio del PIN temporal', async () => {
+  const onAuthenticated = vi.fn()
+  fetchMock
+    .mockResolvedValueOnce(respuesta(201, { perfiles: [
+      { usuario_ID: 3, nombre_usuario: 'Principal', tipo: 'PRINCIPAL', tiene_pin: true },
+      { usuario_ID: 5, nombre_usuario: 'Ana', tipo: 'APADRINADO', tiene_pin: true },
+      { usuario_ID: 6, nombre_usuario: 'Luis', tipo: 'APADRINADO', tiene_pin: false },
+    ] }))
+    .mockResolvedValueOnce(respuesta(201, { cambio_pin_requerido: true }))
+    .mockResolvedValueOnce(respuesta(201, { access_token: 't', usuario: { usuario_ID: 5 } }))
+  render(<MemoryRouter><AuthForm onAuthenticated={onAuthenticated} /></MemoryRouter>)
+  fireEvent.change(screen.getByLabelText('Correo Electrónico'), { target: { value: 'principal@emergen.test' } })
+  fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'EmergenDev123!' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
+
+  await screen.findByRole('heading', { name: '¿Quién eres?' })
+  expect((screen.getByRole('button', { name: /Luis/ }) as HTMLButtonElement).disabled).toBe(true)
+  fireEvent.click(screen.getByRole('button', { name: 'Ana' }))
+  expect(screen.getByRole('heading', { name: 'PIN de Ana' })).toBeTruthy()
+  fireEvent.change(screen.getByLabelText('PIN'), { target: { value: '1234' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
+
+  fireEvent.change(await screen.findByLabelText('PIN nuevo'), { target: { value: '4321' } })
+  fireEvent.change(screen.getByLabelText('Repite el PIN nuevo'), { target: { value: '4321' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Cambiar PIN e ingresar' }))
+
+  await waitFor(() => expect(onAuthenticated).toHaveBeenCalled())
+  const cuerpos = fetchMock.mock.calls.map(([, init]) => JSON.parse(String(init?.body)))
+  expect(cuerpos[0]).not.toHaveProperty('PIN')
+  expect(cuerpos[1]).toMatchObject({ correo_usuario: 'principal@emergen.test', perfil_ID: 5, PIN: '1234' })
+  expect(cuerpos[2]).toMatchObject({ perfil_ID: 5, PIN: '1234', PIN_nuevo: '4321' })
 })

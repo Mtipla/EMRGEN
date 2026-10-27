@@ -208,6 +208,19 @@ describe('AdminService', () => {
     });
   });
 
+  describe('eliminarTrabajadorSoporte', () => {
+    it('elimina solo cuentas con rol SOPORTE', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 9, nombre_usuario: 'Soporte', rol_ID: 2, usuario_principal_ID: null });
+      await service.eliminarTrabajadorSoporte(9, ADMIN);
+      expect(usuarios.delete).toHaveBeenCalledWith(9);
+      expect(evento()).toMatchObject({ accion: 'Eliminación de trabajador 9', tipo: 'ELIMINACION' });
+
+      usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 7, rol_ID: 3, usuario_principal_ID: null });
+      await expect(service.eliminarTrabajadorSoporte(7, ADMIN)).rejects.toBeInstanceOf(BadRequestException);
+      expect(usuarios.delete).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('crearTrabajadorSoporte', () => {
     const datos = {
       nombre_usuario: 'Sofía Soporte',
@@ -232,7 +245,7 @@ describe('AdminService', () => {
         nombre_usuario: datos.nombre_usuario,
         correo_usuario: datos.correo_usuario,
         rol_ID: 2,
-        estado_ID: 2,
+        estado_ID: 1,
       });
       expect(usuarios.save).toHaveBeenCalledWith(
         expect.objectContaining({ contra_usuario: '$2b$12$hash', usuario_principal_ID: null }),

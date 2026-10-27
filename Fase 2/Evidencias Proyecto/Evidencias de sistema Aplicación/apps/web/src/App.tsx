@@ -21,35 +21,36 @@ import {
   AdminTrabajadoresPage,
 } from './features/administracion/AdminPages'
 
-const savedUser = localStorage.getItem('emergen.user')
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+
+/** Sesión guardada solo si hay token y usuario válidos; si el usuario está corrupto, se borra todo. */
+function leerSesionGuardada(): AuthenticatedUser | null {
+  const savedUser = localStorage.getItem('emergen.user')
+  if (!savedUser || !localStorage.getItem('emergen.token')) return null
+
+  try {
+    return JSON.parse(savedUser) as AuthenticatedUser
+  } catch {
+    localStorage.removeItem('emergen.user')
+    localStorage.removeItem('emergen.token')
+    return null
+  }
+}
+
+const sesionGuardada = leerSesionGuardada()
 
 function App() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
-  const [user, setUser] = useState<AuthenticatedUser | null>(() => {
-    if (!savedUser) return null
+  const [user, setUser] = useState<AuthenticatedUser | null>(sesionGuardada)
 
-    try {
-      return JSON.parse(savedUser) as AuthenticatedUser
-    } catch {
-      localStorage.removeItem('emergen.user')
-      localStorage.removeItem('emergen.token')
-      return null
-    }
-  })
-
-  const [checkingSession, setCheckingSession] = useState(Boolean(savedUser))
+  const [checkingSession, setCheckingSession] = useState(sesionGuardada !== null)
 
   useEffect(() => {
     const token = localStorage.getItem('emergen.token')
 
-    if (!token) {
-      setUser(null)
-      setCheckingSession(false)
-      return
-    }
+    if (!token) return
 
     async function refreshSession() {
       try {
@@ -194,9 +195,6 @@ function App() {
             )
           ) : (
             <main className="auth-page">
-              <button type="button" className="secondary-button" onClick={() => navigate('/')}>
-                Volver al inicio
-              </button>
               <AuthForm onAuthenticated={handleAuthenticated} />
             </main>
           )
@@ -207,18 +205,10 @@ function App() {
       <Route
         path="/usuarios"
         element={
-          // CA-13.1: solo ADMINISTRADOR, igual que el enlace del menú y GET /usuarios (@Roles).
-          // No usa 'admin.cuentas.ver': esa acción también admite SOPORTE.
           user && hasSession && perfil !== 'ADMINISTRADOR' ? (
             privatePage(<SinPermiso />)
           ) : user && hasSession ? (
             <main className="auth-page">
-              <button type="button" className="secondary-button" onClick={() => navigate('/')}>
-                Ir al inicio
-              </button>
-              <button type="button" className="primary-button" onClick={() => navigate('/comprar')}>
-                Comprar Cuenta Premium
-              </button>
               <UsersAdmin
                 user={user}
                 onLogout={closeSession}
