@@ -152,6 +152,7 @@
 .desktop-admin .wf-card,
 .desktop-admin .wf-menu-list {
   background: var(--admin-surface);
+  color: var(--admin-text);
   box-shadow: var(--admin-shadow);
 }
 

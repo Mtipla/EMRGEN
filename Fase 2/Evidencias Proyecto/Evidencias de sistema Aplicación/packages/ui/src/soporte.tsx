@@ -361,25 +361,6 @@ export const GestionTickets = ({
     await enviar(cambios);
   }
 
-  /** Leído → EN PROCESO; solucionado → RESUELTO y rechazado → CERRADO, ambos con solución obligatoria. */
-  async function accionRapida(nuevoEstado: string, exigeSolucion: boolean) {
-    if (!seleccion || guardando || soloLectura) return;
-    if (exigeSolucion && !solucion.trim())
-      return setResultado({
-        ok: false,
-        texto: "Escribe la solución o el motivo antes de continuar.",
-      });
-    setEstado(nuevoEstado);
-    if (nuevoEstado === "CERRADO" && seleccion.estado !== "CERRADO") {
-      setConfirmandoCierre(true);
-      return;
-    }
-    await enviar({
-      estado: nuevoEstado,
-      ...(solucion.trim() && { solucion: solucion.trim() }),
-    });
-  }
-
   async function enviar(cambios: CambiosTicket) {
     if (!seleccion) return;
     setGuardando(true);
@@ -492,30 +473,6 @@ export const GestionTickets = ({
             </button>
             {!soloLectura && !esAdministrador && <button type="button" className="wf-button wf-button--secondary"
               disabled={guardando} onClick={() => void guardar(false, true)}>Enviar verificación a Administrador</button>}
-            {!soloLectura && esAdministrador && <button
-              type="button"
-              className="wf-button wf-button--secondary"
-              disabled={guardando}
-              onClick={() => void accionRapida("EN PROCESO", false)}
-            >
-              Marcar como leído
-            </button>}
-            {!soloLectura && <button
-              type="button"
-              className="wf-button wf-button--secondary"
-              disabled={guardando}
-              onClick={() => void accionRapida("RESUELTO", true)}
-            >
-              Solucionado
-            </button>}
-            {!soloLectura && <button
-              type="button"
-              className="wf-button wf-button--secondary"
-              disabled={guardando}
-              onClick={() => void accionRapida("CERRADO", true)}
-            >
-              Rechazar
-            </button>}
             {!soloLectura && <button
               type="submit"
               className="wf-button"
