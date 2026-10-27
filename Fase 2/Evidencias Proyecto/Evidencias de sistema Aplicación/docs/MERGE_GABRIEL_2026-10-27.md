@@ -14,11 +14,11 @@ Dos pruebas de WhatsApp ya tenían expectativas desactualizadas respecto del sep
 
 ## Base de datos local e init.sql
 
-`init.sql` conserva exactamente su contenido y fecha de modificación anteriores al merge. El árbol del merge se preparó sin escribir la versión entrante de ese archivo en el directorio de trabajo.
+El commit inicial del merge conservó `init.sql` conforme a la instrucción vigente en ese momento. Después, el usuario autorizó incorporar los cambios de Gabriel en ese archivo. Se incorporó exactamente la versión de `gabriel@20f71f4`, con `pin.pin_temporal`, credenciales nulas para apadrinados y la restricción `c_usuario_05`. Esta incorporación se registra en un commit adicional, sin reescribir el merge anterior. Se actualizó `AGENTS.md` para permitir incorporar cambios existentes de la rama de origen durante un merge, manteniendo la protección frente a cambios propios.
 
 Se aplicaron las migraciones entrantes `005_pin_temporal.sql` y `006_apadrinado_sin_credenciales.sql` en una transacción sobre PostgreSQL local. Se conservaron los dos perfiles apadrinados existentes; la segunda migración retiró sus credenciales propias. Antes de hacerlo se guardó un respaldo local, excluido de Git, en `node_modules/.cache/gabriel-local-credentials-before-006.json`.
 
-Para otros ambientes con el esquema anterior, aplicar ambas migraciones mediante el procedimiento habitual. Sugerencia para una eventual revisión manual de `init.sql`: incorporar `pin.pin_temporal`, permitir credenciales nulas en apadrinados y añadir la restricción `c_usuario_05`, conforme a esas migraciones. Estas sugerencias no se aplicaron al archivo protegido.
+Para otros ambientes con el esquema anterior, aplicar ambas migraciones mediante el procedimiento habitual. Las instalaciones nuevas que utilicen el `init.sql` actualizado ya incluyen esos cambios. La incorporación del archivo no vuelve a inicializar ni borra la base local.
 
 ## Graphify
 
@@ -35,6 +35,7 @@ Conforme a `CONTRIBUTING.md`, la regeneración local no se añade al commit de `
 - API interna: 52 pruebas aprobadas.
 - Integración con PostgreSQL: 8 pruebas de autenticación/administración y 7 de apadrinados aprobadas.
 - `pruebas_init.sql`: comprobaciones correctas, con rollback.
+- Tras incorporar `init.sql`: coincidencia exacta con `gabriel@20f71f4`; verificación del esquema local correcta (34 tablas, 162 columnas, 21 funciones y 20 triggers), y pruebas SQL aprobadas de nuevo.
 - Lint de backend y web: sin errores; backend conserva cinco advertencias.
 - API interna reiniciada y panel local comprobado por HTTP.
 
