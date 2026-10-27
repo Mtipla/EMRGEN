@@ -17,7 +17,7 @@ base de datos; inicio de sesión comprobado contra el backend local y el de Dock
 | Admin Pruebas | `admin.pruebas@emergen.test` | `AdminPruebas2026` | `ADMINISTRADOR` (rol 1) | Entrar al panel de escritorio y ejecutar la gestión de usuarios, planes, cupos y la bitácora. | Creada y verificada |
 | Usuario Uno Editado | `usuario1.pruebas@emergen.test` | `UsuarioUno2026` | `USUARIO` (rol 3) | Usuario objetivo: datos, plan y cupos modificados por el administrador. | Creada y verificada |
 | Usuario Dos Pruebas | `usuario2.pruebas@emergen.test` | `UsuarioDos2026` | `USUARIO` (rol 3) | Segundo usuario objetivo (plan y cupos asignados desde el backend de Docker). | Creada y verificada |
-| Soporte Pruebas | `soporte.pruebas@emergen.test` | `SoportePruebas2026` | `SOPORTE` (rol 2) | Comprobar que SOPORTE inicia sesión y edita su perfil, y que no accede a las rutas de administrador (403). | Creada y verificada |
+| Soporte Pruebas | `soporte.pruebas@emergen.test` | `SoportePruebas2026` | `SOPORTE` (rol 2) | Consultar cuentas y compras en solo lectura, y responder tickets de usuarios. Las escrituras de cuentas y los reportes administrativos devuelven 403. | Creada y verificada |
 
 Los `usuario_ID` son autoincrementales y cambian si se vuelven a crear; al momento de la
 verificación eran 16 (admin), 17, 18 y 19 (soporte). Consulta los actuales con «Listar usuarios»

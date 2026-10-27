@@ -107,14 +107,14 @@ El mensaje tiene este formato; la fecha es la creación del SOS y se presenta en
 
 ```text
 MENSAJE MEDIANTE APLICACIÓN EMERGEN
-
+------------------------------------
 El usuario Nombre de correo correo@ejemplo.cl ha generado una alerta
-
+------------------------------------
 TIPO DE EMERGENCIA: URBANO
 FECHA/HORA: fecha y hora (America/Santiago)
 UBICACIÓN: coordenadas · enlace de Google Maps
 "Mensaje personalizado o predeterminado"
-
+------------------------------------
 ANTECEDENTES MÉDICOS:
 Tipo de sangre: dato del perfil
 Alergias: dato del perfil

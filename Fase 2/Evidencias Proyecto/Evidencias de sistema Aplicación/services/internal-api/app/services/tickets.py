@@ -3,13 +3,14 @@ import psycopg
 from fastapi import HTTPException
 
 _SELECT = """
- SELECT t.ticket_soporte_id AS ticket_id,t.usuario_id,t.desc_ticket AS descripcion,
+ SELECT t.ticket_soporte_id AS ticket_id,t.usuario_id,u.nombre_usuario,u.correo_usuario,t.desc_ticket AS descripcion,
         e.estado_ticket AS estado,s.solucion_caso AS solucion,
         t.categoria_soporte_id AS categoria_id,c.nombre_categoria AS categoria
  FROM ticket_soporte t
  JOIN estado_ticket e USING(estado_ticket_id)
  JOIN categoria_soporte c USING(categoria_soporte_id)
  LEFT JOIN soporte s USING(ticket_soporte_id)
+ LEFT JOIN usuario u ON u.usuario_id=t.usuario_id
 """
 
 def categorias(conn: psycopg.Connection) -> list[dict]:
@@ -46,6 +47,9 @@ def actualizar(conn: psycopg.Connection, ticket_id: int, estado: str | None, sol
         state = estado_canonico(conn, estado)
         if state is None:
             raise HTTPException(400, "El estado no existe en ESTADO_TICKET")
+        # CERRADO también representa una petición rechazada: reabrirla exige explicar el motivo.
+        if row["estado_ticket_id"] == estado_canonico(conn, "CERRADO") != state and solucion is None:
+            raise HTTPException(400, "Para reabrir un ticket CERRADO indica el motivo en la solución")
         conn.execute("UPDATE ticket_soporte SET estado_ticket_id=%s WHERE ticket_soporte_id=%s", (state,ticket_id))
     if solucion is not None:
         conn.execute("""INSERT INTO soporte(ticket_soporte_id,desc_caso,solucion_caso) VALUES (%s,%s,%s)

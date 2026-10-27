@@ -458,3 +458,145 @@ input.wf-invalido {
 .wf-progreso--vacio > span {
   background: #dc2626;
 }
+
+/* Solicitudes propias: resumen compacto y solución desplegable. */
+.wf-support-requests {
+  table-layout: fixed;
+}
+
+.wf-support-requests-id {
+  width: 6rem;
+}
+
+.wf-support-requests-category {
+  width: 23%;
+}
+
+.wf-support-requests-status {
+  width: 8rem;
+}
+
+.wf-support-requests th,
+.wf-support-requests td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.wf-support-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.wf-support-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #b93624;
+  white-space: nowrap;
+}
+
+.wf-support-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+.wf-support-request[data-expanded="true"] {
+  background: #fff1ee;
+}
+
+.wf-support-requests .wf-support-detail-row,
+.wf-support-requests .wf-support-detail-row:hover {
+  background: #f8fafc;
+  cursor: default;
+}
+
+.wf-support-detail {
+  padding: 0.5rem;
+}
+
+.wf-support-detail h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.wf-support-detail p {
+  margin: 0 0 1rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.wf-support-detail p:last-child {
+  margin-bottom: 0;
+}
+
+/* Bandeja del personal: la descripción y la solución viven en el detalle. */
+.wf-support-admin .wf-table {
+  table-layout: fixed;
+}
+
+.wf-support-admin .wf-table th,
+.wf-support-admin .wf-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.wf-support-admin .wf-table th:first-child {
+  width: 4rem;
+}
+
+.wf-support-admin .wf-table th:last-child {
+  width: 7rem;
+}
+
+.wf-support-editor {
+  margin-top: 1rem;
+  min-width: 0;
+}
+
+.wf-support-description {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .wf-support-requests {
+    font-size: 0.78rem;
+  }
+
+  .wf-support-requests th,
+  .wf-support-requests td {
+    padding: 0.5rem 0.3rem;
+  }
+
+  .wf-support-requests-id {
+    width: 4rem;
+  }
+
+  .wf-support-requests-status {
+    width: 5.25rem;
+  }
+
+  .wf-support-admin .wf-table {
+    font-size: 0.78rem;
+  }
+
+  .wf-support-admin .wf-table th,
+  .wf-support-admin .wf-table td {
+    padding: 0.5rem 0.3rem;
+  }
+
+  .wf-support-admin .wf-table th:first-child {
+    width: 2.5rem;
+  }
+
+  .wf-support-admin .wf-table th:last-child {
+    width: 4.5rem;
+  }
+}

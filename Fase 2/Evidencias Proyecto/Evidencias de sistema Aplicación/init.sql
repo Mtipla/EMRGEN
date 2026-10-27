@@ -113,6 +113,7 @@ CREATE TABLE public.pin (
     pin_hash varchar(255) NOT NULL,
     intentos_fallidos integer DEFAULT 0 NOT NULL CHECK (intentos_fallidos BETWEEN 0 AND 5),
     bloqueado_hasta timestamptz,
+    pin_temporal boolean DEFAULT false NOT NULL,
     CONSTRAINT c_pin_01 CHECK (length(pin_hash) BETWEEN 32 AND 255)
 );
 

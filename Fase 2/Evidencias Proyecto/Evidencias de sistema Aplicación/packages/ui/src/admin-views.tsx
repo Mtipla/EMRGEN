@@ -108,7 +108,8 @@ const PinTrabajador = ({
 interface AdminCuentasProps extends EstadoCarga {
   titulo: string;
   usuarios: UsuarioAdminFila[];
-  /** Aviso del perfil (p. ej. SOPORTE, que el backend aún rechaza en /admin/*). */
+  soloLectura?: boolean;
+  /** Aviso informativo del perfil. */
   aviso?: string;
   /** SOPORTE: pide el PIN de trabajador antes de eliminar. */
   pinParaEliminar?: boolean;
@@ -141,6 +142,7 @@ const PinSinBackend = ({ onClose }: { onClose: () => void }) => (
 export const AdminCuentas = ({
   titulo,
   usuarios,
+  soloLectura = false,
   aviso,
   pinParaEliminar = false,
   cargando,
@@ -173,8 +175,12 @@ export const AdminCuentas = ({
     },
     { header: "Tipo de cuenta", render: tipoCuenta },
     { header: "Acceso", render: acceso },
-    { header: "Números vinculados", render: () => "—" },
-    { header: "Incidente", render: () => "—" },
+    ...(!soloLectura
+      ? [
+          { header: "Números vinculados", render: () => "—" },
+          { header: "Incidente", render: () => "—" },
+        ]
+      : []),
   ];
 
   function seleccionar(u: UsuarioAdminFila) {
@@ -213,15 +219,20 @@ export const AdminCuentas = ({
   return (
     <section className="wf-card">
       <h1>{titulo}</h1>
+      {soloLectura && (
+        <p className="wf-muted">Consulta de cuentas en solo lectura.</p>
+      )}
       {aviso && <p className="wf-pending">{aviso}</p>}
-      <Pendiente>
-        "Números vinculados" e "Incidente" aún no se exponen en el listado
-      </Pendiente>
+      {!soloLectura && (
+        <Pendiente>
+          "Números vinculados" e "Incidente" aún no se exponen en el listado
+        </Pendiente>
+      )}
       <Carga cargando={cargando} error={error} />
       <DataTable
         columns={columnas}
         rows={usuarios}
-        descarga="cuentas"
+        descarga={soloLectura ? undefined : "cuentas"}
         rowKey={(u) => u.usuario_ID}
         searchText={(u) =>
           `${u.usuario_ID} ${u.nombre_usuario} ${u.correo_usuario}`
@@ -229,17 +240,34 @@ export const AdminCuentas = ({
         selectedKey={seleccion?.usuario_ID}
         onSelect={seleccionar}
       />
-      <div className="wf-actions">
-        <button
-          type="button"
-          className="wf-button wf-button--secondary"
-          onClick={() => setModal("anadir")}
-        >
-          Añadir
-        </button>
-      </div>
+      {!soloLectura && (
+        <div className="wf-actions">
+          <button
+            type="button"
+            className="wf-button wf-button--secondary"
+            onClick={() => setModal("anadir")}
+          >
+            Añadir
+          </button>
+        </div>
+      )}
 
-      {seleccion && (
+      {seleccion && soloLectura && (
+        <div className="wf-card">
+          <h2>Cuenta {seleccion.usuario_ID}</h2>
+          <dl>
+            <dt>Nombre usuario</dt>
+            <dd>{seleccion.nombre_usuario}</dd>
+            <dt>Correo</dt>
+            <dd>{seleccion.correo_usuario}</dd>
+            <dt>Tipo de cuenta</dt>
+            <dd>{tipoCuenta(seleccion)}</dd>
+            <dt>Acceso</dt>
+            <dd>{acceso(seleccion)}</dd>
+          </dl>
+        </div>
+      )}
+      {seleccion && !soloLectura && (
         <form
           className="wf-card wf-form"
           onSubmit={(event) => void guardar(event)}

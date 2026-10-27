@@ -22,6 +22,7 @@ export class AdminVentasController {
   constructor(private readonly ventas: AdminVentasService) {}
 
   @Get()
+  @Roles(ROL.ADMINISTRADOR, ROL.SOPORTE)
   @Header('Cache-Control', 'no-store')
   listar(@Query() filtros: ConsultarVentasDto) {
     return this.ventas.listar(filtros);

@@ -1126,3 +1126,10 @@ h3 {
     width: 100%;
   }
 }
+
+/* Selector de perfiles (cuenta principal + apadrinados) */
+.auth-perfiles {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}

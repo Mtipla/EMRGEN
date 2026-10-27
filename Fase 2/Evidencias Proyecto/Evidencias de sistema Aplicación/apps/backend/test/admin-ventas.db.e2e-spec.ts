@@ -114,15 +114,15 @@ db('Ventas del panel administrativo (PostgreSQL)', () => {
     await app?.close();
   });
 
-  it('protege el listado y el reporte con sesión y rol Admin', async () => {
+  it('permite a soporte consultar ventas y reserva los reportes al administrador', async () => {
     for (const ruta of ['/admin/ventas', '/admin/ventas/reporte', '/admin/auditoria/reporte']) {
       await http().get(ruta).expect(401);
       for (const nombre of ['soporte', 'principal'])
         await http()
           .get(ruta)
-          .query({ formato: 'xlsx' })
+          .query(ruta === '/admin/ventas' ? {} : { formato: 'xlsx' })
           .auth(tokens[nombre], { type: 'bearer' })
-          .expect(403);
+          .expect(ruta === '/admin/ventas' && nombre === 'soporte' ? 200 : 403);
     }
   });
 

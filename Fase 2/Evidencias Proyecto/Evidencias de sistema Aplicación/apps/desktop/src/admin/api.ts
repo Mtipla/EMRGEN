@@ -1,4 +1,7 @@
 import axios, { isAxiosError, type AxiosResponse } from 'axios'
+import type { Catalogo, Ticket } from '@repo/ui/soporte'
+export type { PaginaVentas, VentaAdmin } from '@repo/ui/admin-ventas'
+import type { PaginaVentas } from '@repo/ui/admin-ventas'
 
 /**
  * Cliente Axios del panel de administrador. El renderer de Electron no usa Node.js:
@@ -14,6 +17,10 @@ export const MODO_API =
   import.meta.env.MODE === 'docker' ? 'backend de Docker' : 'backend local (start:dev)'
 
 const http = axios.create({ baseURL: API_URL })
+const internalHttp = axios.create({
+  baseURL: `${import.meta.env.VITE_INTERNAL_API_URL ?? 'http://localhost:8000'}/internal/v1`,
+  timeout: 10000,
+})
 
 // El token vive solo en memoria: se pierde al cerrar o recargar la ventana.
 let token = ''
@@ -21,7 +28,7 @@ export function setToken(nuevo: string) {
   token = nuevo
 }
 
-http.interceptors.request.use((config) => {
+for (const cliente of [http, internalHttp]) cliente.interceptors.request.use((config) => {
   if (token && !config.headers.has('Authorization')) {
     config.headers.set('Authorization', `Bearer ${token}`)
   }
@@ -74,21 +81,6 @@ export type DatosSoporte = { nombre_usuario: string; correo_usuario: string; pas
 export type FormatoReporte = 'pdf' | 'xlsx'
 
 export type FiltrosVentas = { busqueda: string; estado_pago_id: string; desde: string; hasta: string }
-export type VentaAdmin = {
-  venta_id: number
-  usuario_id: number | null
-  nombre_usuario: string | null
-  correo_usuario: string | null
-  fecha_venta: string
-  estado_pago_id: number
-  estado: string
-  metodo_pago: string
-  total_venta: number
-  monto_cobrado: string | null
-  moneda_cobrada: string | null
-  detalles: { detalle_venta_id: number; plan_id: number; nombre_plan: string; tipo_compra: 'PLAN' | 'CUPOS'; cantidad: number; cupos_otorgados: number; precio_uni: number }[]
-}
-export type PaginaVentas = { ventas: VentaAdmin[]; total: number; total_pagado_clp: number }
 
 export type PlanUsuario = {
   plan_usuario_ID: number
@@ -147,6 +139,16 @@ export const adminApi = {
     datos(http.post<Sesion>('/usuarios/login', { correo_usuario, password })),
   actualizarMiUsuario: (nombre_usuario: string, correo_usuario: string) =>
     datos(http.patch<Sesion['usuario']>('/usuarios/me', { nombre_usuario, correo_usuario })),
+
+  listarTickets: (consulta: { estado: string; limit: number; offset: number }, signal: AbortSignal) =>
+    datos(internalHttp.get<Ticket[]>('/tickets-soporte', {
+      params: { limit: consulta.limit, offset: consulta.offset, ...(consulta.estado && { estado: consulta.estado }) }, signal,
+    })),
+  listarEstadosTickets: (signal: AbortSignal): Promise<Catalogo[]> =>
+    datos(internalHttp.get<{ estado_id: number; nombre: string }[]>('/tickets-soporte/estados', { signal }))
+      .then((filas) => filas.map((f) => ({ id: f.estado_id, nombre: f.nombre }))),
+  actualizarTicket: (id: number, cambios: { estado?: string; solucion?: string }) =>
+    datos(internalHttp.patch<Ticket>(`/tickets-soporte/${id}`, cambios)),
 
   listarAlertas: (
     filtros: {
@@ -229,6 +231,7 @@ export async function describirError(error: unknown): Promise<string> {
       .then((texto) => JSON.parse(texto) as unknown)
       .catch(() => undefined)
   }
-  const mensaje = (cuerpo as { message?: string | string[] } | undefined)?.message
+  const errorApi = cuerpo as { message?: string | string[]; detail?: string } | undefined
+  const mensaje = errorApi?.message ?? errorApi?.detail
   return `HTTP ${error.response.status}: ${Array.isArray(mensaje) ? mensaje.join(', ') : (mensaje ?? error.message)}`
 }

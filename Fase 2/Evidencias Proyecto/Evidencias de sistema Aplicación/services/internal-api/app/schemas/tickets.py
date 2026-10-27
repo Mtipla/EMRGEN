@@ -34,6 +34,8 @@ class TicketActualizar(BaseModel):
 class Ticket(BaseModel):
     ticket_id: int
     usuario_id: int
+    nombre_usuario: str | None = None
+    correo_usuario: str | None = None
     descripcion: str
     estado: str
     solucion: str | None

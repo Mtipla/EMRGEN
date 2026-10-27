@@ -12,6 +12,7 @@ import {
 import './panel-admin.css'
 import { SelectorTema } from './SelectorTema'
 import { VistaAlertas } from './VistaAlertas'
+import { VistaTickets } from './VistaTickets'
 
 /** Panel de pruebas del administrador (y vistas del Trabajador/SOPORTE): cada sección consume sus endpoints con Axios. */
 export function PanelAdmin() {
@@ -26,9 +27,12 @@ export function PanelAdmin() {
     try {
       const nueva = await adminApi.login(correo, password)
       setToken(nueva.access_token)
-      // SOPORTE (= Trabajador) entra con su menú reducido; el resto se comprueba con una
-      // ruta exclusiva del administrador, como antes.
-      if (perfilDe(nueva.usuario) !== 'SOPORTE') await adminApi.listarUsuarios()
+      const perfil = perfilDe(nueva.usuario)
+      if (perfil !== 'ADMINISTRADOR' && perfil !== 'SOPORTE') {
+        throw new Error('El panel requiere una cuenta de administrador o soporte.')
+      }
+      // Confirma también el acceso completo mediante una consulta autorizada por el servidor.
+      await adminApi.listarUsuarios()
       setSesion(nueva)
       setPassword('')
     } catch (causa) {
@@ -37,7 +41,6 @@ export function PanelAdmin() {
     }
   }
 
-  // Quien no es SOPORTE superó la comprobación de GET /admin/usuarios: es ADMINISTRADOR.
   const perfil: Perfil =
     sesion && perfilDe(sesion.usuario) === 'SOPORTE' ? 'SOPORTE' : 'ADMINISTRADOR'
   const esSoporte = perfil === 'SOPORTE'
@@ -129,9 +132,10 @@ export function PanelAdmin() {
                 Panel de pruebas
               </NavLink>
             )}
-            <NavLink to="/perfil">Modificar usuario</NavLink>
+            {!esSoporte && <NavLink to="/perfil">Modificar usuario</NavLink>}
             <NavLink to="/administracion/cuentas">Administrar cuentas</NavLink>
             <NavLink to="/administracion/compras">Administrar compras</NavLink>
+            <NavLink to="/administracion/tickets">Administrar Tickets de soporte</NavLink>
             {!esSoporte && <NavLink to="/administracion/alertas">Alertas SOS</NavLink>}
             {puede(perfil, 'admin.trabajadores') && (
               <NavLink to="/administracion/trabajadores">Administrar trabajadores</NavLink>
@@ -140,12 +144,13 @@ export function PanelAdmin() {
           {/* Las rutas que el Trabajador no tiene ni se registran: la URL cae en el redirect. */}
           <Routes>
             {!esSoporte && <Route path="/" element={<VistaPruebas />} />}
-            <Route
+            {!esSoporte && <Route
               path="/perfil"
               element={<VistaPerfil sesion={sesion} onActualizado={setSesion} />}
-            />
+            />}
             <Route path="/administracion/cuentas" element={<VistaCuentas perfil={perfil} />} />
             <Route path="/administracion/compras" element={<VistaCompras perfil={perfil} />} />
+            <Route path="/administracion/tickets" element={<VistaTickets />} />
             {!esSoporte && <Route path="/administracion/alertas" element={<VistaAlertas />} />}
             {puede(perfil, 'admin.trabajadores') && (
               <Route path="/administracion/trabajadores" element={<VistaTrabajadores />} />

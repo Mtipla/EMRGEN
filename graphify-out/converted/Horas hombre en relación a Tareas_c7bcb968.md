@@ -4,9 +4,9 @@
 | Resumen de Costos por Responsable |  |  |
 | --- | --- | --- |
 | Responsable | Horas Invertidas | Total ($CLP) |
-| Gabriel Valencia | 23 | 120000 |
-| Diego Plaza | 60 | 564000 |
-| Alonso González | 41 | 348000 |
+| Gabriel Valencia | 12 | 120000 |
+| Diego Plaza | 47 | 564000 |
+| Alonso González | 29 | 348000 |
 | ID Tarea | Tareas o actividad | Horas estimadas | Responsable | Tarifa / Hora ($CLP) | Subtotal ($CLP) |
 | TH-1.1 | Modelado de BDD y desarrollo de API utilizando Nest.js para el registro de usuarios (endpoint de /Registro), con validación de correo | 4.0 | Diego Plaza | 12000.0 | 48000 |
 | TH-1.2 | Implementación de encriptación de contraseña en el backend | 2.0 | Diego Plaza | 12000.0 | 24000 |
@@ -35,16 +35,4 @@
 | TH-12.2 | Automatización de la prohibición del acceso al enlace medico inmediatamente despues que la emergencia cambie de estado | 2.0 | Gabriel Valencia | 10000.0 | 20000 |
 | TH-13.1 | Maquetación completa del panel de administración y empaquetado inicial en Electron para expotación. | 5.0 | Gabriel Valencia | 10000.0 | 50000 |
 | TH-13.2 | Implementación de servicios de reportes exclusivamente para auditoria por parte del ADMINISTRADOR | 4.0 | Diego Plaza | 12000.0 | 48000 |
-| TH-14.1 | Diseñar e implementar en la interfaz el botón/pantalla con confirmación para finalizar la alerta activa. | 2.0 | Gabriel Valencia | 10000.0 | 20000 |
-| TH-14.2 | Crear el endpoint de cierre de emergencia que notifique el fin de la situación a los contactos y revoque automáticamente los permisos/tokens de acceso temporal a los datos médicos. | 4.0 | Diego Plaza | 12000.0 | 48000 |
-| TH-15.1 | Construir la pantalla de ajustes de perfil con campos para cambio de correo y contraseña. | 3.0 | Gabriel Valencia | 10000.0 | 30000 |
-| TH-15.2 | Implementar el servicio de actualización de credenciales en la base de datos/proveedor de identidad, requiriendo la contraseña actual y enviando un correo de verificación al nuevo e-mail. | 4.0 | Gabriel Valencia | 10000.0 | 40000 |
-| TH-16.1 | Desarrollar la vista de selección de planes/cupos e integrar la pasarela de pagos con interfaz clara de Checkout. | 2.0 | Diego Plaza | 10000.0 | 20000 |
-| TH-16.2 | Crear la lógica de negocio para procesar la transacción, actualizar el saldo de cupos del usuario principal en la base de datos y activar los permisos de asignación de apadrinados. | 4.0 | Diego Plaza | 10000.0 | 40000 |
-| TU-17.1 | Diseñar el módulo visual con la lista de números públicos oficiales (ej. Policía, Ambulancia, Bomberos) e implementar enlaces nativos de llamada. | 3.0 | Diego Plaza | 10000.0 | 30000 |
-| TU-17.2 | Configurar la carga dinámica de números de emergencia locales según el país o región del usuario. | 2.0 | Alonso Gonzalez | 12000.0 | 24000 |
-| TU-18.1 | Crear el formulario de contacto/soporte accesible para usuarios autenticados y visitantes, con campos para tipo de problema, descripción y adjuntos. | 2.0 | Gabriel Valencia | 10000.0 | 20000 |
-| TU-18.2 | Construir el endpoint para procesar la solicitud e integrarlo con un servicio de correo o plataforma de Helpdesk. | 4.0 | Alonso Gonzalez | 12000.0 | 48000 |
-| TU-19.1 | Diseñar las consultas a la base de datos para compilar el historial de alertas y eventos del usuario y sus apadrinados dentro de un rango de fechas. | 3.0 | Alonso Gonzalez | 12000.0 | 36000 |
-| TU-19.2 | Implementar el botón de descarga y la lógica de generación del reporte en pantalla o formato exportable (PDF/CSV). | 3.0 | Alonso Gonzalez | 12000.0 | 36000 |
-|  | Total de Horas Estimadas | 124 |  | Total | 1424000 |
+|  | Total de Horas Estimadas | 88 |  | Total | 1032000 |

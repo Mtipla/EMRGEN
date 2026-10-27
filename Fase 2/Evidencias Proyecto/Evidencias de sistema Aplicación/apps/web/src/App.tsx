@@ -232,7 +232,7 @@ function App() {
       />
 
       {/* Wireframes: home, perfil y cuentas del usuario; administración (rol Administrador en backend) */}
-      <Route path="/inicio" element={privatePage(user && <HomePage user={user} />)} />
+      <Route path="/inicio" element={privatePage(esSoporte ? <Navigate to="/administracion/cuentas" replace /> : user && <HomePage user={user} />)} />
       <Route
         path="/perfil"
         element={privatePage(user && <ProfilePage user={user} onUserUpdated={setUser} />)}
@@ -245,7 +245,7 @@ function App() {
       />
       <Route
         path="/administracion/compras"
-        element={privatePage(<AdminComprasPage perfil={perfil} />, 'admin.compras.ver')}
+        element={privatePage(<AdminComprasPage />, 'admin.compras.ver')}
       />
       <Route
         path="/administracion/trabajadores"

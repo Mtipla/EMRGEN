@@ -42,7 +42,7 @@ describe('ApadrinadosService', () => {
     // Fila PIN del principal para verificarPinPrincipal (SELECT ... FOR UPDATE y UPDATE).
     query = jest.fn((sql: string) => Promise.resolve(sql.trimStart().startsWith('SELECT') ? [credencial] : []));
     service = new ApadrinadosService(
-      { transaction: (op: (m: unknown) => unknown) => op({ query }) } as unknown as DataSource,
+      { query, transaction: (op: (m: unknown) => unknown) => op({ query }) } as unknown as DataSource,
       usuarios as unknown as Repository<Usuario>,
       { crearUsuarioApadrinado } as unknown as UsuariosService,
       { cambiarEstadoUsuario, eliminarUsuarioApadrinado } as unknown as AdminService,
@@ -59,7 +59,9 @@ describe('ApadrinadosService', () => {
   it('cambia el acceso de su propio apadrinado con el principal como actor', async () => {
     await service.cambiarAcceso(PRINCIPAL, 11, 2, '1234');
     expect(cambiarEstadoUsuario).toHaveBeenCalledWith(11, 2, PRINCIPAL);
-    expect(query).toHaveBeenLastCalledWith(expect.stringContaining('intentos_fallidos = 0'), [5]);
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('intentos_fallidos = 0'), [5]);
+    // Pasa a parcial: su PIN queda fijo (no temporal).
+    expect(query).toHaveBeenLastCalledWith(expect.stringContaining('pin_temporal'), [11, false]);
   });
 
   describe('HU-10 / CA-10.1: PIN del principal', () => {
@@ -116,6 +118,7 @@ describe('ApadrinadosService', () => {
         correo_usuario: 'hija@emergen.test',
         password: 'segura1234',
         acceso_completo: false,
+        PIN: '1234',
       }),
     ).rejects.toThrow(new ConflictException('No tienes cupos libres: compra un cupo de cuenta apadrinada para añadir otra cuenta'));
   });
