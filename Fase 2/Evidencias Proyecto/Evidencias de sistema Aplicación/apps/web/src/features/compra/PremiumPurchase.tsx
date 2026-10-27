@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { loadPaypalSdk } from '@repo/api-client'
 import { usePremiumPurchase, type PurchaseModal } from './usePremiumPurchase'
-import './PremiumPurchase.css'
 
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID ?? ''
 const MISSING_CLIENT_ID = !PAYPAL_CLIENT_ID || PAYPAL_CLIENT_ID.startsWith('<INSERT')

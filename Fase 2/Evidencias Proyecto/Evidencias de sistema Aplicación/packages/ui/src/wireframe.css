@@ -1,9 +1,9 @@
-/* UI base de los wireframes (web, escritorio y móvil). Acento #e64b35 como AuthForm.css de la web. */
+/* UI compartida: usa los tokens de la web cuando están disponibles y conserva sus valores base en otras apps. */
 .wf-shell {
   width: min(100%, 1100px);
   margin: 0 auto;
   padding: 0 16px 32px;
-  color: #263449;
+  color: var(--color-ink, #263449);
   text-align: left;
   box-sizing: border-box;
 }
@@ -15,24 +15,26 @@
   gap: 0.5rem 1.25rem;
   padding: 1rem 0;
   margin-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
 }
 
 .wf-header a,
 .wf-link {
-  color: #263449;
+  /* font va antes que font-weight: el shorthand lo reiniciaba a 400. */
+  font: inherit;
+  color: var(--color-ink, #263449);
   font-weight: 600;
   text-decoration: none;
   background: none;
   border: 0;
   padding: 0;
   cursor: pointer;
-  font: inherit;
 }
 
 .wf-brand {
   margin-right: auto;
-  color: #e64b35 !important;
+  color: var(--color-accent, #e64b35) !important;
+  font-weight: 800 !important;
   letter-spacing: 0.12em;
 }
 
@@ -48,7 +50,7 @@
   min-width: 220px;
   margin-top: 0.5rem;
   padding: 0.5rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border, #e2e8f0);
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 12px 30px rgb(15 23 42 / 12%);
@@ -69,7 +71,7 @@
 .wf-card {
   padding: 1.25rem;
   margin-bottom: 1rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border, #e2e8f0);
   border-radius: 16px;
   background: #fff;
   color: #263449;
@@ -80,7 +82,7 @@
 .wf-card h2,
 .wf-card h3 {
   margin-top: 0;
-  color: #162235;
+  color: var(--color-heading, #162235);
 }
 
 .wf-grid {
@@ -107,11 +109,11 @@
   width: 100%;
   box-sizing: border-box;
   padding: 0.6rem 0.75rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border, #cbd5e1);
   border-radius: 10px;
   font: inherit;
   background: #fff;
-  color: #162235;
+  color: var(--color-heading, #162235);
 }
 
 .wf-row {
@@ -130,9 +132,9 @@
   display: inline-block;
   padding: 0.6rem 1.1rem;
   text-decoration: none;
-  border: 1px solid #e64b35;
+  border: 1px solid var(--color-accent, #e64b35);
   border-radius: 10px;
-  background: #e64b35;
+  background: var(--color-accent, #e64b35);
   color: #fff;
   font: inherit;
   font-weight: 700;
@@ -141,7 +143,7 @@
 
 .wf-button--secondary {
   background: #fff;
-  color: #e64b35;
+  color: var(--color-accent, #e64b35);
 }
 
 .wf-button:disabled {
@@ -246,7 +248,7 @@
 
 .wf-table tbody tr:hover,
 .wf-table tbody tr[aria-selected="true"] {
-  background: #fff1ee;
+  background: var(--color-accent-soft, #fff1ee);
 }
 
 .wf-search {
@@ -433,7 +435,7 @@ input.wf-invalido {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: #e64b35;
+  background: var(--color-accent, #e64b35);
   color: #fff;
   font-weight: 700;
 }

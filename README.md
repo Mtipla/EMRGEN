@@ -1,4 +1,4 @@
-﻿## 📖 Descripción del Proyecto
+## 📖 Descripción del Proyecto
 
 **EMERGEN** es una plataforma de alertas de emergencia con una web, una aplicación móvil y un panel administrativo de escritorio. Reúne la gestión de usuarios, cuentas apadrinadas, contactos, planes, compras, alertas SOS y soporte.
 
@@ -24,7 +24,7 @@ Las aplicaciones se organizan en un monorepo con **npm workspaces y Turborepo**,
   - jsReport: reportes PDF y Excel.
   - Google Maps Platform: mapas y geocodificación.
   - mindicador.cl: indicadores económicos para la conversión de precios.
-  - WhatsApp mediante Baileys: envío de SOS a los contactos de emergencia con mensaje personalizado y ubicación.
+  - WhatsApp mediante Baileys: módulo de mensajería, todavía separado del registro de SOS.
 
 ---
 
