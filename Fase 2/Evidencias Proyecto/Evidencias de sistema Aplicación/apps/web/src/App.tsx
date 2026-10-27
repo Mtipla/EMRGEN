@@ -189,9 +189,6 @@ function App() {
             )
           ) : (
             <main className="auth-page">
-              <button type="button" className="secondary-button" onClick={() => navigate('/')}>
-                Volver al inicio
-              </button>
               <AuthForm onAuthenticated={handleAuthenticated} />
             </main>
           )
@@ -202,18 +199,10 @@ function App() {
       <Route
         path="/usuarios"
         element={
-          // CA-13.1: solo ADMINISTRADOR, igual que el enlace del menú y GET /usuarios (@Roles).
-          // No usa 'admin.cuentas.ver': esa acción también admite SOPORTE.
           user && hasSession && perfil !== 'ADMINISTRADOR' ? (
             privatePage(<SinPermiso />)
           ) : user && hasSession ? (
             <main className="auth-page">
-              <button type="button" className="secondary-button" onClick={() => navigate('/')}>
-                Ir al inicio
-              </button>
-              <button type="button" className="primary-button" onClick={() => navigate('/comprar')}>
-                Comprar Cuenta Premium
-              </button>
               <UsersAdmin
                 user={user}
                 onLogout={closeSession}

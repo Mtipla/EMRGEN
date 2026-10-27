@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import { NumerosEmergencia } from '@repo/ui/wireframe'
-import '../compra/PremiumPurchase.css'
-import './PublicSite.css'
 
 export type PublicView = 'inicio' | 'premium'
 

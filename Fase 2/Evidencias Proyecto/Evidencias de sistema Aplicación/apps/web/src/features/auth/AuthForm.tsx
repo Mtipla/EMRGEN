@@ -1,4 +1,3 @@
-import './AuthForm.css'
 import { Link } from 'react-router-dom'
 import { useState, type FormEvent } from 'react'
 import { FirebaseAuthError } from '@repo/api-client'
@@ -231,7 +230,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   }
 
   if (mode === 'verificacion' && pending) {
-    // Mismo marco que login y registro (auth-layout, barra FIND ME), con clases de AuthForm.css.
+    // Mismo marco que login y registro (auth-layout, barra FIND ME), con las clases de index.css.
     return (
       <div className="auth-layout">
         <header className="auth-navbar">
@@ -296,7 +295,6 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     <div className="auth-layout">
       <header className="auth-navbar">
         <Link to="/" className="find-me">
-          <span>📍</span>
           FIND ME
         </Link>
       </header>
