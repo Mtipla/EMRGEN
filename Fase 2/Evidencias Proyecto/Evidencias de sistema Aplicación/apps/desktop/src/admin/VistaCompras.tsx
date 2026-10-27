@@ -73,19 +73,10 @@ const COLUMNAS: Column<VentaAdmin>[] = [
 ]
 
 export function VistaCompras({ perfil }: { perfil: Perfil }) {
-  return perfil === 'ADMINISTRADOR' ? (
-    <Ventas />
-  ) : (
-    <section className="wf-card">
-      <h1>Administrar compras</h1>
-      <p className="wf-message wf-message--error" role="alert">
-        La consulta y descarga de ventas requiere una cuenta de administrador con acceso completo.
-      </p>
-    </section>
-  )
+  return <Ventas puedeDescargar={perfil === 'ADMINISTRADOR'} />
 }
 
-function Ventas() {
+function Ventas({ puedeDescargar }: { puedeDescargar: boolean }) {
   const [filtros, setFiltros] = useState(SIN_FILTROS)
   const [consulta, setConsulta] = useState({ filtros: SIN_FILTROS, offset: 0 })
   const [version, setVersion] = useState(0)
@@ -142,11 +133,10 @@ function Ventas() {
         <div>
           <h1 id="ventas-titulo">Administrar compras</h1>
           <p className="wf-muted">
-            Ventas registradas en el sistema. Descarga un reporte PDF o Excel con los filtros
-            aplicados.
+            Ventas registradas en el sistema. Consulta de compras en solo lectura.
           </p>
         </div>
-        <BotonDescargarReporte
+        {puedeDescargar && <BotonDescargarReporte
           nombre="ventas"
           disabled={cargando || !pagina}
           descargar={(formato) => adminApi.descargarVentas(consulta.filtros, formato)}
@@ -159,7 +149,7 @@ function Ventas() {
               `Reporte generado. Se inició la descarga del ${formato === 'pdf' ? 'PDF' : 'Excel'}.`,
             )
           }
-        />
+        />}
       </div>
       <div className="desktop-alert-summary">
         <p>

@@ -46,7 +46,9 @@ El botón **Descargar PDF/Excel** de **Bitácora / auditoría** utiliza el mismo
 | GET /internal/v1/tickets-soporte/{ticket_id} | ID de TICKET_SOPORTE, propietario o personal completo. |
 | PATCH /internal/v1/tickets-soporte/{ticket_id} | Personal completo: estado del catálogo y/o solución no vacía de hasta 500 caracteres. El estado se actualiza en ticket; una solución crea/actualiza el único seguimiento SOPORTE. |
 
-Respuesta: ticket_id, usuario_id, descripcion, estado, solucion nullable, categoria_id, categoria. Estado sin seguimiento es válido; solución ausente es NULL. No existe estado en SOPORTE. Las consultas usan LEFT JOIN para no perder tickets nuevos.
+Respuesta: ticket_id, usuario_id, nombre_usuario y correo_usuario nullable, descripcion, estado, solucion nullable, categoria_id, categoria. Estado sin seguimiento es válido; solución ausente es NULL. No existe estado en SOPORTE. Las consultas usan LEFT JOIN para no perder tickets nuevos.
+
+En web y escritorio, el menú de SOPORTE ofrece únicamente Administrar cuentas (lectura), Administrar compras (ventas reales, lectura) y Administrar Tickets de soporte. La bandeja consulta los tickets de todos los usuarios, filtra por estado, pagina de 20 en 20 y se actualiza cada 15 segundos. Permite responder y cambiar el estado; el solicitante ve la solución en Mis solicitudes de `/soporte`. NestJS permite a SOPORTE con acceso completo `GET /admin/usuarios`, `GET /admin/usuarios/:id` y `GET /admin/ventas`; las modificaciones de cuentas y los reportes permanecen exclusivos del administrador.
 
 ## Errores y responsabilidades
 

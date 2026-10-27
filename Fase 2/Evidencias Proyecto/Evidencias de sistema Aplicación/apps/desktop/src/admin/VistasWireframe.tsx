@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { AdminCuentas, AdminTrabajadores } from '@repo/ui/admin-views'
 import { PerfilForm } from '@repo/ui/perfil-form'
 import {
-  BACKEND_SOPORTE,
   perfilDe,
-  requierePinTrabajador,
+  puede,
   type Perfil,
 } from '@repo/ui/permisos'
 import { adminApi, describirError, type Sesion, type UsuarioAdmin } from './api'
@@ -97,12 +96,10 @@ export function VistaCuentas({ perfil }: { perfil: Perfil }) {
       usuarios={usuarios}
       cargando={cargando}
       error={error}
-      // Igual que en la web: la UI sigue el mockup del Trabajador, el backend aún lo rechaza (403).
-      aviso={perfil === 'SOPORTE' ? BACKEND_SOPORTE : undefined}
-      pinParaEliminar={requierePinTrabajador(perfil)}
-      onGuardar={conRecarga(adminApi.actualizarDatos)}
-      onCambiarAcceso={cambiarAcceso}
-      onEliminarApadrinado={conRecarga(adminApi.eliminarApadrinado)}
+      soloLectura={!puede(perfil, 'admin.cuentas.editar')}
+      onGuardar={puede(perfil, 'admin.cuentas.editar') ? conRecarga(adminApi.actualizarDatos) : undefined}
+      onCambiarAcceso={puede(perfil, 'admin.cuentas.editar') ? cambiarAcceso : undefined}
+      onEliminarApadrinado={puede(perfil, 'admin.cuentas.eliminar') ? conRecarga(adminApi.eliminarApadrinado) : undefined}
     />
   )
 }

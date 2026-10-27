@@ -3,13 +3,14 @@ import psycopg
 from fastapi import HTTPException
 
 _SELECT = """
- SELECT t.ticket_soporte_id AS ticket_id,t.usuario_id,t.desc_ticket AS descripcion,
+ SELECT t.ticket_soporte_id AS ticket_id,t.usuario_id,u.nombre_usuario,u.correo_usuario,t.desc_ticket AS descripcion,
         e.estado_ticket AS estado,s.solucion_caso AS solucion,
         t.categoria_soporte_id AS categoria_id,c.nombre_categoria AS categoria
  FROM ticket_soporte t
  JOIN estado_ticket e USING(estado_ticket_id)
  JOIN categoria_soporte c USING(categoria_soporte_id)
  LEFT JOIN soporte s USING(ticket_soporte_id)
+ LEFT JOIN usuario u ON u.usuario_id=t.usuario_id
 """
 
 def categorias(conn: psycopg.Connection) -> list[dict]:
