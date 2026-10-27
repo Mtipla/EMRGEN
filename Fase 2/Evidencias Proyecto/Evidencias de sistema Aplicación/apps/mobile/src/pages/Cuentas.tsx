@@ -10,10 +10,13 @@ import {
   useIonAlert,
 } from '@ionic/react';
 import type { ResumenCompraApadrinados } from '@repo/api-client';
-import { CuentasApadrinadas } from '@repo/ui/cuentas-apadrinadas';
+import { apadrinadosApi, GestionApadrinados } from '@repo/ui/cuentas-apadrinadas';
 import { apiFetch, errorText } from '../lib/session';
 
-/** "Administrar Cuentas" del principal: cupos de GET /compras/apadrinados. */
+// Fuera del componente: GestionApadrinados recarga cuando cambia `api`.
+const apadrinados = apadrinadosApi(apiFetch);
+
+/** "Administrar Cuentas" del principal: cupos de GET /compras/apadrinados y cuentas reales. */
 const Cuentas: React.FC = () => {
   const [presentAlert] = useIonAlert();
   const [cupos, setCupos] = useState<{ total: number | null; aviso: string }>();
@@ -41,9 +44,10 @@ const Cuentas: React.FC = () => {
       </IonHeader>
       <IonContent className="ion-padding">
         {cupos ? (
-          <CuentasApadrinadas
+          <GestionApadrinados
             cupos={cupos.total}
             aviso={cupos.aviso}
+            api={apadrinados}
             onAnadir={() =>
               void presentAlert({
                 header: 'Añadir cuenta',

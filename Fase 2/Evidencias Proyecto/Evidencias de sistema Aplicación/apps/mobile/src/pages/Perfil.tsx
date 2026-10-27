@@ -19,6 +19,13 @@ const Perfil: React.FC = () => {
     );
   }
 
+  async function cambiarPassword(password_actual: string, password_nueva: string) {
+    await apiFetch('/usuarios/me/password', {
+      method: 'PATCH',
+      body: JSON.stringify({ password_actual, password_nueva }),
+    });
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -37,6 +44,7 @@ const Perfil: React.FC = () => {
             accesoParcial={user.estado_ID !== undefined && !accesoCompleto(user)}
             onGuardar={guardar}
             api={perfilDatos}
+            onCambiarPassword={cambiarPassword}
           />
         )}
       </IonContent>

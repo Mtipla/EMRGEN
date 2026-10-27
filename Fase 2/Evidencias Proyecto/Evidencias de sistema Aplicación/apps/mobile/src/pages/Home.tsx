@@ -18,7 +18,7 @@ import {
   useIonViewWillEnter,
   useIonViewDidLeave,
 } from '@ionic/react';
-import { bloqueo } from '@repo/ui/permisos';
+import { bloqueo, visible as permitido } from '@repo/ui/permisos';
 import { ResumenCuenta } from '@repo/ui/resumen-cuenta';
 import { Notice } from '@repo/ui/wireframe';
 import AlertaSos from '../components/AlertaSos';
@@ -100,6 +100,11 @@ const Home: React.FC = () => {
               {!cuentasBloqueadas && (
                 <IonItem button detail={false} routerLink="/cuentas">
                   Administrar cuentas
+                </IonItem>
+              )}
+              {user && permitido(user, 'soporte.solicitar') && (
+                <IonItem button detail={false} routerLink="/soporte">
+                  Solicitar soporte
                 </IonItem>
               )}
               <IonItem button detail={false} onClick={cerrarSesion}>
