@@ -563,6 +563,15 @@ input.wf-invalido {
   overflow-wrap: anywhere;
 }
 
+.wf-ticket-context {
+  border-left: 4px solid #2563eb;
+  overflow-wrap: anywhere;
+}
+
+.wf-ticket-context h2 {
+  margin-top: 0;
+}
+
 @media (max-width: 640px) {
   .wf-support-requests {
     font-size: 0.78rem;

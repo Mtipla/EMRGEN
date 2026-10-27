@@ -20,12 +20,12 @@ export function SeccionSoporte() {
   return (
     <section className="wf-card" id="pruebas-soporte" aria-labelledby="pruebas-soporte-titulo">
       <h2 id="pruebas-soporte-titulo">Crear cuenta de SOPORTE</h2>
-      <p className="wf-muted">Registra un trabajador con su nombre, correo y contraseña inicial.</p>
+      <p className="wf-muted">Registra un trabajador con su nombre de usuario, correo y contraseña inicial.</p>
       {/* El rol SOPORTE lo asigna el backend: el formulario no envía rol ni estado. */}
       <form className="wf-form desktop-test-list" onSubmit={(event) => void crear(event)}>
         <div className="wf-grid">
           <label>
-            Nombre
+            Nombre de usuario
             <input
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}

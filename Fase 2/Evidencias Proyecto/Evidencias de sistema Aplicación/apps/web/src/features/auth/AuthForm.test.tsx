@@ -24,7 +24,7 @@ const respuesta = (status: number, body: unknown) =>
 function registrarse(correo: string) {
   render(<MemoryRouter><AuthForm onAuthenticated={() => {}} /></MemoryRouter>)
   fireEvent.click(screen.getByRole('button', { name: 'No tengo cuenta' }))
-  fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } })
+  fireEvent.change(screen.getByLabelText('Nombre de usuario'), { target: { value: 'Ana' } })
   fireEvent.change(screen.getByLabelText('Correo Electrónico'), { target: { value: correo } })
   fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'ClaveSegura123' } })
   fireEvent.change(screen.getByLabelText('Confirmar'), { target: { value: 'ClaveSegura123' } })

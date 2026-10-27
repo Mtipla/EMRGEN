@@ -308,12 +308,13 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
           <form onSubmit={handleSubmit}>
             {isRegister && (
               <label className="auth-field">
-                <span>Nombre</span>
+                <span>Nombre de usuario</span>
                 <input
-                  autoComplete="name"
+                  autoComplete="username"
                   value={nombre}
                   onChange={(event) => setNombre(event.target.value)}
                   minLength={2}
+                  maxLength={50}
                   required
                 />
               </label>

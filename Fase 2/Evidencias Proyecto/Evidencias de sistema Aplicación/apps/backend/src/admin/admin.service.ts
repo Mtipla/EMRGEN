@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { type ActorAuditoria, AuditoriaService } from '../auditoria/auditoria.service';
 import {
   type CambiosAuditoria,
@@ -21,6 +21,26 @@ import { ROL } from '../login/roles.decorator';
 import { PlanUsuario } from '../planes/plan-usuario.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { GuardarPlanDto } from './dto/guardar-plan.dto';
+import { ActualizarTrabajadorDto } from './dto/actualizar-trabajador.dto';
+
+export interface ContactoCuenta {
+  contacto_emergencia_ID: number;
+  nombre_contacto: string;
+  num_emergencia: string;
+}
+export interface AlertaCuenta {
+  alerta_id: number;
+  estado_alerta: string;
+  prioridad: string;
+  mensaje: string;
+  ubicacion: string | null;
+  fecha_creacion: string;
+  fecha_cierre: string | null;
+}
+export type UsuarioListado = Usuario & {
+  numeros_vinculados: number;
+  alertas_generadas: number;
+};
 
 /** Datos de una cuenta que el panel puede mostrar; nunca incluye el hash de la contraseña. */
 export type ResumenUsuario = Pick<
@@ -32,7 +52,9 @@ export type ResumenUsuario = Pick<
 export interface ExpedienteUsuario {
   usuario: Usuario;
   plan: (PlanUsuario & { cupos_ocupados: number; cupos_disponibles: number }) | null;
-  apadrinados: Pick<Usuario, 'usuario_ID' | 'nombre_usuario' | 'estado_ID'>[];
+  apadrinados: Pick<Usuario, 'usuario_ID' | 'nombre_usuario' | 'correo_usuario' | 'estado_ID'>[];
+  contactos: ContactoCuenta[];
+  alertas: AlertaCuenta[];
 }
 
 /** Campos cuyo valor cambió, con su valor anterior y posterior (para la bitácora). */
@@ -44,12 +66,26 @@ function diferencias<C extends string>(
   const cambios: CambiosAuditoria = {};
   for (const campo of campos) {
     const previo = antes?.[campo] ?? null;
-    if (previo !== despues[campo]) {
-      cambios[campo] = { antes: previo, despues: despues[campo] };
+    const posterior = despues[campo] ?? null;
+    if (previo !== posterior) {
+      cambios[campo] = { antes: previo, despues: posterior };
     }
   }
   return cambios;
 }
+
+// La bitácora existente permite seguir mostrando al trabajador tras quitarle SOPORTE.
+// Su habilitación y sus permisos siempre se determinan por el rol vigente.
+const FILTRO_TRABAJADOR = `u.usuario_principal_id IS NULL AND (
+  u.rol_id = ${ROL.SOPORTE} OR (u.rol_id = ${ROL.USUARIO} AND EXISTS (
+    SELECT 1 FROM bitacora_sistema b
+    WHERE b.usuario_afectado_id = u.usuario_id
+      AND b.entidad_afectada = 'USUARIO' AND b.resultado = 'EXITOSA'
+      AND b.rol_actor_id = ${ROL.ADMINISTRADOR}
+      AND (b.cambios #>> '{rol_ID,antes}' = '${ROL.SOPORTE}'
+        OR b.cambios #>> '{rol_ID,despues}' = '${ROL.SOPORTE}')
+  ))
+)`;
 
 // El actor requiere rol administrador y acceso completo (RolesGuard). El estado
 // (ESTADO_USUARIO) del usuario gestionado nunca decide si una operación está permitida.
@@ -70,18 +106,37 @@ export class AdminService {
   ) {}
 
   // READ: Obtener todos los usuarios del sistema para la tabla del panel Electron
-  async listarUsuarios(): Promise<Usuario[]> {
-    return this.usuarioRepository.find({
-      select: {
-        usuario_ID: true,
-        nombre_usuario: true,
-        correo_usuario: true,
-        rol_ID: true,
-        estado_ID: true,
-        usuario_principal_ID: true,
-      },
-      order: { usuario_ID: 'ASC' },
-    });
+  async listarUsuarios(): Promise<UsuarioListado[]> {
+    return this.usuarioRepository.query(`
+      SELECT u.usuario_id AS "usuario_ID", u.nombre_usuario,
+        u.correo_usuario, u.rol_id AS "rol_ID", u.estado_id AS "estado_ID",
+        u.usuario_principal_id AS "usuario_principal_ID",
+        (SELECT count(*)::int FROM contacto_emergencia c WHERE c.usuario_id=u.usuario_id) AS numeros_vinculados,
+        (SELECT count(*)::int FROM alerta a WHERE a.usuario_id=u.usuario_id) AS alertas_generadas
+      FROM usuario u ORDER BY u.usuario_id
+    `);
+  }
+
+  async listarPlanes(): Promise<{ plan_ID: number; nombre_plan: string }[]> {
+    return this.usuarioRepository.query('SELECT plan_id AS "plan_ID", nombre_plan FROM plan ORDER BY plan_id');
+  }
+
+  async listarTrabajadores(): Promise<ResumenUsuario[]> {
+    return this.usuarioRepository.query(`
+      SELECT u.usuario_id AS "usuario_ID", u.nombre_usuario, u.correo_usuario,
+        u.rol_id AS "rol_ID", u.estado_id AS "estado_ID"
+      FROM usuario u WHERE ${FILTRO_TRABAJADOR} ORDER BY u.usuario_id
+    `);
+  }
+
+  private async esTrabajadorRegistrado(usuario: Usuario, manager: EntityManager): Promise<boolean> {
+    if (usuario.usuario_principal_ID !== null) return false;
+    if (usuario.rol_ID === ROL.SOPORTE) return true;
+    if (usuario.rol_ID !== ROL.USUARIO) return false;
+    const filas: unknown[] = await manager.query(`
+      SELECT 1 FROM usuario u WHERE u.usuario_id = $1 AND ${FILTRO_TRABAJADOR}
+    `, [usuario.usuario_ID]);
+    return filas.length > 0;
   }
 
   // READ: Expediente de un usuario (cuenta, plan y apadrinados). La consulta queda registrada.
@@ -107,10 +162,22 @@ export class AdminService {
           .findOne({ where: { usuario_ID: idUsuario } });
         const apadrinados = await usuarios.find({
           where: { usuario_principal_ID: idUsuario },
-          select: { usuario_ID: true, nombre_usuario: true, estado_ID: true },
+          select: { usuario_ID: true, nombre_usuario: true, correo_usuario: true, estado_ID: true },
           order: { usuario_ID: 'ASC' },
         });
-        return { valor: { usuario, plan: plan && { ...plan, cupos_ocupados: apadrinados.length, cupos_disponibles: plan.cupos_apadrinados_adq - apadrinados.length }, apadrinados } };
+        const contactos: ContactoCuenta[] = await manager.query(`
+          SELECT contacto_emergencia_id AS "contacto_emergencia_ID", nombre_contacto, num_emergencia
+          FROM contacto_emergencia WHERE usuario_id=$1 ORDER BY contacto_emergencia_id
+        `, [idUsuario]);
+        const alertas: AlertaCuenta[] = await manager.query(`
+          SELECT a.alerta_id, a.estado_alerta, p.tipo_prioridad AS prioridad, d.texto_mensaje AS mensaje,
+            l.ubicacion, a.fecha_creacion, a.fecha_cierre
+          FROM alerta a JOIN prioridad p USING(prioridad_id)
+          JOIN detalle_alerta d USING(detalle_alerta_id)
+          LEFT JOIN ubicacion_alerta l USING(ubicacion_alerta_id)
+          WHERE a.usuario_id=$1 ORDER BY a.fecha_creacion DESC, a.alerta_id DESC
+        `, [idUsuario]);
+        return { valor: { usuario, plan: plan && { ...plan, cupos_ocupados: apadrinados.length, cupos_disponibles: plan.cupos_apadrinados_adq - apadrinados.length }, apadrinados, contactos, alertas } };
       },
     );
   }
@@ -135,6 +202,12 @@ export class AdminService {
         const anterior = await usuarios.findOneBy({ usuario_ID: idUsuario });
         if (!anterior) {
           throw new NotFoundException('El usuario no existe en la base de datos');
+        }
+        if (idUsuario === actor.sub) {
+          throw new BadRequestException('Modifica tu propia cuenta desde Modificar usuario');
+        }
+        if (anterior.rol_ID === ROL.ADMINISTRADOR) {
+          throw new BadRequestException('El administrador modifica sus datos desde su propio perfil');
         }
 
         let actualizado: Usuario;
@@ -311,7 +384,7 @@ export class AdminService {
 
         let usuarioGuardado: Usuario;
         try {
-          // Se fuerza el rol SOPORTE para el personal interno, inicializado como ACTIVO
+          // Se fuerza el rol SOPORTE, con acceso parcial hasta configurar el PIN.
           usuarioGuardado = await usuarios.save(
             usuarios.create({ ...cuenta, rol_ID: ROL.SOPORTE, estado_ID: 2, usuario_principal_ID: null }),
           );
@@ -328,6 +401,62 @@ export class AdminService {
         };
       },
     );
+  }
+
+  async actualizarTrabajador(id: number, datos: ActualizarTrabajadorDto, actor: ActorAuditoria): Promise<ResumenUsuario> {
+    return this.auditoriaService.auditar({
+      actor, accion: `Modificación del trabajador ${id}`, tipo: TIPO_ACCION.MODIFICACION,
+      entidad: ENTIDAD_AUDITADA.USUARIO, usuario_afectado_ID: id,
+    }, async (manager) => {
+      if (id === actor.sub) throw new BadRequestException('No puedes modificar tu propia cuenta desde trabajadores');
+      if (Object.values(datos).every((valor) => valor === undefined)) throw new BadRequestException('Indica los cambios del trabajador');
+      const usuarios = manager.getRepository(Usuario);
+      let usuario = await usuarios.findOne({ where: { usuario_ID: id }, lock: { mode: 'pessimistic_write' } });
+      if (!usuario || !(await this.esTrabajadorRegistrado(usuario, manager))) {
+        throw new NotFoundException('El trabajador no existe');
+      }
+      const anterior = { correo_usuario: usuario.correo_usuario, rol_ID: usuario.rol_ID, estado_ID: usuario.estado_ID };
+      if (datos.correo_usuario !== undefined) {
+        try {
+          usuario = await this.loginService.aplicarCambiosDePerfil(usuarios, id, { correo_usuario: datos.correo_usuario });
+        } catch (error) { throw this.loginService.traducirCorreoDuplicado(error); }
+      }
+      if (datos.PIN !== undefined) await this.loginService.guardarPin(manager, usuario, datos.PIN);
+      if (datos.rol_ID !== undefined) usuario.rol_ID = datos.rol_ID;
+      await usuarios.save(usuario);
+      return {
+        valor: this.resumir(usuario),
+        cambios: diferencias(anterior, usuario, ['correo_usuario', 'rol_ID', 'estado_ID']),
+      };
+    });
+  }
+
+  async eliminarTrabajador(id: number, actor: ActorAuditoria): Promise<void> {
+    return this.auditoriaService.auditar({
+      actor, accion: `Eliminación del trabajador ${id}`, tipo: TIPO_ACCION.ELIMINACION,
+      entidad: ENTIDAD_AUDITADA.USUARIO, usuario_afectado_ID: id,
+    }, async (manager) => {
+      if (id === actor.sub) throw new BadRequestException('No puedes eliminar tu propia cuenta');
+      const usuarios = manager.getRepository(Usuario);
+      const usuario = await usuarios.findOne({ where: { usuario_ID: id }, lock: { mode: 'pessimistic_write' } });
+      if (!usuario || !(await this.esTrabajadorRegistrado(usuario, manager))) {
+        throw new NotFoundException('El trabajador no existe');
+      }
+      await this.auditoriaService.registrar(manager, {
+        actor, accion: `Eliminación del trabajador ${id}`, tipo: TIPO_ACCION.ELIMINACION,
+        entidad: ENTIDAD_AUDITADA.USUARIO, usuario_afectado_ID: id,
+        cambios: diferencias({ nombre_usuario: usuario.nombre_usuario, rol_ID: usuario.rol_ID },
+          { nombre_usuario: null, rol_ID: null }, ['nombre_usuario', 'rol_ID']),
+      });
+      try { await usuarios.delete(id); }
+      catch (error) {
+        if (codigoPostgres(error) === PG_FOREIGN_KEY_VIOLATION) {
+          throw new ConflictException('Resuelve las cuentas apadrinadas o compras pendientes antes de eliminar al trabajador');
+        }
+        throw error;
+      }
+      return { valor: undefined, auditoriaRegistrada: true };
+    });
   }
 
   // READ: Visualización de Planes y Cupos

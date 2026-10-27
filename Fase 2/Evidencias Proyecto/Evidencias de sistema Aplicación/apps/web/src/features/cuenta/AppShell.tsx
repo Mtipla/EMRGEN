@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { ResumenTicketDerivado } from '@repo/ui/derivacion-tickets'
 import { ETIQUETA_PERFIL, MENSAJE_BLOQUEO, perfilDe, visible, type Accion, type Bloqueo } from '@repo/ui/permisos'
 import type { AuthenticatedUser } from '../auth/AuthForm'
 import '@repo/ui/wireframe' // carga los estilos wf-* compartidos
@@ -17,6 +18,7 @@ const MENU: { to: string; label: string; accion: Accion }[] = [
   { to: '/administracion/cuentas', label: 'Administrar cuentas', accion: 'admin.cuentas.ver' },
   { to: '/administracion/compras', label: 'Administrar compras', accion: 'admin.compras.ver' },
   { to: '/administracion/trabajadores', label: 'Administrar trabajadores', accion: 'admin.trabajadores' },
+  { to: '/administracion/planes', label: 'Gestión de planes y cupos de usuario', accion: 'admin.planes' },
   { to: '/administracion/tickets', label: 'Administrar Tickets de soporte', accion: 'soporte.gestionarTickets' },
   { to: '/administracion/alertas', label: 'Alertas', accion: 'alertas.verTodas' },
   { to: '/soporte', label: 'Solicitar soporte', accion: 'soporte.solicitar' },
@@ -49,7 +51,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
               <span className="wf-muted">{perfil ? ETIQUETA_PERFIL[perfil] : 'Perfil sin rol (vuelve a iniciar sesión)'}</span>
               {/* Mockup pág. 29: sin Premium no aparece "Administrar cuentas". */}
               {MENU.filter((item) => visible(user, item.accion) &&
-                (perfil !== 'SOPORTE' || item.to.startsWith('/administracion/'))).map((item) => (
+                (perfil !== 'SOPORTE' || item.to === '/perfil' || item.to.startsWith('/administracion/'))).map((item) => (
                 <Link key={item.to} to={item.to}>{item.label}</Link>
               ))}
               {perfil === 'ADMINISTRADOR' && <Link to="/usuarios">Usuarios registrados</Link>}
@@ -58,6 +60,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
           )}
         </div>
       </header>
+      <ResumenTicketDerivado />
       {children}
     </div>
   )

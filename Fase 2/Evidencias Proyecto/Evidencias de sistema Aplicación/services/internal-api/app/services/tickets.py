@@ -1,6 +1,7 @@
 """TICKET_SOPORTE identifica el caso y su estado; SOPORTE es seguimiento opcional 0..1."""
 import psycopg
 from fastapi import HTTPException
+from app.dependencies.auth import ROL_ADMINISTRADOR, ROL_SOPORTE
 
 _SELECT = """
  SELECT t.ticket_soporte_id AS ticket_id,t.usuario_id,u.nombre_usuario,u.correo_usuario,t.desc_ticket AS descripcion,
@@ -39,10 +40,23 @@ def listar(conn: psycopg.Connection, usuario_id: int | None, estado: str | None,
 def obtener(conn: psycopg.Connection, ticket_id: int) -> dict | None:
     return conn.execute(_SELECT + " WHERE t.ticket_soporte_id=%s", (ticket_id,)).fetchone()
 
-def actualizar(conn: psycopg.Connection, ticket_id: int, estado: str | None, solucion: str | None) -> dict:
+def actualizar(conn: psycopg.Connection, ticket_id: int, estado: str | None, solucion: str | None,
+               rol_id: int, enviar_verificacion: bool = False, confirmar_cierre: bool = False) -> dict:
     row = conn.execute("SELECT * FROM ticket_soporte WHERE ticket_soporte_id=%s FOR UPDATE", (ticket_id,)).fetchone()
     if not row:
         raise HTTPException(404, "El ticket no existe")
+    cerrado = estado_canonico(conn, "CERRADO")
+    if row["estado_ticket_id"] == cerrado and rol_id != ROL_ADMINISTRADOR:
+        raise HTTPException(403, "Solo el administrador puede modificar un ticket cerrado")
+    en_proceso = estado_canonico(conn, "EN PROCESO")
+    if row["estado_ticket_id"] == en_proceso and rol_id != ROL_ADMINISTRADOR:
+        raise HTTPException(403, "Solo el administrador puede modificar un ticket EN PROCESO.")
+    if enviar_verificacion:
+        if rol_id != ROL_SOPORTE:
+            raise HTTPException(403, "Solo soporte puede enviar una verificación al administrador")
+        estado = "EN PROCESO"
+    if estado is not None and estado.upper() == "CERRADO" and row["estado_ticket_id"] != cerrado and not confirmar_cierre:
+        raise HTTPException(400, "Confirma el cierre del ticket")
     if estado is not None:
         state = estado_canonico(conn, estado)
         if state is None:

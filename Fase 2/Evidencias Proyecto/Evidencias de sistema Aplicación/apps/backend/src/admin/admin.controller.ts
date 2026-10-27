@@ -7,6 +7,7 @@ import { RolesGuard } from '../login/roles.guard';
 import { AdminService } from './admin.service';
 import { ActualizarEstadoDto } from './dto/actualizar-estado.dto';
 import { GuardarPlanDto } from './dto/guardar-plan.dto';
+import { ActualizarTrabajadorDto } from './dto/actualizar-trabajador.dto';
 
 // SOPORTE consulta cuentas; las modificaciones requieren ADMINISTRADOR.
 // El actor de la bitácora sale del token verificado, nunca del body.
@@ -20,6 +21,16 @@ export class AdminController {
   @Roles(ROL.ADMINISTRADOR, ROL.SOPORTE)
   obtenerTodos() {
     return this.adminService.listarUsuarios();
+  }
+
+  @Get('planes')
+  listarPlanes() {
+    return this.adminService.listarPlanes();
+  }
+
+  @Get('trabajadores')
+  listarTrabajadores() {
+    return this.adminService.listarTrabajadores();
   }
 
   // El rol SOPORTE lo fuerza AdminService: el body no puede elegir rol ni estado.
@@ -38,6 +49,23 @@ export class AdminController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.adminService.obtenerExpedienteUsuario(id, request.user);
+  }
+
+  @Patch('trabajadores/:id')
+  actualizarTrabajador(
+    @Req() request: { user: UsuarioSesion },
+    @Param('id', ParseIntPipe) id: number,
+    @Body() datos: ActualizarTrabajadorDto,
+  ) {
+    return this.adminService.actualizarTrabajador(id, datos, request.user);
+  }
+
+  @Delete('trabajadores/:id')
+  eliminarTrabajador(
+    @Req() request: { user: UsuarioSesion },
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.adminService.eliminarTrabajador(id, request.user);
   }
 
   @Patch(':id')

@@ -3,14 +3,16 @@ import { useEffect, useState, type FormEvent } from "react";
 import { avisar, mensajeError } from "./avisos";
 import { MAX_CONTACTOS, NUMERO_E164, PRIORIDADES } from "./mocks";
 import { ConfirmDialog, Notice, Pendiente, PinDialog } from "./wireframe";
+import { PerfilPersonal, type DatosPerfilPersonal } from "./perfil-personal";
 
 interface PerfilFormProps {
+  onGuardarPersonal?: (datos: DatosPerfilPersonal) => Promise<void>;
   nombreUsuario: string;
   correo: string;
   /**
    * "usuario": finalidad, contactos, mensaje y ficha médica.
-   * "soporte" (Trabajador, mockup pág. 12): solo datos personales.
-   * "administrador" (mockup págs. 32-33): además el PIN de verificación de trabajador.
+   * "soporte" (Trabajador): nombre de usuario.
+   * "administrador": nombre de usuario y PIN propio.
    */
   variante?: "usuario" | "soporte" | "administrador";
   /** Acceso parcial: el backend rechaza PATCH /usuarios/me (403); se pide autorización del principal. */
@@ -140,7 +142,12 @@ type Modal =
   "pin" | "pin-pendiente" | "autorizacion" | "autorizacion-pendiente" | null;
 
 /** Pantalla "Modificar Usuario" de los wireframes, con los campos del modelo de datos. */
-export const PerfilForm = ({
+export const PerfilForm = (props: PerfilFormProps) =>
+  props.variante === "soporte" || props.variante === "administrador"
+    ? <PerfilPersonal {...props} variante={props.variante} />
+    : <PerfilUsuario {...props} />;
+
+const PerfilUsuario = ({
   nombreUsuario,
   correo,
   variante = "usuario",
@@ -152,9 +159,6 @@ export const PerfilForm = ({
   const conDatos = Boolean(api) && variante === "usuario";
   const [usuario, setUsuario] = useState(nombreUsuario);
   const [email, setEmail] = useState(correo);
-  // Sin endpoint: estos campos viven solo en el estado del formulario.
-  const [nombre, setNombre] = useState("");
-  const [telefono, setTelefono] = useState("");
   // 0 = sin finalidad (PRIORIDAD_ID nulo).
   const [prioridad, setPrioridad] = useState<number>(conDatos ? 0 : PRIORIDADES[0].id);
   const [contactos, setContactos] = useState<ContactoEmergencia[]>([]);
@@ -338,32 +342,12 @@ export const PerfilForm = ({
           />
         </label>
 
-        <Pendiente>
-          nombre, teléfono{onCambiarPassword ? "" : ", cambio de contraseña"}
-          {variante === "administrador"
-            ? " y PIN de trabajador"
-            : variante === "usuario" && !conDatos
-              ? ", finalidad, contactos, mensaje y ficha médica"
-              : ""}{" "}
-          aún no se guardan
-        </Pendiente>
-        <label>
-          Nombre
-          <input
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Federico Arturo"
-          />
-        </label>
-        <label>
-          Número telefónico
-          <input
-            type="tel"
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            placeholder="+569…"
-          />
-        </label>
+        {!conDatos && (
+          <Pendiente>
+            finalidad, contactos, mensaje y ficha médica aún no se guardan
+          </Pendiente>
+        )}
+        {!onCambiarPassword && <Pendiente>cambio de contraseña</Pendiente>}
 
         {variante === "soporte" ? null : carga.cargando ? (
           <p className="wf-muted">Cargando…</p>

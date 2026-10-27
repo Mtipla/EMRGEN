@@ -18,7 +18,7 @@ import { Notice, Pendiente } from '@repo/ui/wireframe';
  * correo + POST /usuarios/registro) está en apps/web/src/features/auth/AuthForm.tsx.
  */
 const Registro: React.FC = () => {
-  const [campos, setCampos] = useState({ nombre: '', telefono: '', usuario: '', correo: '', password: '', confirmacion: '' });
+  const [campos, setCampos] = useState({ usuario: '', correo: '', password: '', confirmacion: '' });
   const [error, setError] = useState('');
   const [aviso, setAviso] = useState(false);
 
@@ -49,9 +49,7 @@ const Registro: React.FC = () => {
       <IonContent className="ion-padding">
         <Pendiente>el registro móvil aún no crea la cuenta; usa la web para registrarte</Pendiente>
         <form onSubmit={enviar}>
-          <IonInput label="Nombre" labelPlacement="stacked" {...campo('nombre')} required />
-          <IonInput label="Número telefónico" labelPlacement="stacked" type="tel" {...campo('telefono')} />
-          <IonInput label="Nombre usuario" labelPlacement="stacked" {...campo('usuario')} required />
+          <IonInput label="Nombre de usuario" labelPlacement="stacked" minlength={2} maxlength={50} {...campo('usuario')} required />
           <IonInput label="Correo electrónico" labelPlacement="stacked" type="email" {...campo('correo')} required />
           <IonInput label="Contraseña" labelPlacement="stacked" type="password" {...campo('password')} required />
           <IonInput label="Confirmar contraseña" labelPlacement="stacked" type="password" {...campo('confirmacion')} required />

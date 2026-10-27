@@ -112,6 +112,11 @@ export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
     <PerfilForm
       nombreUsuario={user.nombre_usuario}
       correo={user.correo_usuario}
+      onGuardarPersonal={async (datos) => {
+        const updated = await apiFetch<AuthenticatedUser>('/usuarios/me', { method: 'PATCH', body: JSON.stringify(datos) })
+        localStorage.setItem('emergen.user', JSON.stringify(updated))
+        onUserUpdated(updated)
+      }}
       variante={perfil === 'ADMINISTRADOR' ? 'administrador' : perfil === 'SOPORTE' ? 'soporte' : 'usuario'}
       // Sesiones antiguas sin estado_ID no se tratan como parciales; el backend decide igual.
       accesoParcial={user.estado_ID !== undefined && !accesoCompleto(user)}

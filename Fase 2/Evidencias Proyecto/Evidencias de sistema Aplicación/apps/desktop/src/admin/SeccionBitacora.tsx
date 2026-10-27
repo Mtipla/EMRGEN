@@ -69,10 +69,10 @@ export function SeccionBitacora() {
   return (
     <section
       className="wf-card desktop-test-audit"
-      id="pruebas-bitacora"
-      aria-labelledby="pruebas-bitacora-titulo"
+      id="bitacora-auditoria"
+      aria-labelledby="bitacora-auditoria-titulo"
     >
-      <h2 id="pruebas-bitacora-titulo">Bitácora / auditoría</h2>
+      <h1 id="bitacora-auditoria-titulo">Bitácora / Auditoría</h1>
       <p className="wf-muted">
         Consulta las acciones registradas en el sistema y exporta un reporte PDF o Excel con los
         mismos filtros.

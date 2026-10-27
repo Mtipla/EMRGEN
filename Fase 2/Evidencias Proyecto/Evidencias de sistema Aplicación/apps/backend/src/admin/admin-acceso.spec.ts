@@ -15,6 +15,7 @@ describe('Permisos HTTP del personal administrativo', () => {
   let jwt: JwtService;
   const usuarios = {
     listarUsuarios: jest.fn().mockResolvedValue([]),
+    listarTrabajadores: jest.fn().mockResolvedValue([]),
     obtenerExpedienteUsuario: jest
       .fn()
       .mockResolvedValue({ usuario: { usuario_ID: 9 } }),
@@ -92,6 +93,7 @@ describe('Permisos HTTP del personal administrativo', () => {
     const http = () => request(app.getHttpServer());
     const solicitudes = [
       ['post', '/admin/usuarios/soporte'],
+      ['get', '/admin/usuarios/trabajadores'],
       ['patch', '/admin/usuarios/9'],
       ['put', '/admin/usuarios/9/estado'],
       ['put', '/admin/usuarios/9/plan'],
@@ -109,7 +111,16 @@ describe('Permisos HTTP del personal administrativo', () => {
     expect(usuarios.guardarPlanUsuario).not.toHaveBeenCalled();
     expect(usuarios.eliminarUsuarioApadrinado).not.toHaveBeenCalled();
     expect(usuarios.crearTrabajadorSoporte).not.toHaveBeenCalled();
+    expect(usuarios.listarTrabajadores).not.toHaveBeenCalled();
     expect(ventas.generarReporte).not.toHaveBeenCalled();
+  });
+
+  it('solo el administrador consulta el listado de trabajadores', async () => {
+    await request(app.getHttpServer()).get('/admin/usuarios/trabajadores').expect(401);
+    rol = 1;
+    await request(app.getHttpServer()).get('/admin/usuarios/trabajadores')
+      .auth(token(), { type: 'bearer' }).expect(200);
+    expect(usuarios.listarTrabajadores).toHaveBeenCalledTimes(1);
   });
 
   it('exige sesión y deniega la consulta a usuarios comunes y personal parcial', async () => {

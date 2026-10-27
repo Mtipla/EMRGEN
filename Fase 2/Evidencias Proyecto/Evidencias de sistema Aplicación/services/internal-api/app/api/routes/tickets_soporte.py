@@ -60,7 +60,10 @@ def obtener_ticket(
 def actualizar_ticket(
     ticket_id: int,
     datos: TicketActualizar,
-    _: UsuarioSesion = Depends(solo_staff),
+    usuario: UsuarioSesion = Depends(solo_staff),
     db: psycopg.Connection = Depends(get_db),
 ):
-    return transaction(db, lambda: tickets.actualizar(db, ticket_id, datos.estado, datos.solucion))
+    return transaction(db, lambda: tickets.actualizar(
+        db, ticket_id, datos.estado, datos.solucion, usuario.rol_id,
+        datos.enviar_verificacion, datos.confirmar_cierre,
+    ))

@@ -1,21 +1,25 @@
 import { useState, type FormEvent } from 'react'
-import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
+import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { DerivacionTicketsProvider, ResumenTicketDerivado } from '@repo/ui/derivacion-tickets'
 import { perfilDe, puede, type Perfil } from '@repo/ui/permisos'
 import { adminApi, API_URL, describirError, MODO_API, setToken, type Sesion } from './api'
 import {
   VistaCompras,
   VistaCuentas,
   VistaPerfil,
-  VistaPruebas,
   VistaTrabajadores,
 } from './VistasWireframe'
 import './panel-admin.css'
 import { SelectorTema } from './SelectorTema'
 import { VistaAlertas } from './VistaAlertas'
 import { VistaTickets } from './VistaTickets'
+import { SeccionUsuarios } from './SeccionUsuarios'
+import { SeccionBitacora } from './SeccionBitacora'
 
-/** Panel de pruebas del administrador (y vistas del Trabajador/SOPORTE): cada sección consume sus endpoints con Axios. */
+/** Panel administrativo y vistas de SOPORTE: cada sección consume sus endpoints con Axios. */
 export function PanelAdmin() {
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
   const [sesion, setSesion] = useState<Sesion | null>(null)
   const [correo, setCorreo] = useState('')
   const [password, setPassword] = useState('')
@@ -113,7 +117,8 @@ export function PanelAdmin() {
           )}
         </form>
       ) : (
-        <>
+        <DerivacionTicketsProvider key={sesion.usuario.usuario_ID} rutaActual={pathname}
+          esAdministrador={!esSoporte} onNavegar={navigate}>
           <div className="desktop-admin-session">
             <p>
               Sesión: <strong>{sesion.usuario.nombre_usuario}</strong>
@@ -129,28 +134,31 @@ export function PanelAdmin() {
           <nav className="desktop-admin-nav" aria-label="Secciones del panel administrativo">
             {!esSoporte && (
               <NavLink to="/" end>
-                Panel de pruebas
+                Bitácora / Auditoría
               </NavLink>
             )}
-            {!esSoporte && <NavLink to="/perfil">Modificar usuario</NavLink>}
+            <NavLink to="/perfil">Modificar usuario</NavLink>
             <NavLink to="/administracion/cuentas">Administrar cuentas</NavLink>
             <NavLink to="/administracion/compras">Administrar compras</NavLink>
             <NavLink to="/administracion/tickets">Administrar Tickets de soporte</NavLink>
+            {!esSoporte && <NavLink to="/administracion/planes">Gestión de planes y cupos de usuario</NavLink>}
             {!esSoporte && <NavLink to="/administracion/alertas">Alertas SOS</NavLink>}
             {puede(perfil, 'admin.trabajadores') && (
               <NavLink to="/administracion/trabajadores">Administrar trabajadores</NavLink>
             )}
           </nav>
+          <ResumenTicketDerivado />
           {/* Las rutas que el Trabajador no tiene ni se registran: la URL cae en el redirect. */}
           <Routes>
-            {!esSoporte && <Route path="/" element={<VistaPruebas />} />}
-            {!esSoporte && <Route
+            {!esSoporte && <Route path="/" element={<SeccionBitacora />} />}
+            <Route
               path="/perfil"
               element={<VistaPerfil sesion={sesion} onActualizado={setSesion} />}
-            />}
+            />
             <Route path="/administracion/cuentas" element={<VistaCuentas perfil={perfil} />} />
             <Route path="/administracion/compras" element={<VistaCompras perfil={perfil} />} />
-            <Route path="/administracion/tickets" element={<VistaTickets />} />
+            <Route path="/administracion/tickets" element={<VistaTickets esAdministrador={!esSoporte} />} />
+            {!esSoporte && <Route path="/administracion/planes" element={<SeccionUsuarios />} />}
             {!esSoporte && <Route path="/administracion/alertas" element={<VistaAlertas />} />}
             {puede(perfil, 'admin.trabajadores') && (
               <Route path="/administracion/trabajadores" element={<VistaTrabajadores />} />
@@ -160,7 +168,7 @@ export function PanelAdmin() {
               element={<Navigate to={esSoporte ? '/administracion/cuentas' : '/'} replace />}
             />
           </Routes>
-        </>
+        </DerivacionTicketsProvider>
       )}
     </div>
   )

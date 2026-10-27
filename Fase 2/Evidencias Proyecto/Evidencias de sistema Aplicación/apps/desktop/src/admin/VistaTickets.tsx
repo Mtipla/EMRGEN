@@ -11,6 +11,6 @@ const listar = conErrorLegible(adminApi.listarTickets)
 const listarEstados = conErrorLegible(adminApi.listarEstadosTickets)
 const actualizar = conErrorLegible(adminApi.actualizarTicket)
 
-export function VistaTickets() {
-  return <AdminTickets listar={listar} listarEstados={listarEstados} actualizar={actualizar} />
+export function VistaTickets({ esAdministrador }: { esAdministrador: boolean }) {
+  return <AdminTickets esAdministrador={esAdministrador} listar={listar} listarEstados={listarEstados} actualizar={actualizar} />
 }

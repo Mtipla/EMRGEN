@@ -1,5 +1,9 @@
 import axios, { isAxiosError, type AxiosResponse } from 'axios'
-import type { Catalogo, Ticket } from '@repo/ui/soporte'
+import type { CambiosTicket, Catalogo, Ticket } from '@repo/ui/soporte'
+import type { ExpedienteCuenta } from '@repo/ui/admin-cuentas'
+import type { UsuarioAdminFila } from '@repo/ui/admin-views'
+import type { DatosPerfilPersonal } from '@repo/ui/perfil-personal'
+import type { CambiosTrabajador } from '@repo/ui/admin-trabajadores'
 export type { PaginaVentas, VentaAdmin } from '@repo/ui/admin-ventas'
 import type { PaginaVentas } from '@repo/ui/admin-ventas'
 
@@ -47,14 +51,7 @@ export type Sesion = {
   usuario: { usuario_ID: number; nombre_usuario: string; correo_usuario: string; rol_ID?: number; estado_ID?: number }
 }
 
-export type UsuarioAdmin = {
-  usuario_ID: number
-  nombre_usuario: string
-  correo_usuario: string
-  rol_ID: number
-  estado_ID: number
-  usuario_principal_ID?: number | null
-}
+export type UsuarioAdmin = UsuarioAdminFila
 
 export type AlertaAdmin = {
   alerta_id: number
@@ -93,10 +90,8 @@ export type PlanUsuario = {
 
 export type DatosPlan = Pick<PlanUsuario, 'plan_ID' | 'cupos_apadrinados_adq'>
 
-export type Expediente = {
-  usuario: UsuarioAdmin
+export type Expediente = ExpedienteCuenta & {
   plan: PlanUsuario | null
-  apadrinados: Pick<UsuarioAdmin, 'usuario_ID' | 'nombre_usuario' | 'estado_ID'>[]
 }
 
 type Valor = string | number | boolean | null
@@ -137,8 +132,8 @@ const sinVacios = (campos: Record<string, string>) =>
 export const adminApi = {
   login: (correo_usuario: string, password: string) =>
     datos(http.post<Sesion>('/usuarios/login', { correo_usuario, password })),
-  actualizarMiUsuario: (nombre_usuario: string, correo_usuario: string) =>
-    datos(http.patch<Sesion['usuario']>('/usuarios/me', { nombre_usuario, correo_usuario })),
+  actualizarMiUsuario: (cambios: DatosPerfilPersonal) =>
+    datos(http.patch<Sesion['usuario']>('/usuarios/me', cambios)),
 
   listarTickets: (consulta: { estado: string; limit: number; offset: number }, signal: AbortSignal) =>
     datos(internalHttp.get<Ticket[]>('/tickets-soporte', {
@@ -147,7 +142,7 @@ export const adminApi = {
   listarEstadosTickets: (signal: AbortSignal): Promise<Catalogo[]> =>
     datos(internalHttp.get<{ estado_id: number; nombre: string }[]>('/tickets-soporte/estados', { signal }))
       .then((filas) => filas.map((f) => ({ id: f.estado_id, nombre: f.nombre }))),
-  actualizarTicket: (id: number, cambios: { estado?: string; solucion?: string }) =>
+  actualizarTicket: (id: number, cambios: CambiosTicket) =>
     datos(internalHttp.patch<Ticket>(`/tickets-soporte/${id}`, cambios)),
 
   listarAlertas: (
@@ -176,7 +171,9 @@ export const adminApi = {
 
   // Usuarios
   listarUsuarios: () => datos(http.get<UsuarioAdmin[]>('/admin/usuarios')),
-  verExpediente: (id: number) => datos(http.get<Expediente>(`/admin/usuarios/${id}`)),
+  listarTrabajadores: () => datos(http.get<UsuarioAdmin[]>('/admin/usuarios/trabajadores')),
+  listarPlanes: () => datos(http.get<{ plan_ID: number; nombre_plan: string }[]>('/admin/usuarios/planes')),
+  verExpediente: (id: number, signal?: AbortSignal) => datos(http.get<Expediente>(`/admin/usuarios/${id}`, { signal })),
   actualizarDatos: (id: number, nombre_usuario: string, correo_usuario: string) =>
     datos(
       http.patch<UsuarioAdmin>(
@@ -191,6 +188,10 @@ export const adminApi = {
   eliminarApadrinado: (id: number) => datos(http.delete<void>(`/admin/usuarios/apadrinado/${id}`)),
   crearSoporte: (cuenta: DatosSoporte) =>
     datos(http.post<UsuarioAdmin>('/admin/usuarios/soporte', cuenta)),
+  actualizarTrabajador: (id: number, cambios: CambiosTrabajador) =>
+    datos(http.patch<UsuarioAdmin>(`/admin/usuarios/trabajadores/${id}`, cambios)),
+  eliminarTrabajador: (id: number) =>
+    datos(http.delete<void>(`/admin/usuarios/trabajadores/${id}`)),
 
   // Ventas registradas y reportes PDF/Excel generados por jsReport con los mismos filtros.
   listarVentas: (filtros: FiltrosVentas, offset: number, signal: AbortSignal) =>
