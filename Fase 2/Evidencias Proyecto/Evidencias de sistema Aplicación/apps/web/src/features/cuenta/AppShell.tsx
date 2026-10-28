@@ -20,6 +20,7 @@ const MENU: { to: string; label: string; accion: Accion }[] = [
   { to: '/administracion/trabajadores', label: 'Administrar trabajadores', accion: 'admin.trabajadores' },
   { to: '/administracion/planes', label: 'Gestión de planes y cupos de usuario', accion: 'admin.planes' },
   { to: '/administracion/tickets', label: 'Administrar Tickets de soporte', accion: 'soporte.gestionarTickets' },
+  { to: '/administracion/contacto', label: 'Mensajes de contacto', accion: 'soporte.mensajesContacto' },
   { to: '/administracion/alertas', label: 'Alertas', accion: 'alertas.verTodas' },
   { to: '/soporte', label: 'Solicitar soporte', accion: 'soporte.solicitar' },
 ]
@@ -30,9 +31,9 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
   const [open, setOpen] = useState(false)
   const enlaces = (
     <>
-      <Link to="/#como-funciona">¿Cómo funciona?</Link>
-      <Link to="/#descargar-app">Descargar App</Link>
-      <Link to="/#preguntas-frecuentes">Preguntas frecuentes</Link>
+      <Link to="/como-funciona">¿Cómo funciona?</Link>
+      <Link to="/descargar">Descargar App</Link>
+      <Link to="/preguntas-frecuentes">Preguntas frecuentes</Link>
       {visible(user, 'compras.comprar') && (
         <Link to={user.plan_efectivo ? '/comprar' : '/premium'}>
           {user.plan_efectivo ? 'Comprar cupos de cuentas' : 'Comprar Premium'}

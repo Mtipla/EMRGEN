@@ -1,5 +1,6 @@
 import axios, { isAxiosError, type AxiosResponse } from 'axios'
 import type { CambiosTicket, Catalogo, Ticket } from '@repo/ui/soporte'
+import type { CambiosMensaje, MensajeContacto } from '@repo/ui/admin-contacto'
 import type { ExpedienteCuenta } from '@repo/ui/admin-cuentas'
 import type { UsuarioAdminFila } from '@repo/ui/admin-views'
 import type { DatosPerfilPersonal } from '@repo/ui/perfil-personal'
@@ -144,6 +145,15 @@ export const adminApi = {
       .then((filas) => filas.map((f) => ({ id: f.estado_id, nombre: f.nombre }))),
   actualizarTicket: (id: number, cambios: CambiosTicket) =>
     datos(internalHttp.patch<Ticket>(`/tickets-soporte/${id}`, cambios)),
+
+  listarMensajesContacto: (consulta: { estado: string; limit: number }, signal: AbortSignal) =>
+    datos(internalHttp.get<MensajeContacto[]>('/mensajes-contacto', {
+      params: { limit: consulta.limit, ...(consulta.estado && { estado: consulta.estado }) }, signal,
+    })),
+  listarEstadosContacto: (signal: AbortSignal) =>
+    datos(internalHttp.get<Catalogo[]>('/mensajes-contacto/estados', { signal })),
+  actualizarMensajeContacto: (id: number, cambios: CambiosMensaje) =>
+    datos(internalHttp.patch<MensajeContacto>(`/mensajes-contacto/${id}`, cambios)),
 
   listarAlertas: (
     filtros: {
