@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react'
+import { isAxiosError } from 'axios'
 import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { DerivacionTicketsProvider, ResumenTicketDerivado } from '@repo/ui/derivacion-tickets'
 import { perfilDe, puede, type Perfil } from '@repo/ui/permisos'
-import { adminApi, API_URL, describirError, MODO_API, setToken, type Sesion } from './api'
+import { adminApi, API_URL, MODO_API, setToken, type Sesion } from './api'
 import {
   VistaCompras,
   VistaCuentas,
@@ -15,6 +16,19 @@ import { VistaAlertas } from './VistaAlertas'
 import { VistaTickets } from './VistaTickets'
 import { SeccionUsuarios } from './SeccionUsuarios'
 import { SeccionBitacora } from './SeccionBitacora'
+
+function mensajeErrorInicioSesion(error: unknown): string {
+  if (isAxiosError(error)) {
+    const estado = error.response?.status
+    if (!error.response) return 'No se pudo conectar con el servicio. Inténtalo nuevamente más tarde.'
+    if (estado === 401) return 'Correo o contraseña incorrectos.'
+    if (estado === 403) return 'Tu cuenta no tiene permisos para acceder al panel administrativo.'
+    if (estado !== undefined && estado >= 500) {
+      return 'El servicio no está disponible en este momento. Inténtalo más tarde.'
+    }
+  }
+  return 'No se pudo iniciar sesión. Verifica tus datos e inténtalo nuevamente.'
+}
 
 /** Panel administrativo y vistas de SOPORTE: cada sección consume sus endpoints con Axios. */
 export function PanelAdmin() {
@@ -41,7 +55,7 @@ export function PanelAdmin() {
       setPassword('')
     } catch (causa) {
       setToken('')
-      setError(await describirError(causa))
+      setError(mensajeErrorInicioSesion(causa))
     }
   }
 
