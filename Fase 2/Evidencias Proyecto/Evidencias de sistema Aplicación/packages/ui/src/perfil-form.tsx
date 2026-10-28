@@ -60,7 +60,7 @@ export function normalizarTelefono(valor: string): string {
 /** CA-05.1: máximo del mensaje personalizado (backend @MaxLength y CHECK en la BD). */
 const MAX_MENSAJE = 160;
 
-const NUMERO_DUPLICADO ="Ese número ya está en tu lista de contactos de emergencia";
+const NUMERO_DUPLICADO = "Ese número ya está en tu lista de contactos de emergencia";
 /** Texto de CA-04.1; el backend responde lo mismo (PerfilService.eliminarContacto). */
 const UNICO_CONTACTO =
   "Debe mantener al menos un contacto activo en su red de auxilio. Se recomienda editar el contacto activo";
@@ -351,7 +351,7 @@ const PerfilUsuario = ({
             {[
               !onCambiarPassword && "cambio de contraseña",
               variante === "usuario" && !conDatos &&
-                "finalidad, contactos, mensaje y ficha médica",
+              "finalidad, contactos, mensaje y ficha médica",
             ]
               .filter(Boolean)
               .join(", ")}{" "}
@@ -546,13 +546,13 @@ const PerfilUsuario = ({
                   />
                 </label>
               ))}
-              <label className="wf-row">
+              <label className="wf-row wf-donor-row">
+                Donante de órganos
                 <input
                   type="checkbox"
                   checked={donante}
                   onChange={(e) => setDonante(e.target.checked)}
                 />
-                Donante de órganos
               </label>
             </fieldset>
           </>
