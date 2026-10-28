@@ -23,7 +23,8 @@ async function bootstrap() {
     }),
   );
   const puerto = process.env.PORT ?? 3000;
-  await app.listen(puerto);
+  const host = readEnv('HOST') ?? '0.0.0.0';
+  await app.listen(puerto, host);
   // Si un frontend muestra "sin respuesta", su origen debe aparecer en esta lista.
   new Logger('Bootstrap').log(`API en el puerto ${puerto}; orígenes CORS: ${origenes.join(', ')}`);
 }

@@ -39,7 +39,7 @@ const ConfigurarAlerta: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return (
       <Notice
         title="Configurar alerta"
-        message={`En ${segundos} segundos su aplicación grabará una secuencia de botones que se activarán como señal de alerta en segundo plano.`}
+        message={`En ${segundos} segundos comenzará una simulación con botones en pantalla. No captura teclas físicas ni activa SOS en segundo plano.`}
         onClose={onClose}
       />
     );
@@ -85,9 +85,9 @@ const ConfigurarAlerta: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return paso === 'exito' ? (
     <Notice
-      title="Prueba exitosa"
+      title="Simulación completada"
       tone="success"
-      message="Su prueba fue exitosa: cada vez que utilice este código se enviará un mensaje de alerta a sus contactos vinculados. (La secuencia aún no se guarda: pendiente de integración.)"
+      message="Repetiste la secuencia correctamente. Esta demostración no guarda la secuencia ni envía alertas. Los botones físicos y la activación en segundo plano están pendientes de integración."
       onClose={onClose}
     />
   ) : (

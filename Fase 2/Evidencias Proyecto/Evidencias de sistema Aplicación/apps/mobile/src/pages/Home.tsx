@@ -127,11 +127,12 @@ const Home: React.FC = () => {
 
         <IonCard>
           <IonCardHeader>
-            <IonCardTitle>Configurar alerta en segundo plano</IonCardTitle>
+            <IonCardTitle>Alerta en segundo plano · Simulación</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
             <p>
-              Realiza una secuencia de botones determinada por usted en un tiempo de 20 segundos.
+              Prueba una secuencia con botones en pantalla. La activación mediante teclas físicas
+              y con la app cerrada está pendiente de integración.
             </p>
             <button
               type="button"
