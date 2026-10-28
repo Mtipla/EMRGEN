@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { loadPaypalSdk } from '@repo/api-client'
 import { usePremiumPurchase, type PurchaseModal } from './usePremiumPurchase'
 
@@ -27,10 +28,9 @@ export function PremiumPurchase({ onClose, onPurchased }: PremiumPurchaseProps) 
     <section className="purchase">
       <nav className="purchase-nav" aria-label="EMERGEN">
         <strong>EMERGEN</strong>
-        {/* Destinos pendientes: estas páginas aún no existen en la web. */}
-        <a href="#como-funciona">¿Cómo funciona?</a>
-        <a href="#descargar-app">Descargar App</a>
-        <a href="#preguntas-frecuentes">Preguntas frecuentes</a>
+        <Link to="/como-funciona">¿Cómo funciona?</Link>
+        <Link to="/descargar">Descargar App</Link>
+        <Link to="/preguntas-frecuentes">Preguntas frecuentes</Link>
       </nav>
 
       <div className="purchase-card" aria-busy={processing || !summary}>

@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 from app.main import app
+from app.api.routes.mensajes_contacto import RUTAS_PUBLICAS
 
 
 def test_swagger_declara_bearer_jwt_para_authorize():
@@ -17,7 +18,10 @@ def test_rutas_sos_y_soporte_usan_seguridad_sin_cabecera_reservada():
     for path,operations in schema["paths"].items():
         if not path.startswith("/internal/v1/"):
             continue
-        for operation in operations.values():
+        for method,operation in operations.items():
+            if (path,method) in RUTAS_PUBLICAS:
+                assert not operation.get("security")
+                continue
             assert operation["security"]==[{"SesionEMERGEN":[]}]
             assert not any(parameter["in"]=="header" and parameter["name"].lower()=="authorization"
                 for parameter in operation.get("parameters",[]))

@@ -48,7 +48,22 @@ El botón **Descargar PDF/Excel** de **Bitácora / auditoría** utiliza el mismo
 
 Respuesta: ticket_id, usuario_id, nombre_usuario y correo_usuario nullable, descripcion, estado, solucion nullable, categoria_id, categoria. Estado sin seguimiento es válido; solución ausente es NULL. No existe estado en SOPORTE. Las consultas usan LEFT JOIN para no perder tickets nuevos.
 
-En web y escritorio, el menú de SOPORTE ofrece únicamente Administrar cuentas (lectura), Administrar compras (ventas reales, lectura) y Administrar Tickets de soporte. La bandeja consulta los tickets de todos los usuarios, filtra por estado, pagina de 20 en 20 y se actualiza cada 15 segundos. Permite responder y cambiar el estado; el solicitante ve la solución en Mis solicitudes de `/soporte`. NestJS permite a SOPORTE con acceso completo `GET /admin/usuarios`, `GET /admin/usuarios/:id` y `GET /admin/ventas`; las modificaciones de cuentas y los reportes permanecen exclusivos del administrador.
+En web y escritorio, el menú de SOPORTE ofrece únicamente Administrar cuentas (lectura), Administrar compras (ventas reales, lectura), Administrar Tickets de soporte y Mensajes de contacto. La bandeja consulta los tickets de todos los usuarios, filtra por estado, pagina de 20 en 20 y se actualiza cada 15 segundos. Permite responder y cambiar el estado; el solicitante ve la solución en Mis solicitudes de `/soporte`. NestJS permite a SOPORTE con acceso completo `GET /admin/usuarios`, `GET /admin/usuarios/:id` y `GET /admin/ventas`; las modificaciones de cuentas y los reportes permanecen exclusivos del administrador.
+
+## Mensajes de contacto (web pública)
+
+Formulario de Preguntas frecuentes para visitantes sin sesión. Usa las tablas MENSAJE_CONTACTO, TIPO_CONTACTO, ESTADO_CONTACTO y RESPUESTA_CONTACTO de `init.sql`, sin migraciones nuevas.
+
+| Método/ruta | Contrato |
+|---|---|
+| GET /internal/v1/mensajes-contacto/tipos | **Sin sesión.** Catálogo TIPO_CONTACTO `{id, nombre}`: RECLAMO, SUGERENCIA, CONSULTA. |
+| POST /internal/v1/mensajes-contacto | **Sin sesión.** `nombre` 1–100, `correo` válido ≤100, `mensaje` 1–500, `tipo_id` existente (400 si no). Crea el mensaje en estado PENDIENTE y responde solo `mensaje_contacto_id`. Antispam: 429 al superar 5 envíos por IP cada 15 minutos (memoria del proceso) o 3 por correo cada hora (contados en la BD, sin distinguir mayúsculas). |
+| GET /internal/v1/mensajes-contacto/estados | Personal completo. Catálogo ESTADO_CONTACTO `{id, nombre}`: EN_REVISION, PENDIENTE, REVISADO. |
+| GET /internal/v1/mensajes-contacto | Personal completo. Más recientes primero; filtro `estado`, paginación limit/offset. |
+| GET /internal/v1/mensajes-contacto/{id} | Personal completo. 404 si no existe. |
+| PATCH /internal/v1/mensajes-contacto/{id} | Personal completo: `estado` del catálogo y/o `respuesta` 1–500. La respuesta crea una fila de RESPUESTA_CONTACTO con el usuario que responde y, si no se indica otro estado, deja el mensaje REVISADO. |
+
+Respuesta: mensaje_contacto_id, nombre, correo, mensaje, fecha, tipo, estado y `respuestas` (respuesta_id, texto, fecha, autor nullable si la cuenta del autor se eliminó). En web y escritorio, ADMINISTRADOR y SOPORTE lo gestionan en **Mensajes de contacto** (`/administracion/contacto`). EMERGEN no envía correos: el botón «Copiar respuesta y abrir Gmail» copia la respuesta al portapapeles y abre la redacción de Gmail (destinatario y asunto listos) en una pestaña del navegador; en escritorio, Electron la abre en el navegador predeterminado. El personal pega la respuesta y envía el correo.
 
 ## Errores y responsabilidades
 

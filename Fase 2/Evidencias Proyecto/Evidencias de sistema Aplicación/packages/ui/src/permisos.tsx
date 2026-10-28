@@ -45,6 +45,7 @@ export type Accion =
   | "compras.cupos"
   | "soporte.solicitar"
   | "soporte.gestionarTickets"
+  | "soporte.mensajesContacto"
   | "alertas.verTodas"
   | "alertas.emitir"
   | "admin.cuentas.ver"
@@ -99,6 +100,11 @@ export const PERMISOS: Record<
     "soporte.gestionarTickets": {
       perfiles: PERSONAL,
       fuente: "PATCH /internal/v1/tickets-soporte (solo_staff)",
+      soloCompleto: true,
+    },
+    "soporte.mensajesContacto": {
+      perfiles: PERSONAL,
+      fuente: "GET/PATCH /internal/v1/mensajes-contacto (solo_staff)",
       soloCompleto: true,
     },
     "alertas.verTodas": {
