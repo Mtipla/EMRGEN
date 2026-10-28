@@ -53,6 +53,7 @@ describe('AdminService', () => {
       save: jest.fn((plan: PlanUsuario) => Promise.resolve(plan)),
     };
     manager = {
+      query: jest.fn().mockResolvedValue([]),
       getRepository: (entidad: unknown) => (entidad === PlanUsuario ? planes : usuarios),
     } as unknown as EntityManager;
     auditado = null;
@@ -163,6 +164,63 @@ describe('AdminService', () => {
     });
   });
 
+  describe('roles de trabajadores', () => {
+    it.each([[2, 3], [3, 2]] as const)('cambia el rol %s a %s sin una marca adicional', async (anterior, nuevo) => {
+      usuarios.findOne.mockResolvedValueOnce({
+        usuario_ID: 7, nombre_usuario: 'soporte', correo_usuario: 'soporte@emergen.test',
+        rol_ID: anterior, estado_ID: 1, usuario_principal_ID: null,
+      });
+      if (anterior === 3) (manager.query as jest.Mock).mockResolvedValueOnce([{ existe: 1 }]);
+
+      await expect(service.actualizarTrabajador(7, { rol_ID: nuevo }, ADMIN))
+        .resolves.toMatchObject({ rol_ID: nuevo, estado_ID: 1 });
+      expect(auditado?.cambios).toEqual({ rol_ID: { antes: anterior, despues: nuevo } });
+    });
+
+    it.each([
+      { rol_ID: 1, usuario_principal_ID: null },
+      { rol_ID: 3, usuario_principal_ID: 9 },
+    ])('no convierte administradores ni apadrinados en soporte: %j', async (cuenta) => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, ...cuenta });
+      await expect(service.actualizarTrabajador(7, { rol_ID: 2 }, ADMIN))
+        .rejects.toBeInstanceOf(NotFoundException);
+      expect(usuarios.save).not.toHaveBeenCalled();
+    });
+
+    it('no edita el correo de un USUARIO sin historial de trabajador', async () => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, rol_ID: 3, usuario_principal_ID: null });
+      await expect(service.actualizarTrabajador(7, { correo_usuario: 'cambio@emergen.test' }, ADMIN))
+        .rejects.toBeInstanceOf(NotFoundException);
+      expect(aplicarCambiosDePerfil).not.toHaveBeenCalled();
+    });
+
+    it('no habilita como soporte una cuenta de usuario sin historial de trabajador', async () => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, rol_ID: 3, usuario_principal_ID: null });
+      await expect(service.actualizarTrabajador(7, { rol_ID: 2 }, ADMIN))
+        .rejects.toBeInstanceOf(NotFoundException);
+      expect(usuarios.save).not.toHaveBeenCalled();
+    });
+
+    it.each([1, 3])('no elimina cuentas de rol %s desde trabajadores', async (rol_ID) => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, rol_ID });
+      await expect(service.eliminarTrabajador(7, ADMIN)).rejects.toBeInstanceOf(NotFoundException);
+      expect(usuarios.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('eliminarTrabajadorSoporte', () => {
+    it('elimina solo cuentas con rol SOPORTE', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 9, nombre_usuario: 'Soporte', rol_ID: 2, usuario_principal_ID: null });
+      await service.eliminarTrabajadorSoporte(9, ADMIN);
+      expect(usuarios.delete).toHaveBeenCalledWith(9);
+      expect(evento()).toMatchObject({ accion: 'Eliminación de trabajador 9', tipo: 'ELIMINACION' });
+
+      usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 7, rol_ID: 3, usuario_principal_ID: null });
+      await expect(service.eliminarTrabajadorSoporte(7, ADMIN)).rejects.toBeInstanceOf(BadRequestException);
+      expect(usuarios.delete).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('crearTrabajadorSoporte', () => {
     const datos = {
       nombre_usuario: 'Sofía Soporte',
@@ -187,7 +245,7 @@ describe('AdminService', () => {
         nombre_usuario: datos.nombre_usuario,
         correo_usuario: datos.correo_usuario,
         rol_ID: 2,
-        estado_ID: 2,
+        estado_ID: 1,
       });
       expect(usuarios.save).toHaveBeenCalledWith(
         expect.objectContaining({ contra_usuario: '$2b$12$hash', usuario_principal_ID: null }),
@@ -348,7 +406,7 @@ describe('AdminService', () => {
 
       const expediente = await service.obtenerExpedienteUsuario(7, ADMIN);
 
-      expect(expediente).toEqual({ usuario, plan: null, apadrinados });
+      expect(expediente).toEqual({ usuario, plan: null, apadrinados, contactos: [], alertas: [] });
       expect(evento()).toEqual({
         actor: ADMIN,
         accion: 'Consulta del expediente del usuario 7',

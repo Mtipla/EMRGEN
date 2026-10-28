@@ -110,7 +110,7 @@ test('el cierre tiene exactamente el formato solicitado, sin ubicación ni datos
       senderEmail: 'ana@emergen.test',
     }),
   ).toBe(
-    'MENSAJE MEDIANTE APLICACIÓN EMERGEN\n\nLa alerta reciente del usuario Ana de correo ana@emergen.test, ha sido FINALIZADA',
+    'MENSAJE MEDIANTE APLICACIÓN EMERGEN\n------------------------------------\nLa alerta reciente del usuario Ana de correo ana@emergen.test, ha sido FINALIZADA',
   );
 });
 

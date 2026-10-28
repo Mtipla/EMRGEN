@@ -1,7 +1,8 @@
-import { Fragment, useId, useState, type FormEvent } from "react";
+import { Fragment, useId, useState, type FormEvent, type ReactNode } from "react";
 import { avisar, mensajeError } from "./avisos";
 import { PRIORIDADES } from "./mocks";
-import { DataTable, type Column } from "./wireframe";
+import { ConfirmDialog, DataTable, type Column } from "./wireframe";
+import { moduloSugerido, type EdicionTicket, type ModuloTicket } from "./derivacion-tickets";
 
 /**
  * Soporte y alertas (internal-api /internal/v1). No aparecen en los PDF: salen del ERS
@@ -24,6 +25,13 @@ export interface Ticket {
   solucion: string | null;
   categoria_id: number;
   categoria: string;
+}
+
+export interface CambiosTicket {
+  estado?: string;
+  solucion?: string;
+  enviar_verificacion?: boolean;
+  confirmar_cierre?: boolean;
 }
 
 /** Respuesta de GET /internal/v1/alertas. */
@@ -274,28 +282,42 @@ export const SolicitudSoporte = ({
 };
 
 interface GestionTicketsProps extends Carga {
+  esAdministrador?: boolean;
+  edicionInicial?: EdicionTicket;
+  onDerivar?: (edicion: EdicionTicket, modulo: ModuloTicket) => void;
   tickets: Ticket[];
   estados: Catalogo[];
   /** PATCH /internal/v1/tickets-soporte/{id}; solo SOPORTE y ADMINISTRADOR (solo_staff). */
   onActualizar: (
     ticketId: number,
-    cambios: { estado?: string; solucion?: string },
+    cambios: CambiosTicket,
   ) => Promise<unknown>;
+  /** Filtros que se muestran bajo el título. */
+  filtros?: ReactNode;
 }
 
 /** Gestión de tickets del personal (función documentada del rol SOPORTE). */
 export const GestionTickets = ({
+  esAdministrador = false,
+  edicionInicial,
+  onDerivar,
   tickets,
   estados,
   cargando,
   error,
   onActualizar,
+  filtros,
 }: GestionTicketsProps) => {
-  const [seleccionId, setSeleccionId] = useState<number | null>(null);
-  const seleccion = tickets.find((t) => t.ticket_id === seleccionId) ?? null;
-  const [estado, setEstado] = useState("");
-  const [solucion, setSolucion] = useState("");
+  const [ticketSeleccionado, setTicketSeleccionado] = useState<Ticket | null>(edicionInicial?.ticket ?? null);
+  const seleccion = tickets.find((t) => t.ticket_id === ticketSeleccionado?.ticket_id) ?? ticketSeleccionado;
+  const [estado, setEstado] = useState(edicionInicial?.estado ?? "");
+  const [solucion, setSolucion] = useState(edicionInicial?.solucion ?? "");
+  const sugerencia = esAdministrador && seleccion && onDerivar ? moduloSugerido(seleccion.categoria) : null;
   const [guardando, setGuardando] = useState(false);
+  const [confirmandoCierre, setConfirmandoCierre] = useState(false);
+  const enProceso = seleccion?.estado.trim().toUpperCase() === "EN PROCESO";
+  const soloLectura = !esAdministrador && Boolean(seleccion &&
+    (enProceso || seleccion.estado.trim().toUpperCase() === "CERRADO"));
   const [resultado, setResultado] = useState<{
     ok: boolean;
     texto: string;
@@ -303,26 +325,33 @@ export const GestionTickets = ({
 
   function seleccionar(t: Ticket) {
     if (guardando) return;
-    if (seleccionId === t.ticket_id) return cerrar();
-    setSeleccionId(t.ticket_id);
+    if (ticketSeleccionado?.ticket_id === t.ticket_id) return cerrar();
+    setTicketSeleccionado(t);
     setEstado(t.estado);
     setSolucion(t.solucion ?? "");
     setResultado(null);
   }
 
   function cerrar() {
-    setSeleccionId(null);
+    setConfirmandoCierre(false);
+    setTicketSeleccionado(null);
     setEstado("");
     setSolucion("");
     setResultado(null);
   }
 
-  async function guardar(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!seleccion || guardando) return;
-    const cambios = {
-      ...(estado !== seleccion.estado && { estado }),
-      ...(solucion.trim() &&
+  async function guardar(confirmar = false, verificar = false) {
+    if (!seleccion || guardando || soloLectura) return;
+    if (!verificar && estado === "CERRADO" && seleccion.estado !== "CERRADO" && !confirmar) {
+      setConfirmandoCierre(true);
+      return;
+    }
+    setConfirmandoCierre(false);
+    const cambios: CambiosTicket = {
+      ...(verificar ? { estado: "EN PROCESO", enviar_verificacion: true }
+        : estado !== seleccion.estado && { estado }),
+      ...(confirmar && { confirmar_cierre: true }),
+      ...(!verificar && solucion.trim() &&
         solucion.trim() !== seleccion.solucion && {
           solucion: solucion.trim(),
         }),
@@ -332,27 +361,18 @@ export const GestionTickets = ({
     await enviar(cambios);
   }
 
-  /** Leído → EN PROCESO; solucionado → RESUELTO y rechazado → CERRADO, ambos con solución obligatoria. */
-  async function accionRapida(nuevoEstado: string, exigeSolucion: boolean) {
-    if (!seleccion || guardando) return;
-    if (exigeSolucion && !solucion.trim())
-      return setResultado({
-        ok: false,
-        texto: "Escribe la solución o el motivo antes de continuar.",
-      });
-    setEstado(nuevoEstado);
-    await enviar({
-      estado: nuevoEstado,
-      ...(solucion.trim() && { solucion: solucion.trim() }),
-    });
-  }
-
-  async function enviar(cambios: { estado?: string; solucion?: string }) {
+  async function enviar(cambios: CambiosTicket) {
     if (!seleccion) return;
     setGuardando(true);
     try {
       await onActualizar(seleccion.ticket_id, cambios);
-      setResultado({ ok: true, texto: "Ticket actualizado." });
+      setTicketSeleccionado({
+        ...seleccion,
+        ...(cambios.estado && { estado: cambios.estado }),
+        ...(cambios.solucion && { solucion: cambios.solucion }),
+      });
+      if (cambios.enviar_verificacion) setEstado("EN PROCESO");
+      setResultado({ ok: true, texto: cambios.enviar_verificacion ? "Verificación enviada al administrador. Ticket EN PROCESO." : "Ticket actualizado." });
     } catch (causa) {
       setResultado({
         ok: false,
@@ -366,6 +386,7 @@ export const GestionTickets = ({
   return (
     <section className="wf-card wf-support-admin">
       <h1>Administrar Tickets de soporte</h1>
+      {filtros}
       <p className="wf-muted">
         Selecciona un ticket para ver su descripción y responder.
       </p>
@@ -385,7 +406,7 @@ export const GestionTickets = ({
       {seleccion && (
         <form
           className="wf-card wf-form wf-support-editor"
-          onSubmit={(event) => void guardar(event)}
+          onSubmit={(event) => { event.preventDefault(); void guardar(); }}
         >
           <h2>Ticket {seleccion.ticket_id}</h2>
           <p>
@@ -396,7 +417,15 @@ export const GestionTickets = ({
             <h3>Descripción</h3>
             <p className="wf-support-description">{seleccion.descripcion}</p>
           </div>
-          <label>
+          {sugerencia && <div>
+            <h3>Módulo sugerido</h3>
+            <button type="button" className="wf-button wf-button--secondary"
+              disabled={guardando || confirmandoCierre}
+              onClick={() => onDerivar?.({ ticket: seleccion, estado, solucion }, sugerencia)}>
+              {sugerencia.nombre}
+            </button>
+          </div>}
+          {!soloLectura && <label>
             Estado
             <select
               value={estado}
@@ -407,17 +436,22 @@ export const GestionTickets = ({
                 <option key={e.id}>{e.nombre}</option>
               ))}
             </select>
-          </label>
-          <label>
+          </label>}
+          {soloLectura && <div>
+            <h3>Estado</h3><p>{seleccion.estado}</p>
+            {enProceso && <p className="wf-muted">Solo el administrador puede modificar un ticket EN PROCESO.</p>}
+          </div>}
+          {soloLectura ? <div><h3>Solución</h3><p>{seleccion.solucion || "Sin solución registrada."}</p></div> : <label>
             Solución
             <textarea
               rows={3}
+              autoFocus={Boolean(edicionInicial)}
               value={solucion}
               onChange={(e) => setSolucion(e.target.value)}
               maxLength={500}
               disabled={guardando}
             />
-          </label>
+          </label>}
           {resultado && (
             <p
               className={
@@ -437,40 +471,22 @@ export const GestionTickets = ({
             >
               Cerrar
             </button>
-            <button
-              type="button"
-              className="wf-button wf-button--secondary"
-              disabled={guardando}
-              onClick={() => void accionRapida("EN PROCESO", false)}
-            >
-              Marcar como leído
-            </button>
-            <button
-              type="button"
-              className="wf-button wf-button--secondary"
-              disabled={guardando}
-              onClick={() => void accionRapida("RESUELTO", true)}
-            >
-              Solucionado
-            </button>
-            <button
-              type="button"
-              className="wf-button wf-button--secondary"
-              disabled={guardando}
-              onClick={() => void accionRapida("CERRADO", true)}
-            >
-              Rechazar
-            </button>
-            <button
+            {!soloLectura && !esAdministrador && <button type="button" className="wf-button wf-button--secondary"
+              disabled={guardando} onClick={() => void guardar(false, true)}>Enviar verificación a Administrador</button>}
+            {!soloLectura && <button
               type="submit"
               className="wf-button"
               disabled={guardando || estados.length === 0}
             >
               {guardando ? "Guardando…" : "Guardar cambios"}
-            </button>
+            </button>}
           </div>
         </form>
       )}
+      {confirmandoCierre && !soloLectura && <ConfirmDialog title="Cerrar ticket"
+        message="¿Estás seguro de cerrar este ticket?"
+        confirmLabel="Sí, cerrar ticket" cancelLabel="Cancelar"
+        onCancel={() => setConfirmandoCierre(false)} onConfirm={() => void guardar(true)} />}
     </section>
   );
 };

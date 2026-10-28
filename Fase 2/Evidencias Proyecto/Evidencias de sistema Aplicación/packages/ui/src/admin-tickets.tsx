@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { GestionTickets, type Catalogo, type Ticket } from "./soporte";
+import { GestionTickets, type CambiosTicket, type Catalogo, type Ticket } from "./soporte";
+import { useDerivacionTickets } from "./derivacion-tickets";
 
 interface AdminTicketsProps {
+  esAdministrador?: boolean;
   listar: (
     consulta: { estado: string; limit: number; offset: number },
     signal: AbortSignal,
@@ -9,7 +11,7 @@ interface AdminTicketsProps {
   listarEstados: (signal: AbortSignal) => Promise<Catalogo[]>;
   actualizar: (
     id: number,
-    cambios: { estado?: string; solucion?: string },
+    cambios: CambiosTicket,
   ) => Promise<unknown>;
 }
 
@@ -17,11 +19,14 @@ const LIMITE = 20;
 
 /** Bandeja compartida: consulta todas las solicitudes del personal y recibe nuevas cada 15 s. */
 export function AdminTickets({
+  esAdministrador = false,
   listar,
   listarEstados,
   actualizar,
 }: AdminTicketsProps) {
-  const [consulta, setConsulta] = useState({ estado: "", offset: 0 });
+  const derivacion = useDerivacionTickets();
+  const retorno = esAdministrador ? derivacion?.recorrido?.retorno : undefined;
+  const [consulta, setConsulta] = useState(retorno?.consulta ?? { estado: "", offset: 0 });
   const [version, setVersion] = useState(0);
   const [estados, setEstados] = useState<Catalogo[]>([]);
   const [errorEstados, setErrorEstados] = useState("");
@@ -94,39 +99,51 @@ export function AdminTickets({
 
   return (
     <>
-      <section className="wf-card wf-form" aria-label="Filtros de tickets">
-        <p className="wf-muted">
-          Solicitudes enviadas por los usuarios desde Solicitar soporte. La
-          bandeja se actualiza cada 15 segundos.
-        </p>
-        <label>
-          Filtrar por estado
-          <select
-            value={consulta.estado}
-            onChange={(e) => cambiarConsulta(e.target.value, 0)}
-          >
-            <option value="">Todos los estados</option>
-            {estados.map((estado) => (
-              <option key={estado.id}>{estado.nombre}</option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="button"
-          className="wf-button wf-button--secondary"
-          disabled={bandeja.cargando}
-          onClick={() => setVersion((v) => v + 1)}
-        >
-          Actualizar tickets
-        </button>
-      </section>
       <GestionTickets
+        esAdministrador={esAdministrador}
+        edicionInicial={retorno?.edicion}
+        onDerivar={esAdministrador && derivacion ? (edicion, modulo) =>
+          derivacion.derivar({ edicion, consulta }, modulo) : undefined}
         tickets={bandeja.tickets}
         estados={estados}
         cargando={bandeja.cargando}
         error={bandeja.error || errorEstados}
+        filtros={
+          <div className="wf-form" aria-label="Filtros de tickets">
+            <p className="wf-muted">
+              Solicitudes enviadas por los usuarios desde Solicitar soporte. La
+              bandeja se actualiza cada 15 segundos.
+            </p>
+            <label>
+              Filtrar por estado
+              <select
+                value={consulta.estado}
+                onChange={(e) => cambiarConsulta(e.target.value, 0)}
+              >
+                <option value="">Todos los estados</option>
+                {estados.map((estado) => (
+                  <option key={estado.id}>{estado.nombre}</option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              className="wf-button wf-button--secondary"
+              disabled={bandeja.cargando}
+              onClick={() => setVersion((v) => v + 1)}
+            >
+              Actualizar tickets
+            </button>
+          </div>
+        }
         onActualizar={async (id, cambios) => {
           await actualizar(id, cambios);
+          setBandeja((actual) => ({ ...actual, tickets: actual.tickets.map((t) => t.ticket_id === id ? {
+            ...t,
+            ...(cambios.enviar_verificacion ? { estado: "EN PROCESO" }
+              : cambios.estado && { estado: cambios.estado }),
+            ...(cambios.solucion && { solucion: cambios.solucion }),
+          } : t) }));
           setVersion((v) => v + 1);
         }}
       />

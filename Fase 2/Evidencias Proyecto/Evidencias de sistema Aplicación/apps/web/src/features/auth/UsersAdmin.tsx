@@ -15,7 +15,7 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [nombre, setNombre] = useState(user.nombre_usuario)
-  const [correo, setCorreo] = useState(user.correo_usuario)
+  const [correo, setCorreo] = useState(user.correo_usuario ?? '')
   const [profileMessage, setProfileMessage] = useState('')
   const token = localStorage.getItem('emergen.token')
 
@@ -35,7 +35,7 @@ export function UsersAdmin({ user, onLogout, onUserUpdated }: UsersAdminProps) {
         throw new Error(message ?? 'No se pudo actualizar el perfil')
       }
       setNombre(data.nombre_usuario)
-      setCorreo(data.correo_usuario)
+      setCorreo(data.correo_usuario ?? '')
       localStorage.setItem('emergen.user', JSON.stringify(data))
       onUserUpdated(data as AuthenticatedUser)
       setProfileMessage('Tus datos se actualizaron.')

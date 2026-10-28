@@ -53,6 +53,7 @@ export type Accion =
   | "admin.compras.ver"
   | "admin.compras.editar"
   | "admin.compras.eliminar"
+  | "admin.planes"
   | "admin.trabajadores";
 
 const TODOS: Perfil[] = ["USUARIO", "APADRINADO", "SOPORTE", "ADMINISTRADOR"];
@@ -74,7 +75,7 @@ export const PERMISOS: Record<
     },
     "perfil.pinTrabajador": {
       perfiles: ["ADMINISTRADOR"],
-      fuente: "mockup web págs. 32-33 (sin endpoint)",
+      fuente: "PATCH /usuarios/me (PIN propio, solo ADMINISTRADOR)",
     },
     // ComprasService.titular: solo principal con acceso completo y plan.
     "cuentas.apadrinadas": {
@@ -140,6 +141,11 @@ export const PERMISOS: Record<
     "admin.trabajadores": {
       perfiles: ["ADMINISTRADOR"],
       fuente: "mockup págs. 47-51; POST /admin/usuarios/soporte",
+    },
+    "admin.planes": {
+      perfiles: ["ADMINISTRADOR"],
+      fuente: "PUT /admin/usuarios/:id/plan",
+      soloCompleto: true,
     },
   };
 

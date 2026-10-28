@@ -2,15 +2,28 @@ import { AdminCuentas, AdminTrabajadores, type UsuarioAdminFila } from '@repo/ui
 import { puede, type Perfil } from '@repo/ui/permisos'
 import { AlertasTabla, type Alerta, type Ticket } from '@repo/ui/soporte'
 import { AdminTickets } from '@repo/ui/admin-tickets'
+import type { CambiosTicket } from '@repo/ui/soporte'
+import type { ExpedienteCuenta } from '@repo/ui/admin-cuentas'
+import type { CambiosTrabajador } from '@repo/ui/admin-trabajadores'
+import { AdminPlanes, type ApiPlanes } from '@repo/ui/admin-planes'
 import { apiFetch, internalFetch, useRemote } from '../cuenta/session'
 
-const ROL_SOPORTE = 2
+const consultarCuenta = (id: number, signal: AbortSignal) =>
+  apiFetch<ExpedienteCuenta>(`/admin/usuarios/${id}`, { signal })
 
 export { AdminComprasPage } from './AdminComprasPage'
 
+const apiPlanes: ApiPlanes = {
+  listar: () => apiFetch('/admin/usuarios'),
+  planes: () => apiFetch('/admin/usuarios/planes'),
+  consultar: (id, signal) => apiFetch(`/admin/usuarios/${id}`, { signal }),
+  guardar: (id, datos) => apiFetch(`/admin/usuarios/${id}/plan`, { method: 'PUT', body: JSON.stringify(datos) }),
+}
+export function AdminPlanesPage() { return <AdminPlanes api={apiPlanes} /> }
+
 /** Listado de GET /admin/usuarios (rol Administrador) y acciones que lo recargan al terminar. */
-function useAdminUsuarios() {
-  const { data, cargando, error, recargar } = useRemote(() => apiFetch<UsuarioAdminFila[]>('/admin/usuarios'), [])
+function useAdminUsuarios(ruta = '/admin/usuarios') {
+  const { data, cargando, error, recargar } = useRemote(() => apiFetch<UsuarioAdminFila[]>(ruta), [])
 
   const conRecarga =
     <A extends unknown[]>(accion: (...args: A) => Promise<unknown>) =>
@@ -39,6 +52,7 @@ export function AdminCuentasPage({ perfil }: { perfil: Perfil | null }) {
       cargando={cargando}
       error={error}
       soloLectura={!editar}
+      onConsultar={consultarCuenta}
       onGuardar={
         editar
           ? conRecarga((id: number, nombre_usuario: string, correo_usuario: string) =>
@@ -60,11 +74,11 @@ export function AdminCuentasPage({ perfil }: { perfil: Perfil | null }) {
 }
 
 export function AdminTrabajadoresPage() {
-  const { usuarios, cargando, error, conRecarga, cambiarAcceso } = useAdminUsuarios()
+  const { usuarios, cargando, error, conRecarga } = useAdminUsuarios('/admin/usuarios/trabajadores')
 
   return (
     <AdminTrabajadores
-      trabajadores={usuarios.filter((u) => u.rol_ID === ROL_SOPORTE)}
+      trabajadores={usuarios}
       cargando={cargando}
       error={error}
       onCrear={conRecarga((nombre_usuario: string, correo_usuario: string, password: string) =>
@@ -73,7 +87,10 @@ export function AdminTrabajadoresPage() {
           body: JSON.stringify({ nombre_usuario, correo_usuario, password }),
         }),
       )}
-      onCambiarAcceso={cambiarAcceso}
+      onActualizar={conRecarga((id: number, cambios: CambiosTrabajador) =>
+        apiFetch(`/admin/usuarios/trabajadores/${id}`, { method: 'PATCH', body: JSON.stringify(cambios) }))}
+      onEliminar={conRecarga((id: number) =>
+        apiFetch(`/admin/usuarios/trabajadores/${id}`, { method: 'DELETE' }))}
     />
   )
 }
@@ -88,11 +105,11 @@ const listarEstados = (signal: AbortSignal) =>
   internalFetch<{ estado_id: number; nombre: string }[]>('/tickets-soporte/estados', { signal }).then((filas) =>
     filas.map((f) => ({ id: f.estado_id, nombre: f.nombre })),
   )
-const actualizarTicket = (id: number, cambios: { estado?: string; solucion?: string }) =>
+const actualizarTicket = (id: number, cambios: CambiosTicket) =>
   internalFetch(`/tickets-soporte/${id}`, { method: 'PATCH', body: JSON.stringify(cambios) })
 
-export function AdminTicketsPage() {
-  return <AdminTickets listar={listarTickets} listarEstados={listarEstados} actualizar={actualizarTicket} />
+export function AdminTicketsPage({ perfil }: { perfil: Perfil | null }) {
+  return <AdminTickets esAdministrador={perfil === 'ADMINISTRADOR'} listar={listarTickets} listarEstados={listarEstados} actualizar={actualizarTicket} />
 }
 
 export function AdminAlertasPage() {

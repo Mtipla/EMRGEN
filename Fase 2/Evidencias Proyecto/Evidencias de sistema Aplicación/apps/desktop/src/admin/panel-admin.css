@@ -75,14 +75,9 @@
   margin: 2rem auto;
 }
 
-.desktop-test-shortcuts,
 .desktop-test-toolbar {
   margin-top: 1rem;
   margin-bottom: 1rem;
-}
-
-.desktop-test-panel > section {
-  scroll-margin-top: 1rem;
 }
 
 .desktop-test-grid {
@@ -92,7 +87,7 @@
   margin-top: 1.25rem;
 }
 
-.desktop-test-panel .wf-grid {
+.desktop-test-audit .wf-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }
 
@@ -157,6 +152,7 @@
 .desktop-admin .wf-card,
 .desktop-admin .wf-menu-list {
   background: var(--admin-surface);
+  color: var(--admin-text);
   box-shadow: var(--admin-shadow);
 }
 

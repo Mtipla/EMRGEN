@@ -162,7 +162,7 @@ h3 {
   transform: none;
 }
 
-/* ===== Navegación (marca FIND ME) ===== */
+/* ===== Navegación (marca EMERGEN) ===== */
 .purchase-nav {
   display: flex;
   flex-wrap: wrap;
@@ -172,7 +172,7 @@ h3 {
 }
 
 /*
- * Todas las barras usan la tipografía de la de PublicSite: marca FIND ME en coral (800, espaciada)
+ * Todas las barras usan la tipografía de la de PublicSite: marca EMERGEN en coral (800, espaciada)
  * y enlaces de 1rem en 600. Los selectores .wf-shell ganan a wireframe.css, que carga después.
  */
 .purchase-nav strong,
@@ -185,7 +185,7 @@ h3 {
 }
 
 .purchase-nav a,
-.wf-shell .wf-header > a,
+.wf-shell .wf-header-links a,
 .ua-nav-links a,
 .home-page .navbar a {
   color: var(--color-ink);
@@ -195,7 +195,7 @@ h3 {
 }
 
 .purchase-nav a:hover,
-.wf-shell .wf-header > a:not(.wf-brand):hover,
+.wf-shell .wf-header-links a:hover,
 .ua-nav-links a:hover,
 .home-page .navbar a:not(.nav-logo):hover {
   color: var(--color-accent);
@@ -1035,6 +1035,22 @@ h3 {
 
 /* ===== Adaptación a pantallas pequeñas ===== */
 @media (max-width: 720px) {
+  /* Barra pública: logo y botón de cuenta arriba, secciones en una segunda fila. */
+  .public-nav .purchase-primary {
+    order: 1;
+  }
+
+  .public-nav::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+  }
+
+  .public-nav > a,
+  .public-nav .public-link {
+    order: 3;
+  }
+
   .public-hero,
   .hero-section {
     grid-template-columns: 1fr;

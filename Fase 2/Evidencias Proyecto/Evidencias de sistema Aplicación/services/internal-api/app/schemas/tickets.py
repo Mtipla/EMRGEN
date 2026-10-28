@@ -23,10 +23,14 @@ class TicketActualizar(BaseModel):
 
     estado: str | None = Field(None, min_length=1, max_length=50, description="Nombre de ESTADO_TICKET.")
     solucion: str | None = Field(None, min_length=1, max_length=500)
+    enviar_verificacion: bool = Field(False, strict=True, description="Acción que cambia el estado a EN PROCESO; no se almacena como campo del ticket.")
+    confirmar_cierre: bool = Field(False, strict=True)
 
     @model_validator(mode="after")
     def al_menos_un_campo(self):
-        if self.estado is None and self.solucion is None:
+        if self.enviar_verificacion and self.estado is not None and self.estado.upper() != "EN PROCESO":
+            raise ValueError("la verificación requiere estado EN PROCESO")
+        if self.estado is None and self.solucion is None and not self.enviar_verificacion:
             raise ValueError("indica estado o solucion")
         return self
 

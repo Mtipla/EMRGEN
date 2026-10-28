@@ -37,7 +37,7 @@ def crear_usuario(db):
         if pin:
             pin_id=db.execute("INSERT INTO pin(pin_hash) SELECT p.pin_hash FROM pin p JOIN usuario u USING(pin_id) WHERE u.correo_usuario='admin@emergen.test' RETURNING pin_id").fetchone()["pin_id"]
         uid=db.execute("""INSERT INTO usuario(nombre_usuario,correo_usuario,contra_usuario,rol_id,estado_id,usuario_principal_id,pin_id)
-            VALUES ('Pytest',%s,'no-login',%s,%s,%s,%s) RETURNING usuario_id""", ("pytest."+uuid4().hex+"@emergen.test",rol_id,estado_id,parent,pin_id)).fetchone()["usuario_id"]
+            VALUES ('Pytest',%s,%s,%s,%s,%s,%s) RETURNING usuario_id""", (None if parent else "pytest."+uuid4().hex+"@emergen.test",None if parent else 'no-login',rol_id,estado_id,parent,pin_id)).fetchone()["usuario_id"]
         created.append(uid)
         if plan and parent is None:
             db.execute("INSERT INTO plan_usuario(usuario_id,plan_id,cupos_apadrinados_adq) VALUES (%s,2,3)",(uid,))

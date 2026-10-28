@@ -26,7 +26,8 @@ type PendingAccount = {
 export type AuthenticatedUser = {
   usuario_ID: number
   nombre_usuario: string
-  correo_usuario: string
+  /** null en cuentas apadrinadas (entran con la cuenta principal). */
+  correo_usuario: string | null
   requiere_pin: boolean
   /** Opcionales: el backend los añadió el 2026-10-21; las sesiones guardadas antes no los traen. */
   rol_ID?: number
@@ -81,7 +82,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function postUsuarios(path: 'registro' | 'login', body: object, idToken?: string) {
+  async function postUsuarios(path: 'registro' | 'registro/validar' | 'login' | 'password/firebase', body: object, idToken?: string) {
     const response = await fetch(`${API_URL}/usuarios/${path}`, {
       method: 'POST',
       headers: {
@@ -157,6 +158,8 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   /** Crea (o retoma) la cuenta en Firebase y envía el correo de confirmación. */
   async function startRegistration() {
     const email = correo.trim()
+    // Primero el backend: si rechaza el correo o los datos, no se crea nada en Firebase.
+    await postUsuarios('registro/validar', { nombre_usuario: nombre, correo_usuario: correo, password })
     let account: PendingAccount
     try {
       account = { session: await firebaseAuth.signUp(email, password), created: true }
@@ -237,12 +240,24 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
         return
       }
       if (paso === 'cambio' && pinNuevo !== pinConfirmacion) throw new Error('Los PIN no coinciden.')
-      const data = await postUsuarios('login', {
+      const login = () => postUsuarios('login', {
         correo_usuario: correo,
         password,
         ...(perfil && paso !== 'credenciales' && { perfil_ID: perfil.usuario_ID, PIN: pin }),
         ...(paso === 'cambio' && { PIN_nuevo: pinNuevo }),
       })
+      let data
+      try {
+        data = await login()
+      } catch (cause) {
+        if ((cause as { status?: number }).status !== 401 || paso !== 'credenciales') throw cause
+        // Puede ser una contraseña recién restablecida con el correo de Firebase: si Firebase la
+        // acepta, se copia a la BD y se reintenta. Si no, se muestra el error original.
+        const session = await firebaseAuth.signIn(correo.trim(), password).catch(() => null)
+        if (!session) throw cause
+        await postUsuarios('password/firebase', { password }, session.idToken)
+        data = await login()
+      }
       if (data.perfiles) {
         setPerfiles(data.perfiles)
         setPaso('perfil')
@@ -260,13 +275,13 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   }
 
   if (mode === 'verificacion' && pending) {
-    // Mismo marco que login y registro (auth-layout, barra FIND ME), con las clases de index.css.
+    // Mismo marco que login y registro (auth-layout, barra EMERGEN), con las clases de index.css.
     return (
       <div className="auth-layout">
         <header className="auth-navbar">
           <Link to="/" className="find-me">
             <span>📍</span>
-            FIND ME
+            EMERGEN
           </Link>
         </header>
 
@@ -325,7 +340,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     <div className="auth-layout">
       <header className="auth-navbar">
         <Link to="/" className="find-me">
-          FIND ME
+          EMERGEN
         </Link>
       </header>
 
@@ -344,12 +359,13 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
           <form onSubmit={handleSubmit}>
             {isRegister && (
               <label className="auth-field">
-                <span>Nombre</span>
+                <span>Nombre de usuario</span>
                 <input
-                  autoComplete="name"
+                  autoComplete="username"
                   value={nombre}
                   onChange={(event) => setNombre(event.target.value)}
                   minLength={2}
+                  maxLength={50}
                   required
                 />
               </label>
@@ -535,8 +551,18 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
               className="forgot-password"
               onClick={(event) => {
                 event.preventDefault()
-                // Pendiente de decisión: el login valida contra la BD, no contra Firebase.
-                avisar('info', 'La recuperación de contraseña aún no está disponible. Si no recuerdas tu contraseña, escríbele al equipo de soporte.')
+                if (!correo.trim()) {
+                  avisar('info', 'Escribe tu correo electrónico y vuelve a presionar este enlace.')
+                  return
+                }
+                // Firebase guarda la contraseña nueva; el primer login con ella la copia a la BD.
+                void run(async () => {
+                  // Mismo mensaje exista o no la cuenta, para no revelar qué correos están registrados.
+                  await firebaseAuth.sendPasswordReset(correo.trim()).catch((cause) => {
+                    if (!(cause instanceof FirebaseAuthError && cause.code === 'EMAIL_NOT_FOUND')) throw cause
+                  })
+                  informar(`Si ${correo.trim()} tiene una cuenta, recibirás un correo para restablecer tu contraseña.`)
+                })
               }}
             >
               ¿Has olvidado tu correo electrónico o contraseña?

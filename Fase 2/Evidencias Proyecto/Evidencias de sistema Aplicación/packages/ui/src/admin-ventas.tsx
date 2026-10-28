@@ -40,6 +40,8 @@ const fecha = new Intl.DateTimeFormat("es-CL", {
 });
 const columnas: Column<VentaAdmin>[] = [
   { header: "Número de boleta", render: (v) => `#${v.venta_id}` },
+  // Junto a la boleta: al final quedaba fuera de la pantalla.
+  { header: "Estado", render: (v) => v.estado },
   {
     header: "Fecha (Chile)",
     render: (v) => fecha.format(new Date(v.fecha_venta)),
@@ -58,7 +60,6 @@ const columnas: Column<VentaAdmin>[] = [
   },
   { header: "Total (CLP)", render: (v) => clp.format(v.total_venta) },
   { header: "Método de pago", render: (v) => v.metodo_pago },
-  { header: "Estado", render: (v) => v.estado },
 ];
 
 export function VentasTabla({

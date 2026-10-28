@@ -7,57 +7,23 @@ import {
   type Perfil,
 } from '@repo/ui/permisos'
 import { adminApi, describirError, type Sesion, type UsuarioAdmin } from './api'
-import { SeccionBitacora } from './SeccionBitacora'
-import { SeccionSoporte } from './SeccionSoporte'
-import { SeccionUsuarios } from './SeccionUsuarios'
 
-const ROL_SOPORTE = 2 // ROLES[2] en ./api
+const consultarCuenta = async (id: number, signal: AbortSignal) => {
+  try { return await adminApi.verExpediente(id, signal) }
+  catch (causa) { throw new Error(await describirError(causa), { cause: causa }) }
+}
 
 export { VistaCompras } from './VistaCompras'
 
-/** Herramientas de pruebas con la misma presentación que las demás vistas del panel. */
-export function VistaPruebas() {
-  return (
-    <div className="desktop-test-panel">
-      <section className="wf-card">
-        <h1>Panel de pruebas</h1>
-        <p className="wf-muted">
-          Consulta y modifica usuarios, crea cuentas de soporte y revisa la bitácora del sistema.
-          Cada apartado conserva el resultado de su última operación.
-        </p>
-        <nav className="wf-row desktop-test-shortcuts" aria-label="Apartados del panel de pruebas">
-          {[
-            { id: 'pruebas-usuarios', titulo: 'Gestión de usuarios' },
-            { id: 'pruebas-soporte', titulo: 'Crear cuenta de soporte' },
-            { id: 'pruebas-bitacora', titulo: 'Bitácora / auditoría' },
-          ].map(({ id, titulo }) => (
-            <button
-              key={id}
-              type="button"
-              className="wf-button wf-button--secondary"
-              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              {titulo}
-            </button>
-          ))}
-        </nav>
-      </section>
-      <SeccionUsuarios />
-      <SeccionSoporte />
-      <SeccionBitacora />
-    </div>
-  )
-}
-
 /** Listado de usuarios con adminApi; cada acción traduce el error de Axios y recarga. */
-function useUsuarios() {
+function useUsuarios(listar = adminApi.listarUsuarios) {
   const [usuarios, setUsuarios] = useState<UsuarioAdmin[]>([])
   const [estado, setEstado] = useState({ cargando: true, error: '' })
   const [version, setVersion] = useState(0)
 
   useEffect(() => {
     let activo = true
-    adminApi.listarUsuarios().then(
+    listar().then(
       (lista) => {
         if (!activo) return
         setUsuarios(lista)
@@ -71,7 +37,7 @@ function useUsuarios() {
     return () => {
       activo = false
     }
-  }, [version])
+  }, [listar, version])
 
   const conRecarga =
     <A extends unknown[]>(accion: (...args: A) => Promise<unknown>) =>
@@ -97,6 +63,7 @@ export function VistaCuentas({ perfil }: { perfil: Perfil }) {
       cargando={cargando}
       error={error}
       soloLectura={!puede(perfil, 'admin.cuentas.editar')}
+      onConsultar={consultarCuenta}
       onGuardar={puede(perfil, 'admin.cuentas.editar') ? conRecarga(adminApi.actualizarDatos) : undefined}
       onCambiarAcceso={puede(perfil, 'admin.cuentas.editar') ? cambiarAcceso : undefined}
       onEliminarApadrinado={puede(perfil, 'admin.cuentas.eliminar') ? conRecarga(adminApi.eliminarApadrinado) : undefined}
@@ -117,9 +84,10 @@ export function VistaPerfil({
       nombreUsuario={sesion.usuario.nombre_usuario}
       correo={sesion.usuario.correo_usuario}
       variante={perfilDe(sesion.usuario) === 'SOPORTE' ? 'soporte' : 'administrador'}
-      onGuardar={async (nombre, correo) => {
+      onGuardar={async () => {}}
+      onGuardarPersonal={async (cambios) => {
         try {
-          const usuario = await adminApi.actualizarMiUsuario(nombre, correo)
+          const usuario = await adminApi.actualizarMiUsuario(cambios)
           onActualizado({ ...sesion, usuario: { ...sesion.usuario, ...usuario } })
         } catch (causa) {
           throw new Error(await describirError(causa), { cause: causa })
@@ -130,16 +98,17 @@ export function VistaPerfil({
 }
 
 export function VistaTrabajadores() {
-  const { usuarios, cargando, error, conRecarga, cambiarAcceso } = useUsuarios()
+  const { usuarios, cargando, error, conRecarga } = useUsuarios(adminApi.listarTrabajadores)
   return (
     <AdminTrabajadores
-      trabajadores={usuarios.filter((u) => u.rol_ID === ROL_SOPORTE)}
+      trabajadores={usuarios}
       cargando={cargando}
       error={error}
       onCrear={conRecarga((nombre_usuario: string, correo_usuario: string, password: string) =>
         adminApi.crearSoporte({ nombre_usuario, correo_usuario, password }),
       )}
-      onCambiarAcceso={cambiarAcceso}
+      onActualizar={conRecarga(adminApi.actualizarTrabajador)}
+      onEliminar={conRecarga(adminApi.eliminarTrabajador)}
     />
   )
 }

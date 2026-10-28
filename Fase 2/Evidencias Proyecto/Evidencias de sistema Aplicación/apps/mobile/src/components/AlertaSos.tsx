@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PRIORIDADES } from '@repo/ui/mocks';
 import { Modal, NumerosEmergencia } from '@repo/ui/wireframe';
-import { consultarSos, enviarSos, errorSos, estadoWhatsapp, type Alerta } from '../lib/sos';
+import { consultarSos, enviarSos, errorSos, estadoWhatsapp, finalidadPerfil, type Alerta } from '../lib/sos';
 import { obtenerUbicacionSos } from '../lib/ubicacion-sos';
 
 /** El éxito solo se muestra después de que la API confirma el registro del SOS. */
@@ -20,6 +20,20 @@ const AlertaSos: React.FC<{
   const contenido = useRef<{ clave: string; ubicacion?: string } | null>(null);
   const alertaId = alerta?.alerta_id;
   const pendientes = alerta?.whatsapp?.pendientes ?? 0;
+  const elegidoAMano = useRef(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    finalidadPerfil(controller.signal)
+      .then((prioridad) => {
+        // No pisa una elección del usuario ni un envío ya iniciado (su clave lleva el tipo original).
+        if (prioridad && !elegidoAMano.current && !contenido.current) setSolicitud((s) => ({ ...s, prioridad }));
+      })
+      .catch(() => {
+        /* Sin perfil se mantiene EMERGENCIA. */
+      });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     if (!alertaId || pendientes === 0) return;
@@ -111,12 +125,13 @@ const AlertaSos: React.FC<{
           <select
             value={solicitud.prioridad}
             disabled={enviando}
-            onChange={(e) =>
+            onChange={(e) => {
+              elegidoAMano.current = true;
               setSolicitud({
                 prioridad: Number(e.target.value),
                 clave: crypto.randomUUID(),
-              })
-            }
+              });
+            }}
           >
             {PRIORIDADES.map((p) => (
               <option key={p.id} value={p.id}>

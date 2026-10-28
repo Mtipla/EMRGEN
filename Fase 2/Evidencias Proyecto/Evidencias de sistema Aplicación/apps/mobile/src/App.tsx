@@ -7,6 +7,7 @@ import Registro from './pages/Registro';
 import Pin from './pages/Pin';
 import Perfil from './pages/Perfil';
 import Cuentas from './pages/Cuentas';
+import Soporte from './pages/Soporte';
 import { bloqueo, type Accion } from '@repo/ui/permisos';
 import { getUser } from './lib/session';
 
@@ -35,7 +36,8 @@ import '@ionic/react/css/display.css';
 
 /* import '@ionic/react/css/palettes/dark.always.css'; */
 /* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css';
+// Sin modo oscuro: las tarjetas compartidas (wireframe.css) son claras y se mezclaban con las de Ionic.
+/* import '@ionic/react/css/palettes/dark.system.css'; */
 
 /* Theme variables */
 import './theme/variables.css';
@@ -59,6 +61,7 @@ const App: React.FC = () => (
         <Route path="/home" element={<Privada><Home /></Privada>} />
         <Route path="/perfil" element={<Privada><Perfil /></Privada>} />
         <Route path="/cuentas" element={<Privada accion="cuentas.apadrinadas"><Cuentas /></Privada>} />
+        <Route path="/soporte" element={<Privada accion="soporte.solicitar"><Soporte /></Privada>} />
         <Route path="/" element={<Navigate to="/home" replace />} />
       </IonRouterOutlet>
     </IonReactRouter>

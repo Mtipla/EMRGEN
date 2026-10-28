@@ -27,7 +27,8 @@ db('HU-10 / CA-10.1: PIN del principal para acciones críticas sobre apadrinados
     created.push(r.body.usuario_ID);
     const parcial = (await http().post('/usuarios/login').send({ correo_usuario: correo, password }).expect(201)).body.access_token;
     await http().post('/usuarios/me/pin').set(auth(parcial)).send({ PIN: '1234' }).expect(201);
-    return { id: r.body.usuario_ID as number, token: (await http().post('/usuarios/login').send({ correo_usuario: correo, password }).expect(201)).body.access_token as string };
+    return { id: r.body.usuario_ID as number, token: (await http().post('/usuarios/login')
+      .send({ correo_usuario: correo, password, perfil_ID: r.body.usuario_ID, PIN: '1234' }).expect(201)).body.access_token as string };
   }
 
   beforeAll(async () => {
@@ -42,7 +43,7 @@ db('HU-10 / CA-10.1: PIN del principal para acciones críticas sobre apadrinados
     otro = (await principal('ajeno')).token;
     await http().put(`/admin/usuarios/${id}/plan`).set(auth(admin)).send({ plan_ID: 2, cupos_apadrinados_adq: 1 }).expect(200);
     const lista = await http().post('/usuarios/me/apadrinados').set(auth(token))
-      .send({ nombre_usuario: 'Hijo', correo_usuario: `hijo.${suffix}@emergen.test`, password, acceso_completo: false }).expect(201);
+      .send({ nombre_usuario: 'Hijo', acceso_completo: false, PIN: '4321' }).expect(201);
     hijo = lista.body[0].usuario_ID;
   });
   afterAll(async () => {
@@ -66,8 +67,16 @@ db('HU-10 / CA-10.1: PIN del principal para acciones críticas sobre apadrinados
     expect((await contador()).intentos_fallidos).toBe(0);
   });
 
-  it('E-08: el apadrinado parcial edita su nombre y correo solo con el PIN de su principal', async () => {
-    const parcial = (await http().post('/usuarios/login').send({ correo_usuario: `hijo.${suffix}@emergen.test`, password }).expect(201)).body.access_token;
+  it('el apadrinado no guarda correo ni contraseña y no inicia sesión por su cuenta', async () => {
+    const [fila] = await source.query('SELECT correo_usuario, contra_usuario FROM usuario WHERE usuario_id=$1', [hijo]);
+    expect(fila).toEqual({ correo_usuario: null, contra_usuario: null });
+    await http().post('/usuarios/me/apadrinados').set(auth(token))
+      .send({ nombre_usuario: 'Otro', correo_usuario: `x.${suffix}@emergen.test`, password, acceso_completo: false, PIN: '4321' }).expect(400);
+  });
+
+  it('E-08: el apadrinado parcial edita su nombre solo con el PIN de su principal', async () => {
+    const parcial = (await http().post('/usuarios/login')
+      .send({ correo_usuario: `pin.${suffix}@emergen.test`, password, perfil_ID: hijo, PIN: '4321' }).expect(201)).body.access_token;
     const editar = (body: object) => http().patch('/usuarios/me').set(auth(parcial)).send(body);
     expect((await editar({ nombre_usuario: 'Hijo Nuevo' }).expect(403)).body.message)
       .toBe('Para modificar esta cuenta se necesita el PIN de la cuenta principal');
@@ -75,9 +84,11 @@ db('HU-10 / CA-10.1: PIN del principal para acciones críticas sobre apadrinados
     expect((await editar({ nombre_usuario: 'Hijo Nuevo', PIN_principal: '0000' }).expect(403)).body.message)
       .toBe('PIN incorrecto. Te quedan 2 intentos.');
     expect((await contador()).intentos_fallidos).toBe(1); // cuenta en el PIN del principal
-    const r = await editar({ nombre_usuario: 'Hijo Nuevo', correo_usuario: `hijo2.${suffix}@emergen.test`, PIN_principal: '1234' }).expect(200);
-    expect(r.body).toMatchObject({ nombre_usuario: 'Hijo Nuevo', correo_usuario: `hijo2.${suffix}@emergen.test` });
+    const r = await editar({ nombre_usuario: 'Hijo Nuevo', PIN_principal: '1234' }).expect(200);
+    expect(r.body).toMatchObject({ nombre_usuario: 'Hijo Nuevo', correo_usuario: null });
     expect((await contador()).intentos_fallidos).toBe(0);
+    await editar({ correo_usuario: `hijo2.${suffix}@emergen.test`, PIN_principal: '1234' }).expect(400);
+    await http().patch('/usuarios/me/password').set(auth(parcial)).send({ password_actual: password, password_nueva: 'OtraClave123' }).expect(403);
     // Sigue sin poder tocar sus datos de emergencia (solo lectura) ni enviar PIN_principal al admin.
     await http().put('/usuarios/me/perfil').set(auth(parcial)).send({ mensaje: 'Hola', PIN_principal: '1234' }).expect(400);
     await http().patch(`/admin/usuarios/${hijo}`).set(auth(admin)).send({ nombre_usuario: 'X', PIN_principal: '1234' }).expect(400);
@@ -117,7 +128,7 @@ db('HU-10 / CA-10.1: PIN del principal para acciones críticas sobre apadrinados
     const [plan] = await source.query('SELECT cupos_apadrinados_adq FROM plan_usuario WHERE usuario_id=$1', [id]);
     expect(plan.cupos_apadrinados_adq).toBe(1);
     const lista = await http().post('/usuarios/me/apadrinados').set(auth(token))
-      .send({ nombre_usuario: 'Hija', correo_usuario: `hija.${suffix}@emergen.test`, password, acceso_completo: false }).expect(201);
+      .send({ nombre_usuario: 'Hija', acceso_completo: false, PIN: '4321' }).expect(201);
     hijo = lista.body[0].usuario_ID;
   });
 });

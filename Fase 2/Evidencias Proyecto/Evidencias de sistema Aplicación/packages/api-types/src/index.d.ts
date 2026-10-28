@@ -133,6 +133,8 @@ export interface FirebaseAuthUser {
   name?: string;
   /** Proveedor usado para iniciar sesión (ej. "password", "google.com"). */
   signInProvider?: string;
+  /** Segundos epoch del último ingreso con credenciales (claim `auth_time`); no cambia al refrescar. */
+  authTime?: number;
 }
 
 /** Sesión devuelta por la API REST de Firebase Auth al iniciar sesión o registrarse. */

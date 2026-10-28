@@ -18,7 +18,7 @@ export class UsuariosService {
 
   // CREAR USUARIO PRINCIPAL
   async crearUsuarioPrincipal(datosUsuario: Partial<Usuario>): Promise<Usuario> {
-    const existe = await this.usuarioRepository.findOneBy({ correo_usuario: datosUsuario.correo_usuario });
+    const existe = await this.usuarioRepository.findOneBy({ correo_usuario: datosUsuario.correo_usuario ?? undefined });
     if (existe) {
       throw new BadRequestException('El correo ya está registrado.');
     }
@@ -34,10 +34,9 @@ export class UsuariosService {
   }
 
   // CREAR USUARIO APADRINADO
-  async crearUsuarioApadrinado(idPadre: number, datos: { nombre_usuario: string; correo_usuario: string; password: string; estado_ID: 1 | 2; pin?: string }): Promise<Usuario> {
-    if (!datos.correo_usuario || !datos.password || Buffer.byteLength(datos.password, 'utf8') > 72) throw new BadRequestException('Correo y contraseña propios requeridos; contraseña máximo 72 bytes');
+  // Sin correo ni contraseña: el apadrinado entra con las credenciales de su principal y su PIN.
+  async crearUsuarioApadrinado(idPadre: number, datos: { nombre_usuario: string; estado_ID: 1 | 2; pin?: string }): Promise<Usuario> {
     if (!/^\d{4}$/.test(datos.pin ?? '')) throw new BadRequestException('El perfil apadrinado requiere un PIN de cuatro dígitos');
-    const password = await bcrypt.hash(datos.password, 12);
     const pinHash = datos.pin ? await bcrypt.hash(datos.pin, 12) : undefined;
     return transaction(this.usuarioRepository.manager.connection, async (manager) => {
       const usuarios = manager.getRepository(Usuario);
@@ -45,7 +44,7 @@ export class UsuariosService {
       if (!padre) throw new NotFoundException('La cuenta principal no existe');
       if (padre.usuario_principal_ID !== null) throw new BadRequestException('Un apadrinado no puede apadrinar');
       const pin = pinHash ? await manager.save(Pin, manager.create(Pin, { pin_hash: pinHash, pin_temporal: datos.estado_ID === 1 })) : null;
-      return usuarios.save(usuarios.create({ nombre_usuario: datos.nombre_usuario.trim(), correo_usuario: datos.correo_usuario.trim().toLowerCase(), contra_usuario: password,
+      return usuarios.save(usuarios.create({ nombre_usuario: datos.nombre_usuario.trim(), correo_usuario: null, contra_usuario: null,
         rol_ID: 3, estado_ID: datos.estado_ID, usuario_principal_ID: idPadre, PIN_ID: pin?.PIN_ID ?? null }));
     });
   }

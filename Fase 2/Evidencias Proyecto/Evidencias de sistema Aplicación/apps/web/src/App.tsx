@@ -1,6 +1,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { DerivacionTicketsProvider } from '@repo/ui/derivacion-tickets'
 
 import { AuthForm, type AuthenticatedUser } from './features/auth/AuthForm'
 import { PinSetupForm } from './features/auth/PinSetupForm'
@@ -15,38 +16,41 @@ import {
   AdminAlertasPage,
   AdminComprasPage,
   AdminCuentasPage,
+  AdminPlanesPage,
   AdminTicketsPage,
   AdminTrabajadoresPage,
 } from './features/administracion/AdminPages'
 
-const savedUser = localStorage.getItem('emergen.user')
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+
+/** Sesión guardada solo si hay token y usuario válidos; si el usuario está corrupto, se borra todo. */
+function leerSesionGuardada(): AuthenticatedUser | null {
+  const savedUser = localStorage.getItem('emergen.user')
+  if (!savedUser || !localStorage.getItem('emergen.token')) return null
+
+  try {
+    return JSON.parse(savedUser) as AuthenticatedUser
+  } catch {
+    localStorage.removeItem('emergen.user')
+    localStorage.removeItem('emergen.token')
+    return null
+  }
+}
+
+const sesionGuardada = leerSesionGuardada()
 
 function App() {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
 
-  const [user, setUser] = useState<AuthenticatedUser | null>(() => {
-    if (!savedUser) return null
+  const [user, setUser] = useState<AuthenticatedUser | null>(sesionGuardada)
 
-    try {
-      return JSON.parse(savedUser) as AuthenticatedUser
-    } catch {
-      localStorage.removeItem('emergen.user')
-      localStorage.removeItem('emergen.token')
-      return null
-    }
-  })
-
-  const [checkingSession, setCheckingSession] = useState(Boolean(savedUser))
+  const [checkingSession, setCheckingSession] = useState(sesionGuardada !== null)
 
   useEffect(() => {
     const token = localStorage.getItem('emergen.token')
 
-    if (!token) {
-      setUser(null)
-      setCheckingSession(false)
-      return
-    }
+    if (!token) return
 
     async function refreshSession() {
       try {
@@ -166,6 +170,8 @@ function App() {
   return (
     <>
     <Avisos />
+    <DerivacionTicketsProvider key={user?.usuario_ID ?? 'sin-sesion'} rutaActual={pathname}
+      esAdministrador={perfil === 'ADMINISTRADOR'} onNavegar={navigate}>
     <Routes>
       {/* Páginas públicas */}
       <Route path="/" element={renderPublicSite('inicio')} />
@@ -251,15 +257,17 @@ function App() {
         path="/administracion/trabajadores"
         element={privatePage(<AdminTrabajadoresPage />, 'admin.trabajadores')}
       />
+      <Route path="/administracion/planes" element={privatePage(<AdminPlanesPage />, 'admin.planes')} />
       <Route
         path="/administracion/tickets"
-        element={privatePage(<AdminTicketsPage />, 'soporte.gestionarTickets')}
+        element={privatePage(<AdminTicketsPage perfil={perfil} />, 'soporte.gestionarTickets')}
       />
       <Route path="/administracion/alertas" element={privatePage(<AdminAlertasPage />, 'alertas.verTodas')} />
 
       {/* Redirigir rutas inexistentes */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </DerivacionTicketsProvider>
     </>
   )
 }

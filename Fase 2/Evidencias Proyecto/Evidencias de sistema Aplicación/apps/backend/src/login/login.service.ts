@@ -56,6 +56,21 @@ export class LoginService {
     private readonly dataSource: DataSource,
   ) {}
 
+  /**
+   * Revisa los datos del registro antes de crear la cuenta de Firebase, para no dejar cuentas
+   * sueltas en Firebase cuando el backend las rechazaría. `crear` vuelve a validar todo.
+   */
+  async validarRegistro(datos: CrearUsuarioDto): Promise<{ valido: true }> {
+    if (!this.passwordCabeEnBcrypt(datos.password)) {
+      throw new BadRequestException('La contraseña supera el límite de 72 bytes');
+    }
+    // Mismo mensaje que `crear`: el registro ya informa duplicados (CA-01.1).
+    if (await this.buscarPorCorreo(datos.correo_usuario.trim().toLowerCase())) {
+      throw new ConflictException('El correo ingresado es inválido o ya se encuentra registrado');
+    }
+    return { valido: true };
+  }
+
   async crear(
     datos: CrearUsuarioDto,
     firebaseUser: FirebaseAuthUser,
@@ -237,6 +252,26 @@ export class LoginService {
   ): Promise<UsuarioPublico> {
     try {
       const user = await this.usuarioRepository.findOneBy({ usuario_ID: id });
+      if (!user) throw new NotFoundException('No se encontró la cuenta');
+      if (user.rol_ID === ROL.SOPORTE || user.rol_ID === ROL.ADMINISTRADOR) {
+        const permitidos = user.rol_ID === ROL.SOPORTE
+          ? ['nombre_usuario']
+          : ['nombre_usuario', 'PIN'];
+        if (Object.entries(cambios).some(([campo, valor]) => valor !== undefined && !permitidos.includes(campo))) {
+          throw new ForbiddenException('El perfil del personal solo permite modificar sus campos autorizados');
+        }
+        if (user.estado_ID !== 1) throw new ForbiddenException('El acceso parcial no permite editar el perfil');
+        return transaction(this.dataSource, async (manager) => {
+          const usuarios = manager.getRepository(Usuario);
+          await usuarios.findOne({ where: { usuario_ID: id }, lock: { mode: 'pessimistic_write' } });
+          const actualizado = await this.aplicarCambiosDePerfil(usuarios, id, cambios);
+          if (cambios.PIN !== undefined) {
+            await this.guardarPin(manager, actualizado, cambios.PIN);
+          }
+          return this.conPlan(actualizado);
+        });
+      }
+      if (cambios.PIN !== undefined) throw new ForbiddenException('Esta ruta solo permite cambiar el PIN del administrador');
       if (user?.estado_ID !== 1) {
         // HU-10: un apadrinado parcial cambia sus datos solo con el PIN de su principal.
         if (!user?.usuario_principal_ID) throw new ForbiddenException('El acceso parcial no permite editar el perfil');
@@ -253,6 +288,29 @@ export class LoginService {
     }
   }
 
+  /**
+   * Recuperación de contraseña: Firebase envía el enlace y guarda la contraseña nueva; aquí se
+   * copia a la BD, que es la que valida el login. Solo cuentas principales con acceso completo.
+   */
+  async sincronizarPasswordFirebase(firebaseUser: FirebaseAuthUser, password: string) {
+    if (!this.passwordCabeEnBcrypt(password)) {
+      throw new BadRequestException('La contraseña supera el límite de 72 bytes');
+    }
+    // Un token refrescado conserva auth_time: exigir un ingreso reciente evita reutilizar uno viejo.
+    const ingresoReciente = Date.now() / 1000 - (firebaseUser.authTime ?? 0) < 5 * 60;
+    if (!firebaseUser.emailVerified || !ingresoReciente || !firebaseUser.email) {
+      throw new UnauthorizedException('Vuelve a iniciar sesión con tu nueva contraseña');
+    }
+    const usuario = await this.buscarPorCorreo(firebaseUser.email.trim().toLowerCase());
+    if (!usuario || usuario.usuario_principal_ID !== null || usuario.estado_ID !== 1) {
+      throw new UnauthorizedException('Correo o contraseña incorrectos');
+    }
+    await this.usuarioRepository.update(usuario.usuario_ID, {
+      contra_usuario: await bcrypt.hash(password, BCRYPT_COSTO),
+    });
+    return { mensaje: 'Contraseña actualizada' };
+  }
+
   /** Mismo criterio que actualizarPropio: el acceso parcial no cambia sus credenciales. */
   async cambiarPassword(id: number, actual: string, nueva: string) {
     if (!this.passwordCabeEnBcrypt(nueva)) {
@@ -264,6 +322,12 @@ export class LoginService {
       .where('usuario.usuario_ID = :id', { id })
       .getOne();
     if (!usuario) throw new NotFoundException('No se encontró la cuenta');
+    if (usuario.rol_ID === ROL.SOPORTE || usuario.rol_ID === ROL.ADMINISTRADOR) {
+      throw new ForbiddenException('El perfil del personal no permite cambiar la contraseña');
+    }
+    if (!usuario.contra_usuario) {
+      throw new ForbiddenException('Las cuentas apadrinadas usan la contraseña de la cuenta principal');
+    }
     if (usuario.estado_ID !== 1) throw new ForbiddenException('El acceso parcial no permite cambiar la contraseña');
     if (!(await bcrypt.compare(actual, usuario.contra_usuario))) {
       throw new UnauthorizedException('La contraseña actual no es correcta');
@@ -286,8 +350,11 @@ export class LoginService {
     if (!usuario) {
       throw new NotFoundException('No se encontró el usuario de la sesión');
     }
-    if (!cambios.nombre_usuario && !cambios.correo_usuario) {
-      throw new BadRequestException('Debes indicar el nombre o el correo a modificar');
+    if (!cambios.nombre_usuario && !cambios.correo_usuario && !(cambios as ActualizarMiUsuarioPropioDto).PIN) {
+      throw new BadRequestException('Debes indicar los datos a modificar');
+    }
+    if (cambios.correo_usuario && usuario.usuario_principal_ID !== null) {
+      throw new BadRequestException('Las cuentas apadrinadas no tienen correo propio');
     }
 
     const nuevoCorreo = cambios.correo_usuario?.trim().toLowerCase();
@@ -297,13 +364,30 @@ export class LoginService {
         throw new ConflictException('Ya existe una cuenta con ese correo');
       }
     }
+    const campos: Partial<Usuario> = {};
     if (cambios.nombre_usuario !== undefined) {
-      usuario.nombre_usuario = cambios.nombre_usuario.trim();
+      campos.nombre_usuario = cambios.nombre_usuario.trim();
     }
     if (nuevoCorreo) {
-      usuario.correo_usuario = nuevoCorreo;
+      campos.correo_usuario = nuevoCorreo;
     }
-    return usuarios.save(usuario);
+    // Actualiza solo el perfil: una edición concurrente nunca restaura un rol revocado.
+    if (Object.keys(campos).length) await usuarios.update(id, campos);
+    return usuarios.findOneByOrFail({ usuario_ID: id });
+  }
+
+  /** El PIN nunca se devuelve ni se incluye en los cambios de auditoría. */
+  async guardarPin(manager: import('typeorm').EntityManager, usuario: Usuario, valor: string): Promise<void> {
+    const repositorio = manager.getRepository(Pin);
+    const pin = await repositorio.save(repositorio.create({
+      ...(usuario.PIN_ID !== null && { PIN_ID: usuario.PIN_ID }),
+      pin_hash: await bcrypt.hash(valor, BCRYPT_COSTO),
+    }));
+    // Un PIN nuevo completa la configuración inicial; renovar uno no cambia el acceso.
+    if (usuario.PIN_ID === null) usuario.estado_ID = 1;
+    usuario.PIN_ID = pin.PIN_ID;
+    await manager.getRepository(Usuario).save(usuario);
+    await manager.query('UPDATE pin SET intentos_fallidos=0, bloqueado_hasta=NULL WHERE pin_id=$1', [pin.PIN_ID]);
   }
 
   /** Usuario vigente de una sesión: existe y conserva sus permisos actuales. */
@@ -377,7 +461,8 @@ export class LoginService {
       rol_ID,
       estado_ID,
       usuario_principal_ID,
-      requiere_pin: usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
+      // Administradores y trabajadores no usan PIN.
+      requiere_pin: usuario.rol_ID === ROL.USUARIO && usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
     };
   }
 
