@@ -10,6 +10,8 @@ import {
   IonToolbar,
   useIonRouter,
 } from '@ionic/react';
+import { FirebaseAuthError } from '@repo/api-client';
+import { firebaseAuth } from '../lib/api';
 import { apiFetch, errorText, saveSession, type SessionUser } from '../lib/session';
 
 /** Mismo flujo que la web (AuthForm): credenciales de la principal, elegir perfil, su PIN y, si es temporal, cambiarlo. */
@@ -47,15 +49,32 @@ const Login: React.FC = () => {
     if (paso === 'cambio' && pinNuevo !== pinConfirmacion) return setError('Los PIN no coinciden.');
     setCargando(true);
     try {
-      const data = await apiFetch<LoginResponse>('/usuarios/login', {
-        method: 'POST',
-        body: JSON.stringify({
-          correo_usuario: correo.trim(),
-          password,
-          ...(perfil && paso !== 'credenciales' && { perfil_ID: perfil.usuario_ID, PIN: pin }),
-          ...(paso === 'cambio' && { PIN_nuevo: pinNuevo }),
-        }),
-      });
+      const login = () =>
+        apiFetch<LoginResponse>('/usuarios/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            correo_usuario: correo.trim(),
+            password,
+            ...(perfil && paso !== 'credenciales' && { perfil_ID: perfil.usuario_ID, PIN: pin }),
+            ...(paso === 'cambio' && { PIN_nuevo: pinNuevo }),
+          }),
+        });
+      let data: LoginResponse;
+      try {
+        data = await login();
+      } catch (cause) {
+        if ((cause as { status?: number }).status !== 401 || paso !== 'credenciales') throw cause;
+        // Puede ser una contraseña recién restablecida con el correo de Firebase: si Firebase la
+        // acepta, se copia a la BD y se reintenta. Si no, se muestra el error original.
+        const sesion = await firebaseAuth.signIn(correo.trim(), password).catch(() => null);
+        if (!sesion) throw cause;
+        await apiFetch('/usuarios/password/firebase', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${sesion.idToken}` },
+          body: JSON.stringify({ password }),
+        });
+        data = await login();
+      }
       if (data.perfiles) {
         setPerfiles(data.perfiles);
         setPaso('perfil');
@@ -70,6 +89,26 @@ const Login: React.FC = () => {
       saveSession(data.usuario, data.access_token);
       // Una principal sin PIN aún recibe sesión con requiere_pin y lo crea en /pin.
       router.push(data.usuario.requiere_pin ? '/pin' : '/home', 'root', 'replace');
+    } catch (cause) {
+      setError(errorText(cause));
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  /** Firebase envía el enlace y guarda la contraseña nueva; el primer login con ella la copia a la BD. */
+  async function recuperar() {
+    setError('');
+    setAviso('');
+    const email = correo.trim();
+    if (!email) return setAviso('Escribe tu correo electrónico y vuelve a presionar este enlace.');
+    setCargando(true);
+    try {
+      // Mismo mensaje exista o no la cuenta, para no revelar qué correos están registrados.
+      await firebaseAuth.sendPasswordReset(email).catch((cause) => {
+        if (!(cause instanceof FirebaseAuthError && cause.code === 'EMAIL_NOT_FOUND')) throw cause;
+      });
+      setAviso(`Si ${email} tiene una cuenta, recibirás un correo para restablecer tu contraseña.`);
     } catch (cause) {
       setError(errorText(cause));
     } finally {
@@ -201,10 +240,9 @@ const Login: React.FC = () => {
             <IonButton fill="clear" expand="block" routerLink="/registro">
               No tengo cuenta
             </IonButton>
-            <p className="ion-text-center">
-              {/* PENDIENTE DE INTEGRACIÓN BACKEND: no hay flujo de recuperación de credenciales. */}
-              <IonText color="medium">¿Has olvidado tu correo electrónico o contraseña?</IonText>
-            </p>
+            <IonButton fill="clear" expand="block" size="small" disabled={cargando} onClick={() => void recuperar()}>
+              ¿Has olvidado tu correo electrónico o contraseña?
+            </IonButton>
           </>
         ) : (
           <IonButton fill="clear" expand="block" onClick={volver}>
