@@ -80,13 +80,8 @@
   "147": "Never commit secrets (.env, MySQL, PayPal, Twilio, Google Maps)",
   "148": "4.4 Docker docker-compose Configuration",
   "149": "Desktop App index.html Entry Point",
-  "150": "Social/Docs Icon Sprite (Bluesky, Discord, GitHub, X, docs) - desktop",
-  "151": "React Logo (desktop template asset)",
-  "152": "Vite Logo (desktop template asset)",
   "153": "Mobile App index.html Entry Point (Ionic PWA)",
   "154": "Web App index.html Entry Point",
-  "155": "Favicon Icon (Desktop App)",
-  "156": "Desktop App Hero Image",
   "157": "test.cy.ts",
   "158": "vite-env.d.ts"
 }
