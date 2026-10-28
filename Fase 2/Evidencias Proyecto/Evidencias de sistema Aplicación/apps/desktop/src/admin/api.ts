@@ -1,4 +1,11 @@
 import axios, { isAxiosError, type AxiosResponse } from 'axios'
+import type { CambiosTicket, Catalogo, Ticket } from '@repo/ui/soporte'
+import type { ExpedienteCuenta } from '@repo/ui/admin-cuentas'
+import type { UsuarioAdminFila } from '@repo/ui/admin-views'
+import type { DatosPerfilPersonal } from '@repo/ui/perfil-personal'
+import type { CambiosTrabajador } from '@repo/ui/admin-trabajadores'
+export type { PaginaVentas, VentaAdmin } from '@repo/ui/admin-ventas'
+import type { PaginaVentas } from '@repo/ui/admin-ventas'
 
 /**
  * Cliente Axios del panel de administrador. El renderer de Electron no usa Node.js:
@@ -14,6 +21,10 @@ export const MODO_API =
   import.meta.env.MODE === 'docker' ? 'backend de Docker' : 'backend local (start:dev)'
 
 const http = axios.create({ baseURL: API_URL })
+const internalHttp = axios.create({
+  baseURL: `${import.meta.env.VITE_INTERNAL_API_URL ?? 'http://localhost:8000'}/internal/v1`,
+  timeout: 10000,
+})
 
 // El token vive solo en memoria: se pierde al cerrar o recargar la ventana.
 let token = ''
@@ -21,7 +32,7 @@ export function setToken(nuevo: string) {
   token = nuevo
 }
 
-http.interceptors.request.use((config) => {
+for (const cliente of [http, internalHttp]) cliente.interceptors.request.use((config) => {
   if (token && !config.headers.has('Authorization')) {
     config.headers.set('Authorization', `Bearer ${token}`)
   }
@@ -32,39 +43,55 @@ export const ROLES: Record<number, string> = { 1: 'ADMINISTRADOR', 2: 'SOPORTE',
 export const ESTADOS: Record<number, string> = {
   1: 'ACCESO COMPLETO',
   2: 'ACCESO PARCIAL',
-  3: 'BLOQUEADO/INACTIVO',
 }
 
 export type Sesion = {
   access_token: string
-  usuario: { usuario_ID: number; nombre_usuario: string; correo_usuario: string }
+  // rol_ID/estado_ID: los devuelve el login desde el bloque 2 del changelog (ausentes en backends anteriores).
+  usuario: { usuario_ID: number; nombre_usuario: string; correo_usuario: string; rol_ID?: number; estado_ID?: number }
 }
 
-export type UsuarioAdmin = {
-  usuario_ID: number
-  nombre_usuario: string
-  correo_usuario: string
-  rol_ID: number
-  estado_ID: number
-  usuario_principal_ID?: number | null
+export type UsuarioAdmin = UsuarioAdminFila
+
+export type AlertaAdmin = {
+  alerta_id: number
+  usuario_id: number | null
+  nombre_usuario: string | null
+  correo_usuario: string | null
+  estado_alerta: 'ACTIVA' | 'FINALIZADA' | 'EXPIRADA'
+  prioridad_id: number
+  prioridad: string
+  mensaje: string
+  ubicacion: string | null
+  fecha_creacion: string
+  fecha_cierre: string | null
+}
+
+export type PaginaAlertas = {
+  alertas: AlertaAdmin[]
+  total: number
+  activas: number
 }
 
 export type DatosSoporte = { nombre_usuario: string; correo_usuario: string; password: string }
 
+export type FormatoReporte = 'pdf' | 'xlsx'
+
+export type FiltrosVentas = { busqueda: string; estado_pago_id: string; desde: string; hasta: string }
+
 export type PlanUsuario = {
   plan_usuario_ID: number
   usuario_ID: number
-  tiene_acceso_completo: boolean
+  plan_ID: number
   cupos_apadrinados_adq: number
-  cupos_apadrinados_utili: number
+  cupos_ocupados: number
+  cupos_disponibles: number
 }
 
-export type DatosPlan = Pick<PlanUsuario, 'tiene_acceso_completo' | 'cupos_apadrinados_adq'>
+export type DatosPlan = Pick<PlanUsuario, 'plan_ID' | 'cupos_apadrinados_adq'>
 
-export type Expediente = {
-  usuario: UsuarioAdmin
+export type Expediente = ExpedienteCuenta & {
   plan: PlanUsuario | null
-  apadrinados: Pick<UsuarioAdmin, 'usuario_ID' | 'nombre_usuario' | 'estado_ID'>[]
 }
 
 type Valor = string | number | boolean | null
@@ -77,7 +104,7 @@ export type EntradaBitacora = {
   entidad_afectada: string | null
   resultado: 'EXITOSA' | 'FALLIDA'
   cambios: Record<string, { antes: Valor; despues: Valor }> | null
-  usuario_ID: number
+  usuario_ID: number | null
   nombre_usuario: string | null
   rol_actor_ID: number | null
   usuario_afectado_ID: number | null
@@ -105,10 +132,48 @@ const sinVacios = (campos: Record<string, string>) =>
 export const adminApi = {
   login: (correo_usuario: string, password: string) =>
     datos(http.post<Sesion>('/usuarios/login', { correo_usuario, password })),
+  actualizarMiUsuario: (cambios: DatosPerfilPersonal) =>
+    datos(http.patch<Sesion['usuario']>('/usuarios/me', cambios)),
+
+  listarTickets: (consulta: { estado: string; limit: number; offset: number }, signal: AbortSignal) =>
+    datos(internalHttp.get<Ticket[]>('/tickets-soporte', {
+      params: { limit: consulta.limit, offset: consulta.offset, ...(consulta.estado && { estado: consulta.estado }) }, signal,
+    })),
+  listarEstadosTickets: (signal: AbortSignal): Promise<Catalogo[]> =>
+    datos(internalHttp.get<{ estado_id: number; nombre: string }[]>('/tickets-soporte/estados', { signal }))
+      .then((filas) => filas.map((f) => ({ id: f.estado_id, nombre: f.nombre }))),
+  actualizarTicket: (id: number, cambios: CambiosTicket) =>
+    datos(internalHttp.patch<Ticket>(`/tickets-soporte/${id}`, cambios)),
+
+  listarAlertas: (
+    filtros: {
+      estado: string
+      usuario_id: string
+      limit: number
+      offset: number
+    },
+    signal: AbortSignal,
+  ) =>
+    datos(
+      http.get<PaginaAlertas>('/admin/alertas', {
+        params: {
+          ...sinVacios({
+            estado: filtros.estado,
+            usuario_id: filtros.usuario_id,
+          }),
+          limit: filtros.limit,
+          offset: filtros.offset,
+        },
+        signal,
+        timeout: 10000,
+      }),
+    ),
 
   // Usuarios
   listarUsuarios: () => datos(http.get<UsuarioAdmin[]>('/admin/usuarios')),
-  verExpediente: (id: number) => datos(http.get<Expediente>(`/admin/usuarios/${id}`)),
+  listarTrabajadores: () => datos(http.get<UsuarioAdmin[]>('/admin/usuarios/trabajadores')),
+  listarPlanes: () => datos(http.get<{ plan_ID: number; nombre_plan: string }[]>('/admin/usuarios/planes')),
+  verExpediente: (id: number, signal?: AbortSignal) => datos(http.get<Expediente>(`/admin/usuarios/${id}`, { signal })),
   actualizarDatos: (id: number, nombre_usuario: string, correo_usuario: string) =>
     datos(
       http.patch<UsuarioAdmin>(
@@ -123,16 +188,27 @@ export const adminApi = {
   eliminarApadrinado: (id: number) => datos(http.delete<void>(`/admin/usuarios/apadrinado/${id}`)),
   crearSoporte: (cuenta: DatosSoporte) =>
     datos(http.post<UsuarioAdmin>('/admin/usuarios/soporte', cuenta)),
+  actualizarTrabajador: (id: number, cambios: CambiosTrabajador) =>
+    datos(http.patch<UsuarioAdmin>(`/admin/usuarios/trabajadores/${id}`, cambios)),
+  eliminarTrabajador: (id: number) =>
+    datos(http.delete<void>(`/admin/usuarios/trabajadores/${id}`)),
+
+  // Ventas registradas y reportes PDF/Excel generados por jsReport con los mismos filtros.
+  listarVentas: (filtros: FiltrosVentas, offset: number, signal: AbortSignal) =>
+    datos(http.get<PaginaVentas>('/admin/ventas', { params: { ...sinVacios(filtros), limit: 20, offset }, signal, timeout: 10000 })),
+  descargarVentas: (filtros: FiltrosVentas, formato: FormatoReporte = 'pdf') =>
+    datos(http.get<Blob>('/admin/ventas/reporte', { params: { ...sinVacios(filtros), formato }, responseType: 'blob', timeout: 90000 })),
 
   // Bitácora / auditoría (solo lectura: las entradas las genera el backend)
   listarBitacora: (filtros: FiltrosBitacora) =>
     datos(http.get<EntradaBitacora[]>('/admin/auditoria', { params: sinVacios(filtros) })),
-  /** PDF generado por jsReport en el backend. */
-  descargarReporte: (filtros: FiltrosBitacora) =>
+  /** PDF o Excel generado por jsReport en el backend. */
+  descargarReporte: (filtros: FiltrosBitacora, formato: FormatoReporte = 'pdf') =>
     datos(
       http.get<Blob>('/admin/auditoria/reporte', {
-        params: sinVacios(filtros),
+        params: { ...sinVacios(filtros), formato },
         responseType: 'blob',
+        timeout: 90000,
       }),
     ),
 }
@@ -156,6 +232,7 @@ export async function describirError(error: unknown): Promise<string> {
       .then((texto) => JSON.parse(texto) as unknown)
       .catch(() => undefined)
   }
-  const mensaje = (cuerpo as { message?: string | string[] } | undefined)?.message
+  const errorApi = cuerpo as { message?: string | string[]; detail?: string } | undefined
+  const mensaje = errorApi?.message ?? errorApi?.detail
   return `HTTP ${error.response.status}: ${Array.isArray(mensaje) ? mensaje.join(', ') : (mensaje ?? error.message)}`
 }

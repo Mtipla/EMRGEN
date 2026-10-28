@@ -1,3 +1,4 @@
+-- HISTORICO: no ejecutar sobre el init integrado 2026-10-21. Ver README_BDD.md.
 BEGIN;
 
 -- Permite que el backend cree PIN_ID sin generar IDs manualmente.

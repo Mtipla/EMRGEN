@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
+import { avisar } from '@repo/ui/avisos'
 import type { AuthenticatedUser } from './AuthForm'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
@@ -18,12 +20,14 @@ export function PinSetupForm({ user, onPinCreated, onLogout }: PinSetupFormProps
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
-    if (!/^\d{4}$/.test(pin)) {
-      setError('El PIN debe tener exactamente 4 dígitos.')
-      return
-    }
-    if (pin !== confirmation) {
-      setError('Los PIN no coinciden.')
+    const invalido = !/^\d{4}$/.test(pin)
+      ? 'El PIN debe tener exactamente 4 dígitos.'
+      : pin !== confirmation
+        ? 'Los PIN no coinciden.'
+        : ''
+    if (invalido) {
+      setError(invalido)
+      avisar('error', invalido)
       return
     }
 
@@ -46,56 +50,70 @@ export function PinSetupForm({ user, onPinCreated, onLogout }: PinSetupFormProps
       }
       onPinCreated()
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudo guardar el PIN')
+      const message = cause instanceof Error ? cause.message : 'No se pudo guardar el PIN'
+      setError(message)
+      avisar('error', message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <section>
-      <h1>Configura tu PIN</h1>
-      <p>
-        Hola, {user.nombre_usuario}. Para continuar, crea un PIN de 4 dígitos.
-        Lo usarás para vincular cuentas.
-      </p>
-      <form onSubmit={handleSubmit}>
-        <label>
-          PIN de 4 dígitos
-          <input
-            type="password"
-            inputMode="numeric"
-            autoComplete="new-password"
-            pattern="[0-9]{4}"
-            minLength={4}
-            maxLength={4}
-            value={pin}
-            onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
-            required
-          />
-        </label>
-        <label>
-          Repite tu PIN
-          <input
-            type="password"
-            inputMode="numeric"
-            autoComplete="new-password"
-            pattern="[0-9]{4}"
-            minLength={4}
-            maxLength={4}
-            value={confirmation}
-            onChange={(event) =>
-              setConfirmation(event.target.value.replace(/\D/g, '').slice(0, 4))
-            }
-            required
-          />
-        </label>
-        {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Guardando…' : 'Crear PIN'}
-        </button>
-      </form>
-      <button type="button" onClick={onLogout}>Cerrar sesión</button>
-    </section>
+    <div className="auth-layout">
+      <header className="auth-navbar">
+        <Link to="/" className="find-me">EMERGEN</Link>
+      </header>
+
+      <main className="auth-main">
+        <section className="auth-card">
+          <h1>Configura tu PIN</h1>
+          <p className="pin-intro">
+            Hola, {user.nombre_usuario}. Para continuar, crea un PIN de 4 dígitos.
+            Lo usarás para vincular cuentas.
+          </p>
+          <form onSubmit={handleSubmit}>
+            <label className="auth-field">
+              <span>PIN de 4 dígitos</span>
+              <input
+                type="password"
+                inputMode="numeric"
+                autoComplete="new-password"
+                pattern="[0-9]{4}"
+                minLength={4}
+                maxLength={4}
+                value={pin}
+                onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                required
+              />
+            </label>
+            <label className="auth-field">
+              <span>Repite tu PIN</span>
+              <input
+                type="password"
+                inputMode="numeric"
+                autoComplete="new-password"
+                pattern="[0-9]{4}"
+                minLength={4}
+                maxLength={4}
+                value={confirmation}
+                onChange={(event) =>
+                  setConfirmation(event.target.value.replace(/\D/g, '').slice(0, 4))
+                }
+                required
+              />
+            </label>
+            {error && <p className="form-message failure" role="alert">{error}</p>}
+            <div className="auth-actions">
+              <button className="secondary-button" type="button" onClick={onLogout}>
+                Cerrar sesión
+              </button>
+              <button className="primary-button" type="submit" disabled={loading}>
+                {loading ? 'Guardando…' : 'Crear PIN'}
+              </button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
   )
 }

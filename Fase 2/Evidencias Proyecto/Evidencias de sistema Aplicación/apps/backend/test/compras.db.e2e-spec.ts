@@ -1,274 +1,201 @@
 import './load-root-env';
-import {
-  BadGatewayException,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import type { CapturePaypalOrderResponse } from '@repo/api-types';
+import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
-import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
-import { AppModule } from './../src/app.module';
-import { MindicadorService } from './../src/integrations/mindicador/mindicador.service';
-import { PaypalService } from './../src/integrations/paypal/paypal.service';
+import { AppModule } from '../src/app.module';
+import { ComprasService } from '../src/compras/compras.service';
+import { PaypalService } from '../src/integrations/paypal/paypal.service';
+import { MindicadorService } from '../src/integrations/mindicador/mindicador.service';
 
-/**
- * Compra de cuentas apadrinadas contra la PostgreSQL REAL de docker-compose, con PayPal y
- * mindicador reemplazados por dobles (no se contacta a PayPal ni se cobra dinero).
- * Requiere la BD con migraciones/001_compras_paypal.sql aplicada. En PowerShell:
- *   $env:DB_E2E=1; npm run test:e2e --workspace=backend -- compras.db
- * Crea sus propios usuarios y borra todo lo que generó al terminar.
- */
-const db = process.env.DB_E2E === '1' ? describe : describe.skip;
-
-const DOLAR = 950;
-
-db('Compra de cuentas apadrinadas con PayPal (Docker)', () => {
+const db=process.env.DB_E2E==='1'?describe:describe.skip;
+db('Compras: reservas durables y conciliación con PostgreSQL real / PayPal simulado',()=>{
   jest.setTimeout(60_000);
-
-  const sufijo = randomUUID().slice(0, 8);
-  const password = 'ClaveSegura123';
-  let app: INestApplication<App>;
-  let dataSource: DataSource;
-  let http: () => ReturnType<typeof request>;
-  const ids: number[] = [];
-  let token: string;
-  let tokenOtro: string;
-  let siguienteOrden = 0;
-
-  const paypal = {
-    createOrder: jest.fn(async () => ({
-      id: `E2E${sufijo.toUpperCase()}${++siguienteOrden}`,
-      status: 'CREATED',
-    })),
-    captureOrder: jest.fn(),
-  };
-  const capturaOk = (
-    orderId: string,
-    value: string,
-    captureStatus = 'COMPLETED',
-  ): CapturePaypalOrderResponse => ({
-    orderId,
-    status: captureStatus === 'COMPLETED' ? 'COMPLETED' : 'APPROVED',
-    captureId: `CAP${orderId}`,
-    captureStatus,
-    amount: { value, currency: 'USD' },
+  let app:INestApplication, source:DataSource, id:number, token:string;
+  const suffix=randomUUID().slice(0,8),email='buy.'+suffix+'@emergen.test';
+  let orderNumber=0;
+  const paypal={createOrder:jest.fn(),captureOrder:jest.fn(),getOrder:jest.fn()};
+  const http=()=>request(app.getHttpServer());
+  const auth=()=>({Authorization:'Bearer '+token});
+  const create=(cantidad=1)=>http().post('/compras/apadrinados/ordenes').set(auth()).send({cantidad});
+  const capture=(order:string)=>http().post('/compras/apadrinados/ordenes/'+order+'/captura').set(auth());
+  const reconcile=(sale:number)=>http().post('/compras/apadrinados/ventas/'+sale+'/conciliar').set(auth());
+  const ok=(order:string,value='1.06',captureStatus='COMPLETED')=>({orderId:order,status:captureStatus==='COMPLETED'?'COMPLETED':'APPROVED',captureId:'CAP'+order,captureStatus,amount:{value,currency:'USD'}});
+  const acquired=async()=>(await source.query('SELECT cupos_apadrinados_adq AS n FROM plan_usuario WHERE usuario_id=$1',[id]))[0].n;
+  beforeAll(async()=>{
+    const module=await Test.createTestingModule({imports:[AppModule]})
+      .overrideProvider(PaypalService).useValue(paypal)
+      .overrideProvider(MindicadorService).useValue({get:async()=>({series:[{value:950}]})}).compile();
+    app=module.createNestApplication({logger:false});
+    app.useGlobalPipes(new ValidationPipe({whitelist:true,forbidNonWhitelisted:true,transform:true}));
+    await app.init();source=app.get(DataSource);
+    const hash=await bcrypt.hash('CompraTest123!',12);
+    const [row]=await source.query("INSERT INTO usuario(nombre_usuario,correo_usuario,contra_usuario,estado_id,pin_id) SELECT 'Compra Test',$1,$2,1,pin_id FROM usuario WHERE correo_usuario='admin@emergen.test' RETURNING usuario_id",[email,hash]);
+    id=row.usuario_id;
+    token=(await http().post('/usuarios/login').send({correo_usuario:email,password:'CompraTest123!'}).expect(201)).body.access_token;
+    await source.query('INSERT INTO plan_usuario(usuario_id,plan_id,cupos_apadrinados_adq) VALUES ($1,2,0)',[id]);
   });
-
-  const auth = (t = token) => ({ Authorization: `Bearer ${t}` });
-  const crearOrden = (cantidad: number, t = token) =>
-    http().post('/compras/apadrinados/ordenes').set(auth(t)).send({ cantidad });
-  const capturar = (orderId: string, t = token) =>
-    http().post(`/compras/apadrinados/ordenes/${orderId}/captura`).set(auth(t));
-  const estadoVenta = async (ventaId: number) =>
-    (
-      await dataSource.query<{ estado_pago_id: number }[]>(
-        'SELECT estado_pago_id FROM venta WHERE venta_id = $1',
-        [ventaId],
-      )
-    )[0].estado_pago_id;
-  const cupos = async () =>
-    (await http().get('/compras/apadrinados').set(auth()).expect(200)).body
-      .cuposAdquiridos as number;
-
-  beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(PaypalService)
-      .useValue(paypal)
-      .overrideProvider(MindicadorService)
-      .useValue({
-        get: async () => ({ series: [{ date: '', value: DOLAR }] }),
-      })
-      .compile();
-    app = moduleFixture.createNestApplication({ logger: false });
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    );
-    await app.init();
-    dataSource = app.get(DataSource);
-    http = () => request(app.getHttpServer());
-
-    for (const nombre of ['comprador', 'otro']) {
-      const correo_usuario = `${nombre}.${sufijo}@e2e.test`;
-      const { body } = await http()
-        .post('/usuarios/registro')
-        .send({ nombre_usuario: `Usuario Test ${nombre}`, correo_usuario, password })
-        .expect(201);
-      ids.push(body.usuario_ID);
-    }
-    token = (
-      await http()
-        .post('/usuarios/login')
-        .send({ correo_usuario: `comprador.${sufijo}@e2e.test`, password })
-    ).body.access_token;
-    tokenOtro = (
-      await http()
-        .post('/usuarios/login')
-        .send({ correo_usuario: `otro.${sufijo}@e2e.test`, password })
-    ).body.access_token;
+  beforeEach(async()=>{
+    paypal.createOrder.mockReset().mockImplementation(async()=>({id:'TEST'+suffix+(++orderNumber),status:'CREATED'}));
+    paypal.captureOrder.mockReset();paypal.getOrder.mockReset();
+    // Venta DELETE cascada detalle/reserva: nunca deja una cabecera sin detalle.
+    await source.query('DELETE FROM venta WHERE usuario_id=$1',[id]);
+    await source.query('INSERT INTO plan_usuario(usuario_id,plan_id,cupos_apadrinados_adq) VALUES ($1,2,0) ON CONFLICT(usuario_id) DO NOTHING',[id]);
+    await source.query('UPDATE plan_usuario SET cupos_apadrinados_adq=0 WHERE usuario_id=$1',[id]);
   });
-
-  afterAll(async () => {
-    if (dataSource?.isInitialized && ids.length) {
-      await dataSource.query(
-        'DELETE FROM detalle_venta WHERE venta_id IN (SELECT venta_id FROM venta WHERE usuario_id = ANY($1))',
-        [ids],
-      );
-      await dataSource.query('DELETE FROM venta WHERE usuario_id = ANY($1)', [ids]);
-      await dataSource.query('DELETE FROM plan_usuario WHERE usuario_id = ANY($1)', [ids]);
-      await dataSource.query('DELETE FROM usuario WHERE usuario_id = ANY($1)', [ids]);
-    }
+  afterAll(async()=>{
+    if(source?.isInitialized&&id){await source.query('DELETE FROM venta WHERE usuario_id=$1',[id]);await source.query('DELETE FROM usuario WHERE usuario_id=$1',[id]);}
     await app?.close();
   });
-
-  beforeEach(() => paypal.captureOrder.mockReset());
-
-  it('exige sesión', async () => {
+  it('requiere sesión y plan; valida cantidad y referencia el plan real, no producto1',async()=>{
     await http().get('/compras/apadrinados').expect(401);
-    await http().post('/compras/apadrinados/ordenes').send({ cantidad: 1 }).expect(401);
+    await create(0).expect(400);
+    const r=await create().expect(201);
+    const [line]=await source.query('SELECT * FROM detalle_venta WHERE venta_id=$1',[r.body.ventaId]);
+    expect(line).toMatchObject({plan_id:2,tipo_compra:'CUPOS',cantidad:1,cupos_otorgados:1,precio_uni:1000});
+    expect((await http().get('/compras/apadrinados').set(auth()).expect(200)).body.maxCantidad).toBe(4);
   });
+  const sinPlan = () => source.query('DELETE FROM plan_usuario WHERE usuario_id=$1', [id]);
+  const comprarPlan = (cantidad = 1) => http().post('/compras/apadrinados/ordenes').set(auth()).send({ cantidad, tipo: 'PLAN' });
 
-  it('muestra el resumen con el usuario de la sesión y el precio de la tabla PLAN', async () => {
-    const { body } = await http().get('/compras/apadrinados').set(auth()).expect(200);
-    expect(body).toEqual({
-      usuario: 'Usuario Test comprador',
-      plan: expect.any(String),
-      precioUnitario: expect.any(Number),
-      cuposAdquiridos: 0,
-      maxCantidad: 5,
-    });
-  });
-
-  it('valida la cantidad y no acepta precio ni usuario desde el navegador', async () => {
-    await crearOrden(0).expect(400);
-    await crearOrden(6).expect(400);
-    await http()
-      .post('/compras/apadrinados/ordenes')
-      .set(auth())
-      .send({ cantidad: 1, amount: '0.01' })
-      .expect(400);
+  it('publica ambos precios y ofrece un solo plan a la cuenta sin plan', async () => {
+    await sinPlan();
+    expect((await http().get('/compras/precio').expect(200)).body).toMatchObject({ precioPlan: 5000, precioUnitario: 1000 });
+    await http().get('/compras/resumen').expect(401);
+    expect((await http().get('/compras/resumen').set(auth()).expect(200)).body).toMatchObject({ tipoCompra: 'PLAN', precioUnitario: 5000, maxCantidad: 1 });
+    await comprarPlan(2).expect(400);
+    await create().expect(409);
     expect(paypal.createOrder).not.toHaveBeenCalled();
   });
 
-  it('crea la orden con el monto calculado en el servidor y la venta PENDIENTE', async () => {
-    const { body: resumen } = await http().get('/compras/apadrinados').set(auth());
-    const { body } = await crearOrden(2).expect(201);
-    const esperado = (Math.ceil(((resumen.precioUnitario * 2) / DOLAR) * 100) / 100).toFixed(2);
-
-    expect(body).toEqual({
-      ventaId: expect.any(Number),
-      orderId: expect.any(String),
-      totalClp: resumen.precioUnitario * 2,
-      montoCobrado: esperado,
-      monedaCobrada: 'USD',
-    });
-    expect(paypal.createOrder).toHaveBeenLastCalledWith(
-      expect.objectContaining({ amount: esperado, currency: 'USD', referenceId: String(body.ventaId) }),
-    );
-    expect(await estadoVenta(body.ventaId)).toBe(1);
-  });
-
-  it('cobra, habilita los cupos una sola vez y no deja capturar órdenes ajenas', async () => {
-    const { body: orden } = await crearOrden(2).expect(201);
-    paypal.captureOrder.mockImplementation(async (id: string) => capturaOk(id, orden.montoCobrado));
-
-    await capturar(orden.orderId, tokenOtro).expect(404);
-    expect(paypal.captureOrder).not.toHaveBeenCalled();
-
-    const antes = await cupos();
-    const { body } = await capturar(orden.orderId).expect(200);
-    expect(body).toEqual({ ventaId: orden.ventaId, estado: 'PAGADO', cuposAdquiridos: antes + 2 });
-    expect(paypal.captureOrder).toHaveBeenCalledWith(
-      orden.orderId,
-      `findme-venta-${orden.ventaId}-captura`,
-    );
-
-    // Reintento (ej. se cortó la conexión): mismo resultado, sin cobrar ni sumar de nuevo.
-    const { body: otraVez } = await capturar(orden.orderId).expect(200);
-    expect(otraVez).toEqual(body);
+  it('activa un plan sin cupos solo tras confirmar el pago y evita compras duplicadas', async () => {
+    await sinPlan();
+    const results = await Promise.all([comprarPlan(), comprarPlan()]);
+    expect(results.map(r => r.status).sort()).toEqual([201, 409]);
+    expect(paypal.createOrder).toHaveBeenCalledTimes(1);
+    const sale = results.find(r => r.status === 201)!.body;
+    expect(sale.totalClp).toBe(5000);
+    expect(sale.montoCobrado).toBe('5.27');
+    const [line] = await source.query('SELECT * FROM detalle_venta WHERE venta_id=$1', [sale.ventaId]);
+    expect(line).toMatchObject({ plan_id: 2, tipo_compra: 'PLAN', cantidad: 1, cupos_otorgados: 0, precio_uni: 5000 });
+    expect((await source.query('SELECT 1 FROM plan_usuario WHERE usuario_id=$1', [id])).length).toBe(0);
+    expect((await http().get('/compras/resumen').set(auth()).expect(200)).body.maxCantidad).toBe(0);
+    expect((await http().get('/compras/apadrinados/ventas/pendientes').set(auth()).expect(200)).body).toEqual([expect.objectContaining({ cantidad: 1, ventaId: sale.ventaId })]);
+    paypal.captureOrder.mockResolvedValue(ok(sale.orderId, '5.27'));
+    await capture(sale.orderId).expect(200);
+    await capture(sale.orderId).expect(200);
     expect(paypal.captureOrder).toHaveBeenCalledTimes(1);
-    expect(await cupos()).toBe(antes + 2);
+    expect(await acquired()).toBe(0);
+    expect((await http().get('/usuarios/me').set(auth()).expect(200)).body.plan_efectivo).toBe(true);
+    expect((await http().get('/compras/resumen').set(auth()).expect(200)).body).toMatchObject({ tipoCompra: 'CUPOS', maxCantidad: 5, precioUnitario: 1000 });
+    await comprarPlan().expect(409);
+    const extra = (await create().expect(201)).body;
+    paypal.captureOrder.mockResolvedValue(ok(extra.orderId));
+    await capture(extra.orderId).expect(200);
+    expect(await acquired()).toBe(1);
   });
 
-  it('dos capturas simultáneas de la misma orden suman los cupos una sola vez', async () => {
-    const { body: orden } = await crearOrden(1).expect(201);
-    paypal.captureOrder.mockImplementation(async (id: string) => capturaOk(id, orden.montoCobrado));
-    const antes = await cupos();
-
-    const respuestas = await Promise.all([capturar(orden.orderId), capturar(orden.orderId)]);
-    expect(respuestas.map((r) => r.body.estado)).toEqual(['PAGADO', 'PAGADO']);
-    expect(await cupos()).toBe(antes + 1);
+  it('un pago de plan incierto se concilia sin activar antes ni cobrar dos veces', async () => {
+    await sinPlan();
+    const sale = (await comprarPlan().expect(201)).body;
+    paypal.captureOrder.mockRejectedValue(new Error('timeout after remote capture'));
+    await capture(sale.orderId).expect(502);
+    await comprarPlan().expect(409);
+    expect((await source.query('SELECT 1 FROM plan_usuario WHERE usuario_id=$1', [id])).length).toBe(0);
+    paypal.getOrder.mockResolvedValue(ok(sale.orderId, '0.01'));
+    expect((await reconcile(sale.ventaId).expect(200)).body.estado).toBe('REVISION');
+    expect((await source.query('SELECT 1 FROM plan_usuario WHERE usuario_id=$1', [id])).length).toBe(0);
+    paypal.getOrder.mockResolvedValue(ok(sale.orderId, '5.27'));
+    expect((await reconcile(sale.ventaId).expect(200)).body.estado).toBe('PAGADO');
+    expect(await acquired()).toBe(0);
+    expect(paypal.captureOrder).toHaveBeenCalledTimes(1);
   });
 
-  it('un pago rechazado queda RECHAZADO y no suma cupos', async () => {
-    const { body: orden } = await crearOrden(1).expect(201);
-    paypal.captureOrder.mockImplementation(async (id: string) =>
-      capturaOk(id, orden.montoCobrado, 'DECLINED'),
-    );
-    const antes = await cupos();
-
-    const { body } = await capturar(orden.orderId).expect(200);
-    expect(body).toEqual({ ventaId: orden.ventaId, estado: 'RECHAZADO' });
-    expect(await estadoVenta(orden.ventaId)).toBe(3);
-    expect(await cupos()).toBe(antes);
+  it('cancelar o rechazar un plan libera la compra sin activar Premium', async () => {
+    await sinPlan();
+    const sale = (await comprarPlan().expect(201)).body;
+    await http().post('/compras/apadrinados/ordenes/' + sale.orderId + '/cancelar').set(auth()).expect(200);
+    const retry = (await comprarPlan().expect(201)).body;
+    paypal.captureOrder.mockResolvedValue(ok(retry.orderId, '5.27', 'DECLINED'));
+    expect((await capture(retry.orderId).expect(200)).body.estado).toBe('RECHAZADO');
+    expect((await http().get('/compras/resumen').set(auth()).expect(200)).body.maxCantidad).toBe(1);
+    expect((await source.query('SELECT 1 FROM plan_usuario WHERE usuario_id=$1', [id])).length).toBe(0);
+  });
+  it('dos órdenes distintas compiten por el último cupo antes de llamar a PayPal',async()=>{
+    await source.query('UPDATE plan_usuario SET cupos_apadrinados_adq=4 WHERE usuario_id=$1',[id]);
+    const results=await Promise.all([create(),create()]);
+    expect(results.map(r=>r.status).sort()).toEqual([201,409]);
+    expect(paypal.createOrder).toHaveBeenCalledTimes(1);
+    const r=results.find(x=>x.status===201)!.body;
+    paypal.captureOrder.mockResolvedValue(ok(r.orderId));
+    await capture(r.orderId).expect(200);
+    expect(await acquired()).toBe(5);
+  });
+  it('capturas concurrentes y repetidas conceden una sola vez',async()=>{
+    const r=(await create().expect(201)).body;
+    paypal.captureOrder.mockImplementation(async()=>{await new Promise(r=>setTimeout(r,100));return ok(r.orderId);});
+    const responses=await Promise.all([capture(r.orderId),capture(r.orderId)]);
+    expect(responses.every(x=>x.status===200)).toBe(true);
+    await capture(r.orderId).expect(200);
+    expect(paypal.captureOrder).toHaveBeenCalledTimes(1);expect(await acquired()).toBe(1);
+  });
+  it('timeout después del cobro retiene capacidad y concilia por GET sin volver a capturar',async()=>{
+    const r=(await create().expect(201)).body;
+    paypal.captureOrder.mockRejectedValue(new Error('timeout after remote capture'));
+    await capture(r.orderId).expect(502);
+    expect((await source.query('SELECT estado FROM reserva_cupos WHERE venta_id=$1',[r.ventaId]))[0].estado).toBe('INCIERTA');
+    await http().post('/compras/apadrinados/ordenes/'+r.orderId+'/cancelar').set(auth()).expect(409);
+    paypal.getOrder.mockResolvedValue(ok(r.orderId));
+    const result=await reconcile(r.ventaId).expect(200);
+    expect(result.body.estado).toBe('PAGADO');expect(await acquired()).toBe(1);expect(paypal.captureOrder).toHaveBeenCalledTimes(1);
+  });
+  it('pending/revisión no conceden derechos; comprobación final sí',async()=>{
+    const r=(await create().expect(201)).body;
+    paypal.captureOrder.mockResolvedValue(ok(r.orderId,'1.06','PENDING'));
+    expect((await capture(r.orderId).expect(200)).body.estado).toBe('PENDIENTE');expect(await acquired()).toBe(0);
+    paypal.getOrder.mockResolvedValue(ok(r.orderId,'9.99'));
+    expect((await reconcile(r.ventaId).expect(200)).body.estado).toBe('REVISION');expect(await acquired()).toBe(0);
+    paypal.getOrder.mockResolvedValue(ok(r.orderId));
+    expect((await reconcile(r.ventaId).expect(200)).body.estado).toBe('PAGADO');expect(await acquired()).toBe(1);
+  });
+  it('rechazo definitivo libera reserva; cancelación de orden sin captura también',async()=>{
+    const r=(await create().expect(201)).body;
+    paypal.captureOrder.mockResolvedValue(ok(r.orderId,'1.06','DECLINED'));
+    expect((await capture(r.orderId).expect(200)).body.estado).toBe('RECHAZADO');
+    const r2=(await create().expect(201)).body;
+    await http().post('/compras/apadrinados/ordenes/'+r2.orderId+'/cancelar').set(auth()).expect(200);
+    expect((await http().get('/compras/apadrinados').set(auth()).expect(200)).body.maxCantidad).toBe(5);
+  });
+  it('timeout de creación reutiliza clave estable y no pierde la reserva',async()=>{
+    paypal.createOrder.mockRejectedValueOnce(new Error('unknown create'));
+    await create().expect(502);
+    const [sale]=await source.query('SELECT venta_id FROM venta WHERE usuario_id=$1',[id]);
+    await reconcile(sale.venta_id).expect(200);
+    expect(paypal.createOrder.mock.calls[0][1]).toBe(paypal.createOrder.mock.calls[1][1]);
+    expect((await source.query('SELECT count(*)::int n FROM reserva_cupos WHERE usuario_id=$1',[id]))[0].n).toBe(1);
+  });
+  it('lease persistida recupera caída de proceso sin volver a capturar',async()=>{
+    const r=(await create().expect(201)).body;
+    await source.query("UPDATE reserva_cupos SET estado='CAPTURANDO',actualizada_en=now()-interval '2 minutes' WHERE venta_id=$1",[r.ventaId]);
+    paypal.getOrder.mockResolvedValue(ok(r.orderId));
+    await reconcile(r.ventaId).expect(200);expect(paypal.captureOrder).not.toHaveBeenCalled();expect(await acquired()).toBe(1);
+  });
+  it('fallo local después de captura conserva evidencia y se recupera sin doble concesión',async()=>{
+    const r=(await create().expect(201)).body;
+    paypal.captureOrder.mockResolvedValue(ok(r.orderId));
+    const service=app.get(ComprasService);
+    const failure=jest.spyOn(service as any,'aplicarRespuesta').mockRejectedValueOnce(new Error('fallo local simulado'));
+    await capture(r.orderId).expect(500);
+    failure.mockRestore();
+    const [saved]=await source.query('SELECT v.captura_paypal_id,r.estado FROM venta v JOIN reserva_cupos r USING(venta_id) WHERE venta_id=$1',[r.ventaId]);
+    expect(saved).toMatchObject({captura_paypal_id:'CAP'+r.orderId,estado:'INCIERTA'});expect(await acquired()).toBe(0);
+    const pending=await http().get('/compras/apadrinados/ventas/pendientes').set(auth()).expect(200);
+    expect(pending.body).toEqual([expect.objectContaining({ventaId:r.ventaId,puedeRetomar:false})]);
+    paypal.getOrder.mockResolvedValue(ok(r.orderId));
+    await reconcile(r.ventaId).expect(200);expect(await acquired()).toBe(1);expect(paypal.captureOrder).toHaveBeenCalledTimes(1);
+    expect((await http().get('/compras/apadrinados/ventas/pendientes').set(auth()).expect(200)).body).toEqual([]);
   });
 
-  it('un error de PayPal deja la venta PENDIENTE para reintentar', async () => {
-    const { body: orden } = await crearOrden(1).expect(201);
-    paypal.captureOrder.mockRejectedValue(new BadGatewayException('PayPal rechazó la solicitud'));
-
-    await capturar(orden.orderId).expect(502);
-    expect(await estadoVenta(orden.ventaId)).toBe(1);
-
-    // Cancelada por el usuario: ya no se puede cobrar.
-    const { body } = await http()
-      .post(`/compras/apadrinados/ordenes/${orden.orderId}/cancelar`)
-      .set(auth())
-      .expect(200);
-    expect(body.estado).toBe('CANCELADO');
-    await capturar(orden.orderId).expect(409);
-  });
-
-  it('un cobro PENDING en PayPal no se presenta como éxito ni se puede cancelar', async () => {
-    const { body: orden } = await crearOrden(1).expect(201);
-    paypal.captureOrder.mockImplementation(async (id: string) =>
-      capturaOk(id, orden.montoCobrado, 'PENDING'),
-    );
-    const antes = await cupos();
-
-    const { body } = await capturar(orden.orderId).expect(200);
-    expect(body.estado).toBe('PENDIENTE');
-    const { body: cancelada } = await http()
-      .post(`/compras/apadrinados/ordenes/${orden.orderId}/cancelar`)
-      .set(auth())
-      .expect(200);
-    expect(cancelada.estado).toBe('PENDIENTE');
-    expect(await cupos()).toBe(antes);
-  });
-
-  it('si PayPal cobra un monto distinto no habilita y deja la venta para revisión', async () => {
-    const { body: orden } = await crearOrden(1).expect(201);
-    paypal.captureOrder.mockImplementation(async (id: string) => capturaOk(id, '0.01'));
-    const antes = await cupos();
-
-    const { body } = await capturar(orden.orderId).expect(500);
-    expect(body.message).toContain(`boleta ${orden.ventaId}`);
-    expect(await estadoVenta(orden.ventaId)).toBe(5);
-    expect(await cupos()).toBe(antes);
-  });
-
-  it('no permite superar el máximo de 5 cuentas apadrinadas', async () => {
-    const { body: resumen } = await http().get('/compras/apadrinados').set(auth()).expect(200);
-    expect(resumen.cuposAdquiridos).toBe(3);
-    expect(resumen.maxCantidad).toBe(2);
-    await crearOrden(3).expect(400);
-  });
 });

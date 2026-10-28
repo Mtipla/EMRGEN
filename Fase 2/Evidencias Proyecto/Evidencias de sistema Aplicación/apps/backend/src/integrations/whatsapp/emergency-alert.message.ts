@@ -13,34 +13,75 @@ export const googleMapsLink = ({ lat, lng }: EmergencyAlertLocation): string =>
  */
 export function buildEmergencyAlertText({
   senderName,
+  senderEmail,
+  occurredAt,
+  emergencyType,
   message,
   location,
+  locationLabel,
   medicalInfo,
 }: Omit<SendEmergencyAlertRequest, 'recipients'>): string {
+  const date = new Intl.DateTimeFormat('es-CL', {
+    timeZone: 'America/Santiago',
+    dateStyle: 'short',
+    timeStyle: 'medium',
+  }).format(new Date(occurredAt ?? Date.now()));
+  const place = location
+    ? [locationLabel ?? location.address, googleMapsLink(location)]
+        .filter(Boolean)
+        .join(' · ')
+    : (locationLabel ?? 'No disponible');
   const lines = [
-    '🚨 *ALERTA DE EMERGENCIA* 🚨',
-    senderName
-      ? `*${senderName}* activó una alerta en EMERGEN y te tiene como contacto de emergencia.`
-      : 'Un usuario de EMERGEN te tiene como contacto de emergencia y activó una alerta.',
-    '',
-    `💬 *Mensaje:* ${message}`,
-    '',
-    `📍 *Ubicación:*${location.address ? ` ${location.address}` : ''}`,
-    googleMapsLink(location),
+    'MENSAJE MEDIANTE APLICACIÓN EMERGEN',
+    '------------------------------------',
+    `El usuario ${senderName ?? 'de EMERGEN'} de correo ${senderEmail ?? 'no informado'} ha generado una alerta`,
+    '------------------------------------',
+    `TIPO DE EMERGENCIA: ${emergencyType ?? 'No informado'}`,
+    `FECHA/HORA: ${date} (America/Santiago)`,
+    `UBICACIÓN: ${place}`,
+    `"${message}"`,
+    '------------------------------------',
+    'ANTECEDENTES MÉDICOS:',
   ];
-
-  if (medicalInfo?.summary || medicalInfo?.url) {
-    lines.push('');
-    if (medicalInfo.summary) lines.push(`🩺 *Información médica:* ${medicalInfo.summary}`);
-    if (medicalInfo.url) lines.push(`🔗 *Ficha médica:* ${medicalInfo.url}`);
+  const ficha = medicalInfo?.record;
+  if (ficha) {
+    const value = (text: string) => text.trim() || 'No informado';
+    lines.push(
+      `Tipo de sangre: ${value(ficha.tipo_sangre)}`,
+      `Alergias: ${value(ficha.alergias)}`,
+      `Enfermedades crónicas: ${value(ficha.enfermedades_cronicas)}`,
+      `Medicamentos actuales: ${value(ficha.medicamentos_actuales)}`,
+      `Discapacidad: ${value(ficha.discapacidad_presente)}`,
+      `Donante de órganos: ${ficha.donante_organos ? 'Sí' : 'No'}`,
+    );
+  } else {
+    lines.push(medicalInfo?.summary || 'Sin antecedentes registrados.');
   }
-
-  // RF14: se muestran los números oficiales sin afirmar que fueron notificados.
-  lines.push(
-    '',
-    '_Números de emergencia en Chile: SAMU 131 · Bomberos 132 · Carabineros 133._',
-  );
   return lines.join('\n');
+}
+
+export function buildFinalizedAlertText({
+  senderName,
+  senderEmail,
+}: Pick<SendEmergencyAlertRequest, 'senderName' | 'senderEmail'>): string {
+  return [
+    'MENSAJE MEDIANTE APLICACIÓN EMERGEN',
+    '------------------------------------',
+    `La alerta reciente del usuario ${senderName ?? 'de EMERGEN'} de correo ${senderEmail ?? 'no informado'}, ha sido FINALIZADA`,
+  ].join('\n');
+}
+
+/** Acepta el formato que guarda el móvil; nunca inventa coordenadas. */
+export function parseAlertLocation(
+  value: string | null,
+): EmergencyAlertLocation | undefined {
+  const match = /^(?:SIMULADA: )?(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/.exec(
+    value ?? '',
+  );
+  if (!match) return undefined;
+  const lat = Number(match[1]);
+  const lng = Number(match[2]);
+  return Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : undefined;
 }
 
 /** Pin de ubicación nativo de WhatsApp. */

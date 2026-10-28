@@ -1,4 +1,5 @@
 import { Type } from 'class-transformer';
+import type { FormatoReporte } from '../../integrations/jsreport/formato-reporte';
 import { IsIn, IsInt, IsISO8601, IsOptional, Matches, Max, Min } from 'class-validator';
 
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
@@ -44,4 +45,9 @@ export class ConsultarBitacoraDto {
   @Min(1)
   @Max(1000)
   limite?: number;
+}
+
+export class ReporteBitacoraDto extends ConsultarBitacoraDto {
+  @IsIn(['pdf', 'xlsx'])
+  formato: FormatoReporte = 'pdf';
 }

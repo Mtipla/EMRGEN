@@ -53,6 +53,7 @@ describe('AdminService', () => {
       save: jest.fn((plan: PlanUsuario) => Promise.resolve(plan)),
     };
     manager = {
+      query: jest.fn().mockResolvedValue([]),
       getRepository: (entidad: unknown) => (entidad === PlanUsuario ? planes : usuarios),
     } as unknown as EntityManager;
     auditado = null;
@@ -71,7 +72,7 @@ describe('AdminService', () => {
     service = new AdminService(
       {} as Repository<Usuario>,
       {} as Repository<PlanUsuario>,
-      { auditar } as unknown as AuditoriaService,
+      { auditar, registrar: jest.fn() } as unknown as AuditoriaService,
       {
         prepararCuentaPrincipal,
         aplicarCambiosDePerfil,
@@ -98,17 +99,17 @@ describe('AdminService', () => {
     it('guarda el estado y entrega a la bitácora el actor, el afectado y el cambio', async () => {
       usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 7, estado_ID: 1 });
 
-      const usuario = await service.cambiarEstadoUsuario(7, 3, ADMIN);
+      const usuario = await service.cambiarEstadoUsuario(7, 2, ADMIN);
 
-      expect(usuario).toMatchObject({ usuario_ID: 7, estado_ID: 3 });
+      expect(usuario).toMatchObject({ usuario_ID: 7, estado_ID: 2 });
       expect(evento()).toEqual({
         actor: ADMIN,
-        accion: 'Cambio de estado del usuario 7 a 3',
+        accion: 'Cambio de estado del usuario 7 a 2',
         tipo: 'MODIFICACION',
         entidad: 'USUARIO',
         usuario_afectado_ID: 7,
       });
-      expect(auditado?.cambios).toEqual({ estado_ID: { antes: 1, despues: 3 } });
+      expect(auditado?.cambios).toEqual({ estado_ID: { antes: 1, despues: 2 } });
     });
 
     it('responde 404 si el usuario no existe', async () => {
@@ -160,6 +161,63 @@ describe('AdminService', () => {
         service.eliminarUsuarioApadrinado(7, ADMIN),
       ).rejects.toBeInstanceOf(BadRequestException);
       expect(usuarios.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('roles de trabajadores', () => {
+    it.each([[2, 3], [3, 2]] as const)('cambia el rol %s a %s sin una marca adicional', async (anterior, nuevo) => {
+      usuarios.findOne.mockResolvedValueOnce({
+        usuario_ID: 7, nombre_usuario: 'soporte', correo_usuario: 'soporte@emergen.test',
+        rol_ID: anterior, estado_ID: 1, usuario_principal_ID: null,
+      });
+      if (anterior === 3) (manager.query as jest.Mock).mockResolvedValueOnce([{ existe: 1 }]);
+
+      await expect(service.actualizarTrabajador(7, { rol_ID: nuevo }, ADMIN))
+        .resolves.toMatchObject({ rol_ID: nuevo, estado_ID: 1 });
+      expect(auditado?.cambios).toEqual({ rol_ID: { antes: anterior, despues: nuevo } });
+    });
+
+    it.each([
+      { rol_ID: 1, usuario_principal_ID: null },
+      { rol_ID: 3, usuario_principal_ID: 9 },
+    ])('no convierte administradores ni apadrinados en soporte: %j', async (cuenta) => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, ...cuenta });
+      await expect(service.actualizarTrabajador(7, { rol_ID: 2 }, ADMIN))
+        .rejects.toBeInstanceOf(NotFoundException);
+      expect(usuarios.save).not.toHaveBeenCalled();
+    });
+
+    it('no edita el correo de un USUARIO sin historial de trabajador', async () => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, rol_ID: 3, usuario_principal_ID: null });
+      await expect(service.actualizarTrabajador(7, { correo_usuario: 'cambio@emergen.test' }, ADMIN))
+        .rejects.toBeInstanceOf(NotFoundException);
+      expect(aplicarCambiosDePerfil).not.toHaveBeenCalled();
+    });
+
+    it('no habilita como soporte una cuenta de usuario sin historial de trabajador', async () => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, rol_ID: 3, usuario_principal_ID: null });
+      await expect(service.actualizarTrabajador(7, { rol_ID: 2 }, ADMIN))
+        .rejects.toBeInstanceOf(NotFoundException);
+      expect(usuarios.save).not.toHaveBeenCalled();
+    });
+
+    it.each([1, 3])('no elimina cuentas de rol %s desde trabajadores', async (rol_ID) => {
+      usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, rol_ID });
+      await expect(service.eliminarTrabajador(7, ADMIN)).rejects.toBeInstanceOf(NotFoundException);
+      expect(usuarios.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('eliminarTrabajadorSoporte', () => {
+    it('elimina solo cuentas con rol SOPORTE', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 9, nombre_usuario: 'Soporte', rol_ID: 2, usuario_principal_ID: null });
+      await service.eliminarTrabajadorSoporte(9, ADMIN);
+      expect(usuarios.delete).toHaveBeenCalledWith(9);
+      expect(evento()).toMatchObject({ accion: 'Eliminación de trabajador 9', tipo: 'ELIMINACION' });
+
+      usuarios.findOneBy.mockResolvedValueOnce({ usuario_ID: 7, rol_ID: 3, usuario_principal_ID: null });
+      await expect(service.eliminarTrabajadorSoporte(7, ADMIN)).rejects.toBeInstanceOf(BadRequestException);
+      expect(usuarios.delete).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -245,22 +303,21 @@ describe('AdminService', () => {
       });
     });
 
-    it('el estado del usuario no limita al administrador: también gestiona cuentas bloqueadas', async () => {
-      usuarios.findOneBy.mockResolvedValueOnce(juan({ estado_ID: 3 }));
-      aplicarCambiosDePerfil.mockResolvedValueOnce(juan({ estado_ID: 3, nombre_usuario: 'Otro' }));
+    it('el estado del usuario no limita al administrador: también gestiona cuentas de acceso parcial', async () => {
+      usuarios.findOneBy.mockResolvedValueOnce(juan({ estado_ID: 2 }));
+      aplicarCambiosDePerfil.mockResolvedValueOnce(juan({ estado_ID: 2, nombre_usuario: 'Otro' }));
 
       await expect(
         service.actualizarDatosUsuario(7, { nombre_usuario: 'Otro' }, ADMIN),
-      ).resolves.toMatchObject({ nombre_usuario: 'Otro', estado_ID: 3 });
+      ).resolves.toMatchObject({ nombre_usuario: 'Otro', estado_ID: 2 });
     });
 
-    it('rechaza con 400 cambiar el correo de un apadrinado', async () => {
+    it('permite el correo propio de un apadrinado', async () => {
       usuarios.findOneBy.mockResolvedValueOnce(juan({ usuario_principal_ID: 2 }));
 
-      await expect(
-        service.actualizarDatosUsuario(7, { correo_usuario: 'otro@correo.com' }, ADMIN),
-      ).rejects.toBeInstanceOf(BadRequestException);
-      expect(aplicarCambiosDePerfil).not.toHaveBeenCalled();
+      aplicarCambiosDePerfil.mockResolvedValueOnce(juan({ usuario_principal_ID: 2, correo_usuario: 'otro@correo.com' }));
+      await expect(service.actualizarDatosUsuario(7, { correo_usuario: 'otro@correo.com' }, ADMIN)).resolves.toMatchObject({ correo_usuario: 'otro@correo.com' });
+      expect(aplicarCambiosDePerfil).toHaveBeenCalled();
     });
 
     it('responde 404 si el usuario no existe', async () => {
@@ -273,7 +330,7 @@ describe('AdminService', () => {
   });
 
   describe('guardarPlanUsuario', () => {
-    const datos = { tiene_acceso_completo: true, cupos_apadrinados_adq: 3 };
+    const datos = { plan_ID: 2, cupos_apadrinados_adq: 3 };
 
     it('asigna el plan a una cuenta principal y calcula los cupos utilizados', async () => {
       usuarios.findOne.mockResolvedValueOnce({ usuario_ID: 7, usuario_principal_ID: null });
@@ -284,18 +341,17 @@ describe('AdminService', () => {
 
       expect(plan).toEqual({
         usuario_ID: 7,
-        tiene_acceso_completo: true,
+        plan_ID: 2,
         cupos_apadrinados_adq: 3,
-        cupos_apadrinados_utili: 1,
+        cupos_ocupados: 1, cupos_disponibles: 2,
       });
       expect(evento()).toMatchObject({ entidad: 'PLAN_USUARIO', usuario_afectado_ID: 7 });
       expect(auditado).toMatchObject({
         tipo: 'CREACION',
         accion: 'Asignación de plan y cupos al usuario 7',
         cambios: {
-          tiene_acceso_completo: { antes: null, despues: true },
+          plan_ID: { antes: null, despues: 2 },
           cupos_apadrinados_adq: { antes: null, despues: 3 },
-          cupos_apadrinados_utili: { antes: null, despues: 1 },
         },
       });
     });
@@ -306,9 +362,9 @@ describe('AdminService', () => {
       planes.findOne.mockResolvedValueOnce({
         plan_usuario_ID: 4,
         usuario_ID: 7,
-        tiene_acceso_completo: true,
+        plan_ID: 2,
         cupos_apadrinados_adq: 2,
-        cupos_apadrinados_utili: 1,
+        cupos_ocupados: 1, cupos_disponibles: 2,
       });
 
       const plan = await service.guardarPlanUsuario(7, datos, ADMIN);
@@ -350,7 +406,7 @@ describe('AdminService', () => {
 
       const expediente = await service.obtenerExpedienteUsuario(7, ADMIN);
 
-      expect(expediente).toEqual({ usuario, plan: null, apadrinados });
+      expect(expediente).toEqual({ usuario, plan: null, apadrinados, contactos: [], alertas: [] });
       expect(evento()).toEqual({
         actor: ADMIN,
         accion: 'Consulta del expediente del usuario 7',

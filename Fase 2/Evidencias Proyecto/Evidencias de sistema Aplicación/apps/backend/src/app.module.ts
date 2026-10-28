@@ -1,3 +1,5 @@
+import { APP_FILTER } from '@nestjs/core';
+import { PostgresExceptionFilter } from './config/postgres-exception.filter';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -13,6 +15,8 @@ import { AdminModule } from './admin/admin.module';
 import { LoginModule } from './login/login.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { ComprasModule } from './compras/compras.module';
+import { PerfilModule } from './perfil/perfil.module';
+import { ApadrinadosModule } from './apadrinados/apadrinados.module';
 
 
 @Module({
@@ -44,6 +48,8 @@ import { ComprasModule } from './compras/compras.module';
     LoginModule,
     PaypalModule,
     ComprasModule,
+    PerfilModule,
+    ApadrinadosModule,
     FirebaseAuthModule,
     JsreportModule,
     GoogleMapsModule,
@@ -51,6 +57,6 @@ import { ComprasModule } from './compras/compras.module';
     WhatsappModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_FILTER, useClass: PostgresExceptionFilter }],
 })
 export class AppModule { }

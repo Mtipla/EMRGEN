@@ -7,6 +7,7 @@ import {
 import { WhatsappAlertService } from './whatsapp-alert.service';
 import { WhatsappConnectionService } from './whatsapp-connection.service';
 import { WhatsappController } from './whatsapp.controller';
+import { WhatsappSosDispatcher } from './whatsapp-sos-dispatcher.service';
 
 @Module({
   imports: [LoginModule], // JwtAuthGuard + RolesGuard
@@ -16,6 +17,7 @@ import { WhatsappController } from './whatsapp.controller';
     { provide: WhatsappAuthStateStore, useClass: MultiFileAuthStateStore },
     WhatsappConnectionService,
     WhatsappAlertService,
+    WhatsappSosDispatcher,
   ],
   exports: [WhatsappAlertService, WhatsappConnectionService],
 })

@@ -15,9 +15,11 @@ import {
   FirebaseAuthGuard,
   type FirebaseRequest,
 } from '../integrations/firebase-auth/firebase-auth.guard';
-import { ActualizarMiUsuarioDto } from './dto/actualizar-mi-usuario.dto';
+import { ActualizarMiUsuarioPropioDto } from './dto/actualizar-mi-usuario.dto';
+import { CambiarPasswordDto } from './dto/cambiar-password.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { CrearPinDto } from './dto/crear-pin.dto';
+import { SincronizarPasswordDto } from './dto/sincronizar-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard, type UsuarioSesion } from './jwt-auth.guard';
 import { LoginService } from './login.service';
@@ -29,11 +31,25 @@ import { RolesGuard } from './roles.guard';
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
+  // Sin token: se llama antes de crear la cuenta en Firebase.
+  @Post('registro/validar')
+  validarRegistro(@Body() datos: CrearUsuarioDto) {
+    return this.loginService.validarRegistro(datos);
+  }
+
   // Exige el ID token de la cuenta recién creada en Firebase (Authorization: Bearer).
   @UseGuards(FirebaseAuthGuard)
   @Post('registro')
   registrar(@Req() request: FirebaseRequest, @Body() datos: CrearUsuarioDto) {
     return this.loginService.crear(datos, request.firebaseUser!);
+  }
+
+  // Tras restablecer la contraseña con el correo de Firebase: el ID token recién emitido con la
+  // contraseña nueva prueba que el dueño del correo la conoce, y se copia a la BD.
+  @UseGuards(FirebaseAuthGuard)
+  @Post('password/firebase')
+  sincronizarPassword(@Req() request: FirebaseRequest, @Body() datos: SincronizarPasswordDto) {
+    return this.loginService.sincronizarPasswordFirebase(request.firebaseUser!, datos.password);
   }
 
   @Post('login')
@@ -67,9 +83,19 @@ export class LoginController {
   @Patch('me')
   actualizarMiUsuario(
     @Req() request: { user: UsuarioSesion },
-    @Body() cambios: ActualizarMiUsuarioDto,
+    @Body() cambios: ActualizarMiUsuarioPropioDto,
   ) {
     return this.loginService.actualizarPropio(request.user.sub, cambios);
+  }
+
+  // HU-15 / RF3: la contraseña actual es la verificación de identidad.
+  @UseGuards(JwtAuthGuard)
+  @Patch('me/password')
+  cambiarPassword(
+    @Req() request: { user: UsuarioSesion },
+    @Body() datos: CambiarPasswordDto,
+  ) {
+    return this.loginService.cambiarPassword(request.user.sub, datos.password_actual, datos.password_nueva);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -26,7 +26,9 @@ describe('WhatsappAlertService', () => {
     connection.findAccount.mockImplementation((digits: string) =>
       Promise.resolve(`${digits}@s.whatsapp.net`),
     );
-    connection.send.mockResolvedValueOnce('MSG-TEXT').mockResolvedValueOnce('MSG-LOC');
+    connection.send
+      .mockResolvedValueOnce('MSG-TEXT')
+      .mockResolvedValueOnce('MSG-LOC');
   });
 
   afterEach(() => {
@@ -42,7 +44,11 @@ describe('WhatsappAlertService', () => {
       sent: 1,
       failed: 0,
       deliveries: [
-        { phoneNumber: '912345678', status: 'sent', messageIds: ['MSG-TEXT', 'MSG-LOC'] },
+        {
+          phoneNumber: '912345678',
+          status: 'sent',
+          messageIds: ['MSG-TEXT', 'MSG-LOC'],
+        },
       ],
     });
     expect(connection.findAccount).toHaveBeenCalledWith('56912345678');
@@ -60,6 +66,47 @@ describe('WhatsappAlertService', () => {
       ServiceUnavailableException,
     );
     expect(connection.send).not.toHaveBeenCalled();
+  });
+
+  it('notifica la finalización con un único texto por número, sin reenviar el pin', async () => {
+    const result = await service.sendFinalizedAlert({
+      recipients: ['912345678', '+56912345678'],
+      senderName: 'Ana',
+      senderEmail: 'ana@emergen.test',
+    });
+    expect(result.sent).toBe(1);
+    expect(connection.send).toHaveBeenCalledTimes(1);
+    expect(connection.send.mock.calls[0][1]).toEqual({
+      text: 'MENSAJE MEDIANTE APLICACIÓN EMERGEN\n------------------------------------\nLa alerta reciente del usuario Ana de correo ana@emergen.test, ha sido FINALIZADA',
+    });
+  });
+
+  it('un cierre conserva el resultado de cada contacto aunque otro no tenga WhatsApp', async () => {
+    connection.findAccount.mockResolvedValueOnce(undefined);
+    const result = await service.sendFinalizedAlert({
+      recipients: ['911111111', '922222222'],
+      senderName: 'Ana',
+    });
+    expect(result).toMatchObject({
+      sent: 1,
+      failed: 1,
+      deliveries: [
+        { phoneNumber: '911111111', status: 'not_on_whatsapp' },
+        { phoneNumber: '922222222', status: 'sent' },
+      ],
+    });
+  });
+
+  it('envía el texto sin pin si no se obtuvo la ubicación', async () => {
+    const result = await service.sendEmergencyAlert({
+      ...alert,
+      location: undefined,
+    });
+    expect(result.sent).toBe(1);
+    expect(connection.send).toHaveBeenCalledTimes(1);
+    expect(connection.send.mock.calls[0][1].text).toContain(
+      'UBICACIÓN: No disponible',
+    );
   });
 
   it('envía una sola vez al mismo número escrito de dos formas', async () => {
@@ -115,8 +162,14 @@ describe('WhatsappAlertService', () => {
     const result = await pending;
 
     expect(result).toMatchObject({ sent: 1, failed: 1 });
-    expect(result.deliveries[0]).toMatchObject({ phoneNumber: '911111111', status: 'failed' });
-    expect(result.deliveries[1]).toMatchObject({ phoneNumber: '922222222', status: 'sent' });
+    expect(result.deliveries[0]).toMatchObject({
+      phoneNumber: '911111111',
+      status: 'failed',
+    });
+    expect(result.deliveries[1]).toMatchObject({
+      phoneNumber: '922222222',
+      status: 'sent',
+    });
   });
 
   it('sigue siendo "sent" si solo falla el pin de ubicación', async () => {
@@ -126,6 +179,9 @@ describe('WhatsappAlertService', () => {
       .mockRejectedValueOnce(new Error('sin pin'));
 
     const result = await service.sendEmergencyAlert(alert);
-    expect(result.deliveries[0]).toMatchObject({ status: 'sent', messageIds: ['MSG-TEXT'] });
+    expect(result.deliveries[0]).toMatchObject({
+      status: 'sent',
+      messageIds: ['MSG-TEXT'],
+    });
   });
 });

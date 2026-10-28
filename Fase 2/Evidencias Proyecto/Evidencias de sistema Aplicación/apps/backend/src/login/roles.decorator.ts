@@ -7,7 +7,7 @@ export const ROL = {
   USUARIO: 3,
 } as const;
 
-export const ESTADO_BLOQUEADO = 3;
+export const ACCESO = { COMPLETO: 1, PARCIAL: 2 } as const;
 
 export const ROLES_KEY = 'roles';
 

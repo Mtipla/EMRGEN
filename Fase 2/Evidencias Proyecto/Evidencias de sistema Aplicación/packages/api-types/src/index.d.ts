@@ -55,8 +55,14 @@ export interface CapturePaypalOrderResponse {
 /* Compra de cuentas apadrinadas (PayPal vía backend)                  */
 /* ------------------------------------------------------------------ */
 
-/** REVISION: PayPal cobró pero no se pudo habilitar la cuenta; lo resuelve soporte. */
+/** REVISION: resultado incierto o discrepancia; requiere conciliación, no acredita un cobro. */
 export type EstadoCompra = 'PENDIENTE' | 'PAGADO' | 'RECHAZADO' | 'CANCELADO' | 'REVISION';
+
+export type TipoCompra = 'PLAN' | 'CUPOS';
+
+export interface ResumenCompra extends ResumenCompraApadrinados {
+  tipoCompra: TipoCompra;
+}
 
 export interface ResumenCompraApadrinados {
   /** Nombre de la cuenta principal que recibe los cupos (de la sesión). */
@@ -127,6 +133,8 @@ export interface FirebaseAuthUser {
   name?: string;
   /** Proveedor usado para iniciar sesión (ej. "password", "google.com"). */
   signInProvider?: string;
+  /** Segundos epoch del último ingreso con credenciales (claim `auth_time`); no cambia al refrescar. */
+  authTime?: number;
 }
 
 /** Sesión devuelta por la API REST de Firebase Auth al iniciar sesión o registrarse. */
@@ -217,7 +225,18 @@ export interface EmergencyAlertLocation extends GeoPoint {
   address?: string;
 }
 
+export interface EmergencyAlertMedicalRecord {
+  tipo_sangre: string;
+  alergias: string;
+  enfermedades_cronicas: string;
+  medicamentos_actuales: string;
+  discapacidad_presente: string;
+  donante_organos: boolean;
+}
+
 export interface EmergencyAlertMedicalInfo {
+  /** Datos del perfil que se incorporan al texto inicial del SOS. */
+  record?: EmergencyAlertMedicalRecord;
   /** Resumen breve (alergias, grupo sanguíneo...). Queda guardado en el chat del receptor. */
   summary?: string;
   /** Enlace HTTPS temporal a la ficha médica (HU-12), revocable al finalizar la emergencia. */
@@ -229,9 +248,16 @@ export interface SendEmergencyAlertRequest {
   recipients: string[];
   /** Nombre del usuario que emite la alerta. */
   senderName?: string;
+  senderEmail?: string;
+  /** Fecha de creación del SOS, en ISO 8601. */
+  occurredAt?: string;
+  /** Tipo de emergencia seleccionado al generar el SOS. */
+  emergencyType?: string;
   /** Mensaje personalizado del usuario (máx. 200, como USUARIO_MENSAJE_PERSONALIZADO). */
   message: string;
-  location: EmergencyAlertLocation;
+  location?: EmergencyAlertLocation;
+  /** Ubicación descriptiva cuando no hay coordenadas; indica también las pruebas simuladas. */
+  locationLabel?: string;
   medicalInfo?: EmergencyAlertMedicalInfo;
 }
 
@@ -255,4 +281,11 @@ export interface EmergencyAlertResult {
   sent: number;
   failed: number;
   deliveries: EmergencyAlertDelivery[];
+}
+
+/** Compras propias pendientes; permiten recuperarse tras perder la respuesta o reiniciar. */
+export interface CompraPendiente extends Omit<OrdenCompraResponse, 'orderId'> {
+  orderId: string | null;
+  cantidad: number;
+  puedeRetomar: boolean;
 }

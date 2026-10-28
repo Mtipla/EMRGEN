@@ -47,16 +47,33 @@ Backend y API REST:
 Se implementará Node.js como entorno de ejecución, usando Nest.js como framework principal para la confección de las APIs internas que consumen las aplicaciones.
 Desarrollo Frontend:
 Se usará React 19 en conjunto con los componentes base de Ionic React para desarrollar interfaces gráficas y la lógica de negocio dentro de las aplicaciones
-Aplicación Movil:
-Se utilizará Capacitor para realizar la exportación de la aplicación web directamente a una aplicación móvil, esto debido a que Capacitor es una herramienta nativa de Ionic, lo que agiliza inmensamente el trabajo de desarrollo
+Aplicación Móvil:
+Se utilizará Capacitor (herramienta nativa de Ionic) para empaquetar la aplicación móvil como aplicación nativa, dicha aplicación tiene su propio punto de entrada en el monorepo (apps/mobile) y se comparten solo paquetes/archivos comunes entre aplicaciones. Con esto se enfatiza que no incluye la aplicación de escritorio (Panel Administrativo
 Aplicación de Escritorio:
-Se utilizará el framework Electron para exportar la aplicación web desarrollada como un software ejecutable local, siendo esta la aplicación que gestionará la plataforma web y móvil
+Se utilizará el framework Electron para la aplicación de escritorio, con su propio punto de entrada (apps/desktop). Contiene el panel administrativo y opera exclusivamente a través de la API del backend, verificando que se cumpla el rol Administrador. Esta vendría siendo la aplicación que gestionará la plataforma web y móvil
 Gestor de Entorno:
 Se usará Turborepo 2.11 para alojar las 3 aplicaciones confeccionadas y el backend en un solo repositorio (workspaces de npm: apps/* y packages/*)
 Base de datos relacional:
 Se utilizará PostgreSQL para la gestión de las 30 tablas normalizadas del esquema (script init.sql), garantizando la integridad de los datos. Las tablas de la migración pendiente (ANTECEDENTE_MEDICO, ENVIO_ALERTA, ENLACE_MEDICO) se agregarán en una fase posterior
 Entorno de Ejecución:
 Se utilizará Docker Desktop para el manejo del backend y la base de datos mediante un contenedor, con esto se garantiza la portabilidad del sistema, evitando problemas de compatibilidad o posibles errores en el despliegue de los datos.
+Captura de Ubicación:
+Se utilizará Geolocation de Capacitor para extraer la ubicación al momento de la alerta, usando en conjunto el servicio externo Google Maps Platform API para leer la dirección y generar el enlace de mapa que se adjunta en la alerta
+
+## Declaración de Uso y Transparencia de Herramientas de Inteligencia Artificial (IA)
+Como equipo y a modo de transparencia, considerando las buenas prácticas de programación y documentación, se declara expresamente el uso de modelos de IA que son:
+Claude Code
+Claude
+ChatGPT
+Codex
+Estos modelos fueron utilizados para:
+Auditoría de errores en documentación y apoyo en coherencia documental
+Guía para programación de códigos dentro del proyecto (Considerando métodos y funciones)
+Integración segura de cambios importantes/vitales del proyecto:
+Por ejemplo: Integración de cambios de backend para no afectar funciones ya desarrolladas
+Apoyo para subida de archivos a Git, sin comprometer el trabajo independiente de cada uno dentro del repositorio
+Cabe mencionar y destacar que el uso de la IA se realizó mediante verificación, comprensión e implementación de cada uno de los integrantes del equipo dependiendo de su uso, mediante esto podemos asegurar la comprensión total del proyecto para todos los integrantes, nunca delegando e implementando directamente el trabajo de los modelos si no se ha revisado y corroborado por los integrantes, asegurando con esto también mantener la visión del proyecto y su alcance respectivo.
+
 ## Versiones y Herramientas de Calidad
 A continuación, se especifican las versiones, herramientas de calidad y framework de pruebas a utilizar en el proyecto:
 Node.js: 24.21.0
@@ -78,6 +95,7 @@ Pruebas:
 Jest: 30.5.2 (Pruebas de backend)
 Vitest: 4.1.11 (Pruebas de móvil y web)
 Cypress: 13.17.0 (Pruebas de móvil)
+Vitest 4.1.11 + @testing-library/react 16.3.3 + jsdom 22.1.0 (Pruebas de escritorio)
 ## Servicios Externos a Implementar
 Las aplicaciones harán uso de 5 servicios externos de APIs los cuales son necesarios para el funcionamiento correcto de las aplicaciones, estos servicios son:
 PayPal REST API
@@ -92,21 +110,22 @@ Gestionará todos los datos relacionados a las tablas de datos de USUARIO y se u
 API Integrada de Alertas:
 Gestionará todos los datos relacionados a las tablas de datos de ALERTAS, se utilizará para la función principal de las aplicaciones, ya que en este servicio se administrarán los llamados de alerta, ubicación, historial de las mismas y su detalle
 
-Considerando los servicios previamente mencionados, a continuación se presenta una tabla la cual explica las funciones nativas de dichos servicios, y la forma en que se utilizarán o funciones que cumpliran dentro del proyecto.
+## Gestión de Identidad y Autenticación (IAM)
+Para el ámbito de control de acceso, considerando los servicios y herramientas planteadas, específicamente Firebase Authentication y NestJS, el backend NestJS es la única “fuente de verdad” de usuarios, roles, y sesiones, siendo quien emite su propio JWT (expiración de 1 hora). Por otro lado Firebase Authentication se usa solo para verificar la existencia de los correos ingresados y para la recuperación de contraseña.
 ## Usos de Servicios Externos e Internos
-
-
-
-
-
+Considerando los servicios previamente mencionados, a continuación se presenta una tabla la cual explica las funciones nativas de dichos servicios, y la forma en que se utilizarán o funciones que cumpliran dentro del proyecto.
 
 | APIs a Implementar | Funciones del Servicio | Funciones a cumplir dentro del proyecto |
 | --- | --- | --- |
 | PayPal REST API | Servicio que cumple la función de pasarela de pago permitiendo realizar/simular transacciones | Se utilizará para completar los pagos de los planes y pagos de usuarios apadrinados dentro de la página |
 | API Integrada de Usuarios | Servicio creado por el equipo de desarrollo para manejar la gestión de los usuarios ingresados al sistema | Dentro de este servicio, se almacenarán todos los datos relevantes a los usuarios para su posterior uso |
 | API Integrada de Alertas | Servicio creado por el equipo de desarrollo para gestionar las alertas generadas por los usuarios en el sistema | Se utilizará para almacenar todos los datos de una alerta generada por un usuario y su posterior uso |
-| Firebase Authentication | Servicio que verifica correos electrónicos ingresados al sistema, asegurando la existencia de los mismos, adicional a esto otorga funciones para la recuperación de contraseñas | Se utilizará para verificar la validez de los correos electrónicos que sean utilizados para crear un usuario dentro de la página, al igual que el manejo de la recuperación de contraseñas |
+| Firebase Authentication | Servicio que verifica correos electrónicos ingresados al sistema, asegurando la existencia de los mismos, adicional a esto otorga funciones para la recuperación de contraseñas | Se utilizará y se limita para verificar la validez de los correos electrónicos que sean utilizados para crear un usuario dentro de la página, al igual que el manejo de la recuperación de contraseñas. Dicha limitación está ya que no emite sesiones, estas las emite el backend con su propio JWT |
 | jsReport API | Servicio que genera informes en formato PDF o Excel y habilita su descarga dentro del sistema | Se usará para la auditoría general de los usuarios ADMIN y SOPORTE, al igual que las acciones del usuario principal y el apadrinado, se podrán generar informes que detallen las acciones o movimientos de su cuenta y las relacionadas |
-| Google Maps Platform API | Servicio que permite la captura de una ubicación exacta del usuario, utilizando parámetros de Longitud y Latitud | Para el correcto manejo de las emergencias dentro del proyecto, es necesario utilizar la ubicación al momento de la emergencia, por lo tanto esta se extrae y se utilizará para el registro y manejo de la emergencia |
+| Google Maps Platform API | Servicio que permite la captura de una ubicación exacta del usuario, utilizando parámetros de Longitud y Latitud | Para el correcto manejo de las emergencias dentro del proyecto, es necesario utilizar la ubicación al momento de la emergencia, por lo tanto esta se captura mediante el uso de Geolocation de Capacitor y Google Maps API convierte estas coordenadas en direcciones legibles, generando un enlace de mapa que se utilizará en la alerta para el registro y manejo de la emergencia |
 | Mindicador | Servicio que entrega indicadores económicos principales de Chile y conversiones de dinero en formato JSON | Se utilizará para realizar la conversión de monedas, ya que considerando el uso de Paypal, esta se trabaja utilizando Dólares ($USD) |
 | Servicio Mensajería (integración WhatsApp) | Módulo interno de la API del backend (/notifications/whatsapp) que mantiene una sesión de WhatsApp mediante la librería Baileys (@whiskeysockets/baileys), que no es una API oficial de WhatsApp. Solo los administradores gestionan la sesión (estado, QR, código de emparejamiento y cierre). | Envía a cada contacto del usuario (1 a 5) la alerta de emergencia: mensaje personalizado, ubicación (dirección, enlace a Google Maps y pin nativo) y, opcionalmente, un resumen de la información médica, con reintentos y estado de envío por contacto (CA-08.1). No procesa mensajes entrantes, por lo que no es un bot conversacional. Su clasificación como servicio externo o interno queda pendiente de decisión del equipo. |
+
+
+
+

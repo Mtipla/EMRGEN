@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { loadPaypalSdk } from '@repo/api-client'
 import { usePremiumPurchase, type PurchaseModal } from './usePremiumPurchase'
-import './PremiumPurchase.css'
 
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID ?? ''
 const MISSING_CLIENT_ID = !PAYPAL_CLIENT_ID || PAYPAL_CLIENT_ID.startsWith('<INSERT')
@@ -9,13 +8,15 @@ const clp = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' 
 
 type PremiumPurchaseProps = {
   onClose: () => void
+  onPurchased?: () => Promise<void>
 }
 
 /** Pantalla "Comprar Cuenta Premium". Solo presenta: la lógica está en usePremiumPurchase. */
-export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
-  const purchase = usePremiumPurchase()
+export function PremiumPurchase({ onClose, onPurchased }: PremiumPurchaseProps) {
+  const purchase = usePremiumPurchase(onPurchased)
   const { summary, order, cantidad, processing, checkoutOpen } = purchase
   const soldOut = summary?.maxCantidad === 0
+  const esPlan = summary?.tipoCompra === 'PLAN'
 
   async function cancel() {
     await purchase.cancelPurchase()
@@ -24,16 +25,16 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
 
   return (
     <section className="purchase">
-      <nav className="purchase-nav" aria-label="FIND ME">
-        <strong>FIND ME</strong>
+      <nav className="purchase-nav" aria-label="EMERGEN">
+        <strong>EMERGEN</strong>
         {/* Destinos pendientes: estas páginas aún no existen en la web. */}
-        <a href="#como-funciona">¿Como Funciona?</a>
+        <a href="#como-funciona">¿Cómo funciona?</a>
         <a href="#descargar-app">Descargar App</a>
-        <a href="#preguntas-frecuentes">Preguntas Frecuentes</a>
+        <a href="#preguntas-frecuentes">Preguntas frecuentes</a>
       </nav>
 
       <div className="purchase-card" aria-busy={processing || !summary}>
-        <h1>Comprar Cuenta Premium</h1>
+        <h1>{summary ? (esPlan ? 'Comprar Cuenta Premium' : 'Comprar cupos de cuentas') : 'Cargando compra'}</h1>
 
         {purchase.loadError ? (
           <div role="alert" className="purchase-notice purchase-notice--error">
@@ -49,29 +50,33 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
             <dl className="purchase-details">
               <dt>Cantidad</dt>
               <dd>
-                <input
-                  type="number"
-                  aria-label="Cantidad de cuentas"
-                  min={1}
-                  max={Math.max(summary.maxCantidad, 1)}
-                  value={cantidad}
-                  disabled={soldOut || checkoutOpen || processing}
-                  onChange={(event) => {
-                    const value = Math.trunc(Number(event.target.value))
-                    purchase.setCantidad(Math.min(Math.max(value || 1, 1), summary.maxCantidad))
-                  }}
-                />
-                <small> (máximo {summary.maxCantidad})</small>
+                {esPlan ? '1 plan para tu cuenta' : (
+                  <>
+                    <input
+                      type="number"
+                      aria-label="Cantidad de cuentas"
+                      min={1}
+                      max={Math.max(summary.maxCantidad, 1)}
+                      value={cantidad}
+                      disabled={soldOut || checkoutOpen || processing}
+                      onChange={(event) => {
+                        const value = Math.trunc(Number(event.target.value))
+                        purchase.setCantidad(Math.min(Math.max(value || 1, 1), summary.maxCantidad))
+                      }}
+                    />
+                    <small> (máximo {summary.maxCantidad})</small>
+                  </>
+                )}
               </dd>
               <dt>Descripción</dt>
               <dd>
-                Añadir Cuenta(s) Extra a "{summary.usuario}"
+                {esPlan ? `Activar cuenta Premium para "${summary.usuario}"` : `Añadir Cuenta(s) Extra a "${summary.usuario}"`}
               </dd>
               <dt>Número de boleta</dt>
               <dd>{order ? order.ventaId : <small>se asigna al iniciar el pago</small>}</dd>
               <dt>Precio</dt>
               <dd className="purchase-price">
-                ({clp.format(summary.precioUnitario * cantidad)})
+                {clp.format(summary.precioUnitario * cantidad)}
                 {order && (
                   <small>
                     {' '}
@@ -83,7 +88,7 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
 
             {soldOut && (
               <p className="purchase-notice">
-                Ya tienes el máximo de cuentas apadrinadas ({summary.cuposAdquiridos}).
+                {esPlan ? 'Ya tienes una compra de plan pendiente. Retómala o verifica su pago.' : 'No hay cupos disponibles para una nueva compra. Revisa tus compras pendientes.'}
               </p>
             )}
             {purchase.notice && (
@@ -93,6 +98,17 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
             )}
             {processing && <p role="status">Procesando pago, no cierres esta ventana…</p>}
 
+            {purchase.pending.length > 0 && (
+              <div aria-label="Compras pendientes">
+                <p>Compras pendientes</p>
+                {purchase.pending.map((sale) => (
+                  <button key={sale.ventaId} type="button" disabled={processing || checkoutOpen}
+                    onClick={() => void purchase.recover(sale)}>
+                    {sale.puedeRetomar ? 'Retomar' : 'Verificar'} compra {sale.ventaId}
+                  </button>
+                ))}
+              </div>
+            )}
             {checkoutOpen && (
               <PaypalCheckout
                 createOrder={purchase.createOrder}
@@ -112,14 +128,14 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
                 >
                   Verificar pago
                 </button>
-              ) : (
+              ) : !checkoutOpen && (
                 <button
                   type="button"
                   className="purchase-primary"
-                  disabled={soldOut || checkoutOpen || processing}
+                  disabled={soldOut || processing}
                   onClick={purchase.openCheckout}
                 >
-                  Método de pago (API de COMPRA)
+                  Continuar con PayPal
                 </button>
               )}
               <button
@@ -139,7 +155,11 @@ export function PremiumPurchase({ onClose }: PremiumPurchaseProps) {
         <ResultModal
           modal={purchase.modal}
           boleta={order?.ventaId}
-          onClose={purchase.closeModal}
+          onClose={() => {
+            const success = purchase.modal?.type === 'success'
+            purchase.closeModal()
+            if (success) onClose()
+          }}
         />
       )}
     </section>
@@ -220,7 +240,9 @@ function ResultModal({ modal, boleta, onClose }: ResultModalProps) {
         </h2>
         {success ? (
           <p>
-            {modal.cantidad === 1
+            {modal.tipoCompra === 'PLAN'
+              ? 'Tu cuenta Premium está activa. Ya puedes comprar cupos de cuentas apadrinadas.'
+              : modal.cantidad === 1
               ? 'Su cuenta se encuentra habilitada con una cuenta APADRINADA adicional.'
               : `Su cuenta se encuentra habilitada con ${modal.cantidad} cuentas APADRINADAS adicionales.`}
           </p>
