@@ -38,7 +38,7 @@ export function clearSession() {
   localStorage.removeItem('emergen.user');
 }
 
-/** fetch al backend con el token de la sesión; lanza Error con el `message` del backend. */
+/** fetch al backend con el token de la sesión; lanza Error con el `message` y el `status` del backend. */
 export async function apiFetch<T>(path: string, init: RequestInit = {}, base = API_URL): Promise<T> {
   const response = await fetch(`${base}${path}`, {
     ...init,
@@ -52,7 +52,10 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}, base = A
   if (!response.ok) {
     const body = data as { message?: string | string[]; detail?: string } | null;
     const message = body?.message ?? body?.detail;
-    throw new Error((Array.isArray(message) ? message.join(', ') : message) ?? `Error ${response.status}`);
+    throw Object.assign(
+      new Error((Array.isArray(message) ? message.join(', ') : message) ?? `Error ${response.status}`),
+      { status: response.status },
+    );
   }
   return data as T;
 }
