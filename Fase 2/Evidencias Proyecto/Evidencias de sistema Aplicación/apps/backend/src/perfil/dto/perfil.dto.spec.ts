@@ -4,6 +4,20 @@ import { validate } from 'class-validator';
 import { ContactoDto, normalizarTelefono } from './perfil.dto';
 
 describe('CA-03.1: número de contacto normalizado a E.164', () => {
+  it.each([true, false, undefined])('acepta el permiso booleano %s', async (permiso) => {
+    const dto = plainToInstance(ContactoDto, {
+      nombre_contacto: 'Contacto', num_emergencia: '+56912345678', compartir_antecedentes: permiso,
+    });
+    expect(await validate(dto)).toHaveLength(0);
+  });
+
+  it.each(['false', 0, null])('rechaza el permiso inválido %s', async (permiso) => {
+    const dto = plainToInstance(ContactoDto, {
+      nombre_contacto: 'Contacto', num_emergencia: '+56912345678', compartir_antecedentes: permiso,
+    });
+    expect((await validate(dto)).some((e) => e.property === 'compartir_antecedentes')).toBe(true);
+  });
+
   it.each([
     ['+56912345678'],
     ['+56 9 1234 5678'],

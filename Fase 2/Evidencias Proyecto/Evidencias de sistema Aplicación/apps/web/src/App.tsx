@@ -246,7 +246,7 @@ function App() {
         path="/perfil"
         element={privatePage(user && <ProfilePage user={user} onUserUpdated={setUser} />)}
       />
-      <Route path="/cuentas" element={privatePage(<AccountsPage />, 'cuentas.apadrinadas')} />
+      <Route path="/cuentas" element={privatePage(user && <AccountsPage user={user} />, 'cuentas.informe')} />
       <Route path="/soporte" element={privatePage(<SoportePage />, 'soporte.solicitar')} />
       <Route
         path="/administracion/cuentas"

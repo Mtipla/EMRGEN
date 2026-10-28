@@ -41,7 +41,7 @@ def obtener(conn: psycopg.Connection, ticket_id: int) -> dict | None:
     return conn.execute(_SELECT + " WHERE t.ticket_soporte_id=%s", (ticket_id,)).fetchone()
 
 def actualizar(conn: psycopg.Connection, ticket_id: int, estado: str | None, solucion: str | None,
-               rol_id: int, enviar_verificacion: bool = False, confirmar_cierre: bool = False) -> dict:
+               rol_id: int, usuario_id: int, enviar_verificacion: bool = False, confirmar_cierre: bool = False) -> dict:
     row = conn.execute("SELECT * FROM ticket_soporte WHERE ticket_soporte_id=%s FOR UPDATE", (ticket_id,)).fetchone()
     if not row:
         raise HTTPException(404, "El ticket no existe")
@@ -66,6 +66,13 @@ def actualizar(conn: psycopg.Connection, ticket_id: int, estado: str | None, sol
             raise HTTPException(400, "Para reabrir un ticket CERRADO indica el motivo en la solución")
         conn.execute("UPDATE ticket_soporte SET estado_ticket_id=%s WHERE ticket_soporte_id=%s", (state,ticket_id))
     if solucion is not None:
-        conn.execute("""INSERT INTO soporte(ticket_soporte_id,desc_caso,solucion_caso) VALUES (%s,%s,%s)
-            ON CONFLICT(ticket_soporte_id) DO UPDATE SET solucion_caso=excluded.solucion_caso""", (ticket_id,row["desc_ticket"],solucion))
+        # El autor sale de la sesión, nunca del cuerpo enviado por el cliente.
+        # Guardamos nombre y correo para conservar la atribución tras cambios de cuenta.
+        conn.execute("""INSERT INTO soporte(ticket_soporte_id,desc_caso,solucion_caso,
+                trabajador_id,trabajador_nombre,trabajador_correo)
+            SELECT %s,%s,%s,u.usuario_id,u.nombre_usuario,u.correo_usuario
+            FROM usuario u WHERE u.usuario_id=%s
+            ON CONFLICT(ticket_soporte_id) DO UPDATE SET solucion_caso=excluded.solucion_caso,
+                trabajador_id=excluded.trabajador_id,trabajador_nombre=excluded.trabajador_nombre,
+                trabajador_correo=excluded.trabajador_correo""", (ticket_id,row["desc_ticket"],solucion,usuario_id))
     return obtener(conn, ticket_id)

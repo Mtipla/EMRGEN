@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Req, StreamableFile, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Req, StreamableFile, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard, type UsuarioSesion } from '../login/jwt-auth.guard';
 import { ApadrinadosService } from './apadrinados.service';
 import { CrearApadrinadoDto } from './dto/apadrinado.dto';
+import { InformePersonalDto } from './dto/informe.dto';
 import { CambiarAccesoApadrinadoDto, DefinirPinApadrinadoDto, PinPrincipalDto } from './dto/pin-principal.dto';
 
 type Solicitud = { user: UsuarioSesion };
@@ -19,11 +20,11 @@ export class ApadrinadosController {
 
   @Get('informe')
   @Header('Cache-Control', 'no-store')
-  async informe(@Req() request: Solicitud) {
-    const reporte = await this.apadrinados.informe(request.user);
+  async informe(@Req() request: Solicitud, @Query() { formato }: InformePersonalDto) {
+    const reporte = await this.apadrinados.informe(request.user, formato);
     return new StreamableFile(reporte.content, {
       type: reporte.contentType,
-      disposition: `attachment; filename="informe-personal-${new Date().toISOString().slice(0, 10)}.pdf"`,
+      disposition: `attachment; filename="informe-personal-${new Date().toISOString().slice(0, 10)}.${formato}"`,
     });
   }
 

@@ -400,7 +400,6 @@ export const GestionTickets = ({
         }
         selectedKey={seleccion?.ticket_id}
         onSelect={seleccionar}
-        descarga="tickets-soporte"
         empty="No hay tickets."
       />
       {seleccion && (

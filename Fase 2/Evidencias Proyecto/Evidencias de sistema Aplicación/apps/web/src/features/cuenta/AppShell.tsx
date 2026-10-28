@@ -14,7 +14,7 @@ type AppShellProps = {
 /** Entradas del menú de usuario de los wireframes, filtradas por la matriz de permisos. */
 const MENU: { to: string; label: string; accion: Accion }[] = [
   { to: '/perfil', label: 'Modificar usuario', accion: 'perfil.editar' },
-  { to: '/cuentas', label: 'Administrar cuentas', accion: 'cuentas.apadrinadas' },
+  { to: '/cuentas', label: 'Administrar cuentas', accion: 'cuentas.informe' },
   { to: '/administracion/cuentas', label: 'Administrar cuentas', accion: 'admin.cuentas.ver' },
   { to: '/administracion/compras', label: 'Administrar compras', accion: 'admin.compras.ver' },
   { to: '/administracion/trabajadores', label: 'Administrar trabajadores', accion: 'admin.trabajadores' },
@@ -57,7 +57,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
             <nav className="wf-menu-list" aria-label="Menú de usuario" onClick={() => setOpen(false)}>
               <span className="wf-muted">{perfil ? ETIQUETA_PERFIL[perfil] : 'Perfil sin rol (vuelve a iniciar sesión)'}</span>
               <div className="wf-menu-secciones">{enlaces}</div>
-              {/* Mockup pág. 29: sin Premium no aparece "Administrar cuentas". */}
+              {/* El informe propio está disponible también para apadrinados y cuentas sin Premium. */}
               {MENU.filter((item) => visible(user, item.accion) &&
                 (perfil !== 'SOPORTE' || item.to === '/perfil' || item.to.startsWith('/administracion/'))).map((item) => (
                 <Link key={item.to} to={item.to}>{item.label}</Link>

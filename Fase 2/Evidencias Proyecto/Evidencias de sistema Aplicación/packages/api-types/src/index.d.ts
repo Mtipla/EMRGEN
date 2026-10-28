@@ -259,6 +259,8 @@ export interface SendEmergencyAlertRequest {
   /** Ubicación descriptiva cuando no hay coordenadas; indica también las pruebas simuladas. */
   locationLabel?: string;
   medicalInfo?: EmergencyAlertMedicalInfo;
+  /** false omite por completo el bloque médico para este destinatario. */
+  includeMedicalInfo?: boolean;
 }
 
 export type EmergencyAlertDeliveryStatus =

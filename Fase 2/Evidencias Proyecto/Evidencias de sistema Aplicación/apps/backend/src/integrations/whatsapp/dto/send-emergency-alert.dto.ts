@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsEmail,
   IsISO8601,
   IsIn,
@@ -102,4 +103,8 @@ export class SendEmergencyAlertDto implements SendEmergencyAlertRequest {
   @ValidateNested()
   @Type(() => EmergencyAlertMedicalInfoDto)
   medicalInfo?: EmergencyAlertMedicalInfoDto;
+
+  @IsOptional()
+  @IsBoolean()
+  includeMedicalInfo?: boolean;
 }

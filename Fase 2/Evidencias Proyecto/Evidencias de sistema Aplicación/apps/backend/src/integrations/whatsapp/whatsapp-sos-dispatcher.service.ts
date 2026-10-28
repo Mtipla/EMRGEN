@@ -18,6 +18,7 @@ interface PendingDelivery {
   usuario_id: number;
   ficha_cifrada: Parameters<typeof descifrarFicha>[1] | null;
   num_emergencia: string;
+  compartir_antecedentes: boolean;
   nombre_usuario: string;
   correo_usuario: string;
   texto_mensaje: string;
@@ -81,8 +82,9 @@ export class WhatsappSosDispatcher
         const [row] = await manager.query<
           PendingDelivery[]
         >(`SELECT e.envio_alerta_id,e.tipo_notificacion,
-          a.alerta_id,a.usuario_id,a.fecha_creacion,c.num_emergencia,u.nombre_usuario,u.correo_usuario,
-          d.texto_mensaje,l.ubicacion,p.tipo_prioridad,to_jsonb(m) AS ficha_cifrada
+          a.alerta_id,a.usuario_id,a.fecha_creacion,c.num_emergencia,c.compartir_antecedentes,u.nombre_usuario,u.correo_usuario,
+          d.texto_mensaje,l.ubicacion,p.tipo_prioridad,
+          CASE WHEN c.compartir_antecedentes THEN to_jsonb(m) END AS ficha_cifrada
           FROM envio_alerta e JOIN alerta a USING(alerta_id)
           JOIN usuario u ON u.usuario_id=a.usuario_id
           JOIN contacto_emergencia c ON c.contacto_emergencia_id=e.contacto_emergencia_id
@@ -113,7 +115,8 @@ export class WhatsappSosDispatcher
                 message: row.texto_mensaje,
                 location: parseAlertLocation(row.ubicacion),
                 locationLabel: row.ubicacion ?? undefined,
-                medicalInfo: this.medicalInfo(row),
+                medicalInfo: row.compartir_antecedentes ? this.medicalInfo(row) : undefined,
+                includeMedicalInfo: row.compartir_antecedentes,
               });
         await manager.query(
           `UPDATE envio_alerta SET estado_envio_id=$2,

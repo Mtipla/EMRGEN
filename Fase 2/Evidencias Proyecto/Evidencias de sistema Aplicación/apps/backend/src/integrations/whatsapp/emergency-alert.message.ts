@@ -20,6 +20,7 @@ export function buildEmergencyAlertText({
   location,
   locationLabel,
   medicalInfo,
+  includeMedicalInfo,
 }: Omit<SendEmergencyAlertRequest, 'recipients'>): string {
   const date = new Intl.DateTimeFormat('es-CL', {
     timeZone: 'America/Santiago',
@@ -41,8 +42,9 @@ export function buildEmergencyAlertText({
     `UBICACIÓN: ${place}`,
     `"${message}"`,
     '------------------------------------',
-    'ANTECEDENTES MÉDICOS:',
   ];
+  if (includeMedicalInfo === false) return lines.join('\n');
+  lines.push('ANTECEDENTES MÉDICOS:');
   const ficha = medicalInfo?.record;
   if (ficha) {
     const value = (text: string) => text.trim() || 'No informado';

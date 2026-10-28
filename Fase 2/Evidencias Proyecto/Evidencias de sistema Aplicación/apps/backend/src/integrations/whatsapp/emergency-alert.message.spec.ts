@@ -12,6 +12,16 @@ const location = {
 };
 
 describe('buildEmergencyAlertText', () => {
+  it('deshabilitado omite todo el bloque médico aunque reciba una ficha o resumen', () => {
+    const text = buildEmergencyAlertText({
+      senderName: 'Ana', message: 'Ayuda', location, includeMedicalInfo: false,
+      medicalInfo: { summary: 'Dato médico privado', url: 'https://emergen.cl/f/privado' },
+    });
+    expect(text).toContain('Ayuda');
+    expect(text).toContain('google.com/maps');
+    expect(text).not.toMatch(/ANTECEDENTES|médico|privado|Sin antecedentes/i);
+  });
+
   it('incluye el remitente, el mensaje, la dirección y el link de Maps', () => {
     const text = buildEmergencyAlertText({
       senderName: 'Ana',

@@ -10,6 +10,7 @@ import {
   Min,
   MinLength,
   ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
@@ -41,6 +42,10 @@ export class ContactoDto {
     message: 'El número debe estar en formato internacional, p. ej. +56912345678',
   })
   num_emergencia!: string;
+
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsBoolean()
+  compartir_antecedentes?: boolean;
 }
 
 /** Columnas de ANTECEDENTE_MEDICO; los textos son NOT NULL pero pueden ir vacíos. */

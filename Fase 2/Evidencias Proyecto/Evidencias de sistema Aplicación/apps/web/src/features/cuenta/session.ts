@@ -18,8 +18,9 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}, base = A
     // fetch solo rechaza por red/CORS: "Failed to fetch" no le dice nada al usuario.
     throw new Error('Error al comunicarse con el servidor. Inténtalo nuevamente.')
   })
-  // Archivos (PDF): el cuerpo solo se lee como JSON si es un error.
-  if (response.ok && init.headers && (init.headers as Record<string, string>).Accept === 'application/pdf') {
+  // El cuerpo de los archivos solo se lee como JSON si es un error.
+  const accept = new Headers(init.headers).get('Accept')
+  if (response.ok && (accept === 'application/pdf' || accept === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
     return (await response.blob()) as T
   }
   const data: unknown = await response.json().catch(() => null)

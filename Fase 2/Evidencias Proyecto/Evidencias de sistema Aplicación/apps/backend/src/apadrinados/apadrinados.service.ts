@@ -9,9 +9,10 @@ import * as bcrypt from 'bcrypt';
 import { DataSource, Repository } from 'typeorm';
 import { AdminService } from '../admin/admin.service';
 import { codigoPostgres } from '../config/postgres-error';
-import { validarReporte } from '../integrations/jsreport/formato-reporte';
+import { plantillaReporte, validarReporte, type FormatoReporte } from '../integrations/jsreport/formato-reporte';
 import { JsreportService, type RenderedReport } from '../integrations/jsreport/jsreport.service';
 import { transaction } from '../config/transaction';
+import { registrarActividadUsuario } from '../auditoria/actividad-usuario';
 import type { UsuarioSesion } from '../login/jwt-auth.guard';
 import { LoginService } from '../login/login.service';
 import { verificarPinPrincipal } from '../login/pin-principal';
@@ -20,7 +21,7 @@ import { Pin } from '../usuarios/pin.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { CrearApadrinadoDto } from './dto/apadrinado.dto';
-import { PLANTILLA_INFORME } from './plantilla-informe';
+import { PLANTILLA_INFORME, PLANTILLA_INFORME_EXCEL } from './plantilla-informe';
 
 const PG_CHECK_VIOLATION = '23514';
 
@@ -56,14 +57,47 @@ export class ApadrinadosService {
     private readonly jsreport: JsreportService,
   ) {}
 
-  /** HU-19 / RF22: PDF con los datos de la propia cuenta y, si es principal, de sus apadrinados. */
-  async informe(sesion: UsuarioSesion): Promise<RenderedReport> {
+  /** El alcance sale de la sesión y de los vínculos actuales, nunca de IDs enviados por el cliente. */
+  async informe(sesion: UsuarioSesion, formato: FormatoReporte = 'pdf'): Promise<RenderedReport> {
     const yo = await this.loginService.obtenerPropio(sesion.sub);
     const principal = yo.usuario_principal_ID === null;
     // Un apadrinado ve solo su cuenta: vinculadas() le devolvería la de su principal.
     const apadrinados = principal ? await this.vinculadas(sesion) : [];
+    const ids = [sesion.sub, ...apadrinados.map((a) => a.usuario_ID)];
+    const [alertas, acciones] = await Promise.all([
+      this.dataSource.query<{
+        alerta_id: number; nombre_usuario: string; estado_alerta: string; tipo_prioridad: string;
+        texto_mensaje: string; ubicacion: string | null; fecha_creacion: Date; fecha_cierre: Date | null;
+      }[]>(
+        `SELECT a.alerta_id,u.nombre_usuario,a.estado_alerta,p.tipo_prioridad,
+          d.texto_mensaje,l.ubicacion,a.fecha_creacion,a.fecha_cierre
+         FROM alerta a JOIN usuario u ON u.usuario_id=a.usuario_id
+         JOIN prioridad p ON p.prioridad_id=a.prioridad_id
+         JOIN detalle_alerta d ON d.detalle_alerta_id=a.detalle_alerta_id
+         LEFT JOIN ubicacion_alerta l ON l.ubicacion_alerta_id=a.ubicacion_alerta_id
+         WHERE a.usuario_id=ANY($1::int[]) AND a.estado_alerta='FINALIZADA'
+         ORDER BY a.fecha_creacion DESC,a.alerta_id DESC`, [ids],
+      ),
+      this.dataSource.query<{
+        fecha: Date | null; usuario: string; accion: string; resultado: string; origen: string; afectado: string;
+      }[]>(
+        `SELECT * FROM (
+          SELECT b.fecha_accion AS fecha,COALESCE(u.nombre_usuario,'Cuenta eliminada') AS usuario,
+            b.accion_realizada AS accion,b.resultado,app.origen_aplicacion AS origen,
+            COALESCE(af.nombre_usuario,'Cuenta eliminada') AS afectado
+          FROM bitacora_sistema b LEFT JOIN usuario u ON u.usuario_id=b.usuario_id
+          LEFT JOIN usuario af ON af.usuario_id=b.usuario_afectado_id
+          JOIN aplicacion app USING(aplicacion_id)
+          WHERE b.usuario_id=ANY($1::int[]) OR b.usuario_afectado_id=ANY($1::int[])
+          UNION ALL
+          SELECT v.fecha_venta,u.nombre_usuario,'Compra #' || v.venta_id,ep.descripcion_estado,'EMERGEN',u.nombre_usuario
+          FROM venta v JOIN usuario u USING(usuario_id) JOIN estado_pago ep USING(estado_pago_id)
+          WHERE v.usuario_id=ANY($1::int[])
+        ) actividad ORDER BY fecha DESC NULLS LAST,usuario,accion`, [ids],
+      ),
+    ]);
     const reporte = await this.jsreport.renderInline(
-      { content: PLANTILLA_INFORME },
+      plantillaReporte(formato, PLANTILLA_INFORME, PLANTILLA_INFORME_EXCEL),
       {
         generado: FECHA_CHILE.format(new Date()),
         principal,
@@ -80,9 +114,18 @@ export class ApadrinadosService {
           acceso: acceso(a.estado_ID),
           pin: a.tiene_pin ? 'Configurado' : 'Sin PIN',
         })),
+        alertas: alertas.map((a) => ({
+          ...a,
+          ubicacion: a.ubicacion ?? 'No registrada',
+          creada: FECHA_CHILE.format(a.fecha_creacion),
+          cerrada: a.fecha_cierre ? FECHA_CHILE.format(a.fecha_cierre) : 'Sin cierre',
+        })),
+        acciones: acciones.map((a) => ({
+          ...a, fecha: a.fecha ? FECHA_CHILE.format(a.fecha) : 'No registrada',
+        })),
       },
     );
-    validarReporte(reporte, 'pdf');
+    validarReporte(reporte, formato);
     return reporte;
   }
 
@@ -153,11 +196,13 @@ export class ApadrinadosService {
       const pin_temporal = apadrinado.estado_ID === ACCESO.COMPLETO;
       if (apadrinado.PIN_ID !== null) {
         await manager.update(Pin, { PIN_ID: apadrinado.PIN_ID }, { pin_hash: pinHash, pin_temporal });
+        await registrarActividadUsuario(manager, sesion, 'Regeneró el PIN de una cuenta apadrinada', 'MODIFICACION', id);
         return;
       }
       const nuevo = await manager.save(Pin, manager.create(Pin, { pin_hash: pinHash, pin_temporal }));
       apadrinado.PIN_ID = nuevo.PIN_ID;
       await usuarios.save(apadrinado);
+      await registrarActividadUsuario(manager, sesion, 'Configuró el PIN de una cuenta apadrinada', 'MODIFICACION', id);
     });
     return this.vinculadas(sesion);
   }

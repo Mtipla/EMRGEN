@@ -83,6 +83,7 @@ export interface ContactoEmergencia {
   contacto_emergencia_ID: number;
   nombre_contacto: string;
   num_emergencia: string;
+  compartir_antecedentes?: boolean;
 }
 
 export interface FichaMedica {
@@ -164,6 +165,7 @@ const PerfilUsuario = ({
   const [prioridad, setPrioridad] = useState<number>(conDatos ? 0 : PRIORIDADES[0].id);
   const [contactos, setContactos] = useState<ContactoEmergencia[]>([]);
   const [nuevo, setNuevo] = useState({ nombre: "", numero: "" });
+  const [compartirAntecedentes, setCompartirAntecedentes] = useState(true);
   const [editando, setEditando] = useState<number | null>(null);
   const [errorContacto, setErrorContacto] = useState("");
   const [borrando, setBorrando] = useState<ContactoEmergencia | null>(null);
@@ -240,6 +242,7 @@ const PerfilUsuario = ({
     const datos = {
       nombre_contacto: nuevo.nombre.trim(),
       num_emergencia: normalizarTelefono(nuevo.numero),
+      compartir_antecedentes: compartirAntecedentes,
     };
     const rechazar = (texto: string) => {
       setErrorContacto(texto);
@@ -278,6 +281,7 @@ const PerfilUsuario = ({
       ]);
     }
     setNuevo({ nombre: "", numero: "" });
+    setCompartirAntecedentes(true);
     setEditando(null);
   }
 
@@ -390,8 +394,7 @@ const PerfilUsuario = ({
               </legend>
               <p className="wf-muted">
                 Ante una alerta se avisa a todos tus contactos: puedes
-                registrar hasta {MAX_CONTACTOS} números y necesitas al menos 1
-                (RF6, RF7).
+                registrar hasta {MAX_CONTACTOS} números y necesitas al menos 1.
               </p>
               <div
                 className={`wf-progreso${contactos.length === 0 ? " wf-progreso--vacio" : ""}`}
@@ -422,6 +425,10 @@ const PerfilUsuario = ({
                         <strong>{c.nombre_contacto}</strong>
                         <br />
                         <span className="wf-muted">{c.num_emergencia}</span>
+                        <br />
+                        <span className="wf-muted">
+                          Antecedentes médicos: {c.compartir_antecedentes === false ? "Deshabilitado" : "Habilitado"}
+                        </span>
                       </span>
                       <span className="wf-row">
                         <button
@@ -430,6 +437,7 @@ const PerfilUsuario = ({
                           onClick={() => {
                             setEditando(c.contacto_emergencia_ID);
                             setNuevo({ nombre: c.nombre_contacto, numero: c.num_emergencia });
+                            setCompartirAntecedentes(c.compartir_antecedentes !== false);
                           }}
                         >
                           Editar
@@ -458,6 +466,20 @@ const PerfilUsuario = ({
                     ? `Agregar contacto ${contactos.length + 1} de ${MAX_CONTACTOS}`
                     : "Ya registraste los 5 contactos permitidos"
                   : "Editando contacto"}
+              </p>
+              <label>
+                Compartir antecedentes médicos por WhatsApp
+                <select
+                  value={String(compartirAntecedentes)}
+                  onChange={(e) => setCompartirAntecedentes(e.target.value === "true")}
+                >
+                  <option value="true">Habilitado</option>
+                  <option value="false">Deshabilitado</option>
+                </select>
+              </label>
+              <p className="wf-muted">
+                Habilitado: este contacto recibirá tus antecedentes médicos al generar una alerta.
+                Deshabilitado: recibirá la alerta sin tus antecedentes médicos.
               </p>
               <div className="wf-row">
                 <input
@@ -499,6 +521,7 @@ const PerfilUsuario = ({
                     onClick={() => {
                       setEditando(null);
                       setNuevo({ nombre: "", numero: "" });
+                      setCompartirAntecedentes(true);
                     }}
                   >
                     Cancelar

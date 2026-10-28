@@ -25,6 +25,7 @@ import { Pin } from '../usuarios/pin.entity';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { ActualizarMiUsuarioDto, ActualizarMiUsuarioPropioDto } from './dto/actualizar-mi-usuario.dto';
 import { verificarPinPrincipal } from './pin-principal';
+import { registrarActividadUsuario } from '../auditoria/actividad-usuario';
 import { ROL } from './roles.decorator';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { LoginDto } from './dto/login.dto';
@@ -155,7 +156,12 @@ export class LoginService {
       sub: sesion.usuario_ID,
       email: sesion.correo_usuario,
     });
-    return { access_token, usuario: await this.conPlan(sesion) };
+    const publico = await this.conPlan(sesion);
+    await this.dataSource.query(
+      'INSERT INTO acceso_aplicacion (usuario_id, aplicacion_id) VALUES ($1, $2)',
+      [sesion.usuario_ID, APLICACION.WEB],
+    );
+    return { access_token, usuario: publico };
   }
 
   /**
@@ -192,9 +198,10 @@ export class LoginService {
     if (datos.PIN_nuevo === datos.PIN) {
       throw new BadRequestException('El PIN nuevo debe ser distinto del PIN temporal');
     }
-    await this.dataSource.getRepository(Pin).update(pin.PIN_ID, {
-      pin_hash: await bcrypt.hash(datos.PIN_nuevo, BCRYPT_COSTO),
-      pin_temporal: false,
+    const pinHash = await bcrypt.hash(datos.PIN_nuevo, BCRYPT_COSTO);
+    await transaction(this.dataSource, async (manager) => {
+      await manager.getRepository(Pin).update(pin.PIN_ID, { pin_hash: pinHash, pin_temporal: false });
+      await registrarActividadUsuario(manager, { sub: perfil.usuario_ID, rol_ID: perfil.rol_ID }, 'Cambió su PIN de primer ingreso');
     });
     return perfil;
   }
@@ -220,6 +227,7 @@ export class LoginService {
       usuario.PIN_ID = pinGuardado.PIN_ID;
       usuario.estado_ID = 1;
       await usuarioRepository.save(usuario);
+      await registrarActividadUsuario(manager, { sub: usuarioId, rol_ID: usuario.rol_ID }, 'Configuró su PIN de ingreso', 'CREACION');
 
       return { mensaje: 'PIN creado correctamente', requiere_pin: false };
     });
@@ -261,13 +269,14 @@ export class LoginService {
           throw new ForbiddenException('El perfil del personal solo permite modificar sus campos autorizados');
         }
         if (user.estado_ID !== 1) throw new ForbiddenException('El acceso parcial no permite editar el perfil');
-        return transaction(this.dataSource, async (manager) => {
+        return await transaction(this.dataSource, async (manager) => {
           const usuarios = manager.getRepository(Usuario);
           await usuarios.findOne({ where: { usuario_ID: id }, lock: { mode: 'pessimistic_write' } });
           const actualizado = await this.aplicarCambiosDePerfil(usuarios, id, cambios);
           if (cambios.PIN !== undefined) {
             await this.guardarPin(manager, actualizado, cambios.PIN);
           }
+          await registrarActividadUsuario(manager, { sub: id, rol_ID: user.rol_ID }, 'Actualizó sus datos personales');
           return this.conPlan(actualizado);
         });
       }
@@ -280,9 +289,11 @@ export class LoginService {
         }
         await verificarPinPrincipal(this.dataSource, user.usuario_principal_ID, cambios.PIN_principal);
       }
-      return this.conPlan(
-        await this.aplicarCambiosDePerfil(this.usuarioRepository, id, cambios),
-      );
+      return await transaction(this.dataSource, async (manager) => {
+        const actualizado = await this.aplicarCambiosDePerfil(manager.getRepository(Usuario), id, cambios);
+        await registrarActividadUsuario(manager, { sub: id, rol_ID: user.rol_ID }, 'Actualizó sus datos personales');
+        return this.conPlan(actualizado);
+      });
     } catch (error) {
       throw this.traducirCorreoDuplicado(error);
     }
@@ -305,8 +316,10 @@ export class LoginService {
     if (!usuario || usuario.usuario_principal_ID !== null || usuario.estado_ID !== 1) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
-    await this.usuarioRepository.update(usuario.usuario_ID, {
-      contra_usuario: await bcrypt.hash(password, BCRYPT_COSTO),
+    const hash = await bcrypt.hash(password, BCRYPT_COSTO);
+    await transaction(this.dataSource, async (manager) => {
+      await manager.getRepository(Usuario).update(usuario.usuario_ID, { contra_usuario: hash });
+      await registrarActividadUsuario(manager, { sub: usuario.usuario_ID, rol_ID: usuario.rol_ID }, 'Restableció su contraseña');
     });
     return { mensaje: 'Contraseña actualizada' };
   }
@@ -332,7 +345,11 @@ export class LoginService {
     if (!(await bcrypt.compare(actual, usuario.contra_usuario))) {
       throw new UnauthorizedException('La contraseña actual no es correcta');
     }
-    await this.usuarioRepository.update(id, { contra_usuario: await bcrypt.hash(nueva, BCRYPT_COSTO) });
+    const hash = await bcrypt.hash(nueva, BCRYPT_COSTO);
+    await transaction(this.dataSource, async (manager) => {
+      await manager.getRepository(Usuario).update(id, { contra_usuario: hash });
+      await registrarActividadUsuario(manager, { sub: id, rol_ID: usuario.rol_ID }, 'Cambió su contraseña');
+    });
     return { mensaje: 'Contraseña actualizada' };
   }
 

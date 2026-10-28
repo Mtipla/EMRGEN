@@ -10,7 +10,9 @@ function conErrorLegible<A extends unknown[], T>(accion: (...args: A) => Promise
 const listar = conErrorLegible(adminApi.listarTickets)
 const listarEstados = conErrorLegible(adminApi.listarEstadosTickets)
 const actualizar = conErrorLegible(adminApi.actualizarTicket)
+const descargarInforme = conErrorLegible(adminApi.descargarInformeTickets)
 
 export function VistaTickets({ esAdministrador }: { esAdministrador: boolean }) {
-  return <AdminTickets esAdministrador={esAdministrador} listar={listar} listarEstados={listarEstados} actualizar={actualizar} />
+  return <AdminTickets esAdministrador={esAdministrador} listar={listar} listarEstados={listarEstados} actualizar={actualizar}
+    descargarInforme={esAdministrador ? descargarInforme : undefined} />
 }

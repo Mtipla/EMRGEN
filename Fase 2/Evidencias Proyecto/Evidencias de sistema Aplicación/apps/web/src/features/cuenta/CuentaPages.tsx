@@ -13,9 +13,8 @@ import { apiFetch, internalFetch, useCupos, useRemote } from './session'
 // Fuera de los componentes: GestionApadrinados recarga cuando cambia `api`.
 const apadrinados = apadrinadosApi(apiFetch)
 
-/** Home con sesión: accesos según perfil, cuentas vinculadas y números de emergencia. */
+/** Home con sesión: accesos según perfil y números de emergencia. */
 export function HomePage({ user }: { user: AuthenticatedUser }) {
-  const perfil = perfilDe(user)
   const disponible = (accion: Accion) => visible(user, accion)
 
   return (
@@ -24,7 +23,7 @@ export function HomePage({ user }: { user: AuthenticatedUser }) {
         <h1>Hola, {user.nombre_usuario}</h1>
         <div className="wf-row">
           <Link className="wf-button wf-button--secondary" to="/perfil">Modificar usuario</Link>
-          {disponible('cuentas.apadrinadas') && (
+          {disponible('cuentas.informe') && (
             <Link className="wf-button wf-button--secondary" to="/cuentas">Administrar cuentas</Link>
           )}
           {disponible('compras.comprar') && (
@@ -42,27 +41,22 @@ export function HomePage({ user }: { user: AuthenticatedUser }) {
       <ResumenCuenta user={user} />
 
       <NumerosEmergencia />
-
-      {(perfil === 'USUARIO' || perfil === 'APADRINADO') && (
-        <section className="wf-card">
-          <h2>Cuentas vinculadas</h2>
-          <CuentasVinculadas esPrincipal={perfil === 'USUARIO'} />
-          <DescargarInforme />
-        </section>
-      )}
     </>
   )
 }
 
-/** HU-19 / RF22: GET /usuarios/me/informe, PDF de jsReport con la cuenta propia y sus apadrinados. */
-function DescargarInforme() {
+/** Informe con alertas y actividad; el servidor determina qué cuentas incluye. */
+export function DescargarInforme({ esPrincipal }: { esPrincipal: boolean }) {
+  const [formato, setFormato] = useState<'pdf' | 'xlsx'>('pdf')
   const [estado, setEstado] = useState({ cargando: false, error: '' })
 
   async function descargar() {
     setEstado({ cargando: true, error: '' })
     try {
-      const pdf = await apiFetch<Blob>('/usuarios/me/informe', { headers: { Accept: 'application/pdf' } })
-      downloadBlob(pdf, `informe-personal-${new Date().toISOString().slice(0, 10)}.pdf`)
+      const archivo = await apiFetch<Blob>(`/usuarios/me/informe?formato=${formato}`, {
+        headers: { Accept: formato === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+      })
+      downloadBlob(archivo, `informe-personal-${new Date().toISOString().slice(0, 10)}.${formato}`)
       setEstado({ cargando: false, error: '' })
     } catch (cause) {
       setEstado({ cargando: false, error: (cause as Error).message })
@@ -70,45 +64,25 @@ function DescargarInforme() {
   }
 
   return (
-    <>
-      <button type="button" className="wf-button wf-button--secondary" disabled={estado.cargando} onClick={() => void descargar()}>
-        {estado.cargando ? 'Generando informe…' : 'Descargar informe'}
-      </button>
-      {estado.error && <p className="wf-message wf-message--error" role="alert">No se pudo generar el informe: {estado.error}</p>}
-    </>
-  )
-}
-
-/** GET /usuarios/me/vinculadas: apadrinados del principal, o el principal y los demás apadrinados. */
-function CuentasVinculadas({ esPrincipal }: { esPrincipal: boolean }) {
-  const { data, cargando, error } = useRemote(apadrinados.listar, [])
-
-  if (cargando) return <p className="wf-muted">Cargando cuentas vinculadas…</p>
-  if (error) return <p className="wf-message wf-message--error">No se pudieron cargar: {error}</p>
-  if (data.length === 0) {
-    return (
+    <section className="wf-card wf-form">
+      <h2>Informe de actividad</h2>
       <p className="wf-muted">
         {esPrincipal
-          ? 'Aún no tienes cuentas apadrinadas. Créalas desde "Administrar cuentas".'
-          : 'No hay otras cuentas vinculadas.'}
+          ? 'Descarga tus alertas y acciones, junto con las de tus cuentas apadrinadas.'
+          : 'Descarga las alertas y acciones de tu cuenta.'}
       </p>
-    )
-  }
-  return (
-    <div className="wf-grid">
-      {data.map((cuenta) => (
-        <article className="wf-card" key={cuenta.usuario_ID}>
-          <h3>{cuenta.nombre_usuario}</h3>
-          <p className="wf-muted">
-            {cuenta.tipo === 'PRINCIPAL'
-              ? 'Cuenta principal'
-              : cuenta.estado_ID === undefined
-                ? 'Cuenta apadrinada'
-                : `Cuenta apadrinada · acceso ${cuenta.estado_ID === 1 ? 'completo' : 'parcial'}`}
-          </p>
-        </article>
-      ))}
-    </div>
+      <label>
+        Formato del informe
+        <select value={formato} disabled={estado.cargando} onChange={(e) => setFormato(e.target.value as 'pdf' | 'xlsx')}>
+          <option value="pdf">PDF</option>
+          <option value="xlsx">Excel (.xlsx)</option>
+        </select>
+      </label>
+      <button type="button" className="wf-button wf-button--secondary" disabled={estado.cargando} onClick={() => void descargar()}>
+        {estado.cargando ? 'Generando informe…' : 'Descargar Informe PDF/Excel'}
+      </button>
+      {estado.error && <p className="wf-message wf-message--error" role="alert">No se pudo generar el informe: {estado.error}</p>}
+    </section>
   )
 }
 
@@ -158,7 +132,19 @@ export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
 }
 
 /** "Administrar Cuentas" del usuario principal: cupos comprados y sus cuentas apadrinadas reales. */
-export function AccountsPage() {
+export function AccountsPage({ user }: { user: AuthenticatedUser }) {
+  const esPrincipal = perfilDe(user) === 'USUARIO'
+  return (
+    <>
+      {visible(user, 'cuentas.apadrinadas')
+        ? <CuentasPrincipal />
+        : <section className="wf-card"><h1>Administrar cuentas</h1></section>}
+      <DescargarInforme esPrincipal={esPrincipal} />
+    </>
+  )
+}
+
+function CuentasPrincipal() {
   const navigate = useNavigate()
   const { cupos, cargando, error } = useCupos()
 

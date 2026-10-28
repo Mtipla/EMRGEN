@@ -2,6 +2,36 @@ import pytest
 from tests.conftest import token
 URL="/internal/v1/tickets-soporte"
 
+def test_autor_de_solucion_desde_sesion_y_conservado_al_cerrar(client, db, crear_usuario):
+    solicitante = crear_usuario()
+    trabajador = crear_usuario(rol_id=2)
+    admin = crear_usuario(rol_id=1)
+    db.execute("UPDATE usuario SET nombre_usuario='Trabajadora prueba' WHERE usuario_id=%s", (trabajador,))
+    correo = db.execute("SELECT correo_usuario FROM usuario WHERE usuario_id=%s", (trabajador,)).fetchone()["correo_usuario"]
+    tid = client.post(URL, headers=token(solicitante), json={"descripcion": "Caso para informe", "categoria_id": 1}).json()["ticket_id"]
+    assert client.patch(f"{URL}/{tid}", headers=token(trabajador), json={"solucion": "Respuesta de soporte", "trabajador_id": admin}).status_code == 400
+    assert client.patch(f"{URL}/{tid}", headers=token(trabajador), json={"solucion": "Respuesta de soporte"}).status_code == 200
+
+    def autor():
+        return db.execute("SELECT trabajador_id,trabajador_nombre,trabajador_correo FROM soporte WHERE ticket_soporte_id=%s", (tid,)).fetchone()
+
+    esperado = {"trabajador_id": trabajador, "trabajador_nombre": "Trabajadora prueba", "trabajador_correo": correo}
+    assert autor() == esperado
+    # Cerrar sin cambiar la solución conserva a quien respondió.
+    assert client.patch(f"{URL}/{tid}", headers=token(admin), json={"estado": "CERRADO", "confirmar_cierre": True}).status_code == 200
+    assert autor() == esperado
+    assert client.patch(f"{URL}/{tid}", headers=token(trabajador), json={"solucion": "Cambio no permitido"}).status_code == 403
+    assert autor() == esperado
+    db.execute("UPDATE usuario SET nombre_usuario='Nombre cambiado' WHERE usuario_id=%s", (trabajador,))
+    assert autor() == esperado
+    db.execute("DELETE FROM usuario WHERE usuario_id=%s", (trabajador,))
+    assert autor() == {**esperado, "trabajador_id": None}
+    # Una nueva solución administrativa queda atribuida a su autor real.
+    assert client.patch(f"{URL}/{tid}", headers=token(admin), json={"solucion": "Solución revisada"}).status_code == 200
+    assert autor()["trabajador_id"] == admin
+    assert autor()["trabajador_nombre"] == "Pytest"
+
+
 def test_ticket_sin_seguimiento_estado_y_solucion(client,db,crear_usuario):
     user=crear_usuario();staff=crear_usuario(rol_id=2);other=crear_usuario();admin=crear_usuario(rol_id=1)
     r=client.post(URL,headers=token(user),json={"descripcion":"Prueba ticket","categoria_id":1})

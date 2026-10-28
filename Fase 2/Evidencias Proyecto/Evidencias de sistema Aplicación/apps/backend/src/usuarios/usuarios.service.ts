@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { transaction } from '../config/transaction';
+import { registrarActividadUsuario } from '../auditoria/actividad-usuario';
 import { Pin } from './pin.entity';
 import { Usuario } from './usuarios.entity';
 
@@ -44,8 +45,10 @@ export class UsuariosService {
       if (!padre) throw new NotFoundException('La cuenta principal no existe');
       if (padre.usuario_principal_ID !== null) throw new BadRequestException('Un apadrinado no puede apadrinar');
       const pin = pinHash ? await manager.save(Pin, manager.create(Pin, { pin_hash: pinHash, pin_temporal: datos.estado_ID === 1 })) : null;
-      return usuarios.save(usuarios.create({ nombre_usuario: datos.nombre_usuario.trim(), correo_usuario: null, contra_usuario: null,
+      const creado = await usuarios.save(usuarios.create({ nombre_usuario: datos.nombre_usuario.trim(), correo_usuario: null, contra_usuario: null,
         rol_ID: 3, estado_ID: datos.estado_ID, usuario_principal_ID: idPadre, PIN_ID: pin?.PIN_ID ?? null }));
+      await registrarActividadUsuario(manager, { sub: idPadre, rol_ID: padre.rol_ID }, 'Creó una cuenta apadrinada', 'CREACION', creado.usuario_ID);
+      return creado;
     });
   }
 
