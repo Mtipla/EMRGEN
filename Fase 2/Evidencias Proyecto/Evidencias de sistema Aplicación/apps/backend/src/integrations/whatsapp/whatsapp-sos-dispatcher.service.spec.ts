@@ -14,6 +14,7 @@ describe('Cola de SOS WhatsApp', () => {
     usuario_id: 7,
     ficha_cifrada: null,
     num_emergencia: '+56900000001',
+    compartir_antecedentes: true,
     nombre_usuario: 'Prueba',
     correo_usuario: 'prueba@emergen.test',
     texto_mensaje: 'Ayuda',
@@ -22,6 +23,7 @@ describe('Cola de SOS WhatsApp', () => {
     fecha_creacion: new Date('2026-10-26T15:30:00Z'),
   };
   let service: WhatsappSosDispatcher;
+  let warn: jest.SpyInstance;
   const originalMedicalKeys = process.env.MEDICAL_DATA_KEYS;
   const manager = { query: jest.fn() };
   const source = { query: jest.fn(), transaction: jest.fn() };
@@ -35,7 +37,7 @@ describe('Cola de SOS WhatsApp', () => {
     jest.resetAllMocks();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();
-    jest.spyOn(Logger.prototype, 'warn').mockImplementation();
+    warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation();
     process.env.MEDICAL_DATA_KEYS =
       'watest:' + randomBytes(32).toString('base64');
     connection.isReady.mockReturnValue(true);
@@ -78,6 +80,7 @@ describe('Cola de SOS WhatsApp', () => {
       location: { lat: -33.4378, lng: -70.6504 },
       locationLabel: row.ubicacion,
       medicalInfo: undefined,
+      includeMedicalInfo: true,
     });
     expect(manager.query.mock.calls[1][1]).toEqual([1, 2]);
     expect(manager.query.mock.calls[0][0]).toContain(
@@ -128,6 +131,24 @@ describe('Cola de SOS WhatsApp', () => {
       }),
     );
     expect(manager.query.mock.calls[1][1]).toEqual([1, 2]);
+  });
+
+  it('respeta permisos distintos para cada contacto y no descifra una ficha deshabilitada', async () => {
+    manager.query.mockReset();
+    manager.query
+      .mockResolvedValueOnce([{ ...row, compartir_antecedentes: false, ficha_cifrada: { tipo_sangre: 'INVALIDO' } }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ ...row, envio_alerta_id: 3, num_emergencia: '+56900000002' }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([]);
+    await service.dispatchPending();
+    expect(alerts.sendEmergencyAlert).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      recipients: [row.num_emergencia], includeMedicalInfo: false, medicalInfo: undefined,
+    }));
+    expect(alerts.sendEmergencyAlert).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      recipients: ['+56900000002'], includeMedicalInfo: true,
+    }));
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it('procesa un cierre sin volver a enviar el mensaje inicial ni la ubicación', async () => {

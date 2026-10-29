@@ -130,7 +130,7 @@ DB_PASSWORD=<INSERT_YOUR_DB_PASSWORD_HERE>
 DB_NAME=EMERGEN_BDD
 PORT=3000
 JWT_SECRET=<INSERT_YOUR_JWT_SECRET_HERE>
-CORS_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:5175
+CORS_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:5175,https://localhost
 VITE_API_URL=http://localhost:3000
 VITE_INTERNAL_API_URL=http://localhost:8000
 WHATSAPP_ENABLED=false
@@ -145,7 +145,7 @@ Genera tu propio `JWT_SECRET` con este comando y copia el resultado en `.env`:
 node -e "console.log(require('node:crypto').randomBytes(64).toString('base64url'))"
 ```
 
-Deja una sola definición de `JWT_SECRET` en el archivo. NestJS exige al menos 32 bytes para iniciar y emite tokens HS256 con duración de una hora, emisor `emergen-api` y audiencia `emergen-web`. FastAPI debe utilizar el mismo secreto para reconocer esas sesiones.
+Deja una sola definición de `JWT_SECRET` en el archivo. NestJS exige al menos 32 bytes para iniciar y emite tokens HS256 con emisor `emergen-api` y audiencia `emergen-web`. FastAPI debe utilizar el mismo secreto para reconocer esas sesiones. La duración se configura con `JWT_SESSION_HOURS=2`: acepta horas enteras de 1 a 168 y usa **2 horas** por defecto. Reinicia NestJS al cambiarla; con Docker usa `docker compose up -d --build backend`. El cambio se aplica al próximo inicio de sesión, en web, APK y panel; los JWT ya emitidos conservan su vencimiento.
 
 Los archivos `.env` y `.env.local` están excluidos de Git. Las variables con prefijo `VITE_` se incluyen en el código que recibe el navegador: reserva ese prefijo para configuración pública, como las URL y los identificadores de cliente.
 
@@ -229,7 +229,7 @@ El modo `docker` de Vite toma `VITE_API_URL=http://localhost:3001` de `.env.dock
 
 Web y móvil usan el primer puerto libre de Vite; comprueba la dirección que imprime la terminal. El escritorio fija el puerto 5175 y se detiene si está ocupado. Al abrir el panel, la interfaz indica la API y el modo seleccionados.
 
-Los comandos de móvil anteriores ejecutan la aplicación en el navegador. El empaquetado nativo requiere preparar la configuración y las plataformas de Capacitor. De igual forma, el script `build` de escritorio compila la interfaz; no genera por sí solo un instalador de Electron.
+Los comandos de móvil anteriores ejecutan la aplicación en el navegador. Para generar el APK con los archivos empaquetados, sigue la sección 11. De igual forma, el script `build` de escritorio compila la interfaz; no genera por sí solo un instalador de Electron.
 
 ### 6.2 Permisos de acceso desde el navegador: CORS
 
@@ -404,3 +404,317 @@ Para reparar una instalación local, comienza por `npm ci`. Si npm informa error
 - [Informe de integración de la base de datos](docs/INTEGRACION_BDD_2026-10-21.md) y [estado de integración](ESTADO_INTEGRACION_BDD.md): decisiones y evidencias de la integración.
 
 Este README toma la especificación como contexto y describe el uso que reflejan el código, los scripts y la configuración actual del proyecto.
+
+## 11. APK Android de depuración: preparación local y pruebas en red LAN
+
+Para preparar el equipo de otro integrante con una IA, copia el [prompt actualizado para Claude Code](docs/PROMPT_CLAUDE_CODE_ANDROID_LAN.md). Incluye el entorno LAN, instalación, permisos, secuencia física de volumen, segundo plano y sesión de dos horas. El prompt utiliza los scripts existentes y deja los envíos reales a cargo del integrante.
+
+### 11.1 Alcance y versiones
+
+Esta entrega prueba las funciones existentes **con la app abierta**: login, PIN, perfil, cuentas, contactos, soporte, SOS con ubicación disponible y finalización con PIN. FastAPI registra el SOS; NestJS procesa los envíos de WhatsApp en el servidor. No se necesita Vite para abrir el APK: los archivos compilados están dentro de la aplicación.
+
+Desde `0.2.0`, la secuencia utiliza **teclas físicas de volumen**, se guarda en el dispositivo por perfil y permite activar/desactivar un servicio nativo desde la app. Requiere habilitar Accesibilidad para esas teclas y mantener una notificación del servicio. El código nativo consulta la prioridad guardada y registra el SOS sin confirmación adicional. El usuario confirmó el funcionamiento de `0.2.1`, incluida ubicación y uso con pantalla apagada tras retirar la app de Recientes. `0.2.2` organiza la tarjeta en cuatro secciones, simplifica los textos y establece dos horas de sesión por defecto. Los pasos y límites están en [SOS por volumen](docs/SOS_VOLUMEN_ANDROID.md). Las notificaciones push y una cola de SOS sin conexión siguen pendientes. Los ajustes de batería e inicio automático pueden limitar la recuperación del servicio. Forzar detención o reiniciar el teléfono requiere activarlo de nuevo.
+
+Versiones comprobadas durante esta preparación (28-10-2026):
+
+| Elemento                                         | Versión/configuración                                     |
+| ------------------------------------------------ | --------------------------------------------------------- |
+| Node / npm                                       | `24.21.0` / `11.19.0`                                     |
+| Android Studio instalado                         | Rabbit 1, `2026.2.1`, build `262.9437.185.2621.16467767`  |
+| Java del IDE                                     | JBR `25.0.3`; ejecuta Studio, **no este Gradle**          |
+| JDK seleccionado para Gradle y Kotlin            | Eclipse Temurin `21.0.12.1+1-LTS`                         |
+| Capacitor core / CLI / Android                   | `8.5.2`                                                   |
+| Capacitor Geolocation                            | `8.2.4`                                                   |
+| Gradle Wrapper / Android Gradle Plugin           | `8.14.3` / `8.13.0`                                       |
+| SDK para compilar / target / mínimo del teléfono | `36` / `36` / `24` (Android 7)                            |
+| Android SDK Build-Tools                          | `36.0.0`                                                  |
+| ADB verificado                                   | Platform-Tools `37.0.1`, protocolo `1.0.41`               |
+| Teléfono de referencia                           | Redmi Note 13 Pro, modelo `2312DRA50G`, Android 16/API 36 |
+
+El teléfono necesita Android compatible, WebView actualizado y acceso a la misma LAN que el servidor. Instalar Platform 36 en el PC no exige que el teléfono tenga exactamente Android 16: el mínimo lo fija `minSdkVersion`. Tener solo Platform 37 instalada tampoco sustituye Platform 36 para esta plantilla.
+
+La identidad provisional estable es `com.emergen.mobile`. La variante debug se identifica como **EMERGEN LAN**, versión `0.2.2-lan-debug`, `versionCode 5`. Incluye secuencia física de volumen, ubicación fusionada y recuperación del servicio, con la tarjeta reorganizada y textos breves; conserva la corrección de soporte de `0.1.1`. Mantén el identificador para futuras actualizaciones; incrementa `versionCode` al distribuir versiones sucesivas. La fecha de construcción y las dos URL públicas están en `assets/public/android-build.json` dentro del APK. El hash SHA-256 del archivo identifica exactamente el artefacto probado.
+
+### 11.2 SDK, JDK y rutas locales
+
+Instala Android Studio compatible con Capacitor 8 (mínimo 2025.2.1). En **Tools > SDK Manager**, confirma la ruta del SDK e instala **Android SDK Platform 36**, **Build-Tools 36.0.0** (Show Package Details), **Platform-Tools** y **Command-line Tools** si vas a administrar el SDK por terminal. No necesitas emulador ni NDK para compilar esta app y usar un teléfono físico.
+
+Usa **JDK 21**. Java 8 no compila esta plantilla; Java 25 exige otro Gradle y no es la solución para el Wrapper 8.14.3. Puedes descargar JDK 21 desde el selector **Download JDK** del IDE o instalar una distribución compatible. No actualices AGP/Gradle con el Upgrade Assistant para resolver esta selección.
+
+Desde la raíz del monorepo, copia la plantilla de rutas y reemplaza ambos valores con las rutas reales de tu PC:
+
+```powershell
+if (-not (Test-Path -LiteralPath .android.local.json)) {
+    Copy-Item -LiteralPath .android.local.example.json -Destination .android.local.json
+}
+```
+
+`.android.local.json` está ignorado. El JDK portátil de esta preparación se conserva en `.android-tools/`, también ignorado, fuera de `node_modules` para que `npm ci` no lo elimine. Cada integrante puede elegir otra instalación de JDK 21 y declarar su ruta. El script da prioridad a parámetros `-JdkPath`/`-SdkPath`, luego al archivo local, luego a `JAVA_HOME`/`ANDROID_HOME`; para el SDK admite finalmente la ubicación habitual de Windows. Activa el entorno **en cada terminal nueva**, usando punto y espacio para que las variables permanezcan en ella:
+
+```powershell
+. .\scripts\android-env.ps1
+node --version
+npm --version
+java -version
+adb version
+$env:JAVA_HOME
+$env:ANDROID_HOME
+```
+
+El script comprueba JDK 21, Platform 36, Build-Tools y ADB; agrega `bin` del JDK y `platform-tools` al PATH de esa terminal. Cuando existe `apps/mobile/android`, escribe `local.properties` con `sdk.dir` y `.gradle/config.properties` con `java.home`, ambos ignorados. Si el proyecto aún no tiene `.idea/gradle.xml`, crea la selección local `GRADLE_LOCAL_JAVA_HOME`; no sobrescribe una configuración del IDE existente.
+
+En Android Studio abre **Settings > Build, Execution, Deployment > Build Tools > Gradle** y verifica **Gradle JDK = GRADLE_LOCAL_JAVA_HOME**, o selecciona explícitamente el mismo JDK 21. El JBR que ejecuta el IDE es independiente. Esta plantilla no fija criterios de JVM del daemon en un archivo versionado: si Studio propone otros criterios, conserva Java 21 y comprueba el resultado. Después de generar Android:
+
+```powershell
+Push-Location -LiteralPath ".\apps\mobile\android"
+.\gradlew.bat --version
+Pop-Location
+```
+
+`Launcher JVM` y `Daemon JVM` deben indicar Java 21. Usa siempre este Wrapper, sin instalar Gradle global. Si cambiaste de JDK, cierra/reabre la terminal y ejecuta `gradlew.bat --stop` antes de repetir. Las descargas iniciales de Gradle, Maven y SDK necesitan conexión a Internet.
+
+### 11.3 Configurar ambas URL y su precedencia
+
+Instala las dependencias **desde la raíz del monorepo**, donde está el único lockfile:
+
+```powershell
+npm ci
+if (-not (Test-Path -LiteralPath .env.android-lan.local)) {
+    Copy-Item -LiteralPath .env.android-lan.example -Destination .env.android-lan.local
+}
+ipconfig
+```
+
+En `ipconfig`, elige la IPv4 del adaptador Wi-Fi/Ethernet con acceso a la misma red que el teléfono. Evita WSL, Docker, VPN y direcciones `169.254.*`. Reemplaza `REEMPLAZAR_IP_LAN` en `.env.android-lan.local`. Ejemplo público ilustrativo:
+
+```env
+VITE_API_URL=http://192.168.1.20:3000
+VITE_INTERNAL_API_URL=http://192.168.1.20:8000
+```
+
+La modalidad principal de esta guía es **NestJS local 3000 + FastAPI 8000 + PostgreSQL en Docker**. Si eliges NestJS de Docker, cambia solo la primera URL a puerto **3001** y configura/reinicia ese contenedor. No mezcles una URL 3001 con instrucciones que solo arrancan NestJS local.
+
+Vite lee desde la raíz mediante `envDir: '../../'`. En modo `android-lan`, de menor a mayor prioridad: `.env`, `.env.local`, `.env.android-lan`, `.env.android-lan.local`, variables ya presentes en el proceso. Solo la plantilla `.env.android-lan.example` está versionada; no se carga automáticamente. Firebase público se hereda del `.env` principal. Elimina valores `VITE_API_URL`/`VITE_INTERNAL_API_URL` antiguos de la terminal si están sobrescribiendo tu archivo local.
+
+El build LAN exige dos URL explícitas con IPv4 privada y rechaza localhost, ejemplos sin reemplazar, credenciales embebidas y `VITE_SOS_SIMULATED_LOCATION`. Un debug nativo **no** implica `import.meta.env.DEV=true`: esta compilación de Vite sigue siendo de producción y usa coordenadas reales. Las variables `VITE_*` son públicas: no contienen secretos del servidor.
+
+`capacitor.config.ts` no depende de variables de entorno y no necesita cargar los `.env` de Vite. No tiene `server.url`: abre los assets empaquetados con origen **`https://localhost`**. Ese origen identifica la interfaz de la WebView; las URL `192.168.*:puerto` identifican las APIs.
+
+### 11.4 Preparar datos y arrancar los servicios
+
+Completa antes `.env` según la sección 4, incluido el cifrado médico y las integraciones que necesites. Conserva la base y las sesiones existentes. Para una instalación nueva o una base pendiente de migración, utiliza los scripts existentes; **no ejecutes de nuevo init.sql ni elimines volúmenes**. Con NestJS/FastAPI detenidos para migrar:
+
+```powershell
+docker compose up -d db
+node scripts/migrate-whatsapp.cjs
+node scripts/migrate-contactos-antecedentes.cjs
+node scripts/migrate-tickets-responsable.cjs
+# Solo después de configurar MEDICAL_DATA_KEYS; conserva/cifra los datos existentes.
+node scripts/cifrar-fichas.cjs
+# Opcional: crea fixtures faltantes; no reemplaza las cuentas ya existentes.
+node scripts/seed-dev.cjs
+```
+
+Consulta [README_BDD.md](README_BDD.md) y [SOS por WhatsApp](docs/WHATSAPP_SOS.md) antes de preparar una base anterior. No vuelvas a cargar fixtures sobre una cuenta personal para intentar corregir su plan o PIN. `verify-schema.cjs` compara estrictamente con `init.sql`: actualmente puede informar columnas adicionales legítimas de las migraciones de contactos y responsables de soporte. Esa diferencia no se resuelve recreando la base ni cambiando el archivo protegido.
+
+En `.env` raíz conserva los orígenes web y agrega el origen Android:
+
+```env
+CORS_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:5175,https://localhost
+```
+
+Comprueba que `apps/backend/.env.local`, `services/internal-api/.env` o el entorno del proceso no reemplacen esa lista. FastAPI reutiliza `CORS_ORIGINS`; si tiene `INTERNAL_API_CORS_ORIGINS`, agrega allí también `https://localhost` conservando los orígenes necesarios.
+
+Arranque principal, desde la raíz, en terminales separadas:
+
+```powershell
+# Terminal 1: omite stop si no existe backend de Docker en ejecución.
+docker compose stop backend
+docker compose up -d db
+$env:HOST = '0.0.0.0'
+npm run start:dev --workspace=backend
+```
+
+```powershell
+# Terminal 2: instalación Python solo la primera vez.
+python -m venv services/internal-api/.venv
+.\services\internal-api\.venv\Scripts\python.exe -m pip install -r services/internal-api/requirements.txt
+Push-Location -LiteralPath ".\services\internal-api"
+$env:DB_HOST = 'localhost'
+$env:DB_PORT = '5433'
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+Pop-Location
+```
+
+Si la API interna ya fue iniciada por el script del panel, puedes reiniciar **esa instancia identificada** con `.\scripts\restart-panel-internal-api.ps1 -ListenHost 0.0.0.0`. No inicies otra en el mismo puerto. NestJS ahora escucha explícitamente en `HOST` o `0.0.0.0`. Esta dirección es de **escucha**, nunca la pongas como URL del teléfono.
+
+Alternativa Docker: después de preparar la base y la configuración, `docker compose up --build -d backend` publica NestJS en 3001; no ejecutes además el NestJS local para esta modalidad. FastAPI continúa ejecutándose fuera de Compose en 8000. Mantén **una sola instancia** utilizando una misma sesión emisora de WhatsApp.
+
+WhatsApp requiere `WHATSAPP_ENABLED=true` y una sesión realmente vinculada y abierta. Desde el panel o una consulta autenticada de administrador, comprueba `GET /notifications/whatsapp/status`; habilitar la variable no demuestra conexión. Nunca copies tokens, PIN, claves médicas ni `auth_info_baileys` a la documentación, al APK o a Git. Las pruebas automáticas de esta preparación no crean SOS ni envían mensajes a contactos.
+
+La cuenta de prueba necesita autenticación, PIN configurado, plan efectivo conforme a las reglas actuales, contactos válidos propios y ausencia de otro SOS activo. Los pagos siguen realizándose en la web. Usa contactos destinados a pruebas; el responsable del teléfono realiza los envíos manualmente.
+
+### 11.5 Red, firewall y permisos Android
+
+PC y teléfono deben comunicarse en la misma LAN. Evita la red de invitados/aislamiento de clientes; revisa VPN y suspensión del PC. Si DHCP cambia la IP, actualiza el archivo LAN y reconstruye el APK. Cada integrante puede ejecutar sus servicios y generar su APK con su IP, o todos pueden usar un APK generado hacia un PC compartido accesible. Distribuir el APK **no** cambia la dirección que lleva incorporada. El PC compartido y sus dependencias deben permanecer encendidos.
+
+En una red de confianza, abre PowerShell **como administrador** y, desde la raíz, ejecuta:
+
+```powershell
+.\scripts\android-lan-firewall.ps1 -InterfaceAlias 'Wi-Fi' -BackendPort 3000
+```
+
+Sustituye el alias si usas Ethernet; con NestJS de Docker usa `-BackendPort 3001`. El script marca ese perfil como Privado y crea reglas TCP para ese backend y 8000, solo perfil Privado y `LocalSubnet`. No desactiva el firewall ni abre PostgreSQL. El mapeo de PostgreSQL que ya existe en Compose es para los servicios del PC: el teléfono nunca debe conectarse directamente a 5433. Puedes retirar las reglas específicas cuando terminen las pruebas con `Remove-NetFirewallRule -Name 'EMERGEN-APK-LAN-3000','EMERGEN-APK-LAN-8000'` desde una consola administrativa.
+
+Desde la raíz, comprueba conectividad y preflight reales (sin cambios de datos):
+
+```powershell
+node scripts/check-android-lan.mjs
+```
+
+El script comprueba ambas APIs por su IP LAN, origen permitido exacto, rechazo de origen ajeno y cabeceras `Authorization`/`Content-Type` para los métodos utilizados. Desde el navegador del teléfono abre `http://IP_DEL_PC:3000/` y `http://IP_DEL_PC:8000/health` (o 3001 para Docker). Esto prueba acceso desde otro dispositivo, pero **no sustituye** las peticiones de la WebView instalada.
+
+Los controles Android son independientes:
+
+| Control         | Implementación y comprobación                                                                                                                                                                                                          |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CORS            | Ambas APIs permiten explícitamente `https://localhost`; se mantienen los orígenes web, sin `*`.                                                                                                                                        |
+| INTERNET        | Declarado en el manifest principal.                                                                                                                                                                                                    |
+| HTTP sin cifrar | Principal: `usesCleartextTraffic=false`; solo `src/debug/AndroidManifest.xml` lo cambia a `true`.                                                                                                                                      |
+| Contenido mixto | Configuración Capacitor: `allowMixedContent=false`; MainActivity habilita HTTP desde el origen HTTPS únicamente si `BuildConfig.DEBUG`. Release usa `MIXED_CONTENT_NEVER_ALLOW`.                                                       |
+| Ubicación       | COARSE/FINE para el SOS manual y al activar SOS por volumen. Este último mantiene ubicación mediante un servicio en primer plano; no solicita `ACCESS_BACKGROUND_LOCATION`. Si falta una posición reciente, el SOS omite la ubicación. |
+| Acceso a LAN    | El target real es 36; no se declara ni solicita `ACCESS_LOCAL_NETWORK`. Android 16 tiene protección LAN optativa; al migrar realmente a target 37+ hay que revisar las reglas de Android 17.                                           |
+
+Para verificar el límite de las excepciones, desde `apps/mobile/android` ejecuta `gradlew.bat processDebugMainManifest processReleaseMainManifest` e inspecciona los manifests fusionados bajo `app/build/intermediates/merged_manifests/`. Debug debe permitir cleartext; release debe conservarlo desactivado. El origen efectivo se comprueba con `location.origin` en DevTools de la WebView. Una futura release requiere assets compilados hacia APIs HTTPS y configuración apropiada de producción; no utilices el modo LAN para publicarla.
+
+### 11.6 Primera preparación y actualizaciones
+
+Desde la raíz del monorepo:
+
+```powershell
+. .\scripts\android-env.ps1
+npm run android:prepare --workspace=mobile
+# Vuelve a escribir las rutas locales si android/ acaba de crearse.
+. .\scripts\android-env.ps1
+npm run android:open --workspace=mobile
+```
+
+`android:prepare` ejecuta TypeScript, Vite con `--config vite.config.ts --mode android-lan`, genera Android **solo si falta** y ejecuta `cap sync android`. Comprueba que `dist/android-build.json` coincide con el copiado a Android. `android:open` repite esa preparación y abre Android Studio. Se usa explícitamente la configuración TypeScript para no seleccionar el antiguo `vite.config.js` generado que también existe en el repositorio.
+
+Las fuentes nativas, manifests, recursos, archivos Gradle y Wrapper (incluido su JAR) deben compartirse en Git. Assets copiados, plugins Cordova generados, `local.properties`, `.idea`, `.gradle`, builds, APK, archivos locales y llaves de firma están ignorados. Un clon limpio reproduce los generados mediante `npm ci` y `android:prepare`; no necesita regenerar una carpeta Android ya versionada.
+
+Para **construir el APK actualizado completo**:
+
+```powershell
+npm run android:apk --workspace=mobile
+```
+
+Este script prepara el entorno, reconstruye la web en modo LAN, sincroniza Capacitor, muestra la JVM real del Wrapper y ejecuta `assembleDebug`. Ante un fallo se detiene: no continúa con un `dist` anterior. Imprime la ruta y el SHA-256 del APK.
+
+Alternativa manual, después de `android:prepare` y de activar el entorno:
+
+```powershell
+Push-Location -LiteralPath ".\apps\mobile\android"
+.\gradlew.bat --version
+.\gradlew.bat assembleDebug
+Pop-Location
+```
+
+Salida estándar comprobable:
+
+```text
+apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Cambiar las URL o cualquier variable `VITE_*`, código React o paquetes exige **build web + sync + compilación nativa + instalación actualizada**. Cambiar plugins exige también sync. Un cambio exclusivamente nativo necesita recompilación. Cambiar CORS, escucha de APIs, secretos o vinculación de WhatsApp requiere reiniciar/reconfigurar esos servicios; no recompilar el APK mientras sus URL no cambien.
+
+### 11.7 Android Studio, instalación y depuración
+
+1. Abre **`apps/mobile/android`**, espera Gradle Sync y comprueba Gradle JDK 21. Elige el módulo `app` y variante **debug** en Build Variants. No aceptes una actualización mayor de AGP como requisito para abrirlo.
+2. En el teléfono activa Opciones de desarrollador y Depuración USB; conecta un cable de datos, desbloquea el teléfono y acepta la autorización RSA. En Redmi/HyperOS puede ser necesario habilitar también **Instalar vía USB** si el sistema bloquea la instalación. Comprueba `adb devices -l`: debe mostrar `device`, no `unauthorized`.
+3. Selecciona el Redmi en el desplegable de dispositivos y pulsa **Run** para instalar/depurar. Logcat permite filtrar por `com.emergen.mobile`. En Chrome del PC, `chrome://inspect/#devices` permite inspeccionar la WebView debug y comprobar `location.origin`, Network y errores de consola. No compartas cabeceras Authorization ni datos personales de esas herramientas.
+4. Para obtener un **APK compartible**, usa **Build > Generate Bundle(s) / APK(s) > Generate APK(s)** o su acción equivalente en tu versión. En versiones anteriores aparece como **Build Bundle(s) / APK(s) > Build APK(s)**. No te limites al botón Run.
+5. Usa **Locate** en la notificación de compilación o abre la ruta de salida anterior. Comprueba fecha, versión y hash antes de distribuirlo. También puedes usar `assembleDebug` para obtener el APK.
+
+Instalación/actualización desde PowerShell, en la raíz y con el entorno activado:
+
+```powershell
+adb devices -l
+adb install -r ".\apps\mobile\android\app\build\outputs\apk\debug\app-debug.apk"
+```
+
+También puedes transferir el archivo al teléfono y permitir la instalación desde la fuente utilizada. Usar Wi-Fi para conectarse a las APIs **no exige** depuración inalámbrica de ADB. Abre **EMERGEN LAN** desde el icono, sin Vite, y realiza las pruebas siguientes.
+
+El APK debug ya tiene firma automática de desarrollo. **Distintos PCs pueden usar firmas debug diferentes**: actualizar el mismo `appId` con otra firma produce `INSTALL_FAILED_UPDATE_INCOMPATIBLE`. Compara los certificados con `apksigner verify --print-certs` y decide cómo conservar los datos; no desinstales automáticamente la app para resolverlo. Comparte el mismo APK de pruebas o usa una estrategia acordada de firma de desarrollo.
+
+Una futura exportación release usa **Build > Generate Signed Bundle / APK > APK** y una clave de producción que el equipo debe custodiar. AAB es un formato para distribución mediante tiendas y no se instala directamente como este APK. Esta tarea no crea claves de producción ni publica releases.
+
+USB con `adb reverse` es solo una alternativa de diagnóstico: exige una compilación separada con URL `http://localhost:PUERTO`, redirigir **ambos** puertos efectivos (`adb reverse tcp:3000 tcp:3000` y `adb reverse tcp:8000 tcp:8000`, o 3001 para NestJS Docker) y conservar las excepciones debug/CORS. El validador `android-lan` rechaza localhost intencionalmente: no lo desactives para sustituir el flujo principal por LAN.
+
+### 11.8 Geolocalización, sesión y pruebas funcionales
+
+El SOS manual de Android utiliza `@capacitor/geolocation`; el navegador conserva `navigator.geolocation` y nunca llama a `requestPermissions` del plugin. Se solicita alta precisión, pero se acepta permiso solo aproximado. La espera total, incluido el diálogo, está limitada a 10 segundos; se admite una ubicación de hasta 30 segundos. El código gestiona rechazo persistente, GPS desactivado, timeout y fallos del proveedor, y permite continuar **sin ubicación** con un aviso. Las respuestas tardías no cambian una ubicación ya utilizada para el envío. El servicio de volumen usa `FusedLocationProviderClient`, como el proveedor del plugin manual, con GPS/red de Android como respaldo: actualiza ubicación mientras está activado y emplea una posición de hasta 60 segundos, sin esperar un GPS nuevo al completar la secuencia. La tarjeta muestra si hay ubicación reciente y su precisión estimada; si aún está buscando, el SOS puede registrarse sin coordenadas. Su activación requiere al menos permiso de ubicación aproximada para iniciar el servicio de tipo `location`; no solicita `ACCESS_BACKGROUND_LOCATION`.
+
+El SOS solo se presenta como registrado después de la confirmación de FastAPI. El mismo intento conserva UUID y contenido para reintentar sin duplicar. Distingue **registro**, **pendiente**, **despacho registrado** y **recepción comprobada por el contacto**: el contador «enviado» no confirma entrega ni lectura. Comprueba físicamente que el mensaje y el pin/enlace contengan las coordenadas reales.
+
+El JWT de NestJS dura **2 horas por defecto**, configurables con `JWT_SESSION_HOURS` (1 a 168 horas). El plazo empieza al iniciar sesión, no al activar segundo plano; la tarjeta muestra el vencimiento del JWT real. Una sesión antigua mantiene su plazo anterior: vuelve a iniciar sesión para recibir la nueva duración. Una respuesta 401 de una operación protegida indica cómo cerrar sesión desde el menú y volver a ingresar. El almacenamiento local no renueva el JWT. No se implementa renovación automática ni una cola offline en esta etapa; perder la red conserva el error y permite un reintento controlado del SOS en la pantalla existente.
+
+Desde `0.1.1-lan-debug`, soporte vuelve a consultar el estado y la solución de las solicitudes cada tres segundos mientras esa pantalla está visible y la app está en primer plano. También actualiza al regresar a la pantalla, recuperar el foco o reanudar la app; **Actualizar** permite consultar inmediatamente. Se conservan el borrador y el detalle desplegado. Al salir de soporte o pasar a segundo plano se cancelan las consultas; si la red falla, se conserva el listado con un aviso hasta recuperar la conexión.
+
+Antes de los recorridos manuales, ejecuta desde la raíz:
+
+```powershell
+node --test scripts/android-lan-env.test.mjs
+npm run test.unit --workspace=mobile -- --run
+node scripts/check-android-lan.mjs
+```
+
+Registra por separado **ambiente preparado**, **APK debug compilado** y **pruebas en teléfono aprobadas**. La preparación inicial está en [APK_DEBUG_LAN_2026-10-28.md](docs/APK_DEBUG_LAN_2026-10-28.md); la implementación y las comprobaciones actuales de volumen y segundo plano están en [SOS_VOLUMEN_ANDROID.md](docs/SOS_VOLUMEN_ANDROID.md). Las pruebas unitarias simulan permisos/proveedor/red; no certifican GPS real ni WhatsApp recibido. No ejecutes automáticamente scripts de SOS sobre contactos personales.
+
+Para verificar el reconocedor y la vigencia de ubicación sin generar SOS, usa `.\scripts\test-volume-native.ps1`. Compila las clases y ejecuta JUnit directamente, evitando el fallo de carga observado en el worker de Gradle en la ruta Windows de referencia.
+
+#### Configuración del SOS por volumen en cada teléfono
+
+1. Inicia sesión con un perfil de prueba, plan efectivo, contactos propios y prioridad guardada.
+2. En **Configurar alerta**, graba de 3 a 12 pulsaciones físicas, incluyendo ambos botones de volumen, y completa las dos comprobaciones del asistente. No envían alertas. Deja como máximo dos segundos entre pulsaciones.
+3. Habilita manualmente **EMERGEN · Secuencia de volumen** en Accesibilidad. Si Android muestra un bloqueo para este APK, revisa **Permitir ajustes restringidos** en la información de la app; no desactives protecciones generales ni automatices el permiso mediante ADB.
+4. Vuelve a la app y pulsa **Activar segundo plano**, concediendo ubicación y notificaciones. Comprueba **ACTIVADO**, la notificación y **Ubicación reciente disponible para el SOS**. Revisa batería y actividad en segundo plano según el fabricante.
+5. El responsable del teléfono ejecuta la combinación real, primero con la app minimizada y luego, tras cerrar la alerta con PIN, retirándola de Recientes y apagando la pantalla. Confirma recepción y coordenadas en el contacto de prueba. Cada teléfono requiere su propia validación.
+
+La detección usa la prioridad del perfil activo y no funciona con sesión vencida. La secuencia se guarda por perfil y dispositivo. Cerrar sesión o cambiar de perfil desactiva la detección anterior. Tras actualizar el APK, comprueba el estado y vuelve a activarla si corresponde; si Accesibilidad quedó habilitada pero desconectada, desactívala y actívala de nuevo en Ajustes. **Forzar detención** o reiniciar el teléfono requiere volver a abrir la app y activar la detección; no hay autoarranque tras reinicio. Las notificaciones push y el envío automático offline siguen pendientes.
+
+#### Usuarios apadrinados en el APK
+
+El apadrinado entra con el correo y contraseña de la principal, elige su perfil y utiliza su PIN. Tiene **sus propios contactos, prioridad, mensaje y antecedentes médicos**; el plan efectivo se obtiene de la cuenta principal. Un plan compartido no copia los datos de emergencia ni la secuencia de volumen de otro perfil.
+
+| Función                                               | Apadrinado con acceso completo                        | Apadrinado con acceso parcial                                                                |
+| ----------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| SOS manual, ubicación y WhatsApp                      | Sí, con plan de la principal y contactos propios      | Sí, con los mismos requisitos; usa el mensaje configurado                                    |
+| Secuencia de volumen y segundo plano                  | Sí, con prioridad guardada y permisos del dispositivo | Sí, si su prioridad y contactos ya están configurados; no puede editar libremente esos datos |
+| Consultar alertas y solicitar soporte                 | Sí, de su propio perfil                               | Sí, de su propio perfil                                                                      |
+| Editar prioridad, contactos, mensaje y ficha médica   | Sí, de su propio perfil                               | No; estas escrituras requieren acceso completo                                               |
+| Cambiar su nombre                                     | Sí                                                    | Requiere autorización con el PIN de la principal                                             |
+| Finalizar SOS                                         | PIN del apadrinado                                    | PIN de la cuenta principal                                                                   |
+| Administrar otras cuentas apadrinadas o comprar cupos | No                                                    | No                                                                                           |
+
+El apadrinado no tiene correo ni contraseña independientes. Estas diferencias proceden de las validaciones actuales de permisos y de las APIs; la revisión para documentarlas fue de solo lectura y no cambió el comportamiento del proyecto.
+
+### 11.9 Solución de problemas Android/LAN
+
+| Síntoma                                                      | Acción concreta                                                                                                                                                                                                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Java 8, `invalid source release: 21`, o Java 25 incompatible | Configura JDK 21 en `.android.local.json`, activa `android-env.ps1`, comprueba `gradlew --version` y el Gradle JDK del IDE.                                                                                                                      |
+| SDK no encontrado / falta `android-36`                       | Instala Platform 36 y Build-Tools 36.0.0 en SDK Manager; revisa `sdkPath`, `ANDROID_HOME` y `local.properties`.                                                                                                                                  |
+| AGP rechaza la ruta por caracteres no ASCII                  | El monorepo contiene «Aplicación»; `android.overridePathCheck=true` conserva esa ruta. El helper escapa Unicode en las propiedades locales de Java. Si otra herramienta falla por la ruta, revisa ese error concreto antes de mover el proyecto. |
+| Dispositivo `unauthorized`                                   | Desbloquea, acepta RSA, reconecta el cable; si persiste, revoca autorizaciones USB en el teléfono y autoriza de nuevo. Si no aparece, revisa cable de datos y controlador OEM/ADB en Windows.                                                    |
+| API inaccesible / URLs localhost                             | Revisa ambas URL de `dist/android-build.json`, IP correcta, escucha en 0.0.0.0, puertos 3000/8000 o 3001/8000, perfil Privado, firewall, VPN y aislamiento Wi-Fi. Reconstruye si cambió una URL.                                                 |
+| CORS en la WebView                                           | Confirma `location.origin`, lista exacta `https://localhost`, preflight y reinicio de ambas APIs; un navegador que abre /health no demuestra CORS.                                                                                               |
+| `ERR_CLEARTEXT_NOT_PERMITTED`                                | Confirma variante debug y manifest fusionado `usesCleartextTraffic=true`; no cambies la configuración de release.                                                                                                                                |
+| `Mixed Content`                                              | Recompila la MainActivity actual en debug; CORS y permiso INTERNET no habilitan contenido mixto.                                                                                                                                                 |
+| Plugin «not implemented»                                     | `npm ci`, `android:prepare`, Gradle Sync y recompilación/instalación; confirma Geolocation en los plugins sincronizados.                                                                                                                         |
+| Ubicación denegada o sin posición                            | Ajustes > Aplicaciones > EMERGEN LAN > Permisos > Ubicación; activa ubicación del teléfono. Aproximada es válida. Tras 10 s se puede registrar sin ella; no lo cuentes como GPS aprobado.                                                        |
+| Sesión vencida / 401                                         | Menú > Cerrar sesión, vuelve a iniciar sesión y repite la operación con el estado actual del servidor.                                                                                                                                           |
+| WhatsApp pendiente o desconectado                            | Comprueba estado autenticado del emisor en NestJS, conexión y sesión correcta, una sola instancia, número del contacto y contadores. Registro no equivale a recepción.                                                                           |
+| `INSTALL_FAILED_UPDATE_INCOMPATIBLE`                         | Compara la firma del APK y de la instalación anterior; no borres datos automáticamente.                                                                                                                                                          |
+
+Referencias oficiales: [entorno Capacitor](https://capacitorjs.com/docs/getting-started/environment-setup), [Capacitor 8 y Android](https://capacitorjs.com/docs/updating/8-0), [geolocalización](https://capacitorjs.com/docs/apis/geolocation), [configuración](https://capacitorjs.com/docs/config), [variables de Vite](https://vite.dev/guide/env-and-mode), [JDK y Gradle en Android Studio](https://developer.android.com/build/jdks), [compatibilidad Java/Gradle](https://docs.gradle.org/current/userguide/compatibility.html), [generación desde Android Studio](https://developer.android.com/build/build-for-release), [compilación por terminal](https://developer.android.com/build/building-cmdline) y [permisos de red local](https://developer.android.com/privacy-and-security/local-network-permission).

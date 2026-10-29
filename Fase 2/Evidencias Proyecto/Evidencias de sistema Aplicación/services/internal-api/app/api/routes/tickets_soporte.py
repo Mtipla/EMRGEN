@@ -64,6 +64,6 @@ def actualizar_ticket(
     db: psycopg.Connection = Depends(get_db),
 ):
     return transaction(db, lambda: tickets.actualizar(
-        db, ticket_id, datos.estado, datos.solucion, usuario.rol_id,
+        db, ticket_id, datos.estado, datos.solucion, usuario.rol_id, usuario.id,
         datos.enviar_verificacion, datos.confirmar_cierre,
     ))

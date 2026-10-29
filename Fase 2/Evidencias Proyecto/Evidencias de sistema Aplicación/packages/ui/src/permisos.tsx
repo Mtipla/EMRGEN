@@ -41,6 +41,7 @@ export type Accion =
   | "perfil.editar"
   | "perfil.pinTrabajador"
   | "cuentas.apadrinadas"
+  | "cuentas.informe"
   | "compras.comprar"
   | "compras.cupos"
   | "soporte.solicitar"
@@ -83,6 +84,10 @@ export const PERMISOS: Record<
       perfiles: ["USUARIO"],
       fuente: "GET /compras/apadrinados (409 sin plan base)",
       premium: true,
+    },
+    "cuentas.informe": {
+      perfiles: ["USUARIO", "APADRINADO"],
+      fuente: "GET /usuarios/me/informe (cuenta propia y apadrinados del principal)",
     },
     "compras.comprar": {
       perfiles: ["USUARIO"],

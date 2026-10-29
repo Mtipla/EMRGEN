@@ -108,9 +108,14 @@ const listarEstados = (signal: AbortSignal) =>
   )
 const actualizarTicket = (id: number, cambios: CambiosTicket) =>
   internalFetch(`/tickets-soporte/${id}`, { method: 'PATCH', body: JSON.stringify(cambios) })
+const descargarInformeTickets = (formato: 'pdf' | 'xlsx') =>
+  apiFetch<Blob>(`/admin/tickets/reporte?formato=${formato}`, {
+    headers: { Accept: formato === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+  })
 
 export function AdminTicketsPage({ perfil }: { perfil: Perfil | null }) {
-  return <AdminTickets esAdministrador={perfil === 'ADMINISTRADOR'} listar={listarTickets} listarEstados={listarEstados} actualizar={actualizarTicket} />
+  return <AdminTickets esAdministrador={perfil === 'ADMINISTRADOR'} listar={listarTickets} listarEstados={listarEstados} actualizar={actualizarTicket}
+    descargarInforme={perfil === 'ADMINISTRADOR' ? descargarInformeTickets : undefined} />
 }
 
 /** Mensajes del formulario público (MENSAJE_CONTACTO): ADMINISTRADOR y SOPORTE responden y cambian el estado. */

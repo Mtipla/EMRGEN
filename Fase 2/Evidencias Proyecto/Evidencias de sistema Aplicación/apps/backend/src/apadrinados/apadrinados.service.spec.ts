@@ -57,6 +57,7 @@ describe('ApadrinadosService', () => {
   });
 
   describe('HU-19: informe personal', () => {
+    beforeEach(() => query.mockResolvedValue([]));
     it('el principal recibe su cuenta y la de sus apadrinados', async () => {
       obtenerPropio.mockResolvedValue({ usuario_ID: 10, nombre_usuario: 'P', correo_usuario: 'p@x', estado_ID: 1, usuario_principal_ID: null, plan_efectivo: true });
       usuarios.find.mockResolvedValue([{ usuario_ID: 11, nombre_usuario: 'H', correo_usuario: null, estado_ID: 2, PIN_ID: null }]);
@@ -66,6 +67,7 @@ describe('ApadrinadosService', () => {
         usuario: { nombre: 'P', acceso: 'Completo', premium: 'Sí' },
         apadrinados: [{ nombre: 'H', acceso: 'Parcial', pin: 'Sin PIN' }],
       });
+      expect(query.mock.calls.map((call) => call[1])).toEqual([[[10, 11]], [[10, 11]]]);
     });
 
     it('un apadrinado solo recibe su propia cuenta, nunca la de su principal', async () => {
@@ -73,6 +75,33 @@ describe('ApadrinadosService', () => {
       await service.informe({ ...PRINCIPAL, sub: 11 });
       expect(usuarios.find).not.toHaveBeenCalled();
       expect(renderInline.mock.calls[0][1]).toMatchObject({ principal: false, apadrinados: [] });
+      expect(query.mock.calls.map((call) => call[1])).toEqual([[[11]], [[11]]]);
+    });
+
+    it('genera Excel con alertas y acciones de la sesión y valida la firma del archivo', async () => {
+      obtenerPropio.mockResolvedValue({ usuario_ID: 11, nombre_usuario: 'H', estado_ID: 2, usuario_principal_ID: 10 });
+      query.mockResolvedValueOnce([{
+        alerta_id: 91, nombre_usuario: 'H', estado_alerta: 'FINALIZADA', tipo_prioridad: 'MEDICO',
+        texto_mensaje: 'Ayuda', ubicacion: null,
+        fecha_creacion: new Date('2026-10-28T12:00:00Z'), fecha_cierre: new Date('2026-10-28T12:01:00Z'),
+      }]).mockResolvedValueOnce([{
+        fecha: null, usuario: 'H', accion: 'Actualizó sus datos personales', resultado: 'EXITOSA', origen: 'WEB',
+      }]);
+      renderInline.mockResolvedValue({
+        content: Buffer.from([0x50, 0x4b, 0x03, 0x04]), contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      await service.informe({ ...PRINCIPAL, sub: 11 }, 'xlsx');
+      expect(renderInline.mock.calls[0][0]).toMatchObject({ recipe: 'html-to-xlsx' });
+      expect(renderInline.mock.calls[0][1]).toMatchObject({
+        alertas: [{ alerta_id: 91, nombre_usuario: 'H', ubicacion: 'No registrada' }],
+        acciones: [{ usuario: 'H', fecha: 'No registrada' }],
+      });
+    });
+
+    it('rechaza un HTML devuelto por jsReport en lugar del PDF', async () => {
+      obtenerPropio.mockResolvedValue({ usuario_principal_ID: 10 });
+      renderInline.mockResolvedValue({ content: Buffer.from('<html>Error</html>'), contentType: 'text/html' });
+      await expect(service.informe({ ...PRINCIPAL, sub: 11 })).rejects.toThrow('jsReport no devolvió');
     });
   });
 

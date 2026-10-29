@@ -1,0 +1,86 @@
+.volume-sos {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.volume-sos p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.volume-sos__section,
+.volume-sos__permission {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.volume-sos__section + .volume-sos__section {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.volume-sos__section h3 {
+  margin: 0;
+  color: var(--color-heading, #162235);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.volume-sos__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.volume-sos__sequence {
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: #f6f7fb;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.volume-sos__hint,
+.volume-sos__detail {
+  color: #526176;
+  font-size: 0.875rem;
+}
+
+.volume-sos__detail {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.volume-sos__badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+}
+
+.volume-sos__badge--active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.volume-sos__actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.volume-sos .wf-button {
+  width: 100%;
+  margin: 0;
+  white-space: normal;
+}
+
+.volume-sos__result {
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: #f6f7fb;
+}

@@ -1,6 +1,9 @@
 /* Tema móvil de EMERGEN: mismo acento coral que la web, con más contraste y profundidad.
    Ionic: http://ionicframework.com/docs/theming/ */
 :root {
+  color-scheme: light;
+  --ion-background-color: #f6f7fb;
+  --ion-text-color: #162235;
   --ion-color-primary: #e64b35;
   --ion-color-primary-rgb: 230, 75, 53;
   --ion-color-primary-contrast: #ffffff;

@@ -12,6 +12,8 @@ import { AdminAlertasService } from './admin-alertas.service';
 import { AdminVentasController } from './admin-ventas.controller';
 import { AdminVentasService } from './admin-ventas.service';
 import { JsreportModule } from '../integrations/jsreport/jsreport.module';
+import { AdminTicketsController } from './admin-tickets.controller';
+import { AdminTicketsService } from './admin-tickets.service';
 
 @Module({
   imports: [
@@ -21,8 +23,8 @@ import { JsreportModule } from '../integrations/jsreport/jsreport.module';
     JsreportModule,
   ],
   // AuditoriaController (/admin/auditoria) vive aquí porque necesita los guards de LoginModule.
-  controllers: [AdminController, AuditoriaController, AdminAlertasController, AdminVentasController],
-  providers: [AdminService, AdminAlertasService, AdminVentasService],
+  controllers: [AdminController, AuditoriaController, AdminAlertasController, AdminVentasController, AdminTicketsController],
+  providers: [AdminService, AdminAlertasService, AdminVentasService, AdminTicketsService],
   exports: [AdminService],
 })
 export class AdminModule {}

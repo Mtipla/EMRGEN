@@ -10,6 +10,9 @@ out/
 # Entorno y variables secretas
 .env
 .env.local
+.env.*.local
+.android.local.json
+.android-tools/
 
 # Sesión de WhatsApp (Baileys): llaves de la cuenta emisora, equivalen a una contraseña
 auth_info_baileys/

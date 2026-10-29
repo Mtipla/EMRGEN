@@ -145,6 +145,8 @@ export const adminApi = {
       .then((filas) => filas.map((f) => ({ id: f.estado_id, nombre: f.nombre }))),
   actualizarTicket: (id: number, cambios: CambiosTicket) =>
     datos(internalHttp.patch<Ticket>(`/tickets-soporte/${id}`, cambios)),
+  descargarInformeTickets: (formato: FormatoReporte) =>
+    datos(http.get<Blob>('/admin/tickets/reporte', { params: { formato }, responseType: 'blob', timeout: 90000 })),
 
   listarMensajesContacto: (consulta: { estado: string; limit: number }, signal: AbortSignal) =>
     datos(internalHttp.get<MensajeContacto[]>('/mensajes-contacto', {

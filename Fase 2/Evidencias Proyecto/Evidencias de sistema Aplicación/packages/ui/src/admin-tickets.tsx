@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { downloadBlob } from "@repo/api-client";
 import { GestionTickets, type CambiosTicket, type Catalogo, type Ticket } from "./soporte";
 import { useDerivacionTickets } from "./derivacion-tickets";
 
@@ -13,6 +14,7 @@ interface AdminTicketsProps {
     id: number,
     cambios: CambiosTicket,
   ) => Promise<unknown>;
+  descargarInforme?: (formato: "pdf" | "xlsx") => Promise<Blob>;
 }
 
 const LIMITE = 20;
@@ -23,6 +25,7 @@ export function AdminTickets({
   listar,
   listarEstados,
   actualizar,
+  descargarInforme,
 }: AdminTicketsProps) {
   const derivacion = useDerivacionTickets();
   const retorno = esAdministrador ? derivacion?.recorrido?.retorno : undefined;
@@ -30,6 +33,10 @@ export function AdminTickets({
   const [version, setVersion] = useState(0);
   const [estados, setEstados] = useState<Catalogo[]>([]);
   const [errorEstados, setErrorEstados] = useState("");
+  const [generandoInforme, setGenerandoInforme] = useState(false);
+  const [errorInforme, setErrorInforme] = useState("");
+  const [informeDescargado, setInformeDescargado] = useState("");
+  const descargaEnCurso = useRef(false);
   const [bandeja, setBandeja] = useState({
     tickets: [] as Ticket[],
     cargando: true,
@@ -97,6 +104,24 @@ export function AdminTickets({
     setConsulta({ estado, offset });
   }
 
+  async function descargar(formato: "pdf" | "xlsx") {
+    if (!esAdministrador || !descargarInforme || descargaEnCurso.current) return;
+    descargaEnCurso.current = true;
+    setGenerandoInforme(true);
+    setErrorInforme("");
+    setInformeDescargado("");
+    try {
+      const archivo = await descargarInforme(formato);
+      downloadBlob(archivo, `tickets-cerrados-${new Date().toISOString().slice(0, 10)}.${formato}`);
+      setInformeDescargado(`Informe ${formato === "pdf" ? "PDF" : "Excel"} descargado.`);
+    } catch (causa) {
+      setErrorInforme(causa instanceof Error ? causa.message : "No se pudo descargar el informe.");
+    } finally {
+      descargaEnCurso.current = false;
+      setGenerandoInforme(false);
+    }
+  }
+
   return (
     <>
       <GestionTickets
@@ -134,6 +159,28 @@ export function AdminTickets({
             >
               Actualizar tickets
             </button>
+            {esAdministrador && descargarInforme && (
+              <div role="group" aria-label="Informes de tickets cerrados">
+                <p className="wf-muted">
+                  Descarga todos los tickets CERRADOS, de todas las páginas, con su
+                  descripción, solución, usuario emisor y trabajador que respondió.
+                  El informe incluye solo cerrados, sin importar el filtro de la bandeja.
+                </p>
+                <div className="wf-actions">
+                  <button type="button" className="wf-button" disabled={generandoInforme}
+                    onClick={() => void descargar("pdf")}>
+                    Descargar PDF
+                  </button>
+                  <button type="button" className="wf-button wf-button--secondary" disabled={generandoInforme}
+                    onClick={() => void descargar("xlsx")}>
+                    Descargar Excel
+                  </button>
+                </div>
+                {generandoInforme && <p role="status">Generando informe de tickets cerrados…</p>}
+                {informeDescargado && <p role="status">{informeDescargado}</p>}
+                {errorInforme && <p role="alert" className="wf-message wf-message--error">{errorInforme}</p>}
+              </div>
+            )}
           </div>
         }
         onActualizar={async (id, cambios) => {

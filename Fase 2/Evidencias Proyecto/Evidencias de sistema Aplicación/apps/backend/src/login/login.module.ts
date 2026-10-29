@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditoriaModule } from '../auditoria/auditoria.module';
 import { readEnv } from '../config/env';
+import { sessionDurationSeconds } from '../config/session';
 import { FirebaseAuthModule } from '../integrations/firebase-auth/firebase-auth.module';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { Pin } from '../usuarios/pin.entity';
@@ -29,7 +30,7 @@ import { RolesGuard } from './roles.guard';
         return {
           secret,
           signOptions: {
-            expiresIn: '1h',
+            expiresIn: sessionDurationSeconds(readEnv('JWT_SESSION_HOURS')),
             issuer: 'emergen-api',
             audience: 'emergen-web',
             algorithm: 'HS256',

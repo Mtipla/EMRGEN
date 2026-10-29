@@ -1,4 +1,4 @@
-/** Botones con los que se graba la secuencia de alerta en segundo plano (simulan los físicos). */
+/** Etiquetas de las únicas teclas físicas permitidas. El reconocimiento se ejecuta en Android. */
 export const BOTONES_ALERTA = ['Volumen +', 'Volumen −'] as const;
 
 export const PRUEBAS_REQUERIDAS = 2;

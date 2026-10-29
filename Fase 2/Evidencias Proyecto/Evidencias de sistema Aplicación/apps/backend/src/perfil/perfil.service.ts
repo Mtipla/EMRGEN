@@ -8,6 +8,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, EntityManager } from 'typeorm';
 import { codigoPostgres } from '../config/postgres-error';
 import { transaction } from '../config/transaction';
+import { registrarActividadUsuario } from '../auditoria/actividad-usuario';
 import type { UsuarioSesion } from '../login/jwt-auth.guard';
 import { ACCESO } from '../login/roles.decorator';
 import { cifrarFicha, descifrarFicha } from './cifrado-medico';
@@ -21,7 +22,7 @@ const NUMERO_DUPLICADO = 'Ese número ya está en tu lista de contactos de emerg
 export type PerfilEmergencia = {
   prioridad_ID: number | null;
   mensaje: string | null;
-  contactos: { contacto_emergencia_ID: number; nombre_contacto: string; num_emergencia: string }[];
+  contactos: { contacto_emergencia_ID: number; nombre_contacto: string; num_emergencia: string; compartir_antecedentes: boolean }[];
   ficha_medica: FichaMedicaDto | null;
 };
 
@@ -42,7 +43,7 @@ export class PerfilService {
     );
     if (!usuario) throw new NotFoundException('No se encontró la cuenta');
     const contactos = await manager.query(
-      `SELECT contacto_emergencia_id AS "contacto_emergencia_ID", nombre_contacto, num_emergencia
+      `SELECT contacto_emergencia_id AS "contacto_emergencia_ID", nombre_contacto, num_emergencia, compartir_antecedentes
          FROM contacto_emergencia WHERE usuario_id = $1 ORDER BY contacto_emergencia_id`,
       [usuarioId],
     );
@@ -103,51 +104,62 @@ export class PerfilService {
           [id, ...cifrada],
         );
       }
+      await registrarActividadUsuario(manager, usuario, 'Actualizó su perfil de emergencia');
       return this.obtener(id, manager);
     });
   }
 
   async crearContacto(usuario: UsuarioSesion, datos: ContactoDto): Promise<PerfilEmergencia> {
     this.exigirAccesoCompleto(usuario);
-    await this.conLimite(
-      this.dataSource.query(
-        'INSERT INTO contacto_emergencia (usuario_id, nombre_contacto, num_emergencia) VALUES ($1, $2, $3)',
-        [usuario.sub, datos.nombre_contacto, datos.num_emergencia],
-      ),
-      'Máximo 5 contactos de emergencia por perfil',
-    );
-    return this.obtener(usuario.sub);
+    return transaction(this.dataSource, async (manager) => {
+      await this.conLimite(
+        manager.query(
+          'INSERT INTO contacto_emergencia (usuario_id, nombre_contacto, num_emergencia, compartir_antecedentes) VALUES ($1, $2, $3, $4)',
+          [usuario.sub, datos.nombre_contacto, datos.num_emergencia, datos.compartir_antecedentes ?? true],
+        ),
+        'Máximo 5 contactos de emergencia por perfil',
+      );
+      await registrarActividadUsuario(manager, usuario, 'Agregó un contacto de emergencia', 'CREACION');
+      return this.obtener(usuario.sub, manager);
+    });
   }
 
   async actualizarContacto(usuario: UsuarioSesion, contactoId: number, datos: ContactoDto): Promise<PerfilEmergencia> {
     this.exigirAccesoCompleto(usuario);
     // CTE: TypeORM devuelve filas solo para SELECT, así se sabe si el contacto era de este usuario.
-    const [{ n }] = await this.conLimite(
-      this.dataSource.query(
-        `WITH c AS (UPDATE contacto_emergencia SET nombre_contacto = $3, num_emergencia = $4
+    return transaction(this.dataSource, async (manager) => {
+      const [{ n }] = await this.conLimite(
+        manager.query(
+          `WITH c AS (UPDATE contacto_emergencia SET nombre_contacto = $3, num_emergencia = $4,
+                     compartir_antecedentes = COALESCE($5, compartir_antecedentes)
                      WHERE contacto_emergencia_id = $1 AND usuario_id = $2 RETURNING 1)
          SELECT count(*)::int AS n FROM c`,
-        [contactoId, usuario.sub, datos.nombre_contacto, datos.num_emergencia],
-      ),
-      'Los datos del contacto no son válidos',
-    );
-    if (!n) throw new NotFoundException('No se encontró el contacto');
-    return this.obtener(usuario.sub);
+          [contactoId, usuario.sub, datos.nombre_contacto, datos.num_emergencia, datos.compartir_antecedentes ?? null],
+        ),
+        'Los datos del contacto no son válidos',
+      );
+      if (!n) throw new NotFoundException('No se encontró el contacto');
+      await registrarActividadUsuario(manager, usuario, 'Actualizó un contacto de emergencia y sus permisos');
+      return this.obtener(usuario.sub, manager);
+    });
   }
 
   async eliminarContacto(usuario: UsuarioSesion, contactoId: number): Promise<PerfilEmergencia> {
     this.exigirAccesoCompleto(usuario);
-    const [{ n }] = await this.conLimite(
-      this.dataSource.query(
-        `WITH c AS (DELETE FROM contacto_emergencia WHERE contacto_emergencia_id = $1 AND usuario_id = $2 RETURNING 1)
+    return transaction(this.dataSource, async (manager) => {
+      const [{ n }] = await this.conLimite(
+        manager.query(
+          `WITH c AS (DELETE FROM contacto_emergencia WHERE contacto_emergencia_id = $1 AND usuario_id = $2 RETURNING 1)
          SELECT count(*)::int AS n FROM c`,
-        [contactoId, usuario.sub],
-      ),
-      // Texto de CA-04.1.
-      'Debe mantener al menos un contacto activo en su red de auxilio. Se recomienda editar el contacto activo',
-    );
-    if (!n) throw new NotFoundException('No se encontró el contacto');
-    return this.obtener(usuario.sub);
+          [contactoId, usuario.sub],
+        ),
+        // Texto de CA-04.1.
+        'Debe mantener al menos un contacto activo en su red de auxilio. Se recomienda editar el contacto activo',
+      );
+      if (!n) throw new NotFoundException('No se encontró el contacto');
+      await registrarActividadUsuario(manager, usuario, 'Eliminó un contacto de emergencia', 'ELIMINACION');
+      return this.obtener(usuario.sub, manager);
+    });
   }
 
   /** Mismo criterio que PATCH /usuarios/me: el acceso parcial no modifica su perfil. */

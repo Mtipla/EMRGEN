@@ -13,6 +13,7 @@ describe('LoginService.iniciarSesion: perfiles con PIN (modelo tipo Netflix)', (
   let credencial: { pin_id: number; pin_hash: string; intentos_fallidos: number; bloqueado_hasta: Date | null; bloqueado: boolean };
   let temporales: Set<number>;
   let update: jest.Mock;
+  let query: jest.Mock;
   let firmados: number[];
   let service: LoginService;
   let hashPassword: string;
@@ -39,7 +40,7 @@ describe('LoginService.iniciarSesion: perfiles con PIN (modelo tipo Netflix)', (
     temporales = new Set([5]);
     update = jest.fn();
     firmados = [];
-    const query = jest.fn((sql: string) => Promise.resolve(sql.includes('FOR UPDATE') ? [credencial] : []));
+    query = jest.fn((sql: string) => Promise.resolve(sql.includes('FOR UPDATE') ? [credencial] : []));
     const qb = { addSelect: () => qb, where: () => qb, getOne: () => Promise.resolve(ingresa) };
     service = new LoginService(
       { signAsync: ({ sub }: { sub: number }) => (firmados.push(sub), Promise.resolve('token')) } as unknown as JwtService,
@@ -48,7 +49,7 @@ describe('LoginService.iniciarSesion: perfiles con PIN (modelo tipo Netflix)', (
       {} as AuditoriaService,
       {
         query,
-        transaction: (op: (m: unknown) => unknown) => op({ query }),
+        transaction: (op: (m: unknown) => unknown) => op({ query, getRepository: () => ({ update }) }),
         getRepository: () => ({
           findOneByOrFail: ({ PIN_ID }: { PIN_ID: number }) => Promise.resolve({ PIN_ID, pin_temporal: temporales.has(PIN_ID) }),
           update,
@@ -62,6 +63,7 @@ describe('LoginService.iniciarSesion: perfiles con PIN (modelo tipo Netflix)', (
     expect(r).toEqual({ perfiles: expect.arrayContaining([expect.objectContaining({ usuario_ID: 13, tiene_pin: false })]) });
     expect((r as { perfiles: unknown[] }).perfiles).toHaveLength(4);
     expect(firmados).toEqual([]);
+    expect(query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO acceso_aplicacion'), expect.anything());
   });
 
   it('el perfil principal también exige su PIN', async () => {
@@ -82,6 +84,7 @@ describe('LoginService.iniciarSesion: perfiles con PIN (modelo tipo Netflix)', (
     await expect(login({ perfil_ID: 12, PIN: '1234', PIN_nuevo: '4321' })).resolves.toMatchObject({ access_token: 'token' });
     expect(update).not.toHaveBeenCalled();
     expect(firmados).toEqual([12]);
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO acceso_aplicacion'), [12, 1]);
   });
 
   it('perfil sin PIN generado no entra', async () => {

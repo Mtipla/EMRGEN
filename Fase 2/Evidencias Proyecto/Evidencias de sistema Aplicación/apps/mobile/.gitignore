@@ -29,3 +29,13 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Android: se versionan fuentes y Gradle Wrapper, no rutas ni artefactos locales.
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/captures/
+android/**/build/
+android/.idea/
+*.jks
+*.keystore

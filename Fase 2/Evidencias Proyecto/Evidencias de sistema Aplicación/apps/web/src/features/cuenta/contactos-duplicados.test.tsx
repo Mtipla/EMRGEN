@@ -44,7 +44,7 @@ test('número nuevo en formato nacional se envía normalizado a E.164', async ()
   expect(screen.getByText(/Número válido: \+56987654321/)).toBeTruthy()
   fireEvent.click(screen.getByRole('button', { name: 'Agregar contacto +' }))
   await waitFor(() =>
-    expect(api.guardarContacto).toHaveBeenCalledWith({ nombre_contacto: 'Papá', num_emergencia: '+56987654321' }, undefined),
+    expect(api.guardarContacto).toHaveBeenCalledWith({ nombre_contacto: 'Papá', num_emergencia: '+56987654321', compartir_antecedentes: true }, undefined),
   )
 })
 
@@ -57,6 +57,6 @@ test('al editar, el contacto puede conservar su propio número', async () => {
   expect(guardar.disabled).toBe(false)
   fireEvent.click(guardar)
   await waitFor(() =>
-    expect(api.guardarContacto).toHaveBeenCalledWith({ nombre_contacto: 'Mamá Ana', num_emergencia: '+56912345678' }, 1),
+    expect(api.guardarContacto).toHaveBeenCalledWith({ nombre_contacto: 'Mamá Ana', num_emergencia: '+56912345678', compartir_antecedentes: true }, 1),
   )
 })
