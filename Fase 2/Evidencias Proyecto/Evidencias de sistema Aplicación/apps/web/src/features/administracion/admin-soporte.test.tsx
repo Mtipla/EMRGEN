@@ -89,7 +89,7 @@ test('SOPORTE ve cuentas y detalles sin formularios ni acciones de escritura', a
   fireEvent.click(screen.getByRole('button', { name: /Soporte Demo/ }))
   const menu = screen.getByRole('navigation', { name: 'Menú de usuario' })
   expect(Array.from(menu.querySelectorAll(':scope > a')).map((a) => a.getAttribute('href'))).toEqual([
-    '/perfil', '/administracion/cuentas', '/administracion/compras', '/administracion/tickets',
+    '/perfil', '/administracion/cuentas', '/administracion/compras', '/administracion/tickets', '/administracion/contacto',
   ])
 })
 

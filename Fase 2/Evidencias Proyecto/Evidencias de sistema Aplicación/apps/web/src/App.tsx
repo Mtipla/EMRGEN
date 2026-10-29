@@ -7,7 +7,8 @@ import { AuthForm, type AuthenticatedUser } from './features/auth/AuthForm'
 import { PinSetupForm } from './features/auth/PinSetupForm'
 import { UsersAdmin } from './features/auth/UsersAdmin'
 import { PremiumPurchase } from './features/compra/PremiumPurchase'
-import { PublicSite, type PublicView } from './features/inicio/PublicSite'
+import { PublicSite } from './features/inicio/PublicSite'
+import { RUTAS_PUBLICAS, type PublicView } from './features/inicio/rutas'
 import { bloqueo, perfilDe, type Accion } from '@repo/ui/permisos'
 import { avisar, Avisos } from '@repo/ui/avisos'
 import { AppShell, SinPermiso } from './features/cuenta/AppShell'
@@ -15,6 +16,7 @@ import { AccountsPage, HomePage, ProfilePage, SoportePage } from './features/cue
 import {
   AdminAlertasPage,
   AdminComprasPage,
+  AdminContactoPage,
   AdminCuentasPage,
   AdminPlanesPage,
   AdminTicketsPage,
@@ -133,7 +135,7 @@ function App() {
       <PublicSite
         view={view}
         isAuthenticated={user !== null}
-        onNavigate={(next) => navigate(next === 'premium' ? '/premium' : '/')}
+        onNavigate={(next) => navigate(RUTAS_PUBLICAS[next])}
         onAccount={() => navigate(user ? '/inicio' : '/login')}
         onBuy={() => navigate(hasSession ? '/comprar' : '/login')}
       />
@@ -174,8 +176,9 @@ function App() {
       esAdministrador={perfil === 'ADMINISTRADOR'} onNavegar={navigate}>
     <Routes>
       {/* Páginas públicas */}
-      <Route path="/" element={renderPublicSite('inicio')} />
-      <Route path="/premium" element={renderPublicSite('premium')} />
+      {(Object.keys(RUTAS_PUBLICAS) as PublicView[]).map((view) => (
+        <Route key={view} path={RUTAS_PUBLICAS[view]} element={renderPublicSite(view)} />
+      ))}
 
       {/* Inicio de sesión o configuración del PIN */}
       <Route
@@ -261,6 +264,10 @@ function App() {
       <Route
         path="/administracion/tickets"
         element={privatePage(<AdminTicketsPage perfil={perfil} />, 'soporte.gestionarTickets')}
+      />
+      <Route
+        path="/administracion/contacto"
+        element={privatePage(<AdminContactoPage />, 'soporte.mensajesContacto')}
       />
       <Route path="/administracion/alertas" element={privatePage(<AdminAlertasPage />, 'alertas.verTodas')} />
 

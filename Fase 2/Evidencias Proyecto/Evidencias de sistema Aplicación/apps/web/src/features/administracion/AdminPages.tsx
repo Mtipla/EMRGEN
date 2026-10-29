@@ -1,6 +1,7 @@
 import { AdminCuentas, AdminTrabajadores, type UsuarioAdminFila } from '@repo/ui/admin-views'
 import { puede, type Perfil } from '@repo/ui/permisos'
-import { AlertasTabla, type Alerta, type Ticket } from '@repo/ui/soporte'
+import { AlertasTabla, type Alerta, type Catalogo, type Ticket } from '@repo/ui/soporte'
+import { AdminContacto, type CambiosMensaje, type MensajeContacto } from '@repo/ui/admin-contacto'
 import { AdminTickets } from '@repo/ui/admin-tickets'
 import type { CambiosTicket } from '@repo/ui/soporte'
 import type { ExpedienteCuenta } from '@repo/ui/admin-cuentas'
@@ -110,6 +111,22 @@ const actualizarTicket = (id: number, cambios: CambiosTicket) =>
 
 export function AdminTicketsPage({ perfil }: { perfil: Perfil | null }) {
   return <AdminTickets esAdministrador={perfil === 'ADMINISTRADOR'} listar={listarTickets} listarEstados={listarEstados} actualizar={actualizarTicket} />
+}
+
+/** Mensajes del formulario público (MENSAJE_CONTACTO): ADMINISTRADOR y SOPORTE responden y cambian el estado. */
+const apiContacto = {
+  listar: (consulta: { estado: string; limit: number }, signal: AbortSignal) => {
+    const params = new URLSearchParams({ limit: String(consulta.limit) })
+    if (consulta.estado) params.set('estado', consulta.estado)
+    return internalFetch<MensajeContacto[]>(`/mensajes-contacto?${params}`, { signal })
+  },
+  listarEstados: (signal: AbortSignal) => internalFetch<Catalogo[]>('/mensajes-contacto/estados', { signal }),
+  actualizar: (id: number, cambios: CambiosMensaje) =>
+    internalFetch<MensajeContacto>(`/mensajes-contacto/${id}`, { method: 'PATCH', body: JSON.stringify(cambios) }),
+}
+
+export function AdminContactoPage() {
+  return <AdminContacto {...apiContacto} />
 }
 
 export function AdminAlertasPage() {

@@ -14,6 +14,7 @@ import './panel-admin.css'
 import { SelectorTema } from './SelectorTema'
 import { VistaAlertas } from './VistaAlertas'
 import { VistaTickets } from './VistaTickets'
+import { VistaContacto } from './VistaContacto'
 import { SeccionUsuarios } from './SeccionUsuarios'
 import { SeccionBitacora } from './SeccionBitacora'
 
@@ -155,6 +156,7 @@ export function PanelAdmin() {
             <NavLink to="/administracion/cuentas">Administrar cuentas</NavLink>
             <NavLink to="/administracion/compras">Administrar compras</NavLink>
             <NavLink to="/administracion/tickets">Administrar Tickets de soporte</NavLink>
+            <NavLink to="/administracion/contacto">Mensajes de contacto</NavLink>
             {!esSoporte && <NavLink to="/administracion/planes">Gestión de planes y cupos de usuario</NavLink>}
             {!esSoporte && <NavLink to="/administracion/alertas">Alertas SOS</NavLink>}
             {puede(perfil, 'admin.trabajadores') && (
@@ -172,6 +174,7 @@ export function PanelAdmin() {
             <Route path="/administracion/cuentas" element={<VistaCuentas perfil={perfil} />} />
             <Route path="/administracion/compras" element={<VistaCompras perfil={perfil} />} />
             <Route path="/administracion/tickets" element={<VistaTickets esAdministrador={!esSoporte} />} />
+            <Route path="/administracion/contacto" element={<VistaContacto />} />
             {!esSoporte && <Route path="/administracion/planes" element={<SeccionUsuarios />} />}
             {!esSoporte && <Route path="/administracion/alertas" element={<VistaAlertas />} />}
             {puede(perfil, 'admin.trabajadores') && (

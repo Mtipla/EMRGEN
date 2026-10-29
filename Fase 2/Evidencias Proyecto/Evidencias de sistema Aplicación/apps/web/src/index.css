@@ -382,17 +382,6 @@ h3 {
   justify-content: center;
 }
 
-.public-image {
-  display: grid;
-  place-items: center;
-  min-height: 280px;
-  border: 2px dashed var(--color-border);
-  border-radius: var(--radius-xl);
-  background: var(--color-surface-muted);
-  color: var(--color-muted);
-  text-align: center;
-}
-
 .public-section {
   padding: 2rem 0;
   border-top: 1px solid var(--color-border);
@@ -401,6 +390,296 @@ h3 {
 .public-pending {
   color: var(--color-muted);
   font-style: italic;
+}
+
+.public-section--first {
+  border-top: 0;
+}
+
+.public-nav .public-link[aria-current="page"] {
+  color: var(--color-accent);
+}
+
+.public-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.public-card {
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.public-card h3,
+.public-steps h3 {
+  margin: 0 0 0.5rem;
+  color: var(--color-heading);
+}
+
+.public-card p {
+  margin: 0 0 0.75rem;
+}
+
+.public-steps {
+  display: grid;
+  gap: 1rem;
+  padding-left: 1.5rem;
+}
+
+.public-steps li::marker {
+  color: var(--color-accent);
+  font-weight: 800;
+}
+
+.public-steps p {
+  margin: 0;
+}
+
+.public-faq details {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.public-faq summary {
+  color: var(--color-heading);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.public-faq details > div {
+  margin-top: 0.75rem;
+}
+
+.public-faq ul {
+  margin: 0.5rem 0 0;
+}
+
+/* Portada: banner, teléfono con SOS, cifras y llamado final. */
+.public-banner,
+.public-cta {
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #1b2a41 0%, #2b3f5e 55%, #e64b35 160%);
+  color: #fff;
+}
+
+.public-banner {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 3rem 2.5rem;
+}
+
+.public-banner h1 {
+  margin: 0 0 1rem;
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  line-height: 1.1;
+}
+
+.public-banner p {
+  color: rgb(255 255 255 / 85%);
+  font-size: 1.1rem;
+}
+
+.public-eyebrow {
+  margin: 0 0 0.75rem;
+  color: #ffb4a8;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.public-eyebrow--accent {
+  color: var(--color-accent);
+}
+
+.public-ghost {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.public-ghost:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.public-phone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: min(100%, 260px);
+  min-height: 420px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+  border: 10px solid #0f172a;
+  border-radius: 36px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card-strong);
+  color: var(--color-ink);
+  text-align: center;
+}
+
+.public-phone__label {
+  font-weight: 800;
+}
+
+.public-phone__sos {
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  animation: public-pulso 1.8s ease-out infinite;
+}
+
+.public-phone__hint {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+@keyframes public-pulso {
+  0% { box-shadow: 0 0 0 0 rgb(230 75 53 / 55%); }
+  100% { box-shadow: 0 0 0 28px rgb(230 75 53 / 0%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-phone__sos {
+    animation: none;
+  }
+}
+
+.public-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.public-stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.public-stats strong {
+  color: var(--color-accent);
+  font-size: 1.8rem;
+}
+
+.public-stats span {
+  color: var(--color-muted);
+}
+
+.public-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.75rem;
+  border-radius: 12px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.public-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.public-cta {
+  margin: 2rem 0;
+  padding: 2.5rem;
+  text-align: center;
+}
+
+.public-cta h2 {
+  margin: 0 0 0.5rem;
+  color: #fff;
+}
+
+.public-cta p {
+  color: rgb(255 255 255 / 85%);
+}
+
+.public-cta .public-actions {
+  justify-content: center;
+}
+
+.public-price {
+  display: block;
+  color: var(--color-heading);
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+.public-note {
+  padding: 1rem 1.25rem;
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-soft);
+  color: var(--color-warning-ink);
+}
+
+.public-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 720px;
+}
+
+.public-form__full,
+.public-form button {
+  grid-column: 1 / -1;
+}
+
+.public-form button {
+  justify-self: start;
+}
+
+.public-form textarea,
+.public-form select {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-weight: 400;
+  resize: vertical;
+}
+
+.public-form textarea:focus,
+.public-form select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-ring);
+  outline: none;
 }
 
 .public-buy {
@@ -1052,15 +1331,29 @@ h3 {
   }
 
   .public-hero,
+  .public-banner,
+  .public-form,
   .hero-section {
     grid-template-columns: 1fr;
+  }
+
+  .public-banner,
+  .public-cta {
+    padding: 2rem 1.25rem;
+  }
+
+  .public-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .public-phone {
+    min-height: 320px;
   }
 
   .public-hero h1 {
     font-size: 2rem;
   }
 
-  .public-image,
   .hero-image,
   .image-placeholder {
     min-height: 180px;
