@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
                   source: JSON.stringify(
                     {
                       mode,
-                      version: "0.1.1",
+                      version: "0.2.2",
                       builtAt: new Date().toISOString(),
                       ...urls,
                     },

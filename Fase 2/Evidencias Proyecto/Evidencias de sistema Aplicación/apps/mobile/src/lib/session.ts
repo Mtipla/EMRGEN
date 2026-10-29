@@ -2,6 +2,8 @@
  * Sesión del backend NestJS (mismas claves de localStorage que la web).
  * No importa ./api para no inicializar Firebase en pantallas que no lo usan.
  */
+import { sincronizarSesionNativa } from "./volumen-nativo";
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 /** FastAPI internal-api (alertas SOS y tickets). En un teléfono real usa la IP del PC. */
 const INTERNAL_API_URL =
@@ -34,11 +36,23 @@ export function getUser(): SessionUser | null {
 export function saveSession(user: SessionUser, token?: string) {
   if (token) localStorage.setItem("emergen.token", token);
   localStorage.setItem("emergen.user", JSON.stringify(user));
+  void sincronizarSesionNativa(
+    user,
+    localStorage.getItem("emergen.token"),
+  ).catch(() => {});
 }
 
 export function clearSession() {
   localStorage.removeItem("emergen.token");
   localStorage.removeItem("emergen.user");
+  void sincronizarSesionNativa(null).catch(() => {});
+}
+
+export function restaurarSesionNativa() {
+  return sincronizarSesionNativa(
+    getUser(),
+    localStorage.getItem("emergen.token"),
+  );
 }
 
 /** fetch al backend con el token de la sesión; lanza Error con el `message` y el `status` del backend. */

@@ -145,7 +145,7 @@ Genera tu propio `JWT_SECRET` con este comando y copia el resultado en `.env`:
 node -e "console.log(require('node:crypto').randomBytes(64).toString('base64url'))"
 ```
 
-Deja una sola definición de `JWT_SECRET` en el archivo. NestJS exige al menos 32 bytes para iniciar y emite tokens HS256 con duración de una hora, emisor `emergen-api` y audiencia `emergen-web`. FastAPI debe utilizar el mismo secreto para reconocer esas sesiones.
+Deja una sola definición de `JWT_SECRET` en el archivo. NestJS exige al menos 32 bytes para iniciar y emite tokens HS256 con emisor `emergen-api` y audiencia `emergen-web`. FastAPI debe utilizar el mismo secreto para reconocer esas sesiones. La duración se configura con `JWT_SESSION_HOURS=2`: acepta horas enteras de 1 a 168 y usa **2 horas** por defecto. Reinicia NestJS al cambiarla; con Docker usa `docker compose up -d --build backend`. El cambio se aplica al próximo inicio de sesión, en web, APK y panel; los JWT ya emitidos conservan su vencimiento.
 
 Los archivos `.env` y `.env.local` están excluidos de Git. Las variables con prefijo `VITE_` se incluyen en el código que recibe el navegador: reserva ese prefijo para configuración pública, como las URL y los identificadores de cliente.
 
@@ -407,11 +407,13 @@ Este README toma la especificación como contexto y describe el uso que reflejan
 
 ## 11. APK Android de depuración: preparación local y pruebas en red LAN
 
+Para preparar el equipo de otro integrante con una IA, copia el [prompt actualizado para Claude Code](docs/PROMPT_CLAUDE_CODE_ANDROID_LAN.md). Incluye el entorno LAN, instalación, permisos, secuencia física de volumen, segundo plano y sesión de dos horas. El prompt utiliza los scripts existentes y deja los envíos reales a cargo del integrante.
+
 ### 11.1 Alcance y versiones
 
 Esta entrega prueba las funciones existentes **con la app abierta**: login, PIN, perfil, cuentas, contactos, soporte, SOS con ubicación disponible y finalización con PIN. FastAPI registra el SOS; NestJS procesa los envíos de WhatsApp en el servidor. No se necesita Vite para abrir el APK: los archivos compilados están dentro de la aplicación.
 
-La opción de secuencia de volumen es una **simulación con botones en pantalla**: no guarda la secuencia, no captura teclas físicas y no emite SOS. La activación con pantalla bloqueada/app cerrada, las notificaciones push y una cola de SOS sin conexión quedan pendientes. El seguimiento actual consulta la API desde la interfaz. Cerrar el móvil no detiene los envíos o cierres de alertas ya registradas en el servidor.
+Desde `0.2.0`, la secuencia utiliza **teclas físicas de volumen**, se guarda en el dispositivo por perfil y permite activar/desactivar un servicio nativo desde la app. Requiere habilitar Accesibilidad para esas teclas y mantener una notificación del servicio. El código nativo consulta la prioridad guardada y registra el SOS sin confirmación adicional. El usuario confirmó el funcionamiento de `0.2.1`, incluida ubicación y uso con pantalla apagada tras retirar la app de Recientes. `0.2.2` organiza la tarjeta en cuatro secciones, simplifica los textos y establece dos horas de sesión por defecto. Los pasos y límites están en [SOS por volumen](docs/SOS_VOLUMEN_ANDROID.md). Las notificaciones push y una cola de SOS sin conexión siguen pendientes. Los ajustes de batería e inicio automático pueden limitar la recuperación del servicio. Forzar detención o reiniciar el teléfono requiere activarlo de nuevo.
 
 Versiones comprobadas durante esta preparación (28-10-2026):
 
@@ -431,7 +433,7 @@ Versiones comprobadas durante esta preparación (28-10-2026):
 
 El teléfono necesita Android compatible, WebView actualizado y acceso a la misma LAN que el servidor. Instalar Platform 36 en el PC no exige que el teléfono tenga exactamente Android 16: el mínimo lo fija `minSdkVersion`. Tener solo Platform 37 instalada tampoco sustituye Platform 36 para esta plantilla.
 
-La identidad provisional estable es `com.emergen.mobile`. La variante debug se identifica como **EMERGEN LAN**, versión `0.1.1-lan-debug`, `versionCode 2`. Esta actualización corrige el refresco de soporte de la primera versión `0.1.0`. Mantén el identificador para futuras actualizaciones; incrementa `versionCode` al distribuir versiones sucesivas. La fecha de construcción y las dos URL públicas están en `assets/public/android-build.json` dentro del APK. El hash SHA-256 del archivo identifica exactamente el artefacto probado.
+La identidad provisional estable es `com.emergen.mobile`. La variante debug se identifica como **EMERGEN LAN**, versión `0.2.2-lan-debug`, `versionCode 5`. Incluye secuencia física de volumen, ubicación fusionada y recuperación del servicio, con la tarjeta reorganizada y textos breves; conserva la corrección de soporte de `0.1.1`. Mantén el identificador para futuras actualizaciones; incrementa `versionCode` al distribuir versiones sucesivas. La fecha de construcción y las dos URL públicas están en `assets/public/android-build.json` dentro del APK. El hash SHA-256 del archivo identifica exactamente el artefacto probado.
 
 ### 11.2 SDK, JDK y rutas locales
 
@@ -574,14 +576,14 @@ El script comprueba ambas APIs por su IP LAN, origen permitido exacto, rechazo d
 
 Los controles Android son independientes:
 
-| Control         | Implementación y comprobación                                                                                                                                                                |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CORS            | Ambas APIs permiten explícitamente `https://localhost`; se mantienen los orígenes web, sin `*`.                                                                                              |
-| INTERNET        | Declarado en el manifest principal.                                                                                                                                                          |
-| HTTP sin cifrar | Principal: `usesCleartextTraffic=false`; solo `src/debug/AndroidManifest.xml` lo cambia a `true`.                                                                                            |
-| Contenido mixto | Configuración Capacitor: `allowMixedContent=false`; MainActivity habilita HTTP desde el origen HTTPS únicamente si `BuildConfig.DEBUG`. Release usa `MIXED_CONTENT_NEVER_ALLOW`.             |
-| Ubicación       | Permisos COARSE/FINE, solicitados al emitir SOS. GPS es opcional; no hay permiso de ubicación en segundo plano.                                                                              |
-| Acceso a LAN    | El target real es 36; no se declara ni solicita `ACCESS_LOCAL_NETWORK`. Android 16 tiene protección LAN optativa; al migrar realmente a target 37+ hay que revisar las reglas de Android 17. |
+| Control         | Implementación y comprobación                                                                                                                                                                                                          |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CORS            | Ambas APIs permiten explícitamente `https://localhost`; se mantienen los orígenes web, sin `*`.                                                                                                                                        |
+| INTERNET        | Declarado en el manifest principal.                                                                                                                                                                                                    |
+| HTTP sin cifrar | Principal: `usesCleartextTraffic=false`; solo `src/debug/AndroidManifest.xml` lo cambia a `true`.                                                                                                                                      |
+| Contenido mixto | Configuración Capacitor: `allowMixedContent=false`; MainActivity habilita HTTP desde el origen HTTPS únicamente si `BuildConfig.DEBUG`. Release usa `MIXED_CONTENT_NEVER_ALLOW`.                                                       |
+| Ubicación       | COARSE/FINE para el SOS manual y al activar SOS por volumen. Este último mantiene ubicación mediante un servicio en primer plano; no solicita `ACCESS_BACKGROUND_LOCATION`. Si falta una posición reciente, el SOS omite la ubicación. |
+| Acceso a LAN    | El target real es 36; no se declara ni solicita `ACCESS_LOCAL_NETWORK`. Android 16 tiene protección LAN optativa; al migrar realmente a target 37+ hay que revisar las reglas de Android 17.                                           |
 
 Para verificar el límite de las excepciones, desde `apps/mobile/android` ejecuta `gradlew.bat processDebugMainManifest processReleaseMainManifest` e inspecciona los manifests fusionados bajo `app/build/intermediates/merged_manifests/`. Debug debe permitir cleartext; release debe conservarlo desactivado. El origen efectivo se comprueba con `location.origin` en DevTools de la WebView. Una futura release requiere assets compilados hacia APIs HTTPS y configuración apropiada de producción; no utilices el modo LAN para publicarla.
 
@@ -651,11 +653,11 @@ USB con `adb reverse` es solo una alternativa de diagnóstico: exige una compila
 
 ### 11.8 Geolocalización, sesión y pruebas funcionales
 
-Android utiliza `@capacitor/geolocation`; el navegador conserva `navigator.geolocation` y nunca llama a `requestPermissions` del plugin. Se solicita alta precisión, pero se acepta permiso solo aproximado. La espera total, incluido el diálogo, está limitada a 10 segundos; se admite una ubicación de hasta 30 segundos. El código gestiona rechazo persistente, GPS desactivado, timeout y fallos del proveedor, y permite continuar **sin ubicación** con un aviso. Las respuestas tardías no cambian una ubicación ya utilizada para el envío.
+El SOS manual de Android utiliza `@capacitor/geolocation`; el navegador conserva `navigator.geolocation` y nunca llama a `requestPermissions` del plugin. Se solicita alta precisión, pero se acepta permiso solo aproximado. La espera total, incluido el diálogo, está limitada a 10 segundos; se admite una ubicación de hasta 30 segundos. El código gestiona rechazo persistente, GPS desactivado, timeout y fallos del proveedor, y permite continuar **sin ubicación** con un aviso. Las respuestas tardías no cambian una ubicación ya utilizada para el envío. El servicio de volumen usa `FusedLocationProviderClient`, como el proveedor del plugin manual, con GPS/red de Android como respaldo: actualiza ubicación mientras está activado y emplea una posición de hasta 60 segundos, sin esperar un GPS nuevo al completar la secuencia. La tarjeta muestra si hay ubicación reciente y su precisión estimada; si aún está buscando, el SOS puede registrarse sin coordenadas. Su activación requiere al menos permiso de ubicación aproximada para iniciar el servicio de tipo `location`; no solicita `ACCESS_BACKGROUND_LOCATION`.
 
 El SOS solo se presenta como registrado después de la confirmación de FastAPI. El mismo intento conserva UUID y contenido para reintentar sin duplicar. Distingue **registro**, **pendiente**, **despacho registrado** y **recepción comprobada por el contacto**: el contador «enviado» no confirma entrega ni lectura. Comprueba físicamente que el mensaje y el pin/enlace contengan las coordenadas reales.
 
-El JWT de NestJS vence en una hora. Una respuesta 401 de una operación protegida indica cómo cerrar sesión desde el menú y volver a ingresar. El almacenamiento local no renueva el JWT. No se implementa renovación automática ni una cola offline en esta etapa; perder la red conserva el error y permite un reintento controlado del SOS en la pantalla existente.
+El JWT de NestJS dura **2 horas por defecto**, configurables con `JWT_SESSION_HOURS` (1 a 168 horas). El plazo empieza al iniciar sesión, no al activar segundo plano; la tarjeta muestra el vencimiento del JWT real. Una sesión antigua mantiene su plazo anterior: vuelve a iniciar sesión para recibir la nueva duración. Una respuesta 401 de una operación protegida indica cómo cerrar sesión desde el menú y volver a ingresar. El almacenamiento local no renueva el JWT. No se implementa renovación automática ni una cola offline en esta etapa; perder la red conserva el error y permite un reintento controlado del SOS en la pantalla existente.
 
 Desde `0.1.1-lan-debug`, soporte vuelve a consultar el estado y la solución de las solicitudes cada tres segundos mientras esa pantalla está visible y la app está en primer plano. También actualiza al regresar a la pantalla, recuperar el foco o reanudar la app; **Actualizar** permite consultar inmediatamente. Se conservan el borrador y el detalle desplegado. Al salir de soporte o pasar a segundo plano se cancelan las consultas; si la red falla, se conserva el listado con un aviso hasta recuperar la conexión.
 
@@ -667,7 +669,35 @@ npm run test.unit --workspace=mobile -- --run
 node scripts/check-android-lan.mjs
 ```
 
-Registra por separado **ambiente preparado**, **APK debug compilado** y **pruebas en teléfono aprobadas**. La matriz y evidencias de esta ejecución están en [APK_DEBUG_LAN_2026-10-28.md](docs/APK_DEBUG_LAN_2026-10-28.md). Las pruebas unitarias simulan permisos/proveedor/red; no certifican GPS real ni WhatsApp recibido. No ejecutes automáticamente scripts de SOS sobre contactos personales.
+Registra por separado **ambiente preparado**, **APK debug compilado** y **pruebas en teléfono aprobadas**. La preparación inicial está en [APK_DEBUG_LAN_2026-10-28.md](docs/APK_DEBUG_LAN_2026-10-28.md); la implementación y las comprobaciones actuales de volumen y segundo plano están en [SOS_VOLUMEN_ANDROID.md](docs/SOS_VOLUMEN_ANDROID.md). Las pruebas unitarias simulan permisos/proveedor/red; no certifican GPS real ni WhatsApp recibido. No ejecutes automáticamente scripts de SOS sobre contactos personales.
+
+Para verificar el reconocedor y la vigencia de ubicación sin generar SOS, usa `.\scripts\test-volume-native.ps1`. Compila las clases y ejecuta JUnit directamente, evitando el fallo de carga observado en el worker de Gradle en la ruta Windows de referencia.
+
+#### Configuración del SOS por volumen en cada teléfono
+
+1. Inicia sesión con un perfil de prueba, plan efectivo, contactos propios y prioridad guardada.
+2. En **Configurar alerta**, graba de 3 a 12 pulsaciones físicas, incluyendo ambos botones de volumen, y completa las dos comprobaciones del asistente. No envían alertas. Deja como máximo dos segundos entre pulsaciones.
+3. Habilita manualmente **EMERGEN · Secuencia de volumen** en Accesibilidad. Si Android muestra un bloqueo para este APK, revisa **Permitir ajustes restringidos** en la información de la app; no desactives protecciones generales ni automatices el permiso mediante ADB.
+4. Vuelve a la app y pulsa **Activar segundo plano**, concediendo ubicación y notificaciones. Comprueba **ACTIVADO**, la notificación y **Ubicación reciente disponible para el SOS**. Revisa batería y actividad en segundo plano según el fabricante.
+5. El responsable del teléfono ejecuta la combinación real, primero con la app minimizada y luego, tras cerrar la alerta con PIN, retirándola de Recientes y apagando la pantalla. Confirma recepción y coordenadas en el contacto de prueba. Cada teléfono requiere su propia validación.
+
+La detección usa la prioridad del perfil activo y no funciona con sesión vencida. La secuencia se guarda por perfil y dispositivo. Cerrar sesión o cambiar de perfil desactiva la detección anterior. Tras actualizar el APK, comprueba el estado y vuelve a activarla si corresponde; si Accesibilidad quedó habilitada pero desconectada, desactívala y actívala de nuevo en Ajustes. **Forzar detención** o reiniciar el teléfono requiere volver a abrir la app y activar la detección; no hay autoarranque tras reinicio. Las notificaciones push y el envío automático offline siguen pendientes.
+
+#### Usuarios apadrinados en el APK
+
+El apadrinado entra con el correo y contraseña de la principal, elige su perfil y utiliza su PIN. Tiene **sus propios contactos, prioridad, mensaje y antecedentes médicos**; el plan efectivo se obtiene de la cuenta principal. Un plan compartido no copia los datos de emergencia ni la secuencia de volumen de otro perfil.
+
+| Función                                               | Apadrinado con acceso completo                        | Apadrinado con acceso parcial                                                                |
+| ----------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| SOS manual, ubicación y WhatsApp                      | Sí, con plan de la principal y contactos propios      | Sí, con los mismos requisitos; usa el mensaje configurado                                    |
+| Secuencia de volumen y segundo plano                  | Sí, con prioridad guardada y permisos del dispositivo | Sí, si su prioridad y contactos ya están configurados; no puede editar libremente esos datos |
+| Consultar alertas y solicitar soporte                 | Sí, de su propio perfil                               | Sí, de su propio perfil                                                                      |
+| Editar prioridad, contactos, mensaje y ficha médica   | Sí, de su propio perfil                               | No; estas escrituras requieren acceso completo                                               |
+| Cambiar su nombre                                     | Sí                                                    | Requiere autorización con el PIN de la principal                                             |
+| Finalizar SOS                                         | PIN del apadrinado                                    | PIN de la cuenta principal                                                                   |
+| Administrar otras cuentas apadrinadas o comprar cupos | No                                                    | No                                                                                           |
+
+El apadrinado no tiene correo ni contraseña independientes. Estas diferencias proceden de las validaciones actuales de permisos y de las APIs; la revisión para documentarlas fue de solo lectura y no cambió el comportamiento del proyecto.
 
 ### 11.9 Solución de problemas Android/LAN
 

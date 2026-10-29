@@ -30,6 +30,7 @@ services:
       - DB_NAME=${DB_NAME}
       - PORT=3000
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env}
+      - JWT_SESSION_HOURS=${JWT_SESSION_HOURS:-2}
       - CORS_ORIGINS=${CORS_ORIGINS:-}
       - MEDICAL_DATA_KEYS=${MEDICAL_DATA_KEYS:-}
       # Integraciones externas (ver readme-apis.md)

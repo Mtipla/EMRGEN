@@ -2,10 +2,6 @@ import { useEffect, useState } from 'react';
 import {
   IonButton,
   IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonContent,
   IonHeader,
   IonItem,
@@ -24,6 +20,7 @@ import { Notice } from '@repo/ui/wireframe';
 import AlertaSos from '../components/AlertaSos';
 import AlertasActivas from '../components/AlertasActivas';
 import ConfigurarAlerta from '../components/ConfigurarAlerta';
+import AlertaVolumen from '../components/AlertaVolumen';
 import { apiFetch, clearSession, getUser, saveSession, type SessionUser } from '../lib/session';
 import { MENSAJE_REQUIERE_PLAN } from '../lib/sos';
 import './Home.css';
@@ -125,25 +122,7 @@ const Home: React.FC = () => {
           Alerta rápida en la APP
         </button>
 
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>Alerta en segundo plano · Simulación</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            <p>
-              Prueba una secuencia con botones en pantalla. La activación mediante teclas físicas
-              y con la app cerrada está pendiente de integración.
-            </p>
-            <button
-              type="button"
-              aria-disabled={!tienePlan}
-              className={`wf-button mobile-plan-action mobile-configurar-alerta${tienePlan ? '' : ' mobile-plan-locked'}`}
-              onClick={() => abrir('configurar')}
-            >
-              Configurar alerta
-            </button>
-          </IonCardContent>
-        </IonCard>
+        <AlertaVolumen tienePlan={tienePlan} onConfigurar={() => abrir('configurar')} />
 
         {user && <ResumenCuenta user={user} />}
         {tienePlan && user && visible && (
