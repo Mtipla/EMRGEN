@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --config vite.config.ts",
     "build": "tsc && vite build --config vite.config.ts",
-    "build:android-lan": "tsc && vite build --config vite.config.ts --mode android-lan",
+    "build:android-lan": "node ../../scripts/check-environment.mjs --mode android-lan && tsc && vite build --config vite.config.ts --mode android-lan",
+    "build:android-production": "node ../../scripts/check-environment.mjs --mode android-production && tsc && vite build --config vite.config.ts --mode android-production",
+    "android:prepare:production": "node ../../scripts/mobile-android.mjs prepare android-production",
     "android:prepare": "node ../../scripts/mobile-android.mjs prepare",
     "android:open": "node ../../scripts/mobile-android.mjs open",
     "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File ../../scripts/android-debug.ps1",

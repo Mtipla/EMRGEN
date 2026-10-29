@@ -10,6 +10,7 @@ const ORIGENES_DESARROLLO =
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableShutdownHooks();
   // Único lugar donde se definen los orígenes permitidos: la variable CORS_ORIGINS.
   const origenes = (readEnv('CORS_ORIGINS') ?? ORIGENES_DESARROLLO)
     .split(',')

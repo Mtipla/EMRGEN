@@ -362,15 +362,26 @@ export function DataTable<T>({
 }
 
 /** HU-17 / RF14: acceso directo a los números oficiales de emergencia. */
-export const NumerosEmergencia = () => (
+export const NumerosEmergencia = ({
+  descripcion,
+  onSeleccionar,
+}: {
+  descripcion?: string;
+  onSeleccionar?: (numero: string) => void;
+}) => (
   <section className="wf-card">
     <h2>Números de emergencia</h2>
+    {descripcion && <p className="wf-muted">{descripcion}</p>}
     <div className="wf-row">
       {NUMEROS_EMERGENCIA.map((n) => (
         <a
           key={n.numero}
           className="wf-button wf-button--secondary"
           href={`tel:${n.numero}`}
+          onClick={onSeleccionar ? (event) => {
+            event.preventDefault();
+            onSeleccionar(n.numero);
+          } : undefined}
         >
           {n.numero} · {n.servicio}
         </a>

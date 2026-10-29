@@ -6,6 +6,8 @@ El equipo está integrado por **Alonso González, Gabriel Valencia y Diego Plaza
 
 Las aplicaciones comparten código en un monorepo administrado con **npm workspaces y Turborepo**. El backend principal está desarrollado en NestJS; un servicio separado en FastAPI se encarga del registro y cierre de SOS y de los tickets de soporte. Ambos utilizan la misma base de datos PostgreSQL.
 
+Antes de preparar un APK o trasladar servicios a hosting, seguir [Entornos y despliegue](docs/DESPLIEGUE.md). La preparación verifica PostgreSQL, la instancia elegida y WhatsApp; los builds de producción requieren dominios HTTPS explícitos. Los archivos privados, la base y la sesión de WhatsApp no se transfieren mediante un commit.
+
 ## Antes de comenzar: ubicación de los comandos
 
 La carpeta de la aplicación está dentro del repositorio Git. Salvo que un bloque indique otra ubicación, ejecuta los comandos desde:
@@ -190,7 +192,7 @@ Puedes iniciar el backend sin configurar todos los proveedores. Las integracione
 
 ## 6. Ejecutar las aplicaciones en desarrollo
 
-Elige dónde ejecutar NestJS antes de abrir un frontend. Con Docker puedes iniciar juntos el backend y PostgreSQL:
+Elige el entorno antes de abrir un frontend. Para una base nueva o de una versión anterior, aplicar primero las migraciones siguiendo [Entornos y despliegue](docs/DESPLIEGUE.md), con respaldo si ya contiene datos y con las APIs detenidas. La auditoría `node scripts/verify-schema.cjs` considera el esquema base más esas migraciones. Con la base actualizada, Docker puede iniciar NestJS, FastAPI y PostgreSQL:
 
 ```powershell
 docker compose up --build -d
@@ -203,7 +205,7 @@ docker compose up -d db
 npm run start:dev --workspace=backend
 ```
 
-Si el backend de Docker ya estaba encendido, puedes detenerlo con `docker compose stop backend`. Ambos backends pueden acceder a la misma base, pero conviene tener claro cuál consume cada aplicación. Mantén una sola instancia con la misma sesión de WhatsApp activa.
+Si las APIs Docker estaban encendidas y vas a ejecutar ambas localmente, detenerlas con `docker compose stop backend internal-api`; conservar PostgreSQL. Ambos backends pueden acceder a la misma base, pero cada cliente debe seleccionar un entorno explícito. Mantén una sola instancia con la misma sesión de WhatsApp activa.
 
 ### 6.1 Puertos y selección del backend
 
@@ -212,7 +214,7 @@ Si el backend de Docker ya estaba encendido, puedes detenerlo con `docker compos
 | NestJS local             | `http://localhost:3000` (`PORT` del entorno local)              | —                               |
 | NestJS en Docker         | `http://localhost:3001`                                         | `3000`                          |
 | PostgreSQL en Docker     | `localhost:5433`                                                | `5432`                          |
-| FastAPI                  | `http://localhost:8000`                                         | Se ejecuta por separado         |
+| FastAPI local o Docker   | `http://localhost:8000`                                         | `8000` en modo Docker           |
 | Web y móvil en Vite      | Habitualmente `http://localhost:5173` y `http://localhost:5174` | —                               |
 | Escritorio en desarrollo | Vite en `http://localhost:5175` y ventana de Electron           | —                               |
 | jsReport local           | `http://localhost:5488`                                         | `5488`, en su propio contenedor |
@@ -225,7 +227,7 @@ Abre cada frontend en una terminal diferente, desde la raíz del monorepo:
 | Móvil en navegador | `npx turbo run dev --filter=mobile`  | `npx turbo run dev --filter=mobile -- --mode docker` |
 | Escritorio         | `npx turbo run dev --filter=desktop` | `npx turbo run dev:docker --filter=desktop`          |
 
-El modo `docker` de Vite toma `VITE_API_URL=http://localhost:3001` de `.env.docker`. Ese archivo está versionado y contiene configuración pública del frontend; Docker Compose no lo lee. `VITE_INTERNAL_API_URL` sigue apuntando a FastAPI en el puerto 8000 en ambos modos.
+El modo `docker` de Vite toma ambas URLs y `VITE_DEPLOYMENT_ID=docker` de `.env.docker`. Ese archivo está versionado y contiene configuración pública del frontend; Docker Compose no lo lee. FastAPI ocupa el puerto 8000 tanto en local como en Docker; elegir una sola instancia. Antes de probar SOS ejecutar `npm run check:environment -- --mode docker` o `--mode android-lan`, según corresponda. La sesión WhatsApp debe estar vinculada en la instancia seleccionada.
 
 Web y móvil usan el primer puerto libre de Vite; comprueba la dirección que imprime la terminal. El escritorio fija el puerto 5175 y se detiene si está ocupado. Al abrir el panel, la interfaz indica la API y el modo seleccionados.
 

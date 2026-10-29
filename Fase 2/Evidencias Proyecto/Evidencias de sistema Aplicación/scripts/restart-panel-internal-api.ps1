@@ -20,10 +20,17 @@ $hijosPanel = @($procesosPanel | Where-Object { $_.ParentProcessId -eq $lanzador
 if (@($hijosPanel | Where-Object { $_.CommandLine -notmatch '-m uvicorn app\.main:app' }).Count) {
   throw 'El lanzador tiene procesos inesperados; no se detuvo ningún proceso.'
 }
-foreach ($procesoPanel in $hijosPanel) { Stop-Process -Id $procesoPanel.ProcessId -ErrorAction Stop }
-if (Get-Process -Id $lanzadorPanel.ProcessId -ErrorAction SilentlyContinue) {
-  Stop-Process -Id $lanzadorPanel.ProcessId -ErrorAction Stop
+function Stop-PanelProcess([int]$apiProcessId) {
+  try { Stop-Process -Id $apiProcessId -ErrorAction Stop }
+  catch {
+    # El lanzador Python puede terminar al cerrarse su hijo. Si ya salió, continuar.
+    # Un proceso que siga vivo (p. ej., acceso denegado) conserva el error original.
+    if (Get-Process -Id $apiProcessId -ErrorAction SilentlyContinue) { throw }
+  }
 }
+foreach ($procesoPanel in $hijosPanel) { Stop-PanelProcess $procesoPanel.ProcessId }
+Stop-PanelProcess $lanzadorPanel.ProcessId
+New-Item -ItemType Directory -Force -Path (Join-Path $servicioPanel '.runtime') | Out-Null
 $logPanel = Join-Path $servicioPanel '.runtime\panel-api.log'
 $errorPanel = Join-Path $servicioPanel '.runtime\panel-api-error.log'
 $nuevoPanel = Start-Process -FilePath $pythonPanel -ArgumentList '-m', 'uvicorn', 'app.main:app', '--host', $ListenHost, '--port', '8000' -WorkingDirectory $servicioPanel -WindowStyle Hidden -RedirectStandardOutput $logPanel -RedirectStandardError $errorPanel -PassThru

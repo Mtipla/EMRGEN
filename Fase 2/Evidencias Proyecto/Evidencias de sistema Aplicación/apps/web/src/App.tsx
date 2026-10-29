@@ -1,11 +1,9 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { DerivacionTicketsProvider } from '@repo/ui/derivacion-tickets'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { AuthForm, type AuthenticatedUser } from './features/auth/AuthForm'
 import { PinSetupForm } from './features/auth/PinSetupForm'
-import { UsersAdmin } from './features/auth/UsersAdmin'
 import { PremiumPurchase } from './features/compra/PremiumPurchase'
 import { PublicSite } from './features/inicio/PublicSite'
 import { RUTAS_PUBLICAS, type PublicView } from './features/inicio/rutas'
@@ -13,15 +11,6 @@ import { bloqueo, perfilDe, type Accion } from '@repo/ui/permisos'
 import { avisar, Avisos } from '@repo/ui/avisos'
 import { AppShell, SinPermiso } from './features/cuenta/AppShell'
 import { AccountsPage, HomePage, ProfilePage, SoportePage } from './features/cuenta/CuentaPages'
-import {
-  AdminAlertasPage,
-  AdminComprasPage,
-  AdminContactoPage,
-  AdminCuentasPage,
-  AdminPlanesPage,
-  AdminTicketsPage,
-  AdminTrabajadoresPage,
-} from './features/administracion/AdminPages'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
@@ -43,7 +32,6 @@ const sesionGuardada = leerSesionGuardada()
 
 function App() {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
 
   const [user, setUser] = useState<AuthenticatedUser | null>(sesionGuardada)
 
@@ -143,8 +131,9 @@ function App() {
   }
 
   const perfil = user && perfilDe(user)
-  // El menú del Trabajador (mockup pág. 11) no incluye compra Premium ni el panel /usuarios.
   const esSoporte = perfil === 'SOPORTE'
+  // Las cuentas del personal usan el panel de escritorio para las funciones administrativas.
+  const esPersonal = perfil === 'ADMINISTRADOR' || esSoporte
   // El apadrinado usa el plan de su principal: POST /compras/apadrinados/ordenes le responde 403.
   const sinCompra = esSoporte || perfil === 'APADRINADO'
 
@@ -172,8 +161,6 @@ function App() {
   return (
     <>
     <Avisos />
-    <DerivacionTicketsProvider key={user?.usuario_ID ?? 'sin-sesion'} rutaActual={pathname}
-      esAdministrador={perfil === 'ADMINISTRADOR'} onNavegar={navigate}>
     <Routes>
       {/* Páginas públicas */}
       {(Object.keys(RUTAS_PUBLICAS) as PublicView[]).map((view) => (
@@ -204,26 +191,6 @@ function App() {
         }
       />
 
-      {/* Panel de administración protegido por sesión */}
-      <Route
-        path="/usuarios"
-        element={
-          user && hasSession && perfil !== 'ADMINISTRADOR' ? (
-            privatePage(<SinPermiso />)
-          ) : user && hasSession ? (
-            <main className="auth-page">
-              <UsersAdmin
-                user={user}
-                onLogout={closeSession}
-                onUserUpdated={setUser}
-              />
-            </main>
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
-
       {/* Compra de Cuenta Premium con PayPal (requiere sesión) */}
       <Route
         path="/comprar"
@@ -240,41 +207,18 @@ function App() {
         }
       />
 
-      {/* Wireframes: home, perfil y cuentas del usuario; administración (rol Administrador en backend) */}
-      <Route path="/inicio" element={privatePage(esSoporte ? <Navigate to="/administracion/cuentas" replace /> : user && <HomePage user={user} />)} />
+      {/* Inicio y perfil web; la administración vive exclusivamente en apps/desktop. */}
+      <Route path="/inicio" element={privatePage(user && <HomePage user={user} />)} />
       <Route
         path="/perfil"
         element={privatePage(user && <ProfilePage user={user} onUserUpdated={setUser} />)}
       />
-      <Route path="/cuentas" element={privatePage(user && <AccountsPage user={user} />, 'cuentas.informe')} />
-      <Route path="/soporte" element={privatePage(<SoportePage />, 'soporte.solicitar')} />
-      <Route
-        path="/administracion/cuentas"
-        element={privatePage(<AdminCuentasPage perfil={perfil} />, 'admin.cuentas.ver')}
-      />
-      <Route
-        path="/administracion/compras"
-        element={privatePage(<AdminComprasPage />, 'admin.compras.ver')}
-      />
-      <Route
-        path="/administracion/trabajadores"
-        element={privatePage(<AdminTrabajadoresPage />, 'admin.trabajadores')}
-      />
-      <Route path="/administracion/planes" element={privatePage(<AdminPlanesPage />, 'admin.planes')} />
-      <Route
-        path="/administracion/tickets"
-        element={privatePage(<AdminTicketsPage perfil={perfil} />, 'soporte.gestionarTickets')}
-      />
-      <Route
-        path="/administracion/contacto"
-        element={privatePage(<AdminContactoPage />, 'soporte.mensajesContacto')}
-      />
-      <Route path="/administracion/alertas" element={privatePage(<AdminAlertasPage />, 'alertas.verTodas')} />
+      {!esPersonal && <Route path="/cuentas" element={privatePage(user && <AccountsPage user={user} />, 'cuentas.informe')} />}
+      {!esPersonal && <Route path="/soporte" element={privatePage(<SoportePage />, 'soporte.solicitar')} />}
 
       {/* Redirigir rutas inexistentes */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-    </DerivacionTicketsProvider>
     </>
   )
 }

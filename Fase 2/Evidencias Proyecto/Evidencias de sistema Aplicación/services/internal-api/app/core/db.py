@@ -11,7 +11,8 @@ T = TypeVar("T")
 def connect() -> psycopg.Connection:
     return psycopg.connect(host=settings.db_host, port=settings.db_port, user=settings.db_user,
         password=settings.db_password, dbname=settings.db_name, row_factory=dict_row,
-        connect_timeout=5, autocommit=True)
+        connect_timeout=5, autocommit=True, sslmode=settings.db_sslmode,
+        **({"sslrootcert": settings.db_ssl_ca_file} if settings.db_ssl_ca_file else {}))
 
 def get_db() -> Iterator[psycopg.Connection]:
     try:

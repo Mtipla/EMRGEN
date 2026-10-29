@@ -5,6 +5,12 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 vi.mock('@repo/api-client', async (original) => ({
   ...await original<typeof import('@repo/api-client')>(), initFirebase: vi.fn(() => ({})),
 }))
+vi.mock('axios', async (original) => {
+  const actual = await original<typeof import('axios')>()
+  const { desktopFetchAdapter } = await import('../../test/desktop-fetch-adapter')
+  return { ...actual, default: { ...actual.default, create: (config: import('axios').CreateAxiosDefaults) =>
+    actual.default.create({ ...config, adapter: desktopFetchAdapter }) } }
+})
 const fetchMock = vi.fn<typeof fetch>()
 const json = (body: unknown) => new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } })
 let yo: Record<string, unknown>
@@ -19,14 +25,19 @@ async function abrir(rol: number) {
   localStorage.setItem('emergen.token', 'token-test')
   localStorage.setItem('emergen.user', JSON.stringify(yo))
   vi.resetModules()
-  const { default: App } = await import('../../App')
-  render(<MemoryRouter initialEntries={['/administracion/contacto']}><App /></MemoryRouter>)
+  const { PanelAdmin } = await import('../../../../desktop/src/admin/PanelAdmin')
+  const { Avisos } = await import('@repo/ui/avisos')
+  render(<MemoryRouter initialEntries={['/administracion/contacto']}><Avisos /><PanelAdmin /></MemoryRouter>)
+  fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'personal@emergen.test' } })
+  fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'ClavePrueba123!' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
 }
 
 beforeEach(() => {
   vi.stubGlobal('fetch', fetchMock)
   fetchMock.mockImplementation(async (url, init) => {
     const path = new URL(String(url)).pathname
+    if (path === '/usuarios/login') return json({ access_token: 'token-test', usuario: yo })
     if (path === '/usuarios/me') return json(yo)
     if (path === '/internal/v1/mensajes-contacto/estados') {
       return json([{ id: 1, nombre: 'EN_REVISION' }, { id: 2, nombre: 'PENDIENTE' }, { id: 3, nombre: 'REVISADO' }])
@@ -80,6 +91,6 @@ test('si el portapapeles falla, igual abre Gmail y avisa que se copie a mano', a
 
 test('un usuario normal no accede a los mensajes de contacto', async () => {
   await abrir(3)
-  expect(await screen.findByRole('heading', { name: 'Sin permisos' })).toBeTruthy()
+  expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'No se pudo iniciar sesión. Verifica tus datos e inténtalo nuevamente.')
   expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/mensajes-contacto'))).toBe(false)
 })

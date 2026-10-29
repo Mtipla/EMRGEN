@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ResumenTicketDerivado } from '@repo/ui/derivacion-tickets'
 import { ETIQUETA_PERFIL, MENSAJE_BLOQUEO, perfilDe, visible, type Accion, type Bloqueo } from '@repo/ui/permisos'
 import type { AuthenticatedUser } from '../auth/AuthForm'
 import '@repo/ui/wireframe' // carga los estilos wf-* compartidos
@@ -11,17 +10,10 @@ type AppShellProps = {
   children: ReactNode
 }
 
-/** Entradas del menú de usuario de los wireframes, filtradas por la matriz de permisos. */
+/** Menú web: las funciones administrativas se ofrecen solo en apps/desktop. */
 const MENU: { to: string; label: string; accion: Accion }[] = [
   { to: '/perfil', label: 'Modificar usuario', accion: 'perfil.editar' },
   { to: '/cuentas', label: 'Administrar cuentas', accion: 'cuentas.informe' },
-  { to: '/administracion/cuentas', label: 'Administrar cuentas', accion: 'admin.cuentas.ver' },
-  { to: '/administracion/compras', label: 'Administrar compras', accion: 'admin.compras.ver' },
-  { to: '/administracion/trabajadores', label: 'Administrar trabajadores', accion: 'admin.trabajadores' },
-  { to: '/administracion/planes', label: 'Gestión de planes y cupos de usuario', accion: 'admin.planes' },
-  { to: '/administracion/tickets', label: 'Administrar Tickets de soporte', accion: 'soporte.gestionarTickets' },
-  { to: '/administracion/contacto', label: 'Mensajes de contacto', accion: 'soporte.mensajesContacto' },
-  { to: '/administracion/alertas', label: 'Alertas', accion: 'alertas.verTodas' },
   { to: '/soporte', label: 'Solicitar soporte', accion: 'soporte.solicitar' },
 ]
 
@@ -59,16 +51,14 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
               <div className="wf-menu-secciones">{enlaces}</div>
               {/* El informe propio está disponible también para apadrinados y cuentas sin Premium. */}
               {MENU.filter((item) => visible(user, item.accion) &&
-                (perfil !== 'SOPORTE' || item.to === '/perfil' || item.to.startsWith('/administracion/'))).map((item) => (
+                (perfil !== 'ADMINISTRADOR' || item.to === '/perfil')).map((item) => (
                 <Link key={item.to} to={item.to}>{item.label}</Link>
               ))}
-              {perfil === 'ADMINISTRADOR' && <Link to="/usuarios">Usuarios registrados</Link>}
               <button type="button" className="wf-link" onClick={onLogout}>Cerrar sesión</button>
             </nav>
           )}
         </div>
       </header>
-      <ResumenTicketDerivado />
       {children}
     </div>
   )

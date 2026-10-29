@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(VolumeSosPlugin.class);
+        registerPlugin(EmergencyDialerPlugin.class);
         super.onCreate(savedInstanceState);
         // El origen local sigue siendo https://localhost. Las APIs HTTP solo se permiten en debug.
         getBridge().getWebView().getSettings().setMixedContentMode(

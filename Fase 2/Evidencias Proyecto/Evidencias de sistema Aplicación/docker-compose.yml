@@ -1,20 +1,24 @@
-
 services:
   db:
     image: postgres:15-alpine
     container_name: postgres_emergen_db
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:?Configura DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:?Configura DB_NAME}
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - emergen_postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - emergen_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
   backend:
     build:
@@ -29,6 +33,9 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - PORT=3000
+      - HOST=0.0.0.0
+      - EMERGEN_ENVIRONMENT=${EMERGEN_ENVIRONMENT:-development}
+      - EMERGEN_DEPLOYMENT_ID=${EMERGEN_DEPLOYMENT_ID:-docker}
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env}
       - JWT_SESSION_HOURS=${JWT_SESSION_HOURS:-2}
       - CORS_ORIGINS=${CORS_ORIGINS:-}
@@ -50,6 +57,7 @@ services:
       - WHATSAPP_ENABLED=${WHATSAPP_ENABLED:-false}
       - WHATSAPP_DEFAULT_COUNTRY_CODE=${WHATSAPP_DEFAULT_COUNTRY_CODE:-56}
       - WHATSAPP_SENDER_PHONE=${WHATSAPP_SENDER_PHONE:-}
+      - WHATSAPP_AUTH_DIR=/app/apps/backend/auth_info_baileys
     volumes:
       - emergen_whatsapp_auth:/app/apps/backend/auth_info_baileys
     extra_hosts:
@@ -60,7 +68,58 @@ services:
     ports:
       - "3001:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 8s
+      retries: 5
+      start_period: 30s
+    networks:
+      - emergen_network
+
+  internal-api:
+    build:
+      context: ./services/internal-api
+    container_name: fastapi_emergen_internal
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:?Configura DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD}
+      DB_NAME: ${DB_NAME:?Configura DB_NAME}
+      JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET compartido por ambas APIs}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:5174,http://localhost:5175,https://localhost}
+      EMERGEN_ENVIRONMENT: ${EMERGEN_ENVIRONMENT:-development}
+      EMERGEN_DEPLOYMENT_ID: ${EMERGEN_DEPLOYMENT_ID:-docker}
+      INTERNAL_API_DOCS_ENABLED: ${INTERNAL_API_DOCS_ENABLED:-true}
+      PORT: 8000
+      HOST: 0.0.0.0
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)",
+        ]
+      interval: 15s
+      timeout: 8s
+      retries: 5
+      start_period: 15s
     networks:
       - emergen_network
 

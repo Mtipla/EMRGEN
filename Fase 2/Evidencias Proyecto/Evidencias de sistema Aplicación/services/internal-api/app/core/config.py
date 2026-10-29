@@ -1,10 +1,13 @@
 from pathlib import Path
+import os
+from urllib.parse import urlsplit
 
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SERVICE_DIR = Path(__file__).resolve().parents[2]
-MONOREPO_DIR = SERVICE_DIR.parents[1]
+# parent es estable también al empaquetar el servicio solo en /app (sin monorepo).
+MONOREPO_DIR = SERVICE_DIR.parent.parent
 
 
 class Settings(BaseSettings):
@@ -16,18 +19,22 @@ class Settings(BaseSettings):
     """
 
     model_config = SettingsConfigDict(
-        env_file=(
+        env_file=() if os.environ.get("EMERGEN_ENVIRONMENT") in ("staging", "production") else (
             MONOREPO_DIR / ".env",
             MONOREPO_DIR / "apps" / "backend" / ".env.local",
             SERVICE_DIR / ".env",
         ),
         env_prefix="INTERNAL_API_",
         extra="ignore",
+        hide_input_in_errors=True,
     )
 
     mensaje_predeterminado: str = Field("Necesito ayuda inmediata en mi ubicación.", min_length=1, max_length=160)
     intervalo_cierre_segundos: int = Field(30, ge=1, le=300)
-    port: int = 8000
+    # PORT del proveedor se respeta; PORT del .env raíz pertenece a NestJS.
+    port: int = Field(default_factory=lambda: int(os.environ.get("PORT", "8000")), ge=1, le=65535)
+    environment: str = Field("development", validation_alias="EMERGEN_ENVIRONMENT")
+    deployment_id: str = Field("local", validation_alias="EMERGEN_DEPLOYMENT_ID")
     cors_origins: str = Field(
         "http://localhost:5173,http://localhost:5174,http://localhost:5175",
         validation_alias=AliasChoices("INTERNAL_API_CORS_ORIGINS", "CORS_ORIGINS"),
@@ -35,13 +42,44 @@ class Settings(BaseSettings):
     docs_enabled: bool = True
 
     db_host: str = Field("localhost", validation_alias="DB_HOST")
-    db_port: int = Field(5433, validation_alias="DB_PORT")
+    db_port: int = Field(5433, ge=1, le=65535, validation_alias="DB_PORT")
     db_user: str | None = Field(None, validation_alias="DB_USER")
     db_password: str | None = Field(None, validation_alias="DB_PASSWORD")
     db_name: str | None = Field(None, validation_alias="DB_NAME")
+    db_sslmode: str = Field("disable", validation_alias="DB_SSLMODE")
+    db_ssl_ca_file: str | None = Field(None, validation_alias="DB_SSL_CA_FILE")
 
     # Debe ser el mismo JWT_SECRET del backend NestJS: internal-api verifica sus tokens.
     jwt_secret: str | None = Field(None, validation_alias="JWT_SECRET")
+
+    @model_validator(mode="after")
+    def validate_deployment(self):
+        if self.db_sslmode not in ("disable", "verify-full"):
+            raise ValueError("DB_SSLMODE: usa disable o verify-full")
+        if self.db_sslmode == "verify-full" and (not self.db_ssl_ca_file or not Path(self.db_ssl_ca_file).is_file()):
+            raise ValueError("DB_SSL_CA_FILE: falta el archivo CA del proveedor")
+        if self.environment not in ("development", "test", "staging", "production"):
+            raise ValueError("EMERGEN_ENVIRONMENT: valor no válido")
+        if self.environment in ("staging", "production"):
+            if not {"db_host", "db_port"}.issubset(self.model_fields_set):
+                raise ValueError("DB_HOST y DB_PORT: deben configurarse explícitamente en hosting")
+            for name in ("db_host", "db_user", "db_password", "db_name", "jwt_secret"):
+                value = getattr(self, name)
+                if not value or "<INSERT_" in value or "CHANGE_ME" in value:
+                    raise ValueError(f"{name.upper()}: debe configurarse en el entorno del servicio")
+            if len(self.jwt_secret or "") < 32:
+                raise ValueError("JWT_SECRET: usa al menos 32 caracteres")
+            if not self.deployment_id or self.deployment_id == "local":
+                raise ValueError("EMERGEN_DEPLOYMENT_ID: identifica el despliegue compartido con NestJS")
+            if not self.cors_list:
+                raise ValueError("CORS_ORIGINS: configura los orígenes del despliegue")
+            for origin in self.cors_list:
+                if origin in ("https://localhost", "capacitor://localhost"):
+                    continue
+                url = urlsplit(origin)
+                if url.scheme != "https" or not url.hostname or url.hostname == "localhost" or url.username or url.password or url.path or url.query or url.fragment:
+                    raise ValueError("CORS_ORIGINS: usa orígenes HTTPS exactos")
+        return self
 
     @property
     def cors_list(self) -> list[str]:

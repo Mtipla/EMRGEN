@@ -9,6 +9,9 @@
 **/__pycache__
 **/.pytest_cache
 **/.runtime
+**/.android-tools
+**/.gradle
+backups
 
 # Secretos: se inyectan en tiempo de ejecución vía docker-compose
 .env

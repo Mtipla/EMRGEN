@@ -21,3 +21,29 @@ def test_error_con_formato_nestjs():
     r = client.get("/internal/v1/no-existe")
     assert r.status_code == 404
     assert r.json() == {"statusCode": 404, "message": "Not Found", "error": "Not Found"}
+
+
+def test_readiness_comprueba_esquema_sin_escribir(client, db):
+    before = db.execute("SELECT count(*) AS total FROM envio_alerta").fetchone()["total"]
+    response = client.get("/health/ready")
+    assert response.status_code == 200
+    assert response.json()["service"] == "emergen-internal-api"
+    assert response.json()["database"] == "up"
+    assert db.execute("SELECT count(*) AS total FROM envio_alerta").fetchone()["total"] == before
+
+
+def test_readiness_no_oculta_un_fallo_de_esquema():
+    from app.core.db import get_db
+
+    class BrokenDatabase:
+        def execute(self, query):
+            raise RuntimeError("información privada de conexión")
+
+    app.dependency_overrides[get_db] = lambda: BrokenDatabase()
+    try:
+        response = client.get("/health/ready")
+        assert response.status_code == 503
+        assert response.json()["database"] == "down"
+        assert "privada" not in response.text
+    finally:
+        app.dependency_overrides.clear()
