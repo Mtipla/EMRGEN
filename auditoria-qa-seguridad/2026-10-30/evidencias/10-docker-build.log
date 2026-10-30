@@ -1,0 +1,269 @@
+ Image emergen-aud-backend:head Building 
+ Image emergen-aud-internal:head Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.37kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal-api internal] load build definition from Dockerfile
+#2 transferring dockerfile: 438B 0.0s done
+#2 DONE 0.1s
+
+#3 [backend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 1.91kB 0.0s done
+#3 DONE 0.1s
+
+#4 [backend internal] load metadata for docker.io/library/node:24.21.0-alpine
+#4 ...
+
+#5 [auth] library/node:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#6 [auth] library/python:pull token for registry-1.docker.io
+#6 DONE 0.0s
+
+#7 [internal-api internal] load metadata for docker.io/library/python:3.12-slim
+#7 DONE 1.4s
+
+#4 [backend internal] load metadata for docker.io/library/node:24.21.0-alpine
+#4 DONE 1.4s
+
+#8 [backend internal] load .dockerignore
+#8 transferring context: 632B 0.0s done
+#8 DONE 0.0s
+
+#9 [internal-api internal] load .dockerignore
+#9 transferring context: 99B 0.0s done
+#9 DONE 0.0s
+
+#10 [backend internal] load build context
+#10 DONE 0.0s
+
+#11 [internal-api internal] load build context
+#11 transferring context: 180.66kB 0.1s done
+#11 DONE 0.1s
+
+#12 [internal-api 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#12 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 0.1s done
+#12 DONE 0.1s
+
+#13 [backend base 1/3] FROM docker.io/library/node:24.21.0-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#13 resolve docker.io/library/node:24.21.0-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 0.1s done
+#13 DONE 0.1s
+
+#14 [internal-api 2/6] WORKDIR /app
+#14 CACHED
+
+#10 [backend internal] load build context
+#10 ...
+
+#15 [internal-api 3/6] COPY locks/requirements-linux-py312.lock ./
+#15 DONE 0.2s
+
+#10 [backend internal] load build context
+#10 transferring context: 1.67MB 0.4s done
+#10 DONE 0.4s
+
+#16 [backend base 2/3] RUN apk add --no-cache libc6-compat
+#16 CACHED
+
+#17 [backend base 3/3] WORKDIR /app
+#17 CACHED
+
+#18 [backend pruner 1/3] RUN npm install -g turbo@2.11.2
+#18 CACHED
+
+#19 [backend pruner 2/3] COPY . .
+#19 DONE 0.4s
+
+#20 [internal-api 4/6] RUN pip install --no-cache-dir --require-hashes -r requirements-linux-py312.lock     && useradd --create-home --uid 10001 emergen
+#20 ...
+
+#21 [backend pruner 3/3] RUN turbo prune backend --docker
+#21 0.498 
+#21 0.498 Attention:
+#21 0.498 Turborepo now collects completely anonymous telemetry regarding usage.
+#21 0.498 This information is used to shape the Turborepo roadmap and prioritize features.
+#21 0.498 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+#21 0.498 https://turborepo.dev/docs/telemetry
+#21 0.498 
+#21 0.499 • turbo 2.11.2
+#21 0.535 Generating pruned monorepo for backend in /app/out
+#21 0.547  - Added @repo/api-types
+#21 0.573  - Added backend
+#21 DONE 0.6s
+
+#22 [backend builder 1/5] COPY --from=pruner /app/.npmrc ./
+#22 CACHED
+
+#23 [backend builder 2/5] COPY --from=pruner /app/out/json/ ./
+#23 CACHED
+
+#24 [backend builder 3/5] RUN npm ci --engine-strict=false
+#24 CACHED
+
+#25 [backend builder 4/5] COPY --from=pruner /app/out/full/ ./
+#25 DONE 0.1s
+
+#20 [internal-api 4/6] RUN pip install --no-cache-dir --require-hashes -r requirements-linux-py312.lock     && useradd --create-home --uid 10001 emergen
+#20 2.882 Collecting annotated-doc==0.0.5 (from -r requirements-linux-py312.lock (line 7))
+#20 2.970   Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#20 2.995 Collecting annotated-types==0.8.0 (from -r requirements-linux-py312.lock (line 11))
+#20 3.013   Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#20 3.054 Collecting anyio==4.15.1 (from -r requirements-linux-py312.lock (line 15))
+#20 3.073   Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#20 3.162 Collecting bcrypt==5.0.0 (from -r requirements-linux-py312.lock (line 21))
+#20 3.184   Downloading bcrypt-5.0.0-cp39-abi3-manylinux_2_34_x86_64.whl (278 kB)
+#20 3.243 Collecting click==8.5.0 (from -r requirements-linux-py312.lock (line 86))
+#20 3.260   Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#20 3.366 Collecting fastapi==0.156.2 (from -r requirements-linux-py312.lock (line 90))
+#20 3.505   Downloading fastapi-0.156.2-py3-none-any.whl (146 kB)
+#20 3.549 Collecting h11==0.16.0 (from -r requirements-linux-py312.lock (line 94))
+#20 3.568   Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#20 3.632 Collecting httptools==0.9.0 (from -r requirements-linux-py312.lock (line 98))
+#20 3.831   Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (552 kB)
+#20 3.866      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 19.3 MB/s eta 0:00:00
+#20 3.892 Collecting idna==3.20 (from -r requirements-linux-py312.lock (line 218))
+#20 3.908   Downloading idna-3.20-py3-none-any.whl (69 kB)
+#20 3.960 Collecting opentelemetry-api==1.45.2 (from -r requirements-linux-py312.lock (line 222))
+#20 3.975   Downloading opentelemetry_api-1.45.2-py3-none-any.whl (60 kB)
+#20 4.007 Collecting psycopg==3.3.6 (from -r requirements-linux-py312.lock (line 226))
+#20 4.030   Downloading psycopg-3.3.6-py3-none-any.whl (215 kB)
+#20 4.314 Collecting psycopg-binary==3.3.6 (from -r requirements-linux-py312.lock (line 230))
+#20 4.346   Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.2 MB)
+#20 4.893      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 9.5 MB/s eta 0:00:00
+#20 5.041 Collecting pydantic==2.14.1 (from -r requirements-linux-py312.lock (line 298))
+#20 5.059   Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+#20 6.031 Collecting pydantic-core==2.50.1 (from -r requirements-linux-py312.lock (line 305))
+#20 6.058   Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.2 MB)
+#20 6.265      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 10.7 MB/s eta 0:00:00
+#20 6.294 Collecting pydantic-settings==2.16.1 (from -r requirements-linux-py312.lock (line 444))
+#20 6.315   Downloading pydantic_settings-2.16.1-py3-none-any.whl (80 kB)
+#20 6.358 Collecting pyjwt==2.15.1 (from -r requirements-linux-py312.lock (line 448))
+#20 6.376   Downloading pyjwt-2.15.1-py3-none-any.whl (33 kB)
+#20 6.404 Collecting python-dotenv==1.2.4 (from -r requirements-linux-py312.lock (line 452))
+#20 6.425   Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#20 6.490 Collecting pyyaml==6.0.3 (from -r requirements-linux-py312.lock (line 458))
+#20 6.509   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+#20 6.600      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 8.7 MB/s eta 0:00:00
+#20 6.654 Collecting starlette==1.10.0 (from -r requirements-linux-py312.lock (line 533))
+#20 6.672   Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+#20 6.705 Collecting typing-extensions==4.16.0 (from -r requirements-linux-py312.lock (line 537))
+#20 6.726   Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#20 6.753 Collecting typing-inspection==0.4.4 (from -r requirements-linux-py312.lock (line 550))
+#20 6.775   Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#20 6.822 Collecting uvicorn==0.54.0 (from -r requirements-linux-py312.lock (line 557))
+#20 6.843   Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+#20 6.915 Collecting uvloop==0.23.0 (from -r requirements-linux-py312.lock (line 561))
+#20 6.953   Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.5 MB)
+#20 7.409      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 9.8 MB/s eta 0:00:00
+#20 7.563 Collecting watchfiles==1.3.0 (from -r requirements-linux-py312.lock (line 624))
+#20 7.580   Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+#20 7.803 Collecting websockets==17.3 (from -r requirements-linux-py312.lock (line 659))
+#20 7.834   Downloading websockets-17.3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (225 kB)
+#20 8.079 Installing collected packages: websockets, uvloop, typing-extensions, pyyaml, python-dotenv, pyjwt, psycopg-binary, idna, httptools, h11, click, bcrypt, annotated-types, annotated-doc, uvicorn, typing-inspection, pydantic-core, psycopg, opentelemetry-api, anyio, watchfiles, starlette, pydantic, pydantic-settings, fastapi
+#20 10.46 Successfully installed annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 bcrypt-5.0.0 click-8.5.0 fastapi-0.156.2 h11-0.16.0 httptools-0.9.0 idna-3.20 opentelemetry-api-1.45.2 psycopg-3.3.6 psycopg-binary-3.3.6 pydantic-2.14.1 pydantic-core-2.50.1 pydantic-settings-2.16.1 pyjwt-2.15.1 python-dotenv-1.2.4 pyyaml-6.0.3 starlette-1.10.0 typing-extensions-4.16.0 typing-inspection-0.4.4 uvicorn-0.54.0 uvloop-0.23.0 watchfiles-1.3.0 websockets-17.3
+#20 10.46 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#20 10.66 
+#20 10.66 [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+#20 10.66 [notice] To update, run: pip install --upgrade pip
+#20 DONE 11.1s
+
+#26 [backend builder 5/5] RUN npx turbo run build --filter=backend
+#26 1.874 
+#26 1.874 Attention:
+#26 1.874 Turborepo now collects completely anonymous telemetry regarding usage.
+#26 1.874 This information is used to shape the Turborepo roadmap and prioritize features.
+#26 1.874 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+#26 1.874 https://turborepo.dev/docs/telemetry
+#26 1.874 
+#26 1.874 • turbo 2.11.2
+#26 1.903 
+#26 1.903    • Packages in scope: backend
+#26 1.903    • Running build in 1 package
+#26 1.903    • Remote caching disabled
+#26 1.903 
+#26 1.925 backend:build: cache miss, executing d92482c43969b269
+#26 2.178 backend:build: 
+#26 2.178 backend:build: > backend@0.0.1 build
+#26 2.178 backend:build: > nest build
+#26 2.178 backend:build: 
+#26 ...
+
+#27 [internal-api 5/6] COPY --chown=emergen:emergen app ./app
+#27 DONE 0.1s
+
+#28 [internal-api 6/6] COPY --chown=emergen:emergen run.py ./
+#28 DONE 0.1s
+
+#29 [internal-api] exporting to image
+#29 exporting layers
+#29 ...
+
+#26 [backend builder 5/5] RUN npx turbo run build --filter=backend
+#26 12.18 
+#26 12.18  Tasks:    1 successful, 1 total
+#26 12.18 Cached:    0 cached, 1 total
+#26 12.18   Time:    10.304s 
+#26 12.18 
+#26 DONE 12.3s
+
+#30 [backend runner 2/8] WORKDIR /app
+#30 CACHED
+
+#31 [backend prod-deps 3/3] RUN npm ci --omit=dev --engine-strict=false && mkdir -p apps/backend/node_modules
+#31 CACHED
+
+#32 [backend runner 3/8] COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
+#32 CACHED
+
+#33 [backend runner 4/8] COPY --from=prod-deps --chown=node:node /app/apps/backend/node_modules ./apps/backend/node_modules
+#33 CACHED
+
+#34 [backend runner 5/8] COPY --from=builder --chown=node:node /app/apps/backend/package.json ./apps/backend/package.json
+#34 CACHED
+
+#35 [backend runner 6/8] COPY --from=builder --chown=node:node /app/apps/backend/dist ./apps/backend/dist
+#35 DONE 0.1s
+
+#29 [internal-api] exporting to image
+#29 ...
+
+#36 [backend runner 7/8] WORKDIR /app/apps/backend
+#36 DONE 0.0s
+
+#37 [backend runner 8/8] RUN mkdir -p auth_info_baileys && chown node:node auth_info_baileys
+#37 DONE 0.2s
+
+#29 [internal-api] exporting to image
+#29 exporting layers 3.2s done
+#29 exporting manifest sha256:ccfaa46027e90484a21d167ddb9da93f5491c902eadba0ad2114e7cd1ab8ad7e 0.0s done
+#29 exporting config sha256:cb24b7585810bbbc52a019c56cd8125ee0a02cc5ae0ad3dbdb7a0a162790e041 0.0s done
+#29 exporting attestation manifest sha256:450d3b5d9752d40e898e5bb83e0216f90d85271c9dffeb3a9ad1a73120d0f989 0.0s done
+#29 exporting manifest list sha256:0f07b09edae10bc37d58c9538be31ed40e7fa5e9329f5048db73d92be7ac5d18
+#29 exporting manifest list sha256:0f07b09edae10bc37d58c9538be31ed40e7fa5e9329f5048db73d92be7ac5d18 0.0s done
+#29 naming to docker.io/library/emergen-aud-internal:head done
+#29 unpacking to docker.io/library/emergen-aud-internal:head
+#29 ...
+
+#38 [backend] exporting to image
+#38 exporting layers 0.3s done
+#38 exporting manifest sha256:60072228190f917b871fb2e0964e0abb2406fdd6de83f032b62a0f2727ce661c 0.0s done
+#38 exporting config sha256:009f741c25bb5804c1b972da2e95c6c89b3d08d6d089861bde627efa19ca2926 0.0s done
+#38 exporting attestation manifest sha256:afa3239cad109abf4e3161d6a7db113e3510044db6b85a7273c0820e2b493997 0.0s done
+#38 exporting manifest list sha256:c41f81f1f6d221f6967c3f4b5b5ce2ff88d11aa202fa3d5f7f5b73f9ce683f0e 0.0s done
+#38 naming to docker.io/library/emergen-aud-backend:head 0.0s done
+#38 unpacking to docker.io/library/emergen-aud-backend:head 0.2s done
+#38 DONE 0.7s
+
+#39 [backend] resolving provenance for metadata file
+#39 DONE 0.0s
+
+#29 [internal-api] exporting to image
+#29 unpacking to docker.io/library/emergen-aud-internal:head 1.9s done
+#29 DONE 5.3s
+
+#40 [internal-api] resolving provenance for metadata file
+#40 DONE 0.0s
+ Image emergen-aud-backend:head Built 
+ Image emergen-aud-internal:head Built 
+BUILD exit=0

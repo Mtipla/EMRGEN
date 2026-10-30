@@ -1,0 +1,6 @@
+creado admin: id=1 rol=1 estado=1
+creado soporte: id=2 rol=2 estado=1
+creado principal: id=3 rol=3 estado=1
+creado userA: id=4 rol=3 estado=1
+creado userB: id=5 rol=3 estado=1
+credenciales Docker sintéticas guardadas fuera del repositorio

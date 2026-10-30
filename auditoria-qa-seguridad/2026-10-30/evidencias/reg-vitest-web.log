@@ -1,0 +1,19 @@
+== vitest-web: node scripts/security-run.mjs vitest --root apps/web --mode security-check
+[31mfailed to load config from C:\Users\gabym\OneDrive\Documentos\GitHub\EMRGEN\Fase 2\Evidencias Proyecto\Evidencias de sistema Aplicación\apps\web\vitest.config.ts[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error: Cannot merge config in form of callback
+    at mergeConfig (file:///C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/vite/dist/node/chunks/node.js:2906:79)
+    at file:///C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/apps/web/node_modules/.vite-temp/vitest.config.ts.timestamp-1793388859235-0b959f47403ec8.mjs:56:29
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async loadConfigFromBundledFile (file:///C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/vite/dist/node/chunks/node.js:38088:12)
+    at async bundleAndLoadConfigFile (file:///C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/vite/dist/node/chunks/node.js:37934:21)
+    at async loadConfigFromFile (file:///C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/vite/dist/node/chunks/node.js:37894:42)
+    at async resolveConfig (file:///C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/vite/dist/node/chunks/node.js:37495:22)
+    at async _createServer (file:///C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/vite/dist/node/chunks/node.js:24798:65)
+    at async createViteServer (file:///C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/vitest/dist/chunks/cli-api.CnMVyzaz.js:8902:17)
+
+
+
+exit=1

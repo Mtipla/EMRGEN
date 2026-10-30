@@ -1,0 +1,65 @@
+APROBADO   QA-HU01-01 Validar registro con datos correctos (correo nuevo)
+APROBADO   QA-HU01-02 Registro rechaza correo con formato inválido (DTO @IsEmail)
+APROBADO   QA-HU01-03 Registro rechaza contraseña < 8 caracteres
+APROBADO   SEC-REG-01 Registro exige token Firebase verificado (correo coincidente)
+APROBADO   SEC-REG-02 Registro rechaza correo no verificado en Firebase
+APROBADO   SEC-REG-03 Registro rechaza correo ya existente (duplicado)
+APROBADO   QA-HU02-01 Login principal con credenciales correctas emite JWT
+APROBADO   QA-HU02-02 Login con contraseña incorrecta se rechaza con mensaje genérico
+APROBADO   SEC-ENUM-01 Correo inexistente da el MISMO mensaje que contraseña incorrecta (no enumeración)
+APROBADO   QA-HU10-01 Configurar PIN inicial de 4 dígitos del principal
+APROBADO   QA-HU10-02 PIN con formato inválido (3 dígitos) se rechaza
+APROBADO   QA-HU02-03 Login con perfil principal + PIN correcto abre sesión
+APROBADO   SEC-PIN-01 Tres PIN incorrectos bloquean la acción (contador en servidor)
+APROBADO   SEC-AUTHZ-01 GET /admin/usuarios permitido a ADMINISTRADOR
+APROBADO   SEC-AUTHZ-02 GET /admin/usuarios DENEGADO a usuario común (rol USUARIO)
+APROBADO   SEC-AUTHZ-03 GET /admin/usuarios sin token se rechaza
+APROBADO   SEC-AUTHZ-04 GET /admin/usuarios/planes solo ADMINISTRADOR, no SOPORTE
+APROBADO   SEC-AUTHZ-05 GET /admin/usuarios permitido también a SOPORTE (lista con alcance S)
+APROBADO   SEC-AUTHZ-06 Admin no puede cambiar su propio estado
+APROBADO   QA-HU03-01 Crear contacto de emergencia con teléfono E.164 válido
+APROBADO   QA-HU03-02 Rechaza teléfono con formato inválido
+APROBADO   QA-HU03-03 Rechaza contacto duplicado (mismo número)
+APROBADO   SEC-IDOR-01 Usuario B NO puede modificar el contacto de A (PUT /contactos/:id ajeno)
+APROBADO   SEC-IDOR-02 Usuario B NO puede borrar el contacto de A (DELETE ajeno)
+APROBADO   QA-HU11-01 Guardar ficha médica (PUT /perfil) con consentimiento
+APROBADO   SEC-CRYPTO-01 La ficha médica se almacena cifrada (el valor en claro NO aparece en la columna)
+APROBADO   QA-HU05-01 Mensaje SOS rechaza > 160 caracteres (límite servidor)
+APROBADO   SEC-PRESEC001-01 POST /payments/paypal/orders (vía genérica) ya NO existe
+APROBADO   SEC-PRESEC001-02 POST /reports (render genérico) ya NO existe
+APROBADO   SEC-PRESEC001-03 /maps/geocode ahora exige JWT propio (antes público)
+APROBADO   SEC-PRESEC001-04 /indicators exige JWT propio
+APROBADO   QA-HU16-PRICE /compras/precio sigue público (catálogo)
+APROBADO   SEC-JWT-01 JWT expirado se rechaza
+APROBADO   SEC-JWT-02 JWT firmado con secreto distinto se rechaza en ambas APIs
+APROBADO   SEC-JWT-03 JWT con issuer/audience incorrectos se rechaza
+APROBADO   SEC-CORS-01 Preflight desde origen permitido devuelve ACAO con ese origen
+APROBADO   SEC-CORS-02 Origen NO permitido no recibe ACAO con su valor
+APROBADO   SEC-HDR-01 Respuestas llevan cabeceras de seguridad (nosniff, no-store, X-Frame-Options)
+APROBADO   SEC-LIM-01 Cuerpo JSON excesivo rechazado con 413 antes del negocio
+APROBADO   SEC-LIM-02 Content-Type no JSON rechazado con 415
+APROBADO   SEC-LIM-03 JSON con anidamiento/propiedad peligrosa (__proto__) rechazado con 400
+APROBADO   SEC-MASSASSIGN-01 Registro rechaza campo extra rol_id/estado_id (whitelist DTO forbidNonWhitelisted)
+APROBADO   SEC-RATE-01 Rate-limit activo: ráfaga a /compras/precio acaba devolviendo 429
+APROBADO   QA-HU18-01 Mensaje de contacto público válido crea registro y devuelve ID
+APROBADO   QA-HU18-02 Mensaje de contacto con correo inválido se rechaza
+APROBADO   QA-HU18-03 Descripción de ticket > 500 caracteres se rechaza
+APROBADO   QA-HU18-04 Usuario autenticado crea ticket de soporte
+APROBADO   SEC-IDOR-03 Usuario distinto recibe 404 al pedir ticket ajeno por ID
+APROBADO   SEC-AUTHZ-07 PATCH de ticket (transición) solo para staff, no usuario común
+APROBADO   QA-HU06-01 SOS sin plan del titular se rechaza (regla de negocio)
+APROBADO   QA-HU06-02 SOS con prioridad fuera de rango (5) se rechaza por esquema (FastAPI mapea 422->400)
+APROBADO   QA-HU06-03 SOS con campo extra se rechaza (Pydantic extra=forbid, 400)
+APROBADO   SEC-DOCS-01 En entorno test las docs están activas (se desactivan en producción por config)
+APROBADO   QA-HU06-04 SOS con plan+contacto crea alerta ACTIVA y encola envíos
+APROBADO   QA-HU06-05 Repetir SOS con misma clave de idempotencia devuelve la misma alerta (no duplica)
+APROBADO   QA-HU06-06 Segunda alerta activa se rechaza (una activa por usuario)
+APROBADO   QA-HU07-01 SOS sin ubicación (GPS no disponible) se acepta igualmente
+APROBADO   QA-HU14-01 Finalizar alerta con PIN correcto -> FINALIZADA
+APROBADO   QA-HU14-02 Cerrar una alerta ya finalizada no cambia su estado
+APROBADO   SEC-IDOR-04 Un tercero no puede leer la alerta ajena (404)
+APROBADO   QA-HU16-01 Crear orden de compra de PLAN (precio del servidor, PayPal doble)
+APROBADO   QA-HU16-02 Capturar la orden aprobada habilita el plan
+APROBADO   QA-HU16-03 Cantidad fuera de rango (6) se rechaza
+
+RESUMEN: {"APROBADO":63}

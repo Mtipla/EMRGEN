@@ -1,0 +1,5 @@
+creado admin: usuario_id=1 rol=1 correo=aud.admin@example.invalid
+creado admin2: usuario_id=2 rol=1 correo=aud.admin2@example.invalid
+creado soporte: usuario_id=3 rol=2 correo=aud.soporte@example.invalid
+creado pytestAdmin: usuario_id=4 rol=1 correo=admin@emergen.test
+credenciales sintéticas guardadas fuera del repositorio

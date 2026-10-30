@@ -1,0 +1,11 @@
+== vitest-api-client: node scripts/security-run.mjs vitest --root packages/api-client
+
+ RUN  v4.1.11 C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/packages/api-client
+
+
+ Test Files  4 passed (4)
+      Tests  31 passed (31)
+   Start at  16:34:31
+   Duration  1.40s (transform 131ms, setup 0ms, import 235ms, tests 106ms, environment 2.01s)
+
+exit=0

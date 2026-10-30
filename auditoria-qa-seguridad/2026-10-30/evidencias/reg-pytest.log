@@ -1,0 +1,199 @@
+== pytest: env -u DB_PASSWORD EMERGEN_ENVIRONMENT=test DB_HOST=127.0.0.1 DB_PORT=55710 DB_USER=aud_synthetic DB_NAME=emergen_aud_test JWT_SECRET=ecccc24a1ef81db6196896fb61a83fe326515bc66133bec02d9b3bb219eed3f0 PYTHONDONTWRITEBYTECODE=1 C:/Users/gabym/AppData/Local/Temp/claude/c--Users-gabym-OneDrive-Documentos-GitHub-EMRGEN/359a317c-cea5-460c-99cd-3f8fbd1e1355/scratchpad/venv312/Scripts/python.exe -B -m pytest -q -p no:cacheprovider tests
+..FFFF....F..F.F...............................................          [100%]
+================================== FAILURES ===================================
+_____ test_filtrar_activas_respeta_propietario_y_estado_antes_de_paginar ______
+
+client = <starlette.testclient.TestClient object at 0x000001ED0A03E2D0>
+crear_usuario = <function crear_usuario.<locals>.create at 0x000001ED0A163880>
+
+    def test_filtrar_activas_respeta_propietario_y_estado_antes_de_paginar(client,crear_usuario):
+        uid=crear_usuario();other=crear_usuario();staff=crear_usuario(rol_id=1)
+        terminada=create(client,uid)["alerta_id"]
+>       assert close(client,uid,terminada).status_code==200
+E       assert 403 == 200
+E        +  where 403 = <Response [403 Forbidden]>.status_code
+E        +    where <Response [403 Forbidden]> = close(<starlette.testclient.TestClient object at 0x000001ED0A03E2D0>, 9, 2)
+
+tests\test_alertas.py:42: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-30 16:34:35,730 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+2026-10-30 16:34:35,970 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/2/cerrar "HTTP/1.1 403 Forbidden"
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/2/cerrar "HTTP/1.1 403 Forbidden"
+_____________ test_cierre_propio_pin_hash_otra_familia_repeticion _____________
+
+client = <starlette.testclient.TestClient object at 0x000001ED09FF6720>
+db = <psycopg.Connection [IDLE] (host=127.0.0.1 port=55710 user=aud_synthetic database=emergen_aud_test) at 0x1ed09ff7410>
+crear_usuario = <function crear_usuario.<locals>.create at 0x000001ED0A160D60>
+
+    def test_cierre_propio_pin_hash_otra_familia_repeticion(client,db,crear_usuario):
+        uid=crear_usuario();other=crear_usuario()
+        alert=create(client,uid,ubicacion="Ficticia");aid=alert["alerta_id"]
+        assert close(client,other,aid).status_code==404
+        assert close(client,uid,aid,"9999").status_code==403
+>       assert close(client,uid,aid,"0007").json()["estado_alerta"]=="FINALIZADA"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'estado_alerta'
+
+tests\test_alertas.py:59: KeyError
+---------------------------- Captured stderr call -----------------------------
+2026-10-30 16:34:36,201 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+2026-10-30 16:34:36,211 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/3/cerrar "HTTP/1.1 404 Not Found"
+2026-10-30 16:34:36,447 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/3/cerrar "HTTP/1.1 403 Forbidden"
+2026-10-30 16:34:36,710 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/3/cerrar "HTTP/1.1 403 Forbidden"
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/3/cerrar "HTTP/1.1 404 Not Found"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/3/cerrar "HTTP/1.1 403 Forbidden"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/3/cerrar "HTTP/1.1 403 Forbidden"
+_________________ test_parcial_pin_tutor_completo_pin_propio __________________
+
+client = <starlette.testclient.TestClient object at 0x000001ED0A049520>
+db = <psycopg.Connection [IDLE] (host=127.0.0.1 port=55710 user=aud_synthetic database=emergen_aud_test) at 0x1ed0a048860>
+crear_usuario = <function crear_usuario.<locals>.create at 0x000001ED09FBB420>
+
+    def test_parcial_pin_tutor_completo_pin_propio(client,db,crear_usuario):
+        parent=crear_usuario();partial=crear_usuario(estado_id=2,parent=parent,pin=False)
+        complete=crear_usuario(parent=parent)
+        assert client.post(URL,headers=token(partial),json=body(mensaje="No permitido")).status_code==403
+        aid=create(client,partial)["alerta_id"]
+>       assert close(client,parent,aid).status_code==200
+E       assert 403 == 200
+E        +  where 403 = <Response [403 Forbidden]>.status_code
+E        +    where <Response [403 Forbidden]> = close(<starlette.testclient.TestClient object at 0x000001ED0A049520>, 14, 4)
+
+tests\test_alertas.py:69: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-30 16:34:36,787 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 403 Forbidden"
+2026-10-30 16:34:36,814 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+2026-10-30 16:34:37,050 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/4/cerrar "HTTP/1.1 403 Forbidden"
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 403 Forbidden"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/4/cerrar "HTTP/1.1 403 Forbidden"
+___________ test_pin_limitado_persistente_y_configuracion_faltante ____________
+
+client = <starlette.testclient.TestClient object at 0x000001ED09FF7560>
+db = <psycopg.Connection [IDLE] (host=127.0.0.1 port=55710 user=aud_synthetic database=emergen_aud_test) at 0x1ed09ff7470>
+crear_usuario = <function crear_usuario.<locals>.create at 0x000001ED09FBAA20>
+
+    def test_pin_limitado_persistente_y_configuracion_faltante(client,db,crear_usuario):
+        uid=crear_usuario();aid=create(client,uid)["alerta_id"]
+        for i in range(5):
+            assert close(client,uid,aid,"9999").status_code==(429 if i==4 else 403)
+        assert close(client,uid,aid).status_code==429
+        db.execute("UPDATE pin SET bloqueado_hasta=clock_timestamp()-interval '1 second' WHERE pin_id=(SELECT pin_id FROM usuario WHERE usuario_id=%s)",(uid,))
+>       assert close(client,uid,aid).status_code==200
+E       assert 403 == 200
+E        +  where 403 = <Response [403 Forbidden]>.status_code
+E        +    where <Response [403 Forbidden]> = close(<starlette.testclient.TestClient object at 0x000001ED09FF7560>, 17, 5)
+
+tests\test_alertas.py:82: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-30 16:34:37,152 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+2026-10-30 16:34:37,389 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+2026-10-30 16:34:37,625 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+2026-10-30 16:34:37,865 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+2026-10-30 16:34:38,107 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+2026-10-30 16:34:38,355 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 429 Too Many Requests"
+2026-10-30 16:34:38,369 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 429 Too Many Requests"
+2026-10-30 16:34:38,604 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 429 Too Many Requests"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 429 Too Many Requests"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/5/cerrar "HTTP/1.1 403 Forbidden"
+______ test_cierre_encola_un_aviso_por_contacto_y_no_duplica_al_repetir _______
+
+client = <starlette.testclient.TestClient object at 0x000001ED0A04F350>
+db = <psycopg.Connection [IDLE] (host=127.0.0.1 port=55710 user=aud_synthetic database=emergen_aud_test) at 0x1ed0a04e420>
+crear_usuario = <function crear_usuario.<locals>.create at 0x000001ED09FBA980>
+
+    def test_cierre_encola_un_aviso_por_contacto_y_no_duplica_al_repetir(client,db,crear_usuario):
+        uid=crear_usuario()
+        db.execute("INSERT INTO contacto_emergencia(usuario_id,num_emergencia,nombre_contacto) VALUES (%s,'+56900000002','Segundo ficticio')",(uid,))
+        aid=create(client,uid,prioridad_id=2)["alerta_id"]
+        assert close(client,uid,aid,"9999").status_code==403
+        assert db.execute("SELECT count(*) n FROM envio_alerta WHERE alerta_id=%s AND tipo_notificacion='FINALIZACION'",(aid,)).fetchone()["n"]==0
+        result=close(client,uid,aid)
+>       assert result.status_code==200,result.text
+E       AssertionError: {"statusCode":403,"message":"PIN incorrecto","error":"Forbidden"}
+E       assert 403 == 200
+E        +  where 403 = <Response [403 Forbidden]>.status_code
+
+tests\test_alertas.py:149: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-30 16:34:39,183 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+2026-10-30 16:34:39,416 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/12/cerrar "HTTP/1.1 403 Forbidden"
+2026-10-30 16:34:39,649 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/12/cerrar "HTTP/1.1 403 Forbidden"
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/12/cerrar "HTTP/1.1 403 Forbidden"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/12/cerrar "HTTP/1.1 403 Forbidden"
+_______________________ test_mensaje_puntual_maximo_160 _______________________
+
+client = <starlette.testclient.TestClient object at 0x000001ED0A03F8C0>
+crear_usuario = <function crear_usuario.<locals>.create at 0x000001ED09FBB240>
+
+    def test_mensaje_puntual_maximo_160(client,crear_usuario):
+        # CA-05.1: el texto enviado al emitir el SOS tiene el mismo máximo que el mensaje personalizado.
+        uid=crear_usuario()
+        assert client.post(URL,headers=token(uid),json=body(mensaje="a"*161)).status_code==400
+        alerta=create(client,uid,mensaje="a"*160)
+        assert alerta["mensaje"]=="a"*160
+>       assert close(client,uid,alerta["alerta_id"]).status_code==200
+E       assert 403 == 200
+E        +  where 403 = <Response [403 Forbidden]>.status_code
+E        +    where <Response [403 Forbidden]> = close(<starlette.testclient.TestClient object at 0x000001ED0A03F8C0>, 29, 16)
+
+tests\test_alertas.py:185: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-30 16:34:39,941 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 400 Bad Request"
+2026-10-30 16:34:39,968 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+2026-10-30 16:34:40,200 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/16/cerrar "HTTP/1.1 403 Forbidden"
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 400 Bad Request"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/16/cerrar "HTTP/1.1 403 Forbidden"
+________ test_historico_persiste_estado_y_consultarlo_es_solo_lectura _________
+
+client = <starlette.testclient.TestClient object at 0x000001ED0A0D3590>
+db = <psycopg.Connection [IDLE] (host=127.0.0.1 port=55710 user=aud_synthetic database=emergen_aud_test) at 0x1ed0a0d0740>
+crear_usuario = <function crear_usuario.<locals>.create at 0x000001ED0A2B6200>
+
+    def test_historico_persiste_estado_y_consultarlo_es_solo_lectura(client,db,crear_usuario):
+        uid=crear_usuario();created=create(client,uid,prioridad_id=2,mensaje="Registro histórico")
+        aid=created["alerta_id"]
+>       assert close(client,uid,aid).status_code==200
+E       assert 403 == 200
+E        +  where 403 = <Response [403 Forbidden]>.status_code
+E        +    where <Response [403 Forbidden]> = close(<starlette.testclient.TestClient object at 0x000001ED0A0D3590>, 32, 18)
+
+tests\test_alertas.py:205: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-30 16:34:40,381 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+2026-10-30 16:34:40,615 INFO [httpx] HTTP Request: POST http://testserver/internal/v1/alertas/18/cerrar "HTTP/1.1 403 Forbidden"
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas "HTTP/1.1 201 Created"
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/internal/v1/alertas/18/cerrar "HTTP/1.1 403 Forbidden"
+============================== warnings summary ===============================
+..\..\..\..\..\..\..\..\..\AppData\Local\Temp\claude\c--Users-gabym-OneDrive-Documentos-GitHub-EMRGEN\359a317c-cea5-460c-99cd-3f8fbd1e1355\scratchpad\venv312\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\gabym\AppData\Local\Temp\claude\c--Users-gabym-OneDrive-Documentos-GitHub-EMRGEN\359a317c-cea5-460c-99cd-3f8fbd1e1355\scratchpad\venv312\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_alertas.py::test_filtrar_activas_respeta_propietario_y_estado_antes_de_paginar
+FAILED tests/test_alertas.py::test_cierre_propio_pin_hash_otra_familia_repeticion
+FAILED tests/test_alertas.py::test_parcial_pin_tutor_completo_pin_propio - as...
+FAILED tests/test_alertas.py::test_pin_limitado_persistente_y_configuracion_faltante
+FAILED tests/test_alertas.py::test_cierre_encola_un_aviso_por_contacto_y_no_duplica_al_repetir
+FAILED tests/test_alertas.py::test_mensaje_puntual_maximo_160 - assert 403 ==...
+FAILED tests/test_alertas.py::test_historico_persiste_estado_y_consultarlo_es_solo_lectura
+7 failed, 56 passed, 1 warning in 10.33s
+exit=1

@@ -1,0 +1,90 @@
+# Stack de auditoría: imágenes construidas desde el HEAD actual, endurecido y aislado.
+# - Puertos ligados SOLO a 127.0.0.1 (forma correcta de PRE-SEC-003; el docker-compose.yml de
+#   dev liga backend/internal-api a 0.0.0.0 a propósito para depurar la APK por LAN).
+# - BD sintética en tmpfs, volumen propio; NUNCA el volumen de datos del equipo.
+# - EMERGEN_ENVIRONMENT=test, secretos sintéticos (aud-docker-secrets.env), WhatsApp desactivado.
+# - init.sql se monta SOLO lectura para inicializar el esquema (se lee, no se modifica).
+# Uso:  docker compose -p emergen-aud -f docker-compose.audit.yml --env-file aud-docker-secrets.env up -d --build
+#       docker compose -p emergen-aud -f docker-compose.audit.yml down -v
+x-sec: &sec
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 256
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: emergen-aud-db
+    environment:
+      POSTGRES_USER: aud_synthetic
+      POSTGRES_PASSWORD: aud_synthetic_pwd
+      POSTGRES_DB: emergen_aud_docker
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:55733:5432"
+    volumes:
+      - "C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"
+    networks: [aud_net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aud_synthetic -d emergen_aud_docker"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    <<: *sec
+    build:
+      context: "C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación"
+      dockerfile: Dockerfile
+    image: emergen-aud-backend:head
+    container_name: emergen-aud-backend
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: aud_synthetic
+      DB_PASSWORD: aud_synthetic_pwd
+      DB_NAME: emergen_aud_docker
+      PORT: 3000
+      HOST: 0.0.0.0
+      EMERGEN_ENVIRONMENT: test
+      EMERGEN_DEPLOYMENT_ID: aud-docker
+      JWT_SECRET: ${JWT_SECRET}
+      MEDICAL_DATA_KEYS: ${MEDICAL_DATA_KEYS}
+      CORS_ORIGINS: http://localhost:5181,http://localhost:5182,http://localhost:5183
+      WHATSAPP_ENABLED: "false"
+      WHATSAPP_AUTH_DIR: /app/apps/backend/auth_info_baileys
+    ports:
+      - "127.0.0.1:3720:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [aud_net]
+
+  internal-api:
+    <<: *sec
+    build:
+      context: "C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api"
+    image: emergen-aud-internal:head
+    container_name: emergen-aud-internal
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: aud_synthetic
+      DB_PASSWORD: aud_synthetic_pwd
+      DB_NAME: emergen_aud_docker
+      JWT_SECRET: ${JWT_SECRET}
+      EMERGEN_ENVIRONMENT: test
+      EMERGEN_DEPLOYMENT_ID: aud-docker
+      PORT: 8000
+      HOST: 0.0.0.0
+    ports:
+      - "127.0.0.1:3721:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [aud_net]
+
+networks:
+  aud_net:
+    driver: bridge

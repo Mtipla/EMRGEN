@@ -1,0 +1,31 @@
+== node-test-scripts: node --test scripts/seed-safety.test.cjs scripts/api-environment.test.mjs scripts/android-lan-env.test.mjs scripts/expected-schema.test.cjs apps/desktop/electron/main.test.cjs
+✔ desarrollo explícito permite renderer local (1.7713ms)
+✔ empaquetado ignora renderer del entorno (0.7713ms)
+✔ producción sin empaquetar también usa archivo (0.6868ms)
+✔ acepta dos APIs LAN explícitas y el puerto alternativo de Docker (5.8613ms)
+✔ impide empaquetar una API omitida, localhost o una URL con credenciales (5.8095ms)
+✔ el modo LAN rechaza simulaciones incluso si se configura una variante debug nativa (0.2523ms)
+✔ hosting acepta solo URLs explícitas HTTPS con un despliegue identificado (7.6937ms)
+✔ mantiene los modos local/Docker explícitos para builds de prueba (0.1854ms)
+✔ reproduce la regresión: HTTP disponible pero WhatsApp deshabilitado no permite preparar SOS (35.9989ms)
+✔ rechaza URLs intercambiadas o una instancia de otro despliegue (2.4866ms)
+✔ rechaza un esquema o conexión DB no disponibles aunque el proceso siga vivo (0.7553ms)
+✔ verifica CORS y una misma sesión en ambas APIs sin enviar SOS (1.6582ms)
+✔ incluye columnas de migraciones sin exigir reescribir init.sql ni duplicar campos existentes (1.9527ms)
+✔ la última función migrada sustituye a la base y respeta recreaciones de triggers (0.2522ms)
+✔ permite destino sintético explícito (1.0186ms)
+✔ entorno ausente (0.2982ms)
+✔ producción (0.1242ms)
+✔ indicadores contradictorios (0.125ms)
+✔ host remoto (0.1231ms)
+✔ destino no confirmado (0.8061ms)
+✔ contrato README: demo nueva dev y rechazos intencionales (0.3331ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 159.4144
+exit=0
