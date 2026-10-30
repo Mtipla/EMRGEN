@@ -4,7 +4,8 @@ const { app, BrowserWindow, shell } = require('electron')
 const path = require('node:path')
 
 // En desarrollo, scripts/dev.mjs levanta Vite y entrega aquí su URL.
-const RENDERER_URL = process.env.ELECTRON_RENDERER_URL
+const RENDERER_URL = !app.isPackaged && process.env.NODE_ENV === 'development'
+  ? process.env.ELECTRON_RENDERER_URL : undefined
 
 function createWindow() {
   const win = new BrowserWindow({

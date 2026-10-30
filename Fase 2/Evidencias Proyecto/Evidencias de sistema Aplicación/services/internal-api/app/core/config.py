@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     """
 
     model_config = SettingsConfigDict(
-        env_file=() if os.environ.get("EMERGEN_ENVIRONMENT") in ("staging", "production") else (
+        env_file=() if os.environ.get("EMERGEN_ENVIRONMENT") in ("test", "staging", "production") else (
             MONOREPO_DIR / ".env",
             MONOREPO_DIR / "apps" / "backend" / ".env.local",
             SERVICE_DIR / ".env",
@@ -39,7 +39,12 @@ class Settings(BaseSettings):
         "http://localhost:5173,http://localhost:5174,http://localhost:5175",
         validation_alias=AliasChoices("INTERNAL_API_CORS_ORIGINS", "CORS_ORIGINS"),
     )
-    docs_enabled: bool = True
+    docs_enabled: bool = Field(default_factory=lambda: os.environ.get('EMERGEN_ENVIRONMENT', 'development') not in ('staging', 'production'))
+    max_body_bytes: int = Field(16384, ge=1024, le=1048576)
+    db_regular_connections: int = Field(8, ge=1, le=64)
+    db_sos_connections: int = Field(4, ge=1, le=32)
+    tickets_per_15_minutes: int = Field(10, ge=1, le=1000)
+    db_statement_timeout_ms: int = Field(30000, ge=1000, le=300000, validation_alias="DB_STATEMENT_TIMEOUT_MS")
 
     db_host: str = Field("localhost", validation_alias="DB_HOST")
     db_port: int = Field(5433, ge=1, le=65535, validation_alias="DB_PORT")
@@ -54,6 +59,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_deployment(self):
+        if '*' in os.environ.get('FORWARDED_ALLOW_IPS', ''):
+            raise ValueError('FORWARDED_ALLOW_IPS: enumera únicamente proxies confiables')
         if self.db_sslmode not in ("disable", "verify-full"):
             raise ValueError("DB_SSLMODE: usa disable o verify-full")
         if self.db_sslmode == "verify-full" and (not self.db_ssl_ca_file or not Path(self.db_ssl_ca_file).is_file()):
@@ -61,6 +68,10 @@ class Settings(BaseSettings):
         if self.environment not in ("development", "test", "staging", "production"):
             raise ValueError("EMERGEN_ENVIRONMENT: valor no válido")
         if self.environment in ("staging", "production"):
+            if 'docs_enabled' not in self.model_fields_set:
+                self.docs_enabled = False
+            if 'db_sslmode' not in self.model_fields_set:
+                raise ValueError('DB_SSLMODE: declara la política TLS del destino')
             if not {"db_host", "db_port"}.issubset(self.model_fields_set):
                 raise ValueError("DB_HOST y DB_PORT: deben configurarse explícitamente en hosting")
             for name in ("db_host", "db_user", "db_password", "db_name", "jwt_secret"):

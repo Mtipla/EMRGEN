@@ -1,3 +1,11 @@
+x-api-security: &api-security
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 256
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
 services:
   db:
     image: postgres:15-alpine
@@ -21,6 +29,9 @@ services:
       retries: 12
 
   backend:
+    <<: *api-security
+    mem_limit: 1g
+    cpus: 1.0
     build:
       context: .
       dockerfile: Dockerfile
@@ -32,6 +43,8 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=${DB_SSLMODE:-disable}
+      - DB_SSL_CA_FILE=${DB_SSL_CA_FILE:-}
       - PORT=3000
       - HOST=0.0.0.0
       - EMERGEN_ENVIRONMENT=${EMERGEN_ENVIRONMENT:-development}
@@ -86,6 +99,9 @@ services:
       - emergen_network
 
   internal-api:
+    <<: *api-security
+    mem_limit: 512m
+    cpus: 1.0
     build:
       context: ./services/internal-api
     container_name: fastapi_emergen_internal
@@ -96,6 +112,8 @@ services:
       DB_USER: ${DB_USER:?Configura DB_USER}
       DB_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD}
       DB_NAME: ${DB_NAME:?Configura DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE:-disable}
+      DB_SSL_CA_FILE: ${DB_SSL_CA_FILE:-}
       JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET compartido por ambas APIs}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:5174,http://localhost:5175,https://localhost}
       EMERGEN_ENVIRONMENT: ${EMERGEN_ENVIRONMENT:-development}

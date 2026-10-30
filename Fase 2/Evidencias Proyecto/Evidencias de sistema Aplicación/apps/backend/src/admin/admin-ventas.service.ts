@@ -1,3 +1,4 @@
+import { completeRows, reportLimit } from '../config/security';
 import {
   BadRequestException,
   Injectable,
@@ -133,8 +134,9 @@ export class AdminVentasService {
     filtros: FiltrosVentasDto,
     formato: FormatoReporte = 'pdf',
   ): Promise<RenderedReport> {
-    // LIMIT NULL exporta todos los resultados, independientemente de la página de la UI.
-    const pagina = await this.consultar(filtros, null);
+    // Completo o error explicito; nunca truncar silenciosamente.
+    const pagina = await this.consultar(filtros, reportLimit() + 1);
+    completeRows(pagina.ventas);
     const reporte = await this.jsreport.renderInline(
       plantillaReporte(formato, PLANTILLA_VENTAS, PLANTILLA_VENTAS_EXCEL),
       {

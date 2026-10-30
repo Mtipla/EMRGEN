@@ -5,6 +5,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { createAppTestingModule } from './app-testing-module';
 import { FirebaseAuthService } from './../src/integrations/firebase-auth/firebase-auth.service';
+import { JwtAuthGuard } from './../src/login/jwt-auth.guard';
 import { PaypalService } from './../src/integrations/paypal/paypal.service';
 
 /**
@@ -26,7 +27,10 @@ describe('Integraciones externas (HTTP)', () => {
   let http: () => ReturnType<typeof request>;
 
   beforeAll(async () => {
-    const moduleFixture = await createAppTestingModule().compile();
+    const moduleFixture = await createAppTestingModule().overrideGuard(JwtAuthGuard).useValue({
+      canActivate: (context: { switchToHttp(): { getRequest(): { headers: Record<string,string> } } }) =>
+        context.switchToHttp().getRequest().headers.authorization === 'Bearer synthetic',
+    }).compile();
     app = moduleFixture.createNestApplication({ logger: false });
     app.useGlobalPipes(
       new ValidationPipe({
@@ -61,106 +65,12 @@ describe('Integraciones externas (HTTP)', () => {
     jest.restoreAllMocks();
   });
 
-  describe('PayPal', () => {
-    it('POST /payments/paypal/orders crea la orden (201)', async () => {
-      fetchMock.mockResolvedValueOnce(paypalToken()).mockResolvedValueOnce(
-        json({
-          id: 'ORDER1',
-          status: 'CREATED',
-          links: [{ rel: 'approve', href: 'https://paypal/approve' }],
-        }),
-      );
-
-      const res = await http()
-        .post('/payments/paypal/orders')
-        .send({ amount: '9.99', description: 'Plan mensual' })
-        .expect(201);
-
-      expect(res.body).toEqual({
-        id: 'ORDER1',
-        status: 'CREATED',
-        approveUrl: 'https://paypal/approve',
-      });
-    });
-
-    it.each([
-      [{ amount: 'abc' }],
-      [{ amount: '-1' }],
-      [{ amount: '1.999' }],
-      [{ amount: '1.00', currency: 'usd' }],
-      [{ amount: '1.00', precioReal: '0.01' }],
-      [{}],
-    ])('rechaza con 400 el body %j sin llamar a PayPal', async (body) => {
-      await http().post('/payments/paypal/orders').send(body).expect(400);
+  describe('PayPal HTTP generico retirado', () => {
+    it('no publica creacion ni captura genericas', async () => {
+      await http().post('/payments/paypal/orders').send({ amount: '1.00' }).expect(404);
+      await http().post('/payments/paypal/orders/ORDER1/capture').expect(404);
       expect(fetchMock).not.toHaveBeenCalled();
     });
-
-    // Falla con el código actual: el regex del DTO acepta "0" y "0.00", que PayPal
-    // rechaza (422) y el cliente recibe un 502 en vez de un 400 de validación.
-    it('rechaza con 400 un monto cero', async () => {
-      await http()
-        .post('/payments/paypal/orders')
-        .send({ amount: '0.00' })
-        .expect(400);
-      expect(fetchMock).not.toHaveBeenCalled();
-    });
-
-    it('responde 503 si faltan las credenciales', async () => {
-      delete process.env.PAYPAL_SECRET;
-      await http()
-        .post('/payments/paypal/orders')
-        .send({ amount: '1.00' })
-        .expect(503);
-    });
-
-    it('responde 502 si PayPal rechaza las credenciales (401)', async () => {
-      fetchMock.mockResolvedValueOnce(json({ error: 'invalid_client' }, 401));
-      const res = await http()
-        .post('/payments/paypal/orders')
-        .send({ amount: '1.00' })
-        .expect(502);
-      expect(JSON.stringify(res.body)).not.toContain('invalid_client');
-    });
-
-    it('POST .../capture captura la orden aprobada (201)', async () => {
-      fetchMock.mockResolvedValueOnce(paypalToken()).mockResolvedValueOnce(
-        json({
-          id: 'ORDER12345',
-          status: 'COMPLETED',
-          purchase_units: [
-            {
-              payments: {
-                captures: [
-                  {
-                    id: 'CAP1',
-                    status: 'COMPLETED',
-                    amount: { value: '9.99', currency_code: 'USD' },
-                  },
-                ],
-              },
-            },
-          ],
-        }),
-      );
-
-      const res = await http()
-        .post('/payments/paypal/orders/ORDER12345/capture')
-        .expect(201);
-      expect(res.body).toMatchObject({
-        status: 'COMPLETED',
-        captureId: 'CAP1',
-      });
-    });
-
-    it.each(['abc', 'order-1', 'ORDER%2F..%2Fx'])(
-      'rechaza con 400 el orderId %p',
-      async (orderId) => {
-        await http()
-          .post(`/payments/paypal/orders/${orderId}/capture`)
-          .expect(400);
-        expect(fetchMock).not.toHaveBeenCalled();
-      },
-    );
   });
 
   describe('Firebase Authentication', () => {
@@ -224,43 +134,10 @@ describe('Integraciones externas (HTTP)', () => {
     });
   });
 
-  describe('jsReport', () => {
-    it('POST /reports devuelve el PDF como descarga (200)', async () => {
-      fetchMock.mockResolvedValueOnce(
-        new Response(Buffer.from('%PDF-1.7'), {
-          status: 200,
-          headers: { 'Content-Type': 'application/pdf' },
-        }),
-      );
-
-      const res = await http()
-        .post('/reports')
-        .send({ templateName: 'alertas', data: { total: 1 }, fileName: 'mayo' })
-        .expect(200);
-
-      expect(res.headers['content-type']).toBe('application/pdf');
-      expect(res.headers['content-disposition']).toBe(
-        'attachment; filename="mayo.pdf"',
-      );
-      expect(Buffer.from(res.body as Buffer).toString()).toBe('%PDF-1.7');
-    });
-
-    it.each([
-      [{ templateName: '../secreto', data: {} }],
-      [{ templateName: 'x', data: 'no-objeto' }],
-      [{ templateName: 'x', data: {}, fileName: 'a"; x="b' }],
-      [{ templateName: 'x', data: {}, template: { content: '<script>' } }],
-    ])('rechaza con 400 el body %j', async (body) => {
-      await http().post('/reports').send(body).expect(400);
+  describe('jsReport HTTP generico retirado', () => {
+    it('no permite seleccionar plantillas por HTTP', async () => {
+      await http().post('/reports').send({ templateName: 'synthetic', data: {} }).expect(404);
       expect(fetchMock).not.toHaveBeenCalled();
-    });
-
-    it('responde 502 si jsReport no está disponible', async () => {
-      fetchMock.mockRejectedValueOnce(new TypeError('fetch failed'));
-      await http()
-        .post('/reports')
-        .send({ templateName: 'alertas', data: {} })
-        .expect(502);
     });
   });
 
@@ -279,7 +156,7 @@ describe('Integraciones externas (HTTP)', () => {
         }),
       );
       const res = await http()
-        .get('/maps/geocode')
+        .get('/maps/geocode').set('Authorization', 'Bearer synthetic')
         .query({ address: 'Plaza de Armas' })
         .expect(200);
       expect(res.body[0].location).toEqual({ lat: -33.43, lng: -70.65 });
@@ -290,7 +167,7 @@ describe('Integraciones externas (HTTP)', () => {
         json({ status: 'ZERO_RESULTS', results: [] }),
       );
       await http()
-        .get('/maps/reverse-geocode')
+        .get('/maps/reverse-geocode').set('Authorization', 'Bearer synthetic')
         .query({ lat: '-33.44', lng: '-70.65' })
         .expect(200, []);
       const url = new URL(fetchMock.mock.calls[0][0] as string);
@@ -311,7 +188,7 @@ describe('Integraciones externas (HTTP)', () => {
     it('responde 503 si falta GOOGLE_MAPS_API_KEY', () => {
       delete process.env.GOOGLE_MAPS_API_KEY;
       return http()
-        .get('/maps/geocode')
+        .get('/maps/geocode').set('Authorization', 'Bearer synthetic')
         .query({ address: 'Plaza de Armas' })
         .expect(503);
     });
@@ -327,7 +204,7 @@ describe('Integraciones externas (HTTP)', () => {
           serie: [{ fecha: '2026-09-24T03:00:00.000Z', valor: 39000.5 }],
         }),
       );
-      const res = await http().get('/indicators/uf').expect(200);
+      const res = await http().get('/indicators/uf').set('Authorization', 'Bearer synthetic').expect(200);
       expect(res.body.series[0]).toEqual({
         date: '2026-09-24T03:00:00.000Z',
         value: 39000.5,
@@ -339,7 +216,7 @@ describe('Integraciones externas (HTTP)', () => {
         json({ codigo: 'uf', nombre: 'UF', unidad_medida: 'Pesos', serie: [] }),
       );
       await http()
-        .get('/indicators/uf')
+        .get('/indicators/uf').set('Authorization', 'Bearer synthetic')
         .query({ date: '24-09-2026' })
         .expect(200);
       expect(fetchMock.mock.calls[0][0]).toBe(
@@ -358,7 +235,7 @@ describe('Integraciones externas (HTTP)', () => {
 
     it('responde 502 si mindicador.cl no responde', async () => {
       fetchMock.mockRejectedValueOnce(new TypeError('fetch failed'));
-      await http().get('/indicators').expect(502);
+      await http().get('/indicators').set('Authorization', 'Bearer synthetic').expect(502);
     });
   });
 });

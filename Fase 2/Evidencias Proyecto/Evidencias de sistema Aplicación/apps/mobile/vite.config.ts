@@ -9,7 +9,7 @@ import { publicApiUrls } from "../../scripts/api-environment.mjs";
 export default defineConfig(({ mode, command }) => {
   const urls =
     command === "build"
-      ? publicApiUrls(loadEnv(mode, "../../", "VITE_"), mode)
+      ? publicApiUrls((mode === "security-check" ? process.env : loadEnv(mode, "../../", "VITE_")), mode)
       : undefined;
   return {
     plugins: [
@@ -29,7 +29,7 @@ export default defineConfig(({ mode, command }) => {
                       version: "0.2.3",
                       builtAt: new Date().toISOString(),
                       deployment:
-                        loadEnv(mode, "../../", "VITE_").VITE_DEPLOYMENT_ID ||
+                        (mode === "security-check" ? process.env : loadEnv(mode, "../../", "VITE_")).VITE_DEPLOYMENT_ID ||
                         "local",
                       ...urls,
                     },
@@ -43,7 +43,7 @@ export default defineConfig(({ mode, command }) => {
         : []),
     ],
     // Un solo .env en la raíz del monorepo; Vite solo expone las variables VITE_*.
-    envDir: "../../",
+    envDir: mode === "security-check" ? false : "../../",
     test: {
       globals: true,
       environment: "jsdom",

@@ -12,6 +12,12 @@
 **/.android-tools
 **/.gradle
 backups
+deploy/
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.pfx
+**/*.key
 
 # Secretos: se inyectan en tiempo de ejecución vía docker-compose
 .env

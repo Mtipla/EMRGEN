@@ -1,3 +1,5 @@
+> Políticas actuales: [OPERACION_SEGURA.md](docs/OPERACION_SEGURA.md). Las entradas genéricas de pagos/render fueron retiradas; los contratos siguientes reflejan el flujo protegido.
+
 # EMERGEN: integración de APIs externas
 
 Guía para el equipo sobre las seis integraciones externas del proyecto: para qué sirve cada una, cómo conseguir las credenciales, cómo configurarlas y cómo usar los servicios ya implementados.
@@ -85,12 +87,9 @@ Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 2
 
 ### 2.1 Para qué sirve
 
-Cobra los planes de EMERGEN (tablas `PLAN`, `VENTA` y `DETALLE_VENTA`). El flujo es el estándar de PayPal Checkout:
+La compra vigente usa /compras con JWT propio. El cliente obtiene el precio público, solicita una orden con cantidad/tipo y el servidor decide usuario, importe, moneda, reserva y cupos. La captura y conciliación comprueban propiedad y estado de venta. El éxito de negocio es estado PAGADO, no solo la respuesta del proveedor.
 
-1. El frontend muestra los botones de PayPal (`PaypalButton`).
-2. Al hacer clic, el frontend llama a `POST /payments/paypal/orders` y **el backend crea la orden** con el secret.
-3. El comprador aprueba el pago en la ventana de PayPal.
-4. El frontend llama a `POST /payments/paypal/orders/:orderId/capture` y **el backend captura el cobro**. Una respuesta con `status: "COMPLETED"` confirma el pago.
+Las rutas /payments/paypal no se registran. PaypalService continúa activo para ComprasService; no existe un flag de producción para reabrir la vía genérica.
 
 ### 2.2 Obtener las credenciales
 
@@ -110,50 +109,18 @@ VITE_PAYPAL_CLIENT_ID=<INSERT_YOUR_PAYPAL_CLIENT_ID_HERE>
 
 > **Moneda:** PayPal **no admite pesos chilenos (CLP)**. Los precios deben cobrarse en una moneda soportada (por defecto `USD`).
 
-### 2.3 Endpoints
+### 2.3 Contratos HTTP vigentes
 
-| Método | Ruta | Body | Respuesta |
-|---|---|---|---|
-| `POST` | `/payments/paypal/orders` | `{ amount: "9.99", currency?: "USD", description?, referenceId? }` | `{ id, status, approveUrl }` |
-| `POST` | `/payments/paypal/orders/:orderId/capture` | — | `{ orderId, status, captureId, amount, payerEmail }` |
+| Método/ruta | Acceso y finalidad |
+|---|---|
+| GET /compras/precio | Público con presupuesto propio; precio del servidor |
+| GET /compras/resumen y /compras/apadrinados | JWT propio, principal completo; plan/cupos propios |
+| POST /compras/apadrinados/ordenes | JWT propio; cantidad 1–5 y tipo PLAN/CUPOS; PLAN exige cantidad 1; precio y reserva del servidor |
+| POST /compras/apadrinados/ordenes/:orderId/captura | JWT y venta propia; comprueba importe/estado antes de aplicar cupos |
+| POST /compras/apadrinados/ventas/:ventaId/conciliar | JWT y venta propia; recuperación de estados inciertos |
+| POST /compras/apadrinados/ordenes/:orderId/cancelar | JWT propio; no libera reservas inciertas |
 
-### 2.4 Ejemplos
-
-**Frontend con componente (web, mobile o desktop):**
-
-```tsx
-import { PaypalButton } from '@repo/ui/paypal-button'
-import { api, env } from './lib/api'
-
-<PaypalButton
-  api={api}
-  clientId={env.paypalClientId}
-  order={{ amount: '9.99', currency: 'USD', description: 'Plan Premium mensual', referenceId: 'plan-2' }}
-  onPaid={(result) => {
-    if (result.status === 'COMPLETED') console.log('Pago confirmado', result.captureId)
-  }}
-  onError={(err) => console.error(err)}
-/>
-```
-
-**Frontend sin componente:**
-
-```ts
-const order = await api.paypal.createOrder({ amount: '9.99' })
-window.location.href = order.approveUrl!          // el comprador aprueba en PayPal
-// ...al volver:
-const result = await api.paypal.captureOrder(order.id)
-```
-
-**Probar el backend (PowerShell):**
-
-```powershell
-curl.exe -X POST http://localhost:3000/payments/paypal/orders -H "Content-Type: application/json" -d '{\"amount\":\"9.99\"}'
-```
-
-> 🔒 **Pendiente antes de producción:** hoy el monto llega desde el cliente. Cuando existan las entidades TypeORM, `PaypalService.createOrder` debe recibir el `plan_ID` y leer el precio desde la tabla `PLAN` (ver el `TODO` en `paypal.service.ts`). Después de capturar el pago, registra la venta en `VENTA`.
-
----
+El cliente compartido ofrece api.compras.createOrder(accessToken, cantidad, tipo), capture, reconcile y cancel. api.paypal.createOrder/captureOrder son wrappers obsoletos: rechazan con 410 sin red. No confiar en un importe del solicitante ni probar estos contratos con cobros reales durante el fortalecimiento.
 
 ## 3. Firebase Authentication
 
@@ -245,7 +212,7 @@ curl.exe http://localhost:3000/auth/me -H "Authorization: Bearer <ID_TOKEN>"
 
 ### 4.1 Para qué sirve
 
-Genera reportes PDF a partir de plantillas HTML (Handlebars) y datos JSON. Por ejemplo: historial de alertas de un usuario, resumen mensual de ventas o bitácora del sistema para el panel administrativo (desktop). Las plantillas se diseñan en **jsReport Studio**, un editor web, sin tocar el código del backend.
+jsReport es un servicio de render interno de los reportes autorizados. La plantilla y los datos se construyen en el servidor según recurso y sesión; no existe una entrada pública para seleccionar una plantilla u objeto libre. renderInline y los reportes de negocio continúan vigentes.
 
 ### 4.2 Obtener el servidor y las credenciales
 
@@ -254,7 +221,7 @@ jsReport **no es un servicio con API key**: es un servidor que se ejecuta aparte
 **Opción A: local con Docker (recomendada para desarrollo, gratis):**
 
 ```powershell
-docker run -d --name jsreport -p 5488:5488 jsreport/jsreport
+docker run -d --name jsreport -p 127.0.0.1:5488:5488 jsreport/jsreport
 ```
 
 Abre <http://localhost:5488> (jsReport Studio). Por defecto no pide usuario ni contraseña.
@@ -271,62 +238,18 @@ JSREPORT_USERNAME=<INSERT_YOUR_JSREPORT_USERNAME_HERE>   # solo si hay autentica
 JSREPORT_PASSWORD=<INSERT_YOUR_JSREPORT_PASSWORD_HERE>
 ```
 
-### 4.3 Crear una plantilla
+### 4.3 Plantillas y reportes vigentes
 
-1. En Studio: **New → Template** y nómbrala, por ejemplo, `alertas-mensual`.
-2. Engine: **handlebars**. Recipe: **chrome-pdf**.
-3. Contenido de ejemplo:
+Las plantillas de negocio están en apps/backend/src/admin, apadrinados y auditoria; no necesitan selección arbitraria en Studio. Studio debe quedar privado/loopback. En distribución JSREPORT_URL es HTTPS independiente del PC.
 
-   ```html
-   <h1>Alertas de {{usuario}}</h1>
-   <table>
-     {{#each alertas}}
-       <tr><td>{{fecha}}</td><td>{{ubicacion}}</td><td>{{prioridad}}</td></tr>
-     {{/each}}
-   </table>
-   ```
+| Método/ruta | Acceso |
+|---|---|
+| GET /usuarios/me/informe?formato=pdf o xlsx | JWT propio, alcance personal/familiar del servidor |
+| GET /admin/ventas/reporte?formato=pdf o xlsx | Administrador completo; filtros permitidos |
+| GET /admin/tickets/reporte?formato=pdf o xlsx | Administrador completo; tickets cerrados |
+| GET /admin/auditoria/reporte?formato=pdf o xlsx | Administrador completo; filtros y límite de bitácora |
 
-4. Guarda. El backend la invoca por su nombre (`templateName`).
-
-### 4.4 Endpoint
-
-| Método | Ruta | Body | Respuesta |
-|---|---|---|---|
-| `POST` | `/reports` | `{ templateName: "alertas-mensual", data: {...}, fileName?: "alertas-marzo" }` | Archivo PDF (`Content-Disposition: attachment`) |
-
-Por seguridad, el endpoint público **solo acepta nombres de plantillas ya guardadas en jsReport**, nunca HTML enviado por el cliente. Para plantillas escritas en el código, usa `JsreportService.renderInline()` desde el backend.
-
-### 4.5 Ejemplos
-
-**Frontend (web / desktop):**
-
-```ts
-import { downloadBlob } from '@repo/api-client'
-import { api } from './lib/api'
-
-const pdf = await api.reports.generate({
-  templateName: 'alertas-mensual',
-  data: { usuario: 'Ana', alertas: [{ fecha: '2026-09-01', ubicacion: 'Santiago', prioridad: 'Alta' }] },
-})
-downloadBlob(pdf, 'alertas-septiembre.pdf')
-```
-
-**Desde el backend:**
-
-```ts
-constructor(private readonly jsreport: JsreportService) {}
-
-const { content } = await this.jsreport.renderTemplate('alertas-mensual', datos);
-// content es un Buffer con el PDF: se puede adjuntar a un correo o guardar
-```
-
-**Probar (PowerShell):**
-
-```powershell
-curl.exe -X POST http://localhost:3000/reports -H "Content-Type: application/json" -d '{\"templateName\":\"alertas-mensual\",\"data\":{\"usuario\":\"Ana\",\"alertas\":[]}}' -o reporte.pdf
-```
-
----
+POST /reports no se registra; api.reports.generate rechaza localmente con 410. El resultado completo se rechaza con 413 al exceder API_REPORT_MAX_ROWS; no se descarga un informe truncado como completo. Se conservan PDF/XLSX, autorización y errores genéricos de proveedor.
 
 ## 5. Google Maps Platform
 
@@ -363,6 +286,8 @@ VITE_GOOGLE_MAPS_MAP_ID=<INSERT_YOUR_GOOGLE_MAPS_MAP_ID_HERE>
 
 ### 5.3 Endpoints (backend)
 
+Requieren JWT propio de NestJS; el ID token Firebase no lo sustituye. api.maps recibe accessToken primero. El SDK JavaScript de navegador conserva configuración pública restringida.
+
 | Método | Ruta | Query | Respuesta |
 |---|---|---|---|
 | `GET` | `/maps/geocode` | `address=Plaza de Armas, Santiago` | `[{ formattedAddress, location: { lat, lng }, placeId }]` |
@@ -393,19 +318,21 @@ import { env } from './lib/api'
 ```ts
 import { api } from './lib/api'
 
-const [lugar] = await api.maps.reverseGeocode({ lat: -33.4378, lng: -70.6504 })
+const [lugar] = await api.maps.reverseGeocode(accessToken, { lat: -33.4378, lng: -70.6504 })
 console.log(lugar?.formattedAddress)   // "Plaza de Armas, Santiago, Región Metropolitana, Chile"
 ```
 
 **Probar (PowerShell):**
 
 ```powershell
-curl.exe "http://localhost:3000/maps/reverse-geocode?lat=-33.4378&lng=-70.6504"
+curl.exe "http://localhost:3000/maps/reverse-geocode?lat=-33.4378&lng=-70.6504" -H "Authorization: Bearer <JWT_PROPIO>"
 ```
 
 ---
 
 ## 6. mindicador API
+
+Los endpoints /indicators requieren JWT propio; api.indicators.today(accessToken) y get(accessToken, code, date?) conservan el contrato con una caché de datos económicos no sensibles. No usar un ID token Firebase en su lugar.
 
 ### 6.1 Para qué sirve
 
@@ -435,7 +362,7 @@ Códigos válidos: `uf`, `ivp`, `dolar`, `dolar_intercambio`, `euro`, `ipc`, `ut
 ```ts
 import { api } from './lib/api'
 
-const dolar = await api.indicators.get('dolar')
+const dolar = await api.indicators.get(accessToken, 'dolar')
 const precioClp = Math.round(9.99 * dolar.series[0].value)
 ```
 
@@ -451,7 +378,7 @@ const uf = await this.mindicador.get('uf');
 **Probar (PowerShell):**
 
 ```powershell
-curl.exe http://localhost:3000/indicators/uf
+curl.exe http://localhost:3000/indicators/uf -H "Authorization: Bearer <JWT_PROPIO>"
 ```
 
 ---

@@ -25,8 +25,7 @@ import { readEnv } from '../../config/env';
 
 const MAX_RECONNECT_DELAY_MS = 30_000;
 
-const errorMessage = (error: unknown): string =>
-  error instanceof Error ? error.message : String(error);
+const errorMessage = (_error: unknown): string => 'Fallo de conexión WhatsApp; consulta el estado operativo.';
 
 /** Baileys entrega el motivo del cierre como un Boom con `output.statusCode`. */
 const statusCodeOf = (error: unknown): number | undefined =>

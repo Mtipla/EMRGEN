@@ -3,6 +3,7 @@ import type { EconomicIndicator, IndicatorCode } from '@repo/api-types';
 import { readEnv } from '../../config/env';
 import { requestExternalJson } from '../http-client';
 import { INDICATOR_CODES } from './dto/indicator-query.dto';
+import { AuxiliaryCache } from '../../config/auxiliary-cache';
 
 const INTEGRATION = 'mindicador';
 const DEFAULT_URL = 'https://mindicador.cl/api';
@@ -29,12 +30,17 @@ interface MindicadorDaily {
  */
 @Injectable()
 export class MindicadorService {
+  private readonly cache = new AuxiliaryCache();
   private get baseUrl(): string {
     return (readEnv('MINDICADOR_API_URL') ?? DEFAULT_URL).replace(/\/+$/, '');
   }
 
   /** Valor del día de todos los indicadores. */
   async today(): Promise<EconomicIndicator[]> {
+    return this.cache.get('today', () => this.loadToday());
+  }
+
+  private async loadToday(): Promise<EconomicIndicator[]> {
     const body = await requestExternalJson<
       Partial<Record<IndicatorCode, MindicadorDaily>>
     >(INTEGRATION, this.baseUrl);
@@ -55,6 +61,10 @@ export class MindicadorService {
 
   /** Serie del último mes, o solo el día indicado (`date` en dd-mm-yyyy). */
   async get(code: IndicatorCode, date?: string): Promise<EconomicIndicator> {
+    return this.cache.get(`${code}:${date || ''}`, () => this.loadIndicator(code, date));
+  }
+
+  private async loadIndicator(code: IndicatorCode, date?: string): Promise<EconomicIndicator> {
     const path = date ? `${code}/${date}` : code;
     const body = await requestExternalJson<MindicadorSerie>(
       INTEGRATION,

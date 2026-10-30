@@ -1,0 +1,8 @@
+# Only the sample belongs in Git; operational values stay private.
+*.env
+*.env.*
+!production.env.example
+*.pem
+*.key
+*.p12
+*.pfx

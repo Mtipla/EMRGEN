@@ -5,6 +5,10 @@ from app.core.db import get_db, transaction
 from app.dependencies.auth import UsuarioSesion, solo_staff, usuario_actual
 from app.schemas.tickets import Categoria, Estado, Ticket, TicketActualizar, TicketCrear
 from app.services import tickets
+from app.core.config import settings
+from app.core.limite import LimiteVentana
+
+_creaciones = LimiteVentana(settings.tickets_per_15_minutes, 900)
 
 router = APIRouter(prefix="/tickets-soporte", tags=["Tickets de soporte"])
 
@@ -26,6 +30,8 @@ def crear_ticket(
     usuario: UsuarioSesion = Depends(usuario_actual),
     db: psycopg.Connection = Depends(get_db),
 ):
+    if not _creaciones.permitir(str(usuario.id)):
+        raise HTTPException(429, "Demasiados tickets recientes; espera antes de crear otro")
     if not tickets.existe_categoria(db, datos.categoria_id):
         raise HTTPException(400, "La categoría no existe")
     return transaction(db, lambda: tickets.crear(db, usuario.id, datos.descripcion, datos.categoria_id))

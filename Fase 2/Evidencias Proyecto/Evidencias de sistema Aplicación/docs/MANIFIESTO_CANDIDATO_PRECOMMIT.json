@@ -1,0 +1,1132 @@
+{
+  "format_version": 1,
+  "purpose": "Observed uncommitted delta for user content review; not an automatic staging, commit or export allowlist",
+  "captured_at_utc": "2026-10-30T13:04:30.249281+00:00",
+  "resumed_on_local": "2026-10-30",
+  "baseline_closure_date": "2026-10-30",
+  "branch": "alonso",
+  "base_head": "6c228e6566487c265231c0f99dcc12de7a305557",
+  "staged_paths": [],
+  "delta_entry_count": 98,
+  "modified_tracked_entries": 65,
+  "untracked_entries": 33,
+  "files_sha256": "fd87e7f907973d69e9bc35bdcc8a8406c14defbef01066e52a899f344eb085c3",
+  "digest_method": "sha256(UTF-8 JSON of files, ensure_ascii=false, sort_keys=true, separators=comma/colon); metadata-only entries have sha256=null",
+  "scope_limit": "Hash covers files array only, including metadata-only excluded entries with sha256=null. Companion deliverables, Graphify and independent QA report are outside the digest. No private/previous QA contents are hashed. Not proof of secret-free content, team installation or full functional acceptance.",
+  "files": [
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de documentación/4.4 Docker/.env",
+      "classification": "private_path_requires_redacted_review",
+      "copy_to_clean_tree": false,
+      "git_status": " M",
+      "sha256": null
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de documentación/4.4 Docker/.gitignore",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "8e046c692a4b66b675a2a9c36c3df26ee78cc10c1f137fa4e8605b1c2aa61d7f"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de documentación/4.4 Docker/example.env",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "f215e0e71959e4c27b67fb1d86f33c7d076ec85602a645837937827b64287e64"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/.dockerignore",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "77f880418068942f725c005031d197c91ac15d1eda2a2583828ee8a4cb687daf"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "e3a05c9673da5391e4513445054a5c380978d11abf4e93804b629d5c757a5471"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README_BDD.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "9eacc45720d121a659c0086710463a9271eb3aab5523593a2a46a5865553b74c"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/admin/admin-tickets.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "9757aab6f3254949431c731dd40f52a1d9e04f246bbc949acc69d51f36541307"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/admin/admin-ventas.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "8603a43ecf4a1652abec1c94be1b4631543b13fbf5230086eb996472db76604e"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/admin/admin.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "0555bd4d96542dfe932e7b6268cd11abbd069e85f24209230b8ddd11d3bb81f5"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/apadrinados/apadrinados.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "9f24ddbc52d86b25f42c4d3531148d9776b2180630bbf285ab1b621b0596b258"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/app.module.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "66e7859644c8e34caabecbfb871b3885746d6bd16c7a5dd0fd51ced09b499fed"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/auxiliary-cache.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "a52a531232f32d2cc0f3639ebf039e16264d6f2e3d90753bbab51a7d6103d5c5"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/http-boundary.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "0269a4e70b258de1a3075831e3f5feaa8849c9a05a501a6974b9b8b783ed777d"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/postgres-exception.filter.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "f97b44301dc0898eb53ad7a219eb31c038fc68d1f2c92d3881dea2694f2a8fb8"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/runtime-config.spec.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "45541341e8196f0c39fac38f3b995253cfb135c485d925e31fe29afb093d9aba"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/runtime-config.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "dd947964363570aba48dc9186b229ed357c304f9494e9d0c14e87b0dfcfb8380"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/security.spec.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "ddff91f13b1ce866a3aaf352d167d62a2c2913467275669d526ed03e4da0bff5"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/security.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "7eb9d1062dcccb567c600e2543a93353315af589f83d02fd9e2850b0b5cd1e2b"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/google-maps/google-maps.controller.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "6315518829af4f733c6c86b17e4a150d2358663a57f8c44af34f9e64377d11e5"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/google-maps/google-maps.module.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "11d7591e737b8a741197824cbca0e6f35602e80f9f5efdb678a49f4f6e57579f"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/google-maps/google-maps.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "80957c549de7429edeadb0651e4f9b0b9fe783647d6bd7b4766b319282dec848"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/http-client.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "6f689c84ce6cb0a06119f9b0a3104f885dbd8fd637084861061cf9dc885ff6b3"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/jsreport/jsreport.module.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "9cfc0191ea2b76042cb41d5e684a88452a9f749acf9f7467d36e871f15ed69e6"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/jsreport/jsreport.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "9761505568e76ecfc65fb18f6b1294a5ce039b3c46fd89c68ed9dcc26805758e"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/mindicador/mindicador.controller.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "df588dd1362627b113e2d45eaa5fed9883d3c52fdfd946c90d9202bf4a7a3191"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/mindicador/mindicador.module.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "178135e5bcff4c4e4adc0baf2c3506ee2a549cc370ca57d45d7bd9221552ab3f"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/mindicador/mindicador.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "8d8eba2787c6e697360aa6131ae17f33ef059dd71dec25d23618d765a1b8eaf8"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/paypal/paypal.module.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "baf9c57675130c30863c7ef07823cdc8c159117cdcebdb0fe9ed26767420b199"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/security-logging.spec.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "e2142da9a433d499ed971553e30b8b315282eac3ad852c37af3782c6ebb28215"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/whatsapp/baileys-logger.adapter.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "926f64ba1fea5e1327b38a60e844ef81a90f021a0490d74f3a71a3105ec1f65d"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/whatsapp/whatsapp-alert.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "3c74ffb24ef9537071ad3a6ce6399e1f59e91e74c8c0a2a1f0273071ec1195ae"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/whatsapp/whatsapp-connection.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "c20e47827eb85cb0219fe67133b95c5e815a66dd365d3b4032e2abdf4cd3d28f"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/whatsapp/whatsapp-sos-dispatcher.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "9a869426bafb03c5c20a60162b393aea2a83c43925031e5664e49b64ada9d305"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/login/login.service.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "7dce3667b897a7518ee578461b4600022990b3930b76740db963da8280a0277e"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/main.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "ba98093fe3ca5e50c606624e949b6cd262901136088a32b5efa7fe95a935f190"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/test/integrations.e2e-spec.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "6ea1b3e351ff756e5f55325450f790c4836e8eb95b0b907911abd055b5f02ec9"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/test/security-boundaries.e2e-spec.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "8123eb8a1b1a2522a45f3cfb45cb0866144e9378fccd320c1bf15a937a795ac9"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/test/security-functional.e2e-spec.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "6d75913fc28a16864adb486fc599df0739562c950ef04f5f200e8ad6be8a85c9"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/README.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "50297b8d9236b01b7b2ee3c3c5232ab4252b208431bf6c0c13bbd91707407006"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/electron/main.cjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "b8eb2475e07631d820be51528848db27e15e5d0d2d750df016c5e4cec87c986b"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/electron/main.test.cjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "b9b3bf18aa30cdedfa3fef2de8fca6e3c3094051239a58cef2a1e270167006aa"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/package.json",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "73c8c603933a82ef402c182d761d48ae44db437795896aecf068621411bff7c0"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/scripts/dev.mjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "19311d49fbfa84740b0d22c43f2e2a30311b17ed312780ad0759bf4c85e00c88"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/vite.config.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "f927a10f1e9bec9ca7008ca6bf79ea9132f70df689cfbd71bc6727ca0e6d97c0"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/android/app/src/main/res/xml/file_paths.xml",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "009882f314ca26c7576d29b77e0958e0182287eacc67b6f6c7da7abe90154fad"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/package.json",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "dad8bdf3791c3f57f753cfe3d87f58471c60952465aabbd5bafa7e561589b377"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/src/lib/session-security.test.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "8f2d01452391fa70fb6e1e4e2ef1c9a3f5214cf8ff961d0b50375b5d1dd797f5"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/src/lib/session.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "3971ad12927666dc92f0b372fe022e4c58d41faf6b6b861ce0b31fb4a6e0730a"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/vite.config.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "97e2b38a4a2d8cc7aa6c1d00ab8c793c99f875305f3b8c276c46445fc5a73e33"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/web/package.json",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "4787e6ecca709d816beb20a4fa69c50efec668c2f17a0fef7630143a2e21b169"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/web/vite.config.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "9b6e5d3b5044db0303783d905978f7ac7f10c038e8bf687068b066a6b85857c3"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/deploy/.gitignore",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "880055b97297256aa36f5dd5d860fbab6365effa06028041846e16b6779caff3"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/deploy/production.env.example",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "a53abe6459c6c7c7ed674a4b0c3a25be416d0f816fc12a259152714f7490516d"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docker-compose.production.yml",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "2e8011a4e3bef4176026ab3ebca45a1b56b3c7ae47139289dd6c0236bf43b2c8"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docker-compose.yml",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "d74eb324f8f02098c19a82f3d05adcbe94c8c6de05657db7261d8d761fd3a0d2"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/DESPLIEGUE.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "329576f0f785ded3714e5bf58e279cc3fa9a3acc8291ce1eb100d8958346a1c3"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/FORTALECIMIENTO_CIBERSEGURIDAD_EMERGEN.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "49c1fc0f456a9d28cfe337a39f5f471ae544b360900d73dd95d993f04dc10761"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/INFORME_REVALIDACION_QA_2026-10-29.md",
+      "classification": "prior_qa_not_content_reviewed_for_this_prompt",
+      "copy_to_clean_tree": false,
+      "git_status": "??",
+      "sha256": null
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/OPERACION_SEGURA.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "4f1e7c98f2c85c49c36996f8b2e101e534e9f3ab43358b4958156e12d8f76765"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/PERMISOS_BD_PROPUESTA.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "1072053178530e6d5913608a2ec4d5af5b343919676de6d71388a08800d50325"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/cuentas-temporales-pruebas.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "f4f4efe5a8278281e5efe60247e5a2f3b4b812e923b9de75139667da1c41f66d"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/qa/revalidacion-2026-10-29.json",
+      "classification": "prior_qa_not_content_reviewed_for_this_prompt",
+      "copy_to_clean_tree": false,
+      "git_status": "??",
+      "sha256": null
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/example.env",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "67489c8afa90e6243537eaf7684b856153144a47f56a6e4e0b56c95f799322a1"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/package-lock.json",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "2bcdf7d4d414a4b12a73ba862bda191344a2502946e35bfdf56b62918f78ebbf"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/packages/api-client/src/emergen-api.test.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "1754b3e74912f4fe0f2e5584883abdae07b00bf10047203c8cf03890e0ba277b"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/packages/api-client/src/emergen-api.ts",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "f4110e69c67c7faa17573b05e519560682e6fa8e245ed12bb7af6fb7bc08c3c9"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme-apis.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "f6bc69b9f0f778da1ce5d786f357ce30aef1ff1f4af455696a12483403f787b5"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme.apis.internas.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "d371feb9fa5d4595e298220339abc5c9f3d73c82675ca21b38c9f979a7ee0656"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/backup-db.mjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "e611aba9483219f80eed5c8d00e7e88cadb3082eeab0f3b40f3cc96359e3b8be"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/backup-db.test.mjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "895ba864576bc629f28c71a780b86b60f9df22ac75af9828ae16760ab01a93b2"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/check-electron-panel.mjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "02d5aa4a7018f8ae8a4ac68e7aa69e9e9b7e80737c4a91c698d4b0deb084cec4"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/check-pin-image.mjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "0d9784122572d7278f451991eebb777915c86c7805823fcaeef57e89cb6e5b39"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/check-security-advisories.mjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "0330b4c48714e2e5acaa70d5f74631612105d6e84ad29dec740d7e705a54da33"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/electron-panel-fixture.cjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "6946f909e4d8004c7083c7b48b20555f80bf2101a2572e58052ba342b6a37743"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/security-db-check.mjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "1219b61cfafc124c489b7c7498401159c460faad1fb16226167eb6654c5b4d0b"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/security-python-checks.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "6a93e2edcaded0fb624b1696680bfbf3f494b4d18bce11cffc9e3e6f501034fb"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/security-run.mjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "0f44b024ddc390a96f14887ca134db19c8c0a54f49d519a75c00b101c857a5d0"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/security-test-preload.cjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "bd6af46e66a970e0655d5ef6cdf51f5731d677297097e67a02ac45727d5b360a"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/seed-dev.cjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "e9c98930cd5a200c093fcc04f5512d4b3bb67fa71f55da4f005e101331916f0a"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/seed-safety.cjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "19b2f1632f61290a6c8b9281eb0c7095ee4608d280a7372546d4e066b4ac691a"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/seed-safety.test.cjs",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "7d3b6af7885a750af58dc63f5f37a66b6b16dc3747b121380cb34e9015f01702"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/Dockerfile",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "76aa7849ef2fd1dea1d5d1a7f42954f0f02e51d7c5822d16a7701f75cdf9b6c5"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/Dockerfile.lock",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "67b830d6296b302df9982bb40bf359089c78870c441d6e02ebc6ca3e7aa3c42f"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/README.md",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "79fffd1efd71628a9c2f08be7f999fdea68aba268593d6a47e120f8c310376a8"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/api/routes/tickets_soporte.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "b02701ae44228cc317daed69b027f5c4330dc0c798fcc03fcc9fc11f28a083aa"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/config.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "1c6fc3f7b4c69724dab9b7c4f20854059c1520e0928db0538330cb437d9757aa"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/db.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "adf768e664c312afffcbf2d6ef0a75aa1c999061b947ed3a4b328878a6cf4cfa"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/errors.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "57a79c609c43e7d9d8e12b1d8e36c40b50de2ab57c1a19e3cd255c84ab2ef4b6"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/limite.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "ac56ac5aa86a43cb1ba28f27ad8323c3ece42a2ecb3168af95b95e87999364c5"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/pin.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "3a76ff2e32e66b32642b110f73ef5e1f93a88e6526561db6f2fe397252e58571"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/scheduler.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "c934fa64e07ec8c60a4f3699bff0d953941f50bb78100a84bd2bfb09f612f89a"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/security.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "cc5dc9ebff4b2039fcb2973046cc77841a7ae865e84c3e213976807bf77857ae"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/main.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "157925cd7ee595cce75390b963cfa5e55eb9d47082235f52f577f8d4aeecfccb"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/locks/requirements-linux-py312.lock",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": "??",
+      "sha256": "5b00e94d5119d073ffaf3e9154f90a258d402ada22d8d3231f9aa6bdeb27067f"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/requirements-runtime.txt",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "233a99cce20bb2a03e41ce7705c3c1949bdcadbd03c14306c8f8aa2d215e1e7f"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/run.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "56298fabc5926cea2bca0f6cfe58eaea4353a6d2f69887e5e4ab36daf7c1a2ec"
+    },
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/tests/test_deployment_config.py",
+      "classification": "candidate_for_content_review",
+      "copy_to_clean_tree": "only_after_content_review",
+      "git_status": " M",
+      "sha256": "96edf6c1857aa93dfa8d0cdd275960187c0896994d210fab5141e2500ea0af6d"
+    },
+    {
+      "path": "LEVANTAMIENTO_CIBERSEGURIDAD_EMERGEN.md",
+      "classification": "prior_audit_review_separately",
+      "copy_to_clean_tree": false,
+      "git_status": "??",
+      "sha256": null
+    }
+  ],
+  "companions_not_in_digest": [
+    "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/MANIFIESTO_CANDIDATO_PRECOMMIT.json",
+    "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/PROMPT_CLAUDE_REVISION_PRECOMMIT_EQUIPO.md",
+    "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/PROMPT_CLAUDE_ACTUALIZACION_EQUIPO_POSTMERGE.md"
+  ],
+  "additional_deliverables_for_review": [
+    "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/MANIFIESTO_CANDIDATO_PRECOMMIT.json",
+    "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/PROMPT_CLAUDE_REVISION_PRECOMMIT_EQUIPO.md",
+    "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/PROMPT_CLAUDE_ACTUALIZACION_EQUIPO_POSTMERGE.md"
+  ],
+  "reviewable_paths": {
+    "meaning": "Explicit paths for user review only; no automatic inclusion. All paths relative to Git root. Companions are listed separately.",
+    "modified": [
+      "Fase 2/Evidencias Proyecto/Evidencias de documentación/4.4 Docker/example.env",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/.dockerignore",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README_BDD.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/admin/admin-tickets.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/admin/admin-ventas.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/admin/admin.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/apadrinados/apadrinados.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/app.module.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/postgres-exception.filter.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/runtime-config.spec.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/runtime-config.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/google-maps/google-maps.controller.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/google-maps/google-maps.module.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/google-maps/google-maps.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/http-client.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/jsreport/jsreport.module.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/jsreport/jsreport.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/mindicador/mindicador.controller.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/mindicador/mindicador.module.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/mindicador/mindicador.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/paypal/paypal.module.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/whatsapp/baileys-logger.adapter.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/whatsapp/whatsapp-alert.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/whatsapp/whatsapp-connection.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/whatsapp/whatsapp-sos-dispatcher.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/login/login.service.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/main.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/test/integrations.e2e-spec.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/README.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/electron/main.cjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/package.json",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/scripts/dev.mjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/vite.config.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/android/app/src/main/res/xml/file_paths.xml",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/package.json",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/src/lib/session.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/vite.config.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/web/package.json",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/web/vite.config.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docker-compose.yml",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/DESPLIEGUE.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/cuentas-temporales-pruebas.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/example.env",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/package-lock.json",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/packages/api-client/src/emergen-api.test.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/packages/api-client/src/emergen-api.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme-apis.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/readme.apis.internas.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/backup-db.mjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/seed-dev.cjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/Dockerfile",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/README.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/api/routes/tickets_soporte.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/config.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/db.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/errors.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/limite.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/pin.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/scheduler.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/main.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/requirements-runtime.txt",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/run.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/tests/test_deployment_config.py"
+    ],
+    "new": [
+      "Fase 2/Evidencias Proyecto/Evidencias de documentación/4.4 Docker/.gitignore",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/auxiliary-cache.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/http-boundary.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/security.spec.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/security.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/integrations/security-logging.spec.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/test/security-boundaries.e2e-spec.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/test/security-functional.e2e-spec.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/electron/main.test.cjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile/src/lib/session-security.test.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/deploy/.gitignore",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/deploy/production.env.example",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docker-compose.production.yml",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/FORTALECIMIENTO_CIBERSEGURIDAD_EMERGEN.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/OPERACION_SEGURA.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/PERMISOS_BD_PROPUESTA.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/backup-db.test.mjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/check-electron-panel.mjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/check-pin-image.mjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/check-security-advisories.mjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/electron-panel-fixture.cjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/security-db-check.mjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/security-python-checks.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/security-run.mjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/security-test-preload.cjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/seed-safety.cjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/seed-safety.test.cjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/Dockerfile.lock",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/app/core/security.py",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/locks/requirements-linux-py312.lock"
+    ],
+    "deleted": []
+  },
+  "metadata_only_paths_excluded_from_candidate": [
+    "Fase 2/Evidencias Proyecto/Evidencias de documentación/4.4 Docker/.env",
+    "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/INFORME_REVALIDACION_QA_2026-10-29.md",
+    "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/qa/revalidacion-2026-10-29.json",
+    "LEVANTAMIENTO_CIBERSEGURIDAD_EMERGEN.md"
+  ],
+  "excluded_observed_paths": [
+    {
+      "path": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/REVISION_INTEGRACION_EQUIPO_CLAUDE.md",
+      "git_status": "??",
+      "classification": "independent_historical_review_excluded",
+      "copy_to_clean_tree": false,
+      "sha256": null
+    },
+    {
+      "path": "graphify-out/cache/hook_sessions/0803ebd7-42cc-4733-a7a3-b9fa9a12bc8d.nudges",
+      "git_status": "??",
+      "classification": "graphify_cache_excluded",
+      "copy_to_clean_tree": false,
+      "sha256": null
+    },
+    {
+      "path": "graphify-out/cache/hook_sessions/6267927c-7c17-4908-a75d-f1f383a1c919.nudges",
+      "git_status": "??",
+      "classification": "graphify_cache_excluded",
+      "copy_to_clean_tree": false,
+      "sha256": null
+    },
+    {
+      "path": "graphify-out/cache/hook_sessions/baa24954-3df5-4c92-9de3-9f501153ffac.nudges",
+      "git_status": " D",
+      "classification": "graphify_cache_excluded",
+      "copy_to_clean_tree": false,
+      "sha256": null
+    },
+    {
+      "path": "graphify-out/cache/hook_sessions/e82dd45b-c551-4d0a-941c-6c2680d84701.nudges",
+      "git_status": " D",
+      "classification": "graphify_cache_excluded",
+      "copy_to_clean_tree": false,
+      "sha256": null
+    },
+    {
+      "path": "graphify-out/cache/hook_sessions/f078b278-8873-48c7-8049-48cfbe5f0317.nudges",
+      "git_status": " D",
+      "classification": "graphify_cache_excluded",
+      "copy_to_clean_tree": false,
+      "sha256": null
+    }
+  ],
+  "observed_worktree_counts": {
+    "tracked_modified": 65,
+    "tracked_deleted": 3,
+    "untracked": 39,
+    "total": 107
+  },
+  "reviewable_candidate_counts": {
+    "modified": 64,
+    "new": 30,
+    "deleted": 0,
+    "companions": 3,
+    "total_including_companions": 97
+  },
+  "available_refs_without_fetch": [
+    {
+      "ref": "refs/heads/alonso",
+      "sha": "6c228e6566487c265231c0f99dcc12de7a305557",
+      "tip_commit_date": "2026-10-29T19:30:46-03:00",
+      "symbolic_target": "",
+      "last_fetch_verified": false
+    },
+    {
+      "ref": "refs/heads/graphify",
+      "sha": "7e35ae37f2c293f9718cd60023a59c2d2f1e94e8",
+      "tip_commit_date": "2026-10-28T15:53:42-03:00",
+      "symbolic_target": "",
+      "last_fetch_verified": false
+    },
+    {
+      "ref": "refs/heads/main",
+      "sha": "d7f372c38c9a387b05d4493466e2a1fd4d83ebc3",
+      "tip_commit_date": "2026-09-23T16:17:34-03:00",
+      "symbolic_target": "",
+      "last_fetch_verified": false
+    },
+    {
+      "ref": "refs/remotes/origin/HEAD",
+      "sha": "3b6e209e64b06d7d2776990428d3f4965ecab60c",
+      "tip_commit_date": "2026-10-25T23:27:19-03:00",
+      "symbolic_target": "refs/remotes/origin/main",
+      "last_fetch_verified": false
+    },
+    {
+      "ref": "refs/remotes/origin/alonso",
+      "sha": "6c228e6566487c265231c0f99dcc12de7a305557",
+      "tip_commit_date": "2026-10-29T19:30:46-03:00",
+      "symbolic_target": "",
+      "last_fetch_verified": false
+    },
+    {
+      "ref": "refs/remotes/origin/diego",
+      "sha": "809c2bd62b9bd0004256a19a7f15ca55aba0d9c2",
+      "tip_commit_date": "2026-10-28T13:24:24-03:00",
+      "symbolic_target": "",
+      "last_fetch_verified": false
+    },
+    {
+      "ref": "refs/remotes/origin/gabriel",
+      "sha": "b41848c18bf849ec29378de742c5854b0b696c34",
+      "tip_commit_date": "2026-10-28T16:54:26-03:00",
+      "symbolic_target": "",
+      "last_fetch_verified": false
+    },
+    {
+      "ref": "refs/remotes/origin/graphify",
+      "sha": "7e35ae37f2c293f9718cd60023a59c2d2f1e94e8",
+      "tip_commit_date": "2026-10-28T15:53:42-03:00",
+      "symbolic_target": "",
+      "last_fetch_verified": false
+    },
+    {
+      "ref": "refs/remotes/origin/main",
+      "sha": "3b6e209e64b06d7d2776990428d3f4965ecab60c",
+      "tip_commit_date": "2026-10-25T23:27:19-03:00",
+      "symbolic_target": "",
+      "last_fetch_verified": false
+    }
+  ],
+  "protected_init_sha256": "d4e71a576baaab8192e9482eb7304d9f69bacc82d3c1be361830cee0c8e78f68",
+  "package_lock_sha256_current": "2bcdf7d4d414a4b12a73ba862bda191344a2502946e35bfdf56b62918f78ebbf",
+  "pin_build_inputs_sha256_current": "cf2f21d8f2fa89a5da415acc5eba63b2efee07deabbe321c44d8ed0f8683f698",
+  "forbidden_inclusions": [
+    "node_modules/",
+    ".venv/",
+    ".env operational files",
+    "private certificates/keys",
+    "backups",
+    "Baileys sessions",
+    "Android signing material",
+    "security-check bundles",
+    "APK/runtime/cache outputs",
+    ".git/",
+    "personal machine configuration",
+    "graphify-out/",
+    "independent or prior QA by default",
+    ".emergen-h2-h5-*/"
+  ],
+  "previous_snapshots": [
+    {
+      "captured_at_utc": "2026-10-30T04:45:53.248214+00:00",
+      "files_sha256": "e41435209848c9570cf830a9826cd5b0074d95ce605650346cabc5ce3a217249",
+      "delta_entry_count": 92,
+      "reason": "Before effective Electron 44.9.1 installation and native panel verification"
+    },
+    {
+      "captured_at_utc": "2026-10-30T05:17:19.705359+00:00",
+      "files_sha256": "d0f70f5aabc9fd5da13d47432766b231497446adaca30757638d079bd26f4da1",
+      "delta_entry_count": 96,
+      "reason": "Historical inventory independently reviewed before H2-H5; superseded after those corrections and final documentation"
+    },
+    {
+      "captured_at_utc": "2026-10-30T12:54:03.249624+00:00",
+      "files_sha256": "6402193a4be0fc441e11723c6446ef3ed3bb76d41f297278b95564e2e9bca081",
+      "delta_entry_count": 98,
+      "reason": "Before user clarification: teammate branches integrate into alonso; only handoff/closure documentation changed"
+    }
+  ],
+  "change_attribution": {
+    "completed_this_resumption": [
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/FORTALECIMIENTO_CIBERSEGURIDAD_EMERGEN.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/OPERACION_SEGURA.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/PROMPT_CLAUDE_REVISION_PRECOMMIT_EQUIPO.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/PROMPT_CLAUDE_ACTUALIZACION_EQUIPO_POSTMERGE.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/docs/MANIFIESTO_CANDIDATO_PRECOMMIT.json"
+    ],
+    "previous_h2_h5_changes_recovered": [
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/README_BDD.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/example.env",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/desktop/README.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/services/internal-api/README.md",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/main.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/src/config/http-boundary.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/backend/test/security-boundaries.e2e-spec.ts",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/seed-safety.test.cjs",
+      "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/scripts/check-electron-panel.mjs"
+    ],
+    "other_changes": "Pre-existing strengthening or prior/uncertain authorship; not attributed to this resumption. Review independently before committing."
+  },
+  "h2_h5_evidence": {
+    "status": "confirmed locally; external and coverage limitations remain",
+    "source_snapshot": {
+      "path": ".emergen-h2-h5-7a4d6dbd50f8486495d9d3d3c1b7d09a/source-snapshot.json",
+      "file_count": 568,
+      "files_sha256": "22538f28dff20a730ac2e2ecd2b480360a17fb5349bf53d1458a32b23c966000",
+      "recovered_on_local": "2026-10-30",
+      "author_mismatches_before_final_documentation": [],
+      "clean_mismatches_before_final_documentation": [],
+      "final_changes": "Documentation only; final-source-snapshot.json records overlay without replacing tested snapshot"
+    },
+    "recovered_prior_steps": {
+      "npm-ci": {
+        "step": "npm-ci",
+        "checked_at_utc": "2026-10-30T06:41:12.240554+00:00",
+        "exit_code": 0,
+        "electron_package": "44.9.1",
+        "electron_dist_present": false,
+        "lock_sha256": "2bcdf7d4d414a4b12a73ba862bda191344a2502946e35bfdf56b62918f78ebbf"
+      },
+      "missing-electron": {
+        "step": "missing-electron",
+        "checked_at_utc": "2026-10-30T06:41:41.485847+00:00",
+        "exit_code": 1,
+        "expected_preparation_message_verified": true
+      },
+      "electron-install": {
+        "step": "electron-install",
+        "checked_at_utc": "2026-10-30T06:42:20.268341+00:00",
+        "exit_code": 0,
+        "electron_dist": "44.9.1",
+        "archive_sha256": "41bd7900bd42d0f49110a81617876137041fbbf473466920248ddb076349ef91",
+        "archive_from_fresh_test_cache": true
+      },
+      "build-backend": {
+        "step": "build-backend",
+        "checked_at_utc": "2026-10-30T06:42:51.424396+00:00",
+        "exit_code": 0
+      },
+      "cors": {
+        "step": "cors",
+        "checked_at_utc": "2026-10-30T06:43:27.217664+00:00",
+        "exit_code": 0
+      },
+      "build-desktop": {
+        "step": "build-desktop",
+        "checked_at_utc": "2026-10-30T06:45:07.829303+00:00",
+        "exit_code": 0
+      },
+      "panel": {
+        "step": "panel",
+        "checked_at_utc": "2026-10-30T06:45:26.540990+00:00",
+        "exit_code": 0
+      }
+    },
+    "new_checks": {
+      "seed_guard": {
+        "step": "seed-guard",
+        "checked_at_utc": "2026-10-30T12:47:40.689127+00:00",
+        "exit_code": 0
+      },
+      "seed_guard_tests_passed": 7,
+      "pin_inputs_rehashed": 26,
+      "functional_suites_repeated": false
+    },
+    "python_prior_evidence_root": "Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/node_modules/.cache/h2-h5-ed9bada28eda45298ebbf013baf61bd0",
+    "limits": [
+      "CORS selector: 6 passed, 6 skipped; 414 not executed",
+      "Native file/Origin:null CORS against real backend not verified",
+      "Windows x64 only; each teammate environment and actual branch contents need verification",
+      "Active user services not probed or replaced; running source version not established",
+      "H1 excluded by user; revocation remains required before hosting",
+      "H6-H11 not implemented; no global functional or hosting approval"
+    ]
+  },
+  "electron_update": {
+    "effective_version": "44.9.1",
+    "native": {
+      "electron": "44.9.1",
+      "chrome": "152.0.7977.167",
+      "node": "24.22.0",
+      "platform": "win32",
+      "arch": "x64"
+    },
+    "executable": "node_modules/electron/dist/electron.exe",
+    "executable_sha256": "1432afee01d6a788f11cb6649efd271923e1e490beef688c24d31f47965013aa",
+    "cases": [
+      {
+        "name": "native-runtime-and-login-screen",
+        "passed": true
+      },
+      {
+        "name": "invalid-login-rejected",
+        "passed": true
+      },
+      {
+        "name": "admin-login-and-audit-render",
+        "passed": true
+      },
+      {
+        "name": "sos-monitor-read-only",
+        "passed": true
+      },
+      {
+        "name": "tickets-second-api-and-render",
+        "passed": true
+      },
+      {
+        "name": "logout-and-reload-remain-logged-out",
+        "passed": true
+      }
+    ],
+    "native_checked_at_utc": "2026-10-30T06:45:26.319Z",
+    "api_requests": "in-memory doubles, no real backend or provider",
+    "package_lock_changed_this_update": false,
+    "clean_full_installation_verified": true,
+    "clean_installation_scope": "Independent source copy, npm dependencies and explicit Electron binary on Windows x64; not every teammate, platform or production service",
+    "archive_sha256": "41bd7900bd42d0f49110a81617876137041fbbf473466920248ddb076349ef91"
+  },
+  "integration_direction": {
+    "destination_branch": "alonso",
+    "source_branch": "each teammate actual branch, to be identified",
+    "authorization": "Explicit user clarification on 2026-10-30; exception for this integration to general CONTRIBUTING workflow",
+    "git_operations_performed": false,
+    "strengthening_commit_sha": "not created; obtain real SHA after user commit"
+  }
+}

@@ -1,0 +1,325 @@
+{
+  "date": "2026-10-29",
+  "timezone": "America/Santiago",
+  "generatedAt": "2026-10-29T22:51:12.612Z",
+  "scope": "Solo hallazgos originales y cobertura pendiente. HU-12 excluida.",
+  "environments": [
+    {
+      "port": 3000,
+      "readyHttp": 200,
+      "whatsappEnabled": true,
+      "whatsappState": "open"
+    },
+    {
+      "port": 3001,
+      "readyHttp": 404,
+      "whatsappEnabled": false,
+      "whatsappState": "disabled"
+    }
+  ],
+  "clients": [
+    {
+      "port": 5173,
+      "api": "http://localhost:3001",
+      "internal": "http://localhost:8000",
+      "mode": "docker"
+    },
+    {
+      "port": 5174,
+      "api": "http://localhost:3001",
+      "internal": "http://localhost:8000",
+      "mode": "docker"
+    },
+    {
+      "port": 5175,
+      "api": "http://localhost:3001",
+      "internal": "http://localhost:8000",
+      "mode": "docker"
+    }
+  ],
+  "apk": {
+    "versionName": "0.2.3-lan-debug",
+    "versionCode": 6,
+    "bytes": 5920376,
+    "sha256": "D61C6C51633B0ABA2A07FB13D378BF1B7FD6B2F55C194E61CCED319D4FA7605D",
+    "installedMatchesArtifact": true
+  },
+  "checks": {
+    "profileLocal": {
+      "statuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "conditionalStatus": 200
+    },
+    "profileDocker": {
+      "status": 200,
+      "contacts": 0
+    },
+    "dependencies": {
+      "android": "8.5.2",
+      "geolocation": "8.2.4"
+    },
+    "bug3": {
+      "required": true,
+      "empty": true,
+      "formValid": false,
+      "valueMissing": true
+    },
+    "bug4": {
+      "patchStatus": 200,
+      "role": 3,
+      "loginStatus": 201,
+      "jwtIssued": true,
+      "oldTokenAdminStatus": 403,
+      "newTokenAdminStatus": 403
+    },
+    "bug5": {
+      "login": {
+        "http": 201,
+        "bitacora": [],
+        "accessCount": 1
+      },
+      "wrongLogin": {
+        "http": 401,
+        "bitacora": []
+      },
+      "wrongPin": {
+        "pinSetupStatus": 201,
+        "http": 403,
+        "bitacora": []
+      },
+      "wrongPassword": {
+        "http": 401,
+        "bitacora": []
+      },
+      "ticket": {
+        "http": 200,
+        "state": "RESUELTO",
+        "newGlobalAudit": [],
+        "responsibleStored": true
+      }
+    },
+    "bug6": {
+      "temporaryChild": true,
+      "access": {
+        "newState": 2,
+        "confirmationVisible": false
+      },
+      "deleted": true,
+      "successMessageVisible": false
+    },
+    "bug7": {
+      "path": "/ruta-qa-inexistente",
+      "text": "",
+      "pages": 1,
+      "viteError": false
+    },
+    "bug8": {
+      "realTemporaryUser": true,
+      "message": "No se pudo iniciar sesión. Verifica tus datos e inténtalo nuevamente."
+    },
+    "bug9": {
+      "text": "HTTP 400: limite must not be greater than 1000"
+    },
+    "bug10": {
+      "navigations": 4,
+      "status": [
+        204,
+        204,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "errors": []
+    },
+    "bug11": {
+      "loading": true,
+      "emptyAtSameTime": true
+    },
+    "bug12": {
+      "dom": {
+        "selectDisabled": false,
+        "options": [
+          {
+            "text": "CUENTA Y ACCESO",
+            "disabled": false
+          },
+          {
+            "text": "PAGOS Y PLANES",
+            "disabled": false
+          },
+          {
+            "text": "ALERTAS",
+            "disabled": false
+          },
+          {
+            "text": "APLICACION",
+            "disabled": false
+          },
+          {
+            "text": "OTRO",
+            "disabled": false
+          }
+        ],
+        "initial": "1"
+      },
+      "options": [
+        {
+          "name": "CUENTA Y ACCESO",
+          "disabled": false
+        },
+        {
+          "name": "PAGOS Y PLANES",
+          "disabled": false
+        },
+        {
+          "name": "ALERTAS",
+          "disabled": false
+        },
+        {
+          "name": "APLICACION",
+          "disabled": false
+        },
+        {
+          "name": "OTRO",
+          "disabled": false
+        }
+      ],
+      "keyboardChanged": true
+    },
+    "bug13": {
+      "associatedLabel": "Acceso completo",
+      "labelDisplay": "grid",
+      "inputWidth": 365,
+      "labelWidth": 372,
+      "verticalDistance": 22,
+      "textRightOfCheckbox": false
+    },
+    "bug14": {
+      "copy": "Próximamente en Android e iOS."
+    },
+    "gps": {
+      "locationEnabled": "true",
+      "context": {
+        "path": "/home",
+        "hidden": false,
+        "visibility": "visible",
+        "platform": "android",
+        "geolocation": true
+      },
+      "permissions": {
+        "coarseLocation": "granted",
+        "location": "granted"
+      },
+      "result": {
+        "coordinatesValid": true,
+        "accuracyMeters": 16,
+        "positionAgeMs": 4154
+      }
+    },
+    "volume": {
+      "enabled": false,
+      "location": {
+        "available": false,
+        "enabled": true,
+        "permitted": true,
+        "ageMs": -1,
+        "accuracyMeters": -1,
+        "message": "Activa segundo plano para obtener ubicación."
+      },
+      "accessibilityEnabled": true,
+      "accessibilityConnected": false,
+      "expiresAt": 1793318048000
+    },
+    "recentDispatches": [
+      {
+        "alerta_id": 270,
+        "estado_alerta": "FINALIZADA",
+        "tipo_notificacion": "ACTIVACION",
+        "estado_envio_id": 2,
+        "cantidad": 1
+      },
+      {
+        "alerta_id": 270,
+        "estado_alerta": "FINALIZADA",
+        "tipo_notificacion": "FINALIZACION",
+        "estado_envio_id": 2,
+        "cantidad": 1
+      },
+      {
+        "alerta_id": 269,
+        "estado_alerta": "FINALIZADA",
+        "tipo_notificacion": "ACTIVACION",
+        "estado_envio_id": 2,
+        "cantidad": 1
+      },
+      {
+        "alerta_id": 269,
+        "estado_alerta": "FINALIZADA",
+        "tipo_notificacion": "FINALIZACION",
+        "estado_envio_id": 2,
+        "cantidad": 1
+      },
+      {
+        "alerta_id": 268,
+        "estado_alerta": "FINALIZADA",
+        "tipo_notificacion": "ACTIVACION",
+        "estado_envio_id": 2,
+        "cantidad": 1
+      },
+      {
+        "alerta_id": 268,
+        "estado_alerta": "FINALIZADA",
+        "tipo_notificacion": "FINALIZACION",
+        "estado_envio_id": 2,
+        "cantidad": 1
+      },
+      {
+        "alerta_id": 267,
+        "estado_alerta": "FINALIZADA",
+        "tipo_notificacion": "ACTIVACION",
+        "estado_envio_id": 2,
+        "cantidad": 1
+      },
+      {
+        "alerta_id": 267,
+        "estado_alerta": "FINALIZADA",
+        "tipo_notificacion": "FINALIZACION",
+        "estado_envio_id": 2,
+        "cantidad": 1
+      }
+    ]
+  },
+  "cleanup": {
+    "before": {
+      "usuarios": 8,
+      "tickets": 5,
+      "alertas": 46,
+      "envios": 56
+    },
+    "after": {
+      "usuarios": 8,
+      "tickets": 5,
+      "alertas": 46,
+      "envios": 56,
+      "temporales_restantes": 0
+    },
+    "note": "Persisten trazas de auditoría/acceso QA; no se borró bitácora. No se crearon alertas ni envíos."
+  }
+}

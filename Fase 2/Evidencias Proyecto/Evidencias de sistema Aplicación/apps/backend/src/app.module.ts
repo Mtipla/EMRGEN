@@ -1,4 +1,5 @@
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { OperationLimitsInterceptor, securityNumber } from './config/security';
 import { PostgresExceptionFilter } from './config/postgres-exception.filter';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -36,7 +37,7 @@ const backendDir = resolve(__dirname, '..');
         resolve(backendDir, '.env'),
         resolve(backendDir, '../../.env'),
       ],
-      ignoreEnvFile: ['staging', 'production'].includes(
+      ignoreEnvFile: ['test', 'staging', 'production'].includes(
         process.env.EMERGEN_ENVIRONMENT ?? process.env.NODE_ENV ?? '',
       ),
       validate: validateRuntimeConfig,
@@ -64,6 +65,8 @@ const backendDir = resolve(__dirname, '..');
         // Registra las entidades de cada TypeOrmModule.forFeature (Usuario, BitacoraSistema, PlanUsuario...).
         autoLoadEntities: true,
         synchronize: false,
+        extra: { max: securityNumber('DB_POOL_MAX', 10, 100), connectionTimeoutMillis: 5000,
+          statement_timeout: securityNumber('DB_STATEMENT_TIMEOUT_MS', 30_000, 300_000) },
       }),
     }),
     AdminModule,
@@ -83,6 +86,7 @@ const backendDir = resolve(__dirname, '..');
   providers: [
     AppService,
     { provide: APP_FILTER, useClass: PostgresExceptionFilter },
+    { provide: APP_INTERCEPTOR, useClass: OperationLimitsInterceptor },
   ],
 })
 export class AppModule {}

@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PaypalController } from './paypal.controller';
 import { PaypalService } from './paypal.service';
 
 @Module({
-  controllers: [PaypalController],
+  // HTTP genérico retirado: toda compra debe usar ComprasService (precio/propiedad/reserva).
   providers: [PaypalService],
   exports: [PaypalService],
 })

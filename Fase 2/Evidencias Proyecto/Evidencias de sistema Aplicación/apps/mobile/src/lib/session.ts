@@ -34,6 +34,8 @@ export function getUser(): SessionUser | null {
 }
 
 export function saveSession(user: SessionUser, token?: string) {
+  // A profile refresh may preserve its token; a different identity must never inherit it.
+  if (!token && getUser()?.usuario_ID !== user.usuario_ID) localStorage.removeItem("emergen.token");
   if (token) localStorage.setItem("emergen.token", token);
   localStorage.setItem("emergen.user", JSON.stringify(user));
   void sincronizarSesionNativa(

@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import {
   createReadStream,
+  existsSync,
   openSync,
   closeSync,
   mkdirSync,
@@ -24,7 +25,7 @@ if (!env.DB_USER || !env.DB_NAME)
     "Configura DB_USER y DB_NAME del PostgreSQL Docker que se respaldará.",
   );
 const directory = resolve(root, "backups");
-mkdirSync(directory, { recursive: true });
+mkdirSync(directory, { recursive: true, mode: 0o700 });
 const archive = resolve(
   directory,
   `emergen-${new Date().toISOString().replace(/[:.]/g, "-")}.dump`,
@@ -48,7 +49,7 @@ function docker(args, stdio) {
     );
   });
 }
-let descriptor = openSync(partial, "wx");
+let descriptor = openSync(partial, "wx", 0o600);
 try {
   await docker(
     [
@@ -74,6 +75,7 @@ try {
 }
 const hash = createHash("sha256");
 for await (const chunk of createReadStream(partial)) hash.update(chunk);
+if (existsSync(archive)) throw new Error("Destino de respaldo ya existente; no se sobrescribe");
 renameSync(partial, archive);
 writeFileSync(
   `${archive}.json`,

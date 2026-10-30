@@ -9,8 +9,8 @@ type Level = (typeof LEVELS)[number];
 
 /**
  * Adapta el logger estilo pino que exige Baileys al Logger de Nest.
- * Solo se escriben el mensaje y el texto de los errores: los objetos que adjunta Baileys
- * pueden contener llaves de la sesión o números de teléfono, así que nunca se serializan.
+ * Solo escribe evento y nivel: mensajes, errores y objetos de Baileys pueden
+ * contener material de sesión o datos personales y nunca se serializan.
  */
 export class BaileysLoggerAdapter implements ILogger {
   constructor(
@@ -47,10 +47,8 @@ export class BaileysLoggerAdapter implements ILogger {
     if (LEVELS.indexOf(level) < (minimum === -1 ? LEVELS.indexOf('warn') : minimum))
       return;
 
-    const message = typeof obj === 'string' ? obj : (msg ?? '');
-    const error = obj instanceof Error ? obj : (obj as { err?: unknown } | null)?.err;
-    const text = error instanceof Error ? `${message} (${error.message})` : message;
-    if (!text) return;
+    // Strict field allowlist: transport messages/errors can contain session material.
+    const text = { event: 'whatsapp_transport', level };
 
     if (level === 'error') this.logger.error(text);
     else if (level === 'warn') this.logger.warn(text);

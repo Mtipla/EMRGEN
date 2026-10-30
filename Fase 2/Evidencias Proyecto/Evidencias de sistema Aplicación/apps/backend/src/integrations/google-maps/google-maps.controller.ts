@@ -1,4 +1,5 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../login/jwt-auth.guard';
 import type { GeocodeResult } from '@repo/api-types';
 import {
   GeocodeQueryDto,
@@ -7,6 +8,7 @@ import {
 import { GoogleMapsService } from './google-maps.service';
 
 @Controller('maps')
+@UseGuards(JwtAuthGuard)
 export class GoogleMapsController {
   constructor(private readonly googleMapsService: GoogleMapsService) {}
 

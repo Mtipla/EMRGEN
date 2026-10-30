@@ -1,5 +1,7 @@
 # Entornos y preparación de hosting
 
+La política vigente de ciberseguridad, límites, variables y aplicación/rollback está en [OPERACION_SEGURA.md](OPERACION_SEGURA.md); los permisos se describen en una [propuesta no aplicada](PERMISOS_BD_PROPUESTA.md). docker-compose.production.yml es una referencia separada, no una actualización automática del Compose local. deploy/production.env.example contiene placeholders de servidor y no reemplaza las plantillas públicas Vite.
+
 El SOS necesita **NestJS + FastAPI + el mismo PostgreSQL + un emisor WhatsApp conectado**. Que el login responda o que el contenedor esté encendido no acredita que los mensajes puedan salir.
 
 El incidente del 29 de octubre ocurrió al cambiar el APK de NestJS local a Docker: el contenedor respondía por HTTP pero tenía WhatsApp deshabilitado. El SOS se conservó en PostgreSQL y se despachó al restablecer el emisor. El usuario confirmó recepción y finalización. No se modificó `init.sql` ni fue necesario regenerar datos.

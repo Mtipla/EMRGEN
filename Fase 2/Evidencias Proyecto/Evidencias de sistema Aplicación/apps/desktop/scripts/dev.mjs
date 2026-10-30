@@ -21,7 +21,7 @@ console.log(`  ➜  API:     ${server.config.env.VITE_API_URL ?? '(VITE_API_URL 
 const url = server.resolvedUrls?.local[0]
 if (!url) throw new Error('Vite no entregó una URL local para el renderer.')
 
-const env = { ...process.env, ELECTRON_RENDERER_URL: url }
+const env = { ...process.env, NODE_ENV: 'development', ELECTRON_RENDERER_URL: url }
 // Las terminales de VS Code definen esta variable y Electron arrancaría como Node, sin ventana.
 delete env.ELECTRON_RUN_AS_NODE
 

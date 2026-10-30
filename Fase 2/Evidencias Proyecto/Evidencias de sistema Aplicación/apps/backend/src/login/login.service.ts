@@ -1,3 +1,4 @@
+import { completeRows, reportLimit } from '../config/security';
 import {
   BadRequestException,
   ConflictException,
@@ -174,6 +175,7 @@ export class LoginService {
     const perfiles = await this.usuarioRepository.find({
       where: [{ usuario_ID: principal.usuario_ID }, { usuario_principal_ID: principal.usuario_ID }],
       order: { usuario_ID: 'ASC' },
+      take: reportLimit() + 1,
     });
     if (datos.perfil_ID === undefined) {
       return {
@@ -251,7 +253,8 @@ export class LoginService {
         usuario_principal_ID: true,
       },
       order: { usuario_ID: 'ASC' },
-    }).then((usuarios) => usuarios.map((usuario) => this.sinPassword(usuario)));
+      take: reportLimit() + 1,
+    }).then((usuarios) => completeRows(usuarios).map((usuario) => this.sinPassword(usuario)));
   }
 
   async actualizarPropio(

@@ -39,13 +39,16 @@ La base tecnológica de las aplicaciones es la siguiente:
 | ----------------------- | --------------------------------------------------------------------------------------------- |
 | Lenguaje principal      | TypeScript `6.0.3`                                                                            |
 | Backend principal       | NestJS `12.0.4`, TypeORM `1.1.1`, `pg` `8.23.0` y bcrypt `6.0.0`                              |
-| Interfaces              | React y React DOM `19.2.8`, Ionic React `9.0.4` y Vite `8.3.0`                                |
+| Interfaces              | React y React DOM `19.2.8`, Ionic React `9.0.4` y Vite `8.3.3`                                |
 | Aplicación móvil        | Capacitor `8.5.2` como base para la integración nativa                                        |
-| Escritorio              | Electron `44.4.3`; `electron-builder` `26.15.3` está declarado como dependencia de desarrollo |
+| Escritorio              | Electron `44.9.1`; `electron-builder` `26.15.3` está declarado como dependencia de desarrollo |
 | Monorepo                | Turborepo `2.11.2`                                                                            |
 | API de SOS y soporte    | Python, FastAPI `0.156.2`, Uvicorn `0.54.0` y psycopg `3.3.6`                                 |
 | Base de datos           | Imagen `postgres:15-alpine`                                                                   |
 | Integración de WhatsApp | `@whiskeysockets/baileys` `7.0.0-rc14`                                                        |
+
+
+Actualización comprobada el 30-10-2026: Electron 44.9.1 instalado en Windows x64 y seis casos del panel aprobados con APIs simuladas; el bloqueo EBUSY quedó cerrado. También se acreditó una instalación limpia del delta en una copia independiente, con lock intacto, preparación explícita del binario oficial y panel 6/6. El ejecutable incluye Node 24.22.0, distinto del Node 24.21.0 usado por npm. La prueba aislada se reproduce desde esta carpeta con `node scripts/security-run.mjs build desktop` y `node scripts/check-electron-panel.mjs`. Véanse [el README del panel](apps/desktop/README.md), [el cierre vigente](docs/FORTALECIMIENTO_CIBERSEGURIDAD_EMERGEN.md) y [el acompañamiento para integrantes](docs/PROMPT_CLAUDE_ACTUALIZACION_EQUIPO_POSTMERGE.md). Falta comprobar la instalación en cada equipo, otras plataformas, distribución firmada y flujos contra servicios reales.
 
 Las dependencias de Node se detallan en los `package.json` y en el único `package-lock.json` del monorepo. Las de Python están fijadas en [requirements.txt](services/internal-api/requirements.txt).
 
@@ -151,13 +154,20 @@ Deja una sola definición de `JWT_SECRET` en el archivo. NestJS exige al menos 3
 
 Los archivos `.env` y `.env.local` están excluidos de Git. Las variables con prefijo `VITE_` se incluyen en el código que recibe el navegador: reserva ese prefijo para configuración pública, como las URL y los identificadores de cliente.
 
-### 4.3 Instalar las dependencias de Node
+### 4.3 Instalar las dependencias de Node y preparar Electron
+
+Desde la raíz de aplicación, en la copia de trabajo del integrante y con los procesos que usan sus dependencias coordinados:
 
 ```powershell
-npm ci
+npm ci --no-audit --no-fund
+node node_modules/electron/install.js
 ```
 
-Esta instalación incluye todos los workspaces de `apps/` y `packages/`. Después de actualizar el repositorio, repítela si cambió el lockfile. La instalación de Python se explica en la sección 6.4.
+El primer comando instala los paquetes de todos los workspaces desde el lock; el segundo prepara explícitamente el binario **Electron 44.9.1** de esa dependencia local. No asumir que npm ejecutó su instalación binaria ni esperar una descarga oculta al abrir el panel. El instalador oficial usa checksums.json incluido en el paquete; no desactivar esa comprobación, permitir globalmente scripts de dependencias o usar mirrors desconocidos. Para adquisición se necesita acceso al registro npm y a las releases oficiales de GitHub y sus redirecciones CDN; un proxy corporativo debe estar configurado privadamente. Esa descarga es distinta del egreso bloqueado durante pruebas.
+
+Después de incorporar cambios, repetir npm ci si cambió el lock y el paso explícito de Electron si se utiliza desktop. No copiar node_modules ni usar Electron global/latest. La verificación real del ejecutable se realiza con `node scripts/security-run.mjs build desktop` y `node scripts/check-electron-panel.mjs` (APIs simuladas; ver [README desktop](apps/desktop/README.md)); leer dist/version por sí solo no prueba el panel.
+
+Cypress **13.17.0** queda opcional para quien lo usa: `node node_modules/cypress/bin/cypress install` prepara únicamente el binario de la versión local resuelta. No instalar navegadores adicionales por defecto. La actualización Python es un paso separado de la sección 6.4.
 
 ### 4.4 Qué archivo de configuración lee cada servicio
 
@@ -243,11 +253,31 @@ En un teléfono físico, `localhost` se refiere al propio teléfono. Para una pr
 
 ### 6.3 Datos de desarrollo y panel administrativo
 
-Una base nueva contiene el esquema y los catálogos, pero no usuarios. Con PostgreSQL disponible y las dependencias de Node instaladas, puedes cargar las cuentas de demostración:
+**Si ya tienes BD y datos:** no ejecutar seed al incorporar cambios, renombrar la BD ni reinicializar volúmenes. La configuración estándar EMERGEN_BDD está destinada al entorno normal y el guard la rechaza intencionalmente para sembrar.
+
+**Solo para una demostración nueva y opcional:**
+
+1. Preparar otra copia de aplicación dedicada a la demo y una instancia PostgreSQL local independiente, con contenedor/proyecto/volumen propios y puerto libre. Crear allí una BD nueva y vacía llamada `emergen_dev`. Inicializar el esquema vigente y las migraciones que correspondan según [README_BDD.md](README_BDD.md), exclusivamente sobre ese destino nuevo; nunca ejecutar init.sql encima de una BD con datos. No reutilizar los nombres/volúmenes/puertos de la instalación existente.
+2. En esa copia nueva, preparar su .env privado con las credenciales del destino nuevo. El seed lee ese archivo; no copiar ni sobrescribir la configuración privada de la copia operativa. No escribir credenciales en ejemplos o argumentos.
+3. Desde la **raíz de aplicación de esa copia** (donde están package.json y scripts/), en una terminal nueva, ejecutar voluntariamente el siguiente bloque. El ejemplo supone que el destino nuevo publica 55432→5432 en loopback:
 
 ```powershell
+$env:EMERGEN_ENVIRONMENT = 'development'
+$env:NODE_ENV = 'development'
+$env:DB_HOST = '127.0.0.1'
+$env:DB_PORT = '55432'
+$env:DB_NAME = 'emergen_dev'
+$env:EMERGEN_SEED_EXPECTED_DB = 'emergen_dev'
+if ($env:DATABASE_URL) { throw 'Usa una terminal de demo sin DATABASE_URL heredada.' }
+if ($env:EMERGEN_DEPLOYMENT_ID -and $env:EMERGEN_DEPLOYMENT_ID -notin @('local','test')) {
+    throw 'El deployment heredado no corresponde a una demo local.'
+}
 node scripts/seed-dev.cjs
 ```
+
+Las seis asignaciones son explícitas y no contienen credenciales. Si el puerto elegido es distinto, ajustar DB_PORT al publicado por la instancia nueva. DB_USER/DB_PASSWORD se toman de su configuración privada; no se muestran ni se cambian aquí. El guard actúa antes de importar el cliente/leer .env: exige development/_dev o test/_test, minúsculas, loopback, puerto válido y confirmación exacta; DATABASE_URL debe estar ausente y el deployment, si existe, debe ser local/test.
+
+Dentro de Docker `DB_HOST=db` identifica el servicio en su red y usa 5432; desde el host se usa loopback y el puerto publicado. No cambiar los defaults de todos los servicios ni renombrar EMERGEN_BDD para satisfacer el guard. Este flujo no se ejecuta al arrancar, instalar o hacer pull/merge.
 
 El script crea las cuentas faltantes y conserva las existentes; no restablece sus contraseñas ni sus compras. También asegura el precio de demostración del plan base. Las cuentas, contraseñas de prueba y condiciones de uso están en [README_BDD.md](README_BDD.md#fixtures-explícitos-de-desarrollo).
 
@@ -257,14 +287,25 @@ Las secciones de compras y bitácora permiten descargar PDF o Excel mediante jsR
 
 ### 6.4 Iniciar FastAPI para SOS y soporte
 
-Este servicio se ejecuta fuera de Compose y necesita PostgreSQL, las dependencias del monorepo y el mismo `JWT_SECRET` de NestJS. Su verificación de PIN utiliza el bcrypt del backend mediante un script de Node.
+FastAPI puede ejecutarse como proceso propio o mediante su servicio Compose, sobre el mismo PostgreSQL y JWT_SECRET de NestJS. El PIN se verifica con **bcrypt Python 5.0.0**, ya declarado en requirements-runtime.txt; no depende de Node ni del helper scripts/pin-bcrypt.cjs. Ese helper permanece como legado sin consumidores de código actuales; no se elimina en este cierre.
 
-Para crear el entorno virtual e instalar las dependencias por primera vez, ejecuta desde la raíz del monorepo:
+Desde la **raíz de aplicación**, crear un venv propio solo si falta y reinstalar los requisitos también después de incorporar esta actualización:
 
 ```powershell
-python -m venv services/internal-api/.venv
+if (-not (Test-Path -LiteralPath '.\services\internal-api\.venv\Scripts\python.exe')) {
+    python -m venv services/internal-api/.venv
+}
+.\services\internal-api\.venv\Scripts\Activate.ps1
+python -m pip install -r services/internal-api/requirements.txt
+```
+
+Sin activación, o si la política de la terminal la impide, utilizar directamente el intérprete de ese venv; no cambiar políticas globales:
+
+```powershell
 .\services\internal-api\.venv\Scripts\python.exe -m pip install -r services/internal-api/requirements.txt
 ```
+
+requirements.txt es el manifiesto de desarrollo local Windows/Python 3.12 (incluye runtime y pruebas). No copiar .venv entre integrantes. La imagen **Linux/Python 3.12** utiliza `python -m pip install --require-hashes -r services/internal-api/locks/requirements-linux-py312.lock` desde A dentro del entorno Linux correspondiente; ese lock de 25 paquetes no se aplica a Windows. La activación de un venv Linux es `source services/internal-api/.venv/bin/activate`; esto no declara portabilidad del harness Node de pruebas, que sigue con sus limitaciones documentadas. No cambió ninguna versión Python para este ajuste.
 
 Después, abre otra terminal y arráncalo desde su carpeta. Las variables de conexión siguientes se aplican solo a esa terminal:
 
@@ -332,17 +373,7 @@ PostgreSQL ejecuta `init.sql` solo al inicializar un volumen vacío. Modificar e
 
 Si necesitas conservar datos de una versión anterior, prepara una migración y un respaldo siguiendo [README_BDD.md](README_BDD.md). Los scripts SQL históricos no forman una secuencia de migración que deba ejecutarse completa sobre el esquema actual.
 
-Para recrear un entorno de desarrollo cuyos datos puedas descartar:
-
-> **`docker compose down -v` elimina la base de datos y la sesión de WhatsApp guardada en los volúmenes de este Compose.** Después tendrás que volver a cargar las cuentas de desarrollo y vincular el número emisor si utilizabas esa integración.
-
-```powershell
-docker compose down -v
-docker compose up --build -d
-node scripts/seed-dev.cjs
-```
-
-La recreación no afecta al contenedor independiente de jsReport ni a sus plantillas.
+Una actualización del equipo no requiere recrear la base ni volver a sembrar datos. No usar `down -v` como procedimiento de instalación, actualización o reparación: elimina volúmenes de PostgreSQL y WhatsApp. Cualquier recreación exige un plan propio del responsable, con destino y conservación de datos identificados. Para una demo nueva, usar el flujo opcional y separado de §6.3; no aplicarlo al Compose existente.
 
 ## 8. Compilación, calidad y pruebas
 
@@ -391,7 +422,7 @@ Las suites de NestJS que prueban la base real se habilitan con `DB_E2E=1`; las d
 | Cypress indica que falta su binario                        | Ejecuta `npx --workspace=mobile cypress install`.                                                                                                                 |
 | Los cambios de `init.sql` no aparecen en PostgreSQL        | El volumen ya estaba inicializado. Revisa el procedimiento de migración o recreación de la sección 7.4.                                                           |
 
-Para reparar una instalación local, comienza por `npm ci`. Si npm informa errores de caché, puedes comprobarla con `npm cache verify` y volver a instalar. Regenerar `package-lock.json` es un cambio de dependencias que debe revisarse y compartirse con el equipo; no es parte de la limpieza habitual.
+Para reparar una instalación local, comienza por `npm ci --no-audit --no-fund` y, si usas desktop, `node node_modules/electron/install.js`. Si npm informa errores de caché, puedes comprobarla con `npm cache verify` y volver a instalar. Regenerar `package-lock.json` es un cambio de dependencias que debe revisarse y compartirse con el equipo; no es parte de la limpieza habitual.
 
 ## 10. Documentación de apoyo
 
@@ -513,8 +544,6 @@ node scripts/migrate-contactos-antecedentes.cjs
 node scripts/migrate-tickets-responsable.cjs
 # Solo después de configurar MEDICAL_DATA_KEYS; conserva/cifra los datos existentes.
 node scripts/cifrar-fichas.cjs
-# Opcional: crea fixtures faltantes; no reemplaza las cuentas ya existentes.
-node scripts/seed-dev.cjs
 ```
 
 Consulta [README_BDD.md](README_BDD.md) y [SOS por WhatsApp](docs/WHATSAPP_SOS.md) antes de preparar una base anterior. No vuelvas a cargar fixtures sobre una cuenta personal para intentar corregir su plan o PIN. `verify-schema.cjs` compara estrictamente con `init.sql`: actualmente puede informar columnas adicionales legítimas de las migraciones de contactos y responsables de soporte. Esa diferencia no se resuelve recreando la base ni cambiando el archivo protegido.
@@ -538,8 +567,10 @@ npm run start:dev --workspace=backend
 ```
 
 ```powershell
-# Terminal 2: instalación Python solo la primera vez.
-python -m venv services/internal-api/.venv
+# Terminal 2: crear venv solo si falta; actualizar requisitos también tras incorporar cambios.
+if (-not (Test-Path -LiteralPath '.\services\internal-api\.venv\Scripts\python.exe')) {
+    python -m venv services/internal-api/.venv
+}
 .\services\internal-api\.venv\Scripts\python.exe -m pip install -r services/internal-api/requirements.txt
 Push-Location -LiteralPath ".\services\internal-api"
 $env:DB_HOST = 'localhost'

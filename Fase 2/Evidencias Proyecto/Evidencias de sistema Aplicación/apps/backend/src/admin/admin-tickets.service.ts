@@ -1,3 +1,4 @@
+import { completeRows, reportLimit } from '../config/security';
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import {
@@ -52,8 +53,9 @@ export class AdminTicketsService {
       LEFT JOIN soporte s USING (ticket_soporte_id)
       LEFT JOIN usuario u ON u.usuario_id = t.usuario_id
       WHERE UPPER(e.estado_ticket) = 'CERRADO'
-      ORDER BY t.ticket_soporte_id DESC
-    `);
+      ORDER BY t.ticket_soporte_id DESC LIMIT $1
+    `, [reportLimit() + 1]);
+    completeRows(tickets);
     const reporte = await this.jsreport.renderInline(
       plantillaReporte(formato, PLANTILLA_TICKETS_PDF, PLANTILLA_TICKETS_EXCEL),
       {

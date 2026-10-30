@@ -4,4 +4,5 @@ import uvicorn
 from app.core.config import settings
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host=os.environ.get("HOST", "0.0.0.0"), port=settings.port)
+    uvicorn.run("app.main:app", host=os.environ.get("HOST", "0.0.0.0"), port=settings.port,
+                forwarded_allow_ips=os.environ.get("FORWARDED_ALLOW_IPS", ""), timeout_keep_alive=5)

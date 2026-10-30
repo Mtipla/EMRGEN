@@ -37,14 +37,14 @@ async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResp
 
 
 async def _unhandled_error(request: Request, exc: Exception) -> JSONResponse:
-    logger.exception("Error no controlado en %s %s", request.method, request.url.path)
+    logger.error("unhandled_request method=%s", request.method)
     return _body(500, "Internal server error")
 
 
 async def _postgres_error(_: Request, exc: psycopg.Error) -> JSONResponse:
     if exc.sqlstate in ("23503", "23505", "23514", "23001", "23502", "22001", "22P02"):
         return _body(409, "La operación contradice una regla de integridad o referencia")
-    if exc.sqlstate in ("40001", "40P01") or isinstance(exc, psycopg.OperationalError):
+    if exc.sqlstate in ("40001", "40P01", "57014", "53300") or isinstance(exc, psycopg.OperationalError):
         return _body(503, "La operación no se completó; vuelve a intentarlo")
     logger.error("Error PostgreSQL: %s", exc.sqlstate)
     return _body(500, "Internal server error")

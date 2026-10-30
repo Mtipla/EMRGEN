@@ -2,6 +2,7 @@ import { validateRuntimeConfig } from './runtime-config';
 
 const production = {
   EMERGEN_ENVIRONMENT: 'production',
+  DB_SSLMODE: 'disable', JSREPORT_URL: 'https://reports.example.invalid',
   EMERGEN_DEPLOYMENT_ID: 'emergen-prod',
   DB_HOST: 'db',
   DB_PORT: '5432',

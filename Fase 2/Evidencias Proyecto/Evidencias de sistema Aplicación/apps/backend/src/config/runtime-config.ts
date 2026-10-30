@@ -46,6 +46,17 @@ export function validateRuntimeConfig(env: Environment): Environment {
     );
   }
   if (!['staging', 'production'].includes(environment)) return env;
+  for (const key of ['DB_SSLMODE', 'JSREPORT_URL']) {
+    if (missing(value(env, key))) throw new Error(`${key}: debe configurarse explícitamente en ${environment}.`);
+  }
+  try {
+    const report = new URL(value(env, 'JSREPORT_URL'));
+    if (report.protocol !== 'https:' || report.username || report.password ||
+        /^(?:localhost|host\.docker\.internal|127\.|0\.0\.0\.0)/i.test(report.hostname)) throw new Error();
+  } catch { throw new Error('JSREPORT_URL: usa HTTPS del servicio administrado; no admite el equipo de desarrollo.'); }
+  const proxies = value(env, 'TRUSTED_PROXY_CIDRS');
+  if (proxies && proxies.split(',').some(p => !/^(?:[0-9a-f:.]+)(?:\/\d{1,3})?$/i.test(p.trim())))
+    throw new Error('TRUSTED_PROXY_CIDRS: enumera direcciones/CIDR concretos; no admite confianza global.');
   for (const key of [
     'DB_HOST',
     'DB_PORT',

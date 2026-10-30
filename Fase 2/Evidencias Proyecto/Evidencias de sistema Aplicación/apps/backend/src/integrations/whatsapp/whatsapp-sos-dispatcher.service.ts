@@ -60,7 +60,7 @@ export class WhatsappSosDispatcher
     if (this.stopped || this.running || !this.connection.isReady()) return;
     this.running = this.dispatchBatch().catch((error: unknown) => {
       this.logger.error(
-        `No se pudo procesar la cola SOS: ${error instanceof Error ? error.message : String(error)}`,
+        { event: 'sos_dispatch_failed' },
       );
     });
     try {
