@@ -1,4 +1,5 @@
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { OperationLimitsInterceptor, securityNumber } from './config/security';
 import { PostgresExceptionFilter } from './config/postgres-exception.filter';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -17,7 +18,12 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { ComprasModule } from './compras/compras.module';
 import { PerfilModule } from './perfil/perfil.module';
 import { ApadrinadosModule } from './apadrinados/apadrinados.module';
+import { resolve } from 'node:path';
+import { validateRuntimeConfig } from './config/runtime-config';
+import { HealthController } from './health/health.controller';
+import { readFileSync } from 'node:fs';
 
+const backendDir = resolve(__dirname, '..');
 
 @Module({
   imports: [
@@ -26,7 +32,15 @@ import { ApadrinadosModule } from './apadrinados/apadrinados.module';
     // las variables de docker-compose.yml ya están en el entorno y siempre tienen prioridad.
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env', '../../.env'],
+      envFilePath: [
+        resolve(backendDir, '.env.local'),
+        resolve(backendDir, '.env'),
+        resolve(backendDir, '../../.env'),
+      ],
+      ignoreEnvFile: ['test', 'staging', 'production'].includes(
+        process.env.EMERGEN_ENVIRONMENT ?? process.env.NODE_ENV ?? '',
+      ),
+      validate: validateRuntimeConfig,
     }),
     // Async: DB_* se lee cuando ConfigModule ya cargó los .env, no al importar este archivo.
     TypeOrmModule.forRootAsync({
@@ -38,9 +52,21 @@ import { ApadrinadosModule } from './apadrinados/apadrinados.module';
         username: config.get<string>('DB_USER'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_NAME'),
+        ssl:
+          config.get<string>('DB_SSLMODE') === 'verify-full'
+            ? {
+                rejectUnauthorized: true,
+                ca: readFileSync(
+                  config.getOrThrow<string>('DB_SSL_CA_FILE'),
+                  'utf8',
+                ),
+              }
+            : false,
         // Registra las entidades de cada TypeOrmModule.forFeature (Usuario, BitacoraSistema, PlanUsuario...).
         autoLoadEntities: true,
         synchronize: false,
+        extra: { max: securityNumber('DB_POOL_MAX', 10, 100), connectionTimeoutMillis: 5000,
+          statement_timeout: securityNumber('DB_STATEMENT_TIMEOUT_MS', 30_000, 300_000) },
       }),
     }),
     AdminModule,
@@ -56,7 +82,11 @@ import { ApadrinadosModule } from './apadrinados/apadrinados.module';
     MindicadorModule,
     WhatsappModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, { provide: APP_FILTER, useClass: PostgresExceptionFilter }],
+  controllers: [AppController, HealthController],
+  providers: [
+    AppService,
+    { provide: APP_FILTER, useClass: PostgresExceptionFilter },
+    { provide: APP_INTERCEPTOR, useClass: OperationLimitsInterceptor },
+  ],
 })
-export class AppModule { }
+export class AppModule {}

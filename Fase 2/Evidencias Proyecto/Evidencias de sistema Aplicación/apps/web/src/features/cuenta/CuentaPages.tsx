@@ -31,10 +31,9 @@ export function HomePage({ user }: { user: AuthenticatedUser }) {
               {user.plan_efectivo ? 'Comprar cupos de cuentas' : 'Comprar Premium'}
             </Link>
           )}
-          {disponible('admin.cuentas.ver') && (
-            <Link className="wf-button wf-button--secondary" to="/administracion/cuentas">Panel de administración</Link>
+          {perfilDe(user) !== 'ADMINISTRADOR' && disponible('soporte.solicitar') && (
+            <Link className="wf-button wf-button--secondary" to="/soporte">Solicitar soporte</Link>
           )}
-          <Link className="wf-button wf-button--secondary" to="/soporte">Solicitar soporte</Link>
         </div>
       </section>
 

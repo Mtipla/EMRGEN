@@ -2,6 +2,7 @@ import { ConflictException, ForbiddenException, HttpException, NotFoundException
 import * as bcrypt from 'bcrypt';
 import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { AdminService } from '../admin/admin.service';
+import { reportLimit } from '../config/security';
 import type { UsuarioSesion } from '../login/jwt-auth.guard';
 import type { JsreportService } from '../integrations/jsreport/jsreport.service';
 import { LoginService } from '../login/login.service';
@@ -67,7 +68,7 @@ describe('ApadrinadosService', () => {
         usuario: { nombre: 'P', acceso: 'Completo', premium: 'Sí' },
         apadrinados: [{ nombre: 'H', acceso: 'Parcial', pin: 'Sin PIN' }],
       });
-      expect(query.mock.calls.map((call) => call[1])).toEqual([[[10, 11]], [[10, 11]]]);
+      expect(query.mock.calls.map((call) => call[1])).toEqual([[[10, 11], reportLimit() + 1], [[10, 11], reportLimit() + 1]]);
     });
 
     it('un apadrinado solo recibe su propia cuenta, nunca la de su principal', async () => {
@@ -75,7 +76,7 @@ describe('ApadrinadosService', () => {
       await service.informe({ ...PRINCIPAL, sub: 11 });
       expect(usuarios.find).not.toHaveBeenCalled();
       expect(renderInline.mock.calls[0][1]).toMatchObject({ principal: false, apadrinados: [] });
-      expect(query.mock.calls.map((call) => call[1])).toEqual([[[11]], [[11]]]);
+      expect(query.mock.calls.map((call) => call[1])).toEqual([[[11], reportLimit() + 1], [[11], reportLimit() + 1]]);
     });
 
     it('genera Excel con alertas y acciones de la sesión y valida la firma del archivo', async () => {

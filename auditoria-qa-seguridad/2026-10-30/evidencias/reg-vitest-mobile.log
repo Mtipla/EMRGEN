@@ -1,0 +1,35 @@
+== vitest-mobile: node scripts/security-run.mjs vitest --root apps/mobile --config vite.config.ts --mode security-check
+
+ RUN  v4.1.11 C:/Users/gabym/OneDrive/Documentos/GitHub/EMRGEN/Fase 2/Evidencias Proyecto/Evidencias de sistema Aplicación/apps/mobile
+
+ ❯ src/App.test.tsx (0 test)
+
+ Test Files  1 failed | 9 passed (10)
+      Tests  53 passed (53)
+   Start at  16:34:20
+   Duration  10.48s (transform 2.90s, setup 6.74s, import 3.38s, tests 2.10s, environment 18.82s)
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx [ src/App.test.tsx ]
+FirebaseError: Firebase: Error (auth/invalid-api-key).
+ ❯ createErrorInternal ../../../../../Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/@firebase/auth/dist/node-esm/totp-BU9AvxK8.js:501:40
+ ❯ _assert ../../../../../Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/@firebase/auth/dist/node-esm/totp-BU9AvxK8.js:505:15
+ ❯ Component.instanceFactory ../../../../../Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/@firebase/auth/dist/node-esm/totp-BU9AvxK8.js:7349:9
+ ❯ Provider.getOrInitializeService ../../../../../Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/@firebase/component/dist/esm/index.esm.js:289:39
+ ❯ Provider.initialize ../../../../../Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/@firebase/component/dist/esm/index.esm.js:233:31
+ ❯ initializeAuth ../../../../../Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/@firebase/auth/dist/node-esm/totp-BU9AvxK8.js:3651:27
+ ❯ getAuth ../../../../../Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicaci%C3%B3n/node_modules/@firebase/auth/dist/node-esm/totp-BU9AvxK8.js:7410:18
+ ❯ initFirebase ../../packages/api-client/src/firebase-app.ts:11:23
+      9| export function initFirebase(config: FirebaseOptions): { app: Firebase…
+     10|   const app = getApps()[0] ?? initializeApp(config);
+     11|   return { app, auth: getAuth(app) };
+       |                       ^
+     12| }
+     13|
+ ❯ src/lib/api.ts:24:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+exit=1

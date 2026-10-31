@@ -3,13 +3,13 @@
 import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv, type Plugin } from "vite";
-import { androidLanUrls } from "../../scripts/android-lan-env.mjs";
+import { publicApiUrls } from "../../scripts/api-environment.mjs";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const urls =
-    mode === "android-lan"
-      ? androidLanUrls(loadEnv(mode, "../../", "VITE_"))
+    command === "build"
+      ? publicApiUrls((mode === "security-check" ? process.env : loadEnv(mode, "../../", "VITE_")), mode)
       : undefined;
   return {
     plugins: [
@@ -26,8 +26,11 @@ export default defineConfig(({ mode }) => {
                   source: JSON.stringify(
                     {
                       mode,
-                      version: "0.2.2",
+                      version: "0.2.3",
                       builtAt: new Date().toISOString(),
+                      deployment:
+                        (mode === "security-check" ? process.env : loadEnv(mode, "../../", "VITE_")).VITE_DEPLOYMENT_ID ||
+                        "local",
                       ...urls,
                     },
                     null,
@@ -40,7 +43,7 @@ export default defineConfig(({ mode }) => {
         : []),
     ],
     // Un solo .env en la raíz del monorepo; Vite solo expone las variables VITE_*.
-    envDir: "../../",
+    envDir: mode === "security-check" ? false : "../../",
     test: {
       globals: true,
       environment: "jsdom",

@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { JsreportController } from './jsreport.controller';
 import { JsreportService } from './jsreport.service';
 
 @Module({
-  controllers: [JsreportController],
+  // Solo render interno desde reportes de negocio autorizados; sin API genérica de plantillas.
   providers: [JsreportService],
   exports: [JsreportService],
 })

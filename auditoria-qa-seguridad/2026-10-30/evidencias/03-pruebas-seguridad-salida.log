@@ -1,0 +1,15 @@
+APROBADO   SEC-SQLI-01 Login con payload SQL en correo no autentica ni rompe (' OR '1'='1)
+APROBADO   SEC-SQLI-02 Payload SQL en nombre de contacto se almacena como literal (parametrizado)
+APROBADO   SEC-SQLI-03 Filtro de alertas admin con payload SQL en estado se rechaza por DTO allowlist
+APROBADO   SEC-XSS-01 Script en mensaje SOS se almacena/retorna como dato, no se ejecuta en servidor
+APROBADO   SEC-XSS-02 El contenido devuelto es application/json (no HTML ejecutable) con nosniff
+APROBADO   SEC-BOLA-01 Usuario común no puede ver expediente admin de otro (GET /admin/usuarios/:id)
+APROBADO   SEC-BOLA-02 Usuario común no puede eliminar cuentas (DELETE /usuarios/:id)
+APROBADO   SEC-BOLA-03 FastAPI: usuario común que falsea usuario_id ajeno en historial solo ve lo suyo
+APROBADO   SEC-BOLA-04 Rol en el JWT no se respeta: el servidor relee rol de BD (token con rol admin falso)
+APROBADO   SEC-RESIL-01 Caída de PayPal al crear orden devuelve 5xx controlado (no 500 crudo ni cuelga)
+APROBADO   SEC-RESIL-02 Tras restaurar PayPal, la compra vuelve a funcionar (sin cobro duplicado por el fallo)
+APROBADO   SEC-SSRF-01 /maps/geocode no acepta URL arbitraria (solo dirección de texto validada)
+APROBADO   SEC-REDIR-01 Respuestas 2xx/4xx no incluyen Location hacia dominios externos no controlados
+
+RESUMEN-SEG: {"APROBADO":13}

@@ -21,6 +21,7 @@ import AlertaSos from '../components/AlertaSos';
 import AlertasActivas from '../components/AlertasActivas';
 import ConfigurarAlerta from '../components/ConfigurarAlerta';
 import AlertaVolumen from '../components/AlertaVolumen';
+import NumerosEmergenciaMovil from '../components/NumerosEmergenciaMovil';
 import { apiFetch, clearSession, getUser, saveSession, type SessionUser } from '../lib/session';
 import { MENSAJE_REQUIERE_PLAN } from '../lib/sos';
 import './Home.css';
@@ -125,6 +126,7 @@ const Home: React.FC = () => {
         <AlertaVolumen tienePlan={tienePlan} onConfigurar={() => abrir('configurar')} />
 
         {user && <ResumenCuenta user={user} />}
+        <NumerosEmergenciaMovil />
         {tienePlan && user && visible && (
           <AlertasActivas
             key={user.usuario_ID}

@@ -1,0 +1,330 @@
+== jest-backend-e2e: node scripts/security-run.mjs jest --config test/jest-e2e.json
+FAIL test/panel-administrativo.db.e2e-spec.ts
+  ● Test suite failed to run
+
+    SECURITY_TEST: env file access blocked
+
+    [0m [90m 19 |[39m   fs[name] [33m=[39m [36mfunction[39m (file[33m,[39m [33m...[39margs) {
+     [90m 20 |[39m     [36mif[39m ([35m/(?:^|[\\/])\.env(?:[.\\/]|$)/[39m[33m.[39mtest([33mString[39m(file))) {
+    [31m[1m>[22m[39m[90m 21 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'SECURITY_TEST: env file access blocked'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 22 |[39m     }
+     [90m 23 |[39m     [36mreturn[39m original[33m.[39mcall([36mthis[39m[33m,[39m file[33m,[39m [33m...[39margs)[33m;[39m
+     [90m 24 |[39m   }[33m;[39m[0m
+
+      at fs.<computed> (../../../scripts/security-test-preload.cjs:21:13)
+      at Object.<anonymous> (load-root-env.ts:12:43)
+      at Object.<anonymous> (panel-administrativo.db.e2e-spec.ts:1:1)
+
+FAIL test/compras.db.e2e-spec.ts
+  ● Test suite failed to run
+
+    SECURITY_TEST: env file access blocked
+
+    [0m [90m 19 |[39m   fs[name] [33m=[39m [36mfunction[39m (file[33m,[39m [33m...[39margs) {
+     [90m 20 |[39m     [36mif[39m ([35m/(?:^|[\\/])\.env(?:[.\\/]|$)/[39m[33m.[39mtest([33mString[39m(file))) {
+    [31m[1m>[22m[39m[90m 21 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'SECURITY_TEST: env file access blocked'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 22 |[39m     }
+     [90m 23 |[39m     [36mreturn[39m original[33m.[39mcall([36mthis[39m[33m,[39m file[33m,[39m [33m...[39margs)[33m;[39m
+     [90m 24 |[39m   }[33m;[39m[0m
+
+      at fs.<computed> (../../../scripts/security-test-preload.cjs:21:13)
+      at Object.<anonymous> (load-root-env.ts:12:43)
+      at Object.<anonymous> (compras.db.e2e-spec.ts:1:1)
+
+FAIL test/admin-ventas.db.e2e-spec.ts
+  ● Test suite failed to run
+
+    SECURITY_TEST: env file access blocked
+
+    [0m [90m 19 |[39m   fs[name] [33m=[39m [36mfunction[39m (file[33m,[39m [33m...[39margs) {
+     [90m 20 |[39m     [36mif[39m ([35m/(?:^|[\\/])\.env(?:[.\\/]|$)/[39m[33m.[39mtest([33mString[39m(file))) {
+    [31m[1m>[22m[39m[90m 21 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'SECURITY_TEST: env file access blocked'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 22 |[39m     }
+     [90m 23 |[39m     [36mreturn[39m original[33m.[39mcall([36mthis[39m[33m,[39m file[33m,[39m [33m...[39margs)[33m;[39m
+     [90m 24 |[39m   }[33m;[39m[0m
+
+      at fs.<computed> (../../../scripts/security-test-preload.cjs:21:13)
+      at Object.<anonymous> (load-root-env.ts:12:43)
+      at Object.<anonymous> (admin-ventas.db.e2e-spec.ts:1:1)
+
+FAIL test/apadrinados-pin.db.e2e-spec.ts
+  ● Test suite failed to run
+
+    SECURITY_TEST: env file access blocked
+
+    [0m [90m 19 |[39m   fs[name] [33m=[39m [36mfunction[39m (file[33m,[39m [33m...[39margs) {
+     [90m 20 |[39m     [36mif[39m ([35m/(?:^|[\\/])\.env(?:[.\\/]|$)/[39m[33m.[39mtest([33mString[39m(file))) {
+    [31m[1m>[22m[39m[90m 21 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'SECURITY_TEST: env file access blocked'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 22 |[39m     }
+     [90m 23 |[39m     [36mreturn[39m original[33m.[39mcall([36mthis[39m[33m,[39m file[33m,[39m [33m...[39margs)[33m;[39m
+     [90m 24 |[39m   }[33m;[39m[0m
+
+      at fs.<computed> (../../../scripts/security-test-preload.cjs:21:13)
+      at Object.<anonymous> (load-root-env.ts:12:43)
+      at Object.<anonymous> (apadrinados-pin.db.e2e-spec.ts:1:1)
+
+FAIL test/auth-admin.db.e2e-spec.ts
+  ● Test suite failed to run
+
+    SECURITY_TEST: env file access blocked
+
+    [0m [90m 19 |[39m   fs[name] [33m=[39m [36mfunction[39m (file[33m,[39m [33m...[39margs) {
+     [90m 20 |[39m     [36mif[39m ([35m/(?:^|[\\/])\.env(?:[.\\/]|$)/[39m[33m.[39mtest([33mString[39m(file))) {
+    [31m[1m>[22m[39m[90m 21 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'SECURITY_TEST: env file access blocked'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 22 |[39m     }
+     [90m 23 |[39m     [36mreturn[39m original[33m.[39mcall([36mthis[39m[33m,[39m file[33m,[39m [33m...[39margs)[33m;[39m
+     [90m 24 |[39m   }[33m;[39m[0m
+
+      at fs.<computed> (../../../scripts/security-test-preload.cjs:21:13)
+      at Object.<anonymous> (load-root-env.ts:12:43)
+      at Object.<anonymous> (auth-admin.db.e2e-spec.ts:1:1)
+
+(node:9792) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL test/integrations.e2e-spec.ts
+  ● Integraciones externas (HTTP) › Google Maps › GET /maps/geocode con {} responde 400
+
+    expected 400 "Bad Request", got 403 "Forbidden"
+
+    [0m [90m 182 |[39m       [[32m'/maps/reverse-geocode'[39m[33m,[39m { lat[33m:[39m [32m'abc'[39m[33m,[39m lng[33m:[39m [32m'0'[39m }][33m,[39m
+     [90m 183 |[39m     ])([32m'GET %s con %j responde 400'[39m[33m,[39m [36masync[39m (path[33m,[39m query) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 184 |[39m       [36mawait[39m http()[33m.[39m[36mget[39m(path)[33m.[39mquery(query)[33m.[39mexpect([35m400[39m)[33m;[39m
+     [90m     |[39m                                           [31m[1m^[22m[39m
+     [90m 185 |[39m       expect(fetchMock)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m
+     [90m 186 |[39m     })[33m;[39m
+     [90m 187 |[39m[0m
+
+      at integrations.e2e-spec.ts:184:43
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:376:14)
+      at ../../../node_modules/supertest/lib/test.js:432:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:409:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:274:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:196:38)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:203:13)
+
+  ● Integraciones externas (HTTP) › Google Maps › GET /maps/geocode con {"address":"ab"} responde 400
+
+    expected 400 "Bad Request", got 403 "Forbidden"
+
+    [0m [90m 182 |[39m       [[32m'/maps/reverse-geocode'[39m[33m,[39m { lat[33m:[39m [32m'abc'[39m[33m,[39m lng[33m:[39m [32m'0'[39m }][33m,[39m
+     [90m 183 |[39m     ])([32m'GET %s con %j responde 400'[39m[33m,[39m [36masync[39m (path[33m,[39m query) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 184 |[39m       [36mawait[39m http()[33m.[39m[36mget[39m(path)[33m.[39mquery(query)[33m.[39mexpect([35m400[39m)[33m;[39m
+     [90m     |[39m                                           [31m[1m^[22m[39m
+     [90m 185 |[39m       expect(fetchMock)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m
+     [90m 186 |[39m     })[33m;[39m
+     [90m 187 |[39m[0m
+
+      at integrations.e2e-spec.ts:184:43
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:376:14)
+      at ../../../node_modules/supertest/lib/test.js:432:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:409:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:274:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:196:38)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:203:13)
+
+  ● Integraciones externas (HTTP) › Google Maps › GET /maps/reverse-geocode con {"lat":"91","lng":"0"} responde 400
+
+    expected 400 "Bad Request", got 403 "Forbidden"
+
+    [0m [90m 182 |[39m       [[32m'/maps/reverse-geocode'[39m[33m,[39m { lat[33m:[39m [32m'abc'[39m[33m,[39m lng[33m:[39m [32m'0'[39m }][33m,[39m
+     [90m 183 |[39m     ])([32m'GET %s con %j responde 400'[39m[33m,[39m [36masync[39m (path[33m,[39m query) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 184 |[39m       [36mawait[39m http()[33m.[39m[36mget[39m(path)[33m.[39mquery(query)[33m.[39mexpect([35m400[39m)[33m;[39m
+     [90m     |[39m                                           [31m[1m^[22m[39m
+     [90m 185 |[39m       expect(fetchMock)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m
+     [90m 186 |[39m     })[33m;[39m
+     [90m 187 |[39m[0m
+
+      at integrations.e2e-spec.ts:184:43
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:376:14)
+      at ../../../node_modules/supertest/lib/test.js:432:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:409:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:274:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:196:38)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:203:13)
+
+  ● Integraciones externas (HTTP) › Google Maps › GET /maps/reverse-geocode con {"lat":"0","lng":"181"} responde 400
+
+    expected 400 "Bad Request", got 403 "Forbidden"
+
+    [0m [90m 182 |[39m       [[32m'/maps/reverse-geocode'[39m[33m,[39m { lat[33m:[39m [32m'abc'[39m[33m,[39m lng[33m:[39m [32m'0'[39m }][33m,[39m
+     [90m 183 |[39m     ])([32m'GET %s con %j responde 400'[39m[33m,[39m [36masync[39m (path[33m,[39m query) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 184 |[39m       [36mawait[39m http()[33m.[39m[36mget[39m(path)[33m.[39mquery(query)[33m.[39mexpect([35m400[39m)[33m;[39m
+     [90m     |[39m                                           [31m[1m^[22m[39m
+     [90m 185 |[39m       expect(fetchMock)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m
+     [90m 186 |[39m     })[33m;[39m
+     [90m 187 |[39m[0m
+
+      at integrations.e2e-spec.ts:184:43
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:376:14)
+      at ../../../node_modules/supertest/lib/test.js:432:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:409:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:274:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:196:38)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:203:13)
+
+  ● Integraciones externas (HTTP) › Google Maps › GET /maps/reverse-geocode con {"lat":"abc","lng":"0"} responde 400
+
+    expected 400 "Bad Request", got 403 "Forbidden"
+
+    [0m [90m 182 |[39m       [[32m'/maps/reverse-geocode'[39m[33m,[39m { lat[33m:[39m [32m'abc'[39m[33m,[39m lng[33m:[39m [32m'0'[39m }][33m,[39m
+     [90m 183 |[39m     ])([32m'GET %s con %j responde 400'[39m[33m,[39m [36masync[39m (path[33m,[39m query) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 184 |[39m       [36mawait[39m http()[33m.[39m[36mget[39m(path)[33m.[39mquery(query)[33m.[39mexpect([35m400[39m)[33m;[39m
+     [90m     |[39m                                           [31m[1m^[22m[39m
+     [90m 185 |[39m       expect(fetchMock)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m
+     [90m 186 |[39m     })[33m;[39m
+     [90m 187 |[39m[0m
+
+      at integrations.e2e-spec.ts:184:43
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:376:14)
+      at ../../../node_modules/supertest/lib/test.js:432:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:409:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:274:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:196:38)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:203:13)
+
+  ● Integraciones externas (HTTP) › mindicador › GET /indicators/peso con {} responde 400
+
+    expected 400 "Bad Request", got 403 "Forbidden"
+
+    [0m [90m 230 |[39m       [[32m'/indicators/uf'[39m[33m,[39m { date[33m:[39m [32m'24/09/2026'[39m }][33m,[39m
+     [90m 231 |[39m     ])([32m'GET %s con %j responde 400'[39m[33m,[39m [36masync[39m (path[33m,[39m query) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 232 |[39m       [36mawait[39m http()[33m.[39m[36mget[39m(path)[33m.[39mquery(query)[33m.[39mexpect([35m400[39m)[33m;[39m
+     [90m     |[39m                                           [31m[1m^[22m[39m
+     [90m 233 |[39m       expect(fetchMock)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m
+     [90m 234 |[39m     })[33m;[39m
+     [90m 235 |[39m[0m
+
+      at integrations.e2e-spec.ts:232:43
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:376:14)
+      at ../../../node_modules/supertest/lib/test.js:432:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:409:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:274:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:196:38)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:203:13)
+
+  ● Integraciones externas (HTTP) › mindicador › GET /indicators/uf con {"date":"2026-09-24"} responde 400
+
+    expected 400 "Bad Request", got 403 "Forbidden"
+
+    [0m [90m 230 |[39m       [[32m'/indicators/uf'[39m[33m,[39m { date[33m:[39m [32m'24/09/2026'[39m }][33m,[39m
+     [90m 231 |[39m     ])([32m'GET %s con %j responde 400'[39m[33m,[39m [36masync[39m (path[33m,[39m query) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 232 |[39m       [36mawait[39m http()[33m.[39m[36mget[39m(path)[33m.[39mquery(query)[33m.[39mexpect([35m400[39m)[33m;[39m
+     [90m     |[39m                                           [31m[1m^[22m[39m
+     [90m 233 |[39m       expect(fetchMock)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m
+     [90m 234 |[39m     })[33m;[39m
+     [90m 235 |[39m[0m
+
+      at integrations.e2e-spec.ts:232:43
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:376:14)
+      at ../../../node_modules/supertest/lib/test.js:432:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:409:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:274:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:196:38)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:203:13)
+
+  ● Integraciones externas (HTTP) › mindicador › GET /indicators/uf con {"date":"24/09/2026"} responde 400
+
+    expected 400 "Bad Request", got 403 "Forbidden"
+
+    [0m [90m 230 |[39m       [[32m'/indicators/uf'[39m[33m,[39m { date[33m:[39m [32m'24/09/2026'[39m }][33m,[39m
+     [90m 231 |[39m     ])([32m'GET %s con %j responde 400'[39m[33m,[39m [36masync[39m (path[33m,[39m query) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 232 |[39m       [36mawait[39m http()[33m.[39m[36mget[39m(path)[33m.[39mquery(query)[33m.[39mexpect([35m400[39m)[33m;[39m
+     [90m     |[39m                                           [31m[1m^[22m[39m
+     [90m 233 |[39m       expect(fetchMock)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m
+     [90m 234 |[39m     })[33m;[39m
+     [90m 235 |[39m[0m
+
+      at integrations.e2e-spec.ts:232:43
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:376:14)
+      at ../../../node_modules/supertest/lib/test.js:432:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:409:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:274:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:196:38)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:203:13)
+
+FAIL test/security-functional.e2e-spec.ts
+  ● Test suite failed to run
+
+    This file requires the disposable security-db-check runner
+
+    [0m [90m 17 |[39m [36mif[39m (process[33m.[39menv[33m.[39m[33mSECURITY_ISOLATED_DB[39m [33m!==[39m [32m'1'[39m [33m||[39m process[33m.[39menv[33m.[39m[33mDB_NAME[39m [33m!==[39m [32m'emergen_security_test'[39m [33m||[39m
+     [90m 18 |[39m     process[33m.[39menv[33m.[39m[33mDB_PORT[39m [33m!==[39m [32m'55439'[39m [33m||[39m process[33m.[39menv[33m.[39m[33mDB_HOST[39m [33m!==[39m [32m'127.0.0.1'[39m [33m||[39m process[33m.[39menv[33m.[39m[33mEMERGEN_ENVIRONMENT[39m [33m!==[39m [32m'test'[39m)
+    [31m[1m>[22m[39m[90m 19 |[39m   [36mthrow[39m [36mnew[39m [33mError[39m([32m'This file requires the disposable security-db-check runner'[39m)[33m;[39m
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m 20 |[39m
+     [90m 21 |[39m describe([32m'integridad nominal con PostgreSQL desechable y proveedores falsos'[39m[33m,[39m () [33m=>[39m {
+     [90m 22 |[39m   [36mlet[39m app[33m:[39m [33mINestApplication[39m[33m;[39m[0m
+
+      at Object.<anonymous> (security-functional.e2e-spec.ts:19:9)
+
+FAIL test/admin-alertas.db.e2e-spec.ts
+  ● Test suite failed to run
+
+    SECURITY_TEST: env file access blocked
+
+    [0m [90m 19 |[39m   fs[name] [33m=[39m [36mfunction[39m (file[33m,[39m [33m...[39margs) {
+     [90m 20 |[39m     [36mif[39m ([35m/(?:^|[\\/])\.env(?:[.\\/]|$)/[39m[33m.[39mtest([33mString[39m(file))) {
+    [31m[1m>[22m[39m[90m 21 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'SECURITY_TEST: env file access blocked'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 22 |[39m     }
+     [90m 23 |[39m     [36mreturn[39m original[33m.[39mcall([36mthis[39m[33m,[39m file[33m,[39m [33m...[39margs)[33m;[39m
+     [90m 24 |[39m   }[33m;[39m[0m
+
+      at fs.<computed> (../../../scripts/security-test-preload.cjs:21:13)
+      at Object.<anonymous> (load-root-env.ts:12:43)
+      at Object.<anonymous> (admin-alertas.db.e2e-spec.ts:1:1)
+
+FAIL test/contactos-duplicados.db.e2e-spec.ts
+  ● Test suite failed to run
+
+    SECURITY_TEST: env file access blocked
+
+    [0m [90m 19 |[39m   fs[name] [33m=[39m [36mfunction[39m (file[33m,[39m [33m...[39margs) {
+     [90m 20 |[39m     [36mif[39m ([35m/(?:^|[\\/])\.env(?:[.\\/]|$)/[39m[33m.[39mtest([33mString[39m(file))) {
+    [31m[1m>[22m[39m[90m 21 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'SECURITY_TEST: env file access blocked'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 22 |[39m     }
+     [90m 23 |[39m     [36mreturn[39m original[33m.[39mcall([36mthis[39m[33m,[39m file[33m,[39m [33m...[39margs)[33m;[39m
+     [90m 24 |[39m   }[33m;[39m[0m
+
+      at fs.<computed> (../../../scripts/security-test-preload.cjs:21:13)
+      at Object.<anonymous> (load-root-env.ts:12:43)
+      at Object.<anonymous> (contactos-duplicados.db.e2e-spec.ts:1:1)
+
+FAIL test/ficha-medica.db.e2e-spec.ts
+  ● Test suite failed to run
+
+    SECURITY_TEST: env file access blocked
+
+    [0m [90m 19 |[39m   fs[name] [33m=[39m [36mfunction[39m (file[33m,[39m [33m...[39margs) {
+     [90m 20 |[39m     [36mif[39m ([35m/(?:^|[\\/])\.env(?:[.\\/]|$)/[39m[33m.[39mtest([33mString[39m(file))) {
+    [31m[1m>[22m[39m[90m 21 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m'SECURITY_TEST: env file access blocked'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 22 |[39m     }
+     [90m 23 |[39m     [36mreturn[39m original[33m.[39mcall([36mthis[39m[33m,[39m file[33m,[39m [33m...[39margs)[33m;[39m
+     [90m 24 |[39m   }[33m;[39m[0m
+
+      at fs.<computed> (../../../scripts/security-test-preload.cjs:21:13)
+      at Object.<anonymous> (load-root-env.ts:12:43)
+      at Object.<anonymous> (ficha-medica.db.e2e-spec.ts:1:1)
+
+
+Test Suites: 10 failed, 1 skipped, 2 passed, 12 of 13 total
+Tests:       8 failed, 7 skipped, 25 passed, 40 total
+Snapshots:   0 total
+Time:        12.819 s
+Ran all test suites.
+exit=1

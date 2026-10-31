@@ -1,3 +1,4 @@
+import { completeRows, reportLimit } from '../config/security';
 import {
   BadRequestException,
   ConflictException,
@@ -107,14 +108,14 @@ export class AdminService {
 
   // READ: Obtener todos los usuarios del sistema para la tabla del panel Electron
   async listarUsuarios(): Promise<UsuarioListado[]> {
-    return this.usuarioRepository.query(`
+    return this.usuarioRepository.query<UsuarioListado[]>(`
       SELECT u.usuario_id AS "usuario_ID", u.nombre_usuario,
         u.correo_usuario, u.rol_id AS "rol_ID", u.estado_id AS "estado_ID",
         u.usuario_principal_id AS "usuario_principal_ID",
         (SELECT count(*)::int FROM contacto_emergencia c WHERE c.usuario_id=u.usuario_id) AS numeros_vinculados,
         (SELECT count(*)::int FROM alerta a WHERE a.usuario_id=u.usuario_id) AS alertas_generadas
-      FROM usuario u ORDER BY u.usuario_id
-    `);
+      FROM usuario u ORDER BY u.usuario_id LIMIT $1
+    `, [reportLimit() + 1]).then(completeRows);
   }
 
   async listarPlanes(): Promise<{ plan_ID: number; nombre_plan: string }[]> {
@@ -122,11 +123,11 @@ export class AdminService {
   }
 
   async listarTrabajadores(): Promise<ResumenUsuario[]> {
-    return this.usuarioRepository.query(`
+    return this.usuarioRepository.query<ResumenUsuario[]>(`
       SELECT u.usuario_id AS "usuario_ID", u.nombre_usuario, u.correo_usuario,
         u.rol_id AS "rol_ID", u.estado_id AS "estado_ID"
-      FROM usuario u WHERE ${FILTRO_TRABAJADOR} ORDER BY u.usuario_id
-    `);
+      FROM usuario u WHERE ${FILTRO_TRABAJADOR} ORDER BY u.usuario_id LIMIT $1
+    `, [reportLimit() + 1]).then(completeRows);
   }
 
   private async esTrabajadorRegistrado(usuario: Usuario, manager: EntityManager): Promise<boolean> {

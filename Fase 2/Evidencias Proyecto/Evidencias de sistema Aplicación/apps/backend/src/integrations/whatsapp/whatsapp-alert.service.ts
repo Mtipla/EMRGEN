@@ -115,7 +115,7 @@ export class WhatsappAlertService {
       if (textId) messageIds.push(textId);
     } catch (error) {
       this.logger.error(
-        `No se pudo enviar la alerta a ${maskPhoneNumber(digits)}: ${(error as Error).message}`,
+        { event: 'whatsapp_delivery_failed' },
       );
       return {
         phoneNumber,

@@ -5,6 +5,12 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 vi.mock('@repo/api-client', async (original) => ({
   ...await original<typeof import('@repo/api-client')>(), initFirebase: vi.fn(() => ({})),
 }))
+vi.mock('axios', async (original) => {
+  const actual = await original<typeof import('axios')>()
+  const { desktopFetchAdapter } = await import('../../test/desktop-fetch-adapter')
+  return { ...actual, default: { ...actual.default, create: (config: import('axios').CreateAxiosDefaults) =>
+    actual.default.create({ ...config, adapter: desktopFetchAdapter }) } }
+})
 const fetchMock = vi.fn<typeof fetch>()
 const json = (body: unknown) => new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } })
 const cuenta = { usuario_ID: 9, nombre_usuario: 'Principal Demo', correo_usuario: 'principal@emergen.test', rol_ID: 3, estado_ID: 1, numeros_vinculados: 1, alertas_generadas: 1 }
@@ -24,8 +30,16 @@ async function abrir(ruta: string, rol = 2, historial = false) {
   localStorage.setItem('emergen.token', 'token-test')
   localStorage.setItem('emergen.user', JSON.stringify(yo))
   vi.resetModules()
-  const { default: App } = await import('../../App')
-  render(<MemoryRouter initialEntries={[ruta]}><App />{historial && <HistorialPruebas />}</MemoryRouter>)
+  if (ruta === '/perfil') {
+    const { default: App } = await import('../../App')
+    render(<MemoryRouter initialEntries={[ruta]}><App /></MemoryRouter>)
+    return
+  }
+  const { PanelAdmin } = await import('../../../../desktop/src/admin/PanelAdmin')
+  render(<MemoryRouter initialEntries={[ruta]}><PanelAdmin />{historial && <HistorialPruebas />}</MemoryRouter>)
+  fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'personal@emergen.test' } })
+  fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'ClavePrueba123!' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
 }
 
 beforeEach(() => {
@@ -35,6 +49,7 @@ beforeEach(() => {
   vi.stubGlobal('fetch', fetchMock)
   fetchMock.mockImplementation(async (url, init) => {
     const path = new URL(String(url)).pathname
+    if (path === '/usuarios/login') return json({ access_token: 'token-test', usuario: yo })
     if (path === '/usuarios/me') {
       if (init?.method === 'PATCH') yo = { ...yo, ...JSON.parse(String(init.body)) }
       return json(yo)
@@ -62,6 +77,7 @@ beforeEach(() => {
       ubicacion: 'Santiago', fecha_creacion: '2026-10-27T12:00:00Z', fecha_cierre: '2026-10-27T12:10:00Z' }] })
     if (path === '/admin/ventas') return json({ ventas: [{ venta_id: 73, usuario_id: 9, nombre_usuario: 'Comprador real', correo_usuario: cuenta.correo_usuario,
       fecha_venta: '2026-10-27T12:00:00Z', total_venta: 5000, estado: 'PAGADO', metodo_pago: 'PAYPAL', detalles: [] }], total: 1, total_pagado_clp: 5000 })
+    if (path === '/admin/alertas') return json({ alertas: [], total: 0, activas: 0 })
     if (path.endsWith('/tickets-soporte/estados')) return json([{ estado_id: 1, nombre: 'ABIERTO' }, { estado_id: 2, nombre: 'EN PROCESO' }, { estado_id: 3, nombre: 'CERRADO' }])
     if (path.endsWith('/tickets-soporte/1') && init?.method === 'PATCH') {
       const cambios = JSON.parse(String(init.body))
@@ -86,8 +102,7 @@ test('SOPORTE ve cuentas y detalles sin formularios ni acciones de escritura', a
   expect(screen.queryByRole('button', { name: /Guardar|Eliminar|acceso/i })).toBeNull()
   expect(screen.queryByRole('textbox')).toBeNull()
   expect(screen.queryByRole('button', { name: 'Descargar' })).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: /Soporte Demo/ }))
-  const menu = screen.getByRole('navigation', { name: 'Menú de usuario' })
+  const menu = screen.getByRole('navigation', { name: 'Secciones del panel administrativo' })
   expect(Array.from(menu.querySelectorAll(':scope > a')).map((a) => a.getAttribute('href'))).toEqual([
     '/perfil', '/administracion/cuentas', '/administracion/compras', '/administracion/tickets', '/administracion/contacto',
   ])
@@ -143,16 +158,17 @@ test('SOPORTE responde un ticket de usuario y cambia su estado en la API interna
 })
 
 test.each(['/administracion/trabajadores', '/administracion/alertas', '/administracion/planes'])(
-  'SOPORTE no accede a %s escribiendo la URL', async (ruta) => {
+  'SOPORTE no tiene registrada la ruta %s en el panel', async (ruta) => {
     await abrir(ruta)
-    expect(await screen.findByRole('heading', { name: 'Sin permisos' })).toBeTruthy()
-    expect(fetchMock.mock.calls.some(([url]) => /\/admin\/(usuarios|alertas)$/.test(new URL(String(url)).pathname))).toBe(false)
+    expect(await screen.findByRole('heading', { name: 'Administrar cuentas' })).toBeTruthy()
+    expect(screen.queryByRole('link', { name: /Administrar trabajadores|Gestión de planes|Alertas SOS/ })).toBeNull()
+    expect(fetchMock.mock.calls.some(([url]) => /\/admin\/(alertas|usuarios\/planes|usuarios\/trabajadores)$/.test(new URL(String(url)).pathname))).toBe(false)
   },
 )
 
 test('el usuario principal no accede a los tickets del personal', async () => {
   await abrir('/administracion/tickets', 3)
-  expect(await screen.findByRole('heading', { name: 'Sin permisos' })).toBeTruthy()
+  expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'No se pudo iniciar sesión. Verifica tus datos e inténtalo nuevamente.')
   expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/tickets-soporte'))).toBe(false)
 })
 
@@ -313,10 +329,10 @@ test('gestión de planes y cupos solo permite modificar el plan y los cupos adqu
 
 test.each([
   ['PAGOS Y PLANES', 'Gestión de planes y cupos de usuario', 'Gestión de planes y cupos de usuario'],
-  ['ALERTAS', 'Alertas SOS', 'Alertas'],
+  ['ALERTAS', 'Alertas SOS', 'Alertas SOS'],
   ['CUENTA Y ACCESO', 'Administrar cuentas', 'Administrar cuentas'],
-  ['APLICACIÓN', 'Alertas SOS', 'Alertas'],
-  ['APLICACION', 'Alertas SOS', 'Alertas'],
+  ['APLICACIÓN', 'Alertas SOS', 'Alertas SOS'],
+  ['APLICACION', 'Alertas SOS', 'Alertas SOS'],
 ])('ADMIN deriva %s al módulo correspondiente y vuelve al mismo ticket', async (categoria, modulo, titulo) => {
   ticket = { ...ticket, categoria }
   await abrir('/administracion/tickets', 1)
@@ -380,8 +396,7 @@ test('cambiar de módulo descarta el resumen y la selección, incluso al volver 
   fireEvent.change(screen.getByLabelText('Solución'), { target: { value: 'Borrador que debe descartarse' } })
   fireEvent.click(screen.getByRole('button', { name: 'Gestión de planes y cupos de usuario' }))
   expect(await screen.findByRole('complementary')).toBeTruthy()
-  fireEvent.click(screen.getByRole('button', { name: /Soporte Demo/ }))
-  fireEvent.click(within(screen.getByRole('navigation', { name: 'Menú de usuario' })).getByRole('link', { name: 'Administrar cuentas' }))
+  fireEvent.click(within(screen.getByRole('navigation', { name: 'Secciones del panel administrativo' })).getByRole('link', { name: 'Administrar cuentas' }))
   expect(await screen.findByRole('heading', { name: 'Administrar cuentas' })).toBeTruthy()
   expect(screen.queryByRole('complementary')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Atrás de prueba' }))

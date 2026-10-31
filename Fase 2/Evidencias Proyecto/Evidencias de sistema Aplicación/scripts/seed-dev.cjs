@@ -1,3 +1,4 @@
+require('./seed-safety.cjs').assertSeedTarget(process.env);
 // Fixtures de desarrollo explícitos. No se ejecutan durante el arranque de Docker.
 const { client, bcrypt } = require('./db-dev.cjs');
 (async () => {

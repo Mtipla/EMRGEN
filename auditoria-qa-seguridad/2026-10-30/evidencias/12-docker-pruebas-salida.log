@@ -1,0 +1,38 @@
+APROBADO   DK-HEALTH-01 Imagen del HEAD: /health/ready = ready en ambas APIs
+APROBADO   DK-PRESEC003-01 Puertos del stack del HEAD ligados solo a 127.0.0.1 (no 0.0.0.0)
+APROBADO   DK-AUTH-01 Login con credenciales correctas (userA) emite JWT
+APROBADO   DK-AUTH-02 Login con contraseña incorrecta: 401 genérico
+APROBADO   DK-JWT-01 JWT expirado rechazado en ambas APIs del HEAD
+APROBADO   DK-JWT-02 JWT con firma ajena rechazado en ambas APIs
+APROBADO   DK-AUTHZ-01 ADMINISTRADOR accede a /admin/usuarios
+APROBADO   DK-AUTHZ-02 Usuario común denegado en /admin/usuarios
+APROBADO   DK-AUTHZ-03 Sin token: 401
+APROBADO   DK-BOLA-01 Rol forjado en JWT no escala (servidor relee BD)
+APROBADO   DK-AUTHZ-04 /admin/usuarios/planes solo ADMIN, no SOPORTE
+APROBADO   DK-PRESEC001-01 POST /payments/paypal/orders retirada → 404
+APROBADO   DK-PRESEC001-02 POST /reports retirada → 404
+APROBADO   DK-PRESEC001-03 /maps/geocode exige JWT (401 sin token)
+APROBADO   DK-PRESEC001-04 /indicators exige JWT (401 sin token)
+APROBADO   DK-PRICE-01 /compras/precio sigue público
+APROBADO   DK-HU03-01 userA crea contacto E.164
+APROBADO   DK-IDOR-01 userB no modifica contacto de userA
+APROBADO   DK-IDOR-02 userB no borra contacto de userA
+APROBADO   DK-CRYPTO-01 Ficha médica se cifra en reposo (texto plano ausente)
+APROBADO   DK-HU05-01 Mensaje SOS > 160 rechazado
+APROBADO   DK-SQLI-01 Login con payload SQL no rompe
+APROBADO   DK-SQLI-02 Payload SQL en contacto se almacena literal; tabla intacta
+APROBADO   DK-XSS-01 Script en mensaje se guarda como dato; respuesta JSON+nosniff
+APROBADO   DK-HDR-01 Cabeceras de seguridad presentes; X-Powered-By off
+APROBADO   DK-LIM-01 Cuerpo excesivo → 413
+APROBADO   DK-LIM-02 Content-Type no JSON → 415
+APROBADO   DK-LIM-03 JSON con __proto__ → 400
+APROBADO   DK-CORS-01 Preflight origen permitido → ACAO
+APROBADO   DK-CORS-02 Origen no permitido sin ACAO suyo
+APROBADO   DK-SOS-01 SOS crea alerta ACTIVA y encola envíos (FastAPI del HEAD)
+APROBADO   DK-SOS-02 Misma clave → misma alerta
+APROBADO   DK-SOS-03 Cierre con PIN → FINALIZADA
+APROBADO   DK-SOS-04 Tercero no lee alerta ajena
+APROBADO   DK-HU18-01 Contacto público válido crea registro
+APROBADO   DK-HU18-02 Ticket propio (usuario) y bandeja solo-staff
+
+RESUMEN-DOCKER: {"APROBADO":36}

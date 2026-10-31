@@ -1,3 +1,4 @@
+import { completeRows, reportLimit } from '../config/security';
 import {
   ConflictException,
   ForbiddenException,
@@ -76,7 +77,7 @@ export class ApadrinadosService {
          JOIN detalle_alerta d ON d.detalle_alerta_id=a.detalle_alerta_id
          LEFT JOIN ubicacion_alerta l ON l.ubicacion_alerta_id=a.ubicacion_alerta_id
          WHERE a.usuario_id=ANY($1::int[]) AND a.estado_alerta='FINALIZADA'
-         ORDER BY a.fecha_creacion DESC,a.alerta_id DESC`, [ids],
+         ORDER BY a.fecha_creacion DESC,a.alerta_id DESC LIMIT $2`, [ids, reportLimit() + 1],
       ),
       this.dataSource.query<{
         fecha: Date | null; usuario: string; accion: string; resultado: string; origen: string; afectado: string;
@@ -93,9 +94,11 @@ export class ApadrinadosService {
           SELECT v.fecha_venta,u.nombre_usuario,'Compra #' || v.venta_id,ep.descripcion_estado,'EMERGEN',u.nombre_usuario
           FROM venta v JOIN usuario u USING(usuario_id) JOIN estado_pago ep USING(estado_pago_id)
           WHERE v.usuario_id=ANY($1::int[])
-        ) actividad ORDER BY fecha DESC NULLS LAST,usuario,accion`, [ids],
+        ) actividad ORDER BY fecha DESC NULLS LAST,usuario,accion LIMIT $2`, [ids, reportLimit() + 1],
       ),
     ]);
+    completeRows(alertas);
+    completeRows(acciones);
     const reporte = await this.jsreport.renderInline(
       plantillaReporte(formato, PLANTILLA_INFORME, PLANTILLA_INFORME_EXCEL),
       {

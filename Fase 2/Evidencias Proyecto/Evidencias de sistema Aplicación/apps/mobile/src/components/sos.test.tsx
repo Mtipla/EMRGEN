@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import AlertaSos from './AlertaSos';
@@ -41,19 +41,44 @@ afterEach(() => {
 });
 
 test('conserva la selección de emergencia, muestra los teléfonos después de Enviar SOS y confirma el registro', async () => {
-  vi.mocked(enviarSos).mockResolvedValue(alerta);
+  vi.mocked(enviarSos).mockResolvedValue({
+    ...alerta,
+    whatsapp: { pendientes: 0, enviados: 2, fallidos: 0 },
+  });
   const onRegistrada = vi.fn();
   render(<AlertaSos onClose={vi.fn()} onRegistrada={onRegistrada} />);
   const enviar = screen.getByRole('button', { name: 'Enviar SOS' });
-  const numeros = screen.getByRole('heading', {
-    name: 'Números de emergencia',
-  });
-  expect(enviar.compareDocumentPosition(numeros) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(screen.queryByRole('heading', { name: 'Números de emergencia' })).toBeNull();
   fireEvent.change(screen.getByRole('combobox'), { target: { value: '1' } });
   await userEvent.click(enviar);
   expect(enviarSos).toHaveBeenCalledWith(1, expect.any(String), 'SIMULADA: -33.4378,-70.6504');
   expect(await screen.findByText('ACTIVA')).not.toBeNull();
+  expect(screen.getByRole('status').textContent).toContain('WhatsApp: 2 enviado(s), 0 pendiente(s), 0 fallido(s).');
+  expect(screen.getByRole('heading', { name: 'Números de emergencia' })).not.toBeNull();
+  expect(screen.getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
+    'tel:131', 'tel:132', 'tel:133',
+  ]);
   expect(onRegistrada).toHaveBeenCalledOnce();
+});
+
+test('permite acceder a los teléfonos mientras espera la ubicación y la confirmación del SOS', async () => {
+  let resolverUbicacion!: (value: string) => void;
+  let resolverEnvio!: (value: Alerta) => void;
+  vi.mocked(obtenerUbicacionSos).mockReturnValue(new Promise((resolve) => { resolverUbicacion = resolve; }));
+  vi.mocked(enviarSos).mockReturnValue(new Promise((resolve) => { resolverEnvio = resolve; }));
+  render(<AlertaSos onClose={vi.fn()} onRegistrada={vi.fn()} />);
+  await userEvent.click(screen.getByRole('button', { name: 'Enviar SOS' }));
+  expect(enviarSos).not.toHaveBeenCalled();
+  expect(screen.getByRole('status').textContent).toContain('Enviando SOS');
+  expect(screen.getAllByRole('link')).toHaveLength(3);
+  expect((screen.getByRole('button', { name: 'Enviando…' }) as HTMLButtonElement).disabled).toBe(true);
+
+  await act(async () => { resolverUbicacion('-33.4378,-70.6504'); });
+  expect(enviarSos).toHaveBeenCalledOnce();
+  expect(screen.getAllByRole('link')).toHaveLength(3);
+  await act(async () => { resolverEnvio(alerta); });
+  expect(screen.getByText('ACTIVA')).not.toBeNull();
+  expect(screen.getAllByRole('link')).toHaveLength(3);
 });
 
 test('el tipo de SOS parte con la finalidad del perfil', async () => {
@@ -70,6 +95,7 @@ test('un envío fallido permite reintentar con la misma clave sin mostrar un éx
   render(<AlertaSos onClose={vi.fn()} onRegistrada={onRegistrada} />);
   await userEvent.click(screen.getByRole('button', { name: 'Enviar SOS' }));
   expect((await screen.findByRole('alert')).textContent).toContain('Servicio no disponible');
+  expect(screen.getAllByRole('link')).toHaveLength(3);
   expect(onRegistrada).not.toHaveBeenCalled();
   await userEvent.click(screen.getByRole('button', { name: 'Enviar SOS' }));
   expect(await screen.findByText('ACTIVA')).not.toBeNull();

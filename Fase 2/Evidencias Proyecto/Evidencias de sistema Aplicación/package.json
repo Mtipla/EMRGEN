@@ -7,7 +7,13 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "check:environment": "node scripts/check-environment.mjs",
+    "test:environment": "node --test scripts/android-lan-env.test.mjs scripts/api-environment.test.mjs scripts/expected-schema.test.cjs",
+    "migrate:deployment": "node scripts/migrate-whatsapp.cjs && node scripts/migrate-contactos-antecedentes.cjs && node scripts/migrate-tickets-responsable.cjs",
+    "build:hosting": "node scripts/check-environment.mjs --mode production && turbo run build --filter=web --filter=mobile --filter=desktop",
+    "backup:db": "node scripts/backup-db.mjs",
+    "check:data": "node scripts/check-data-integrity.cjs"
   },
   "devDependencies": {
     "prettier": "3.9.6",

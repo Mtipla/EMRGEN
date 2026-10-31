@@ -19,7 +19,7 @@ async def loop(stop: asyncio.Event):
             if count:
                 logger.info("Alertas vencidas finalizadas: %d", count)
         except Exception:
-            logger.exception("No se pudo completar la revisión de alertas; se reintentará")
+            logger.error("expiry_job_failed; se reintentará")
         try:
             await asyncio.wait_for(stop.wait(), timeout=settings.intervalo_cierre_segundos)
         except asyncio.TimeoutError:

@@ -1,0 +1,7 @@
+aplicado: init.sql
+aplicado: migrations/20261026_whatsapp_finalizacion.sql
+aplicado: migrations/20261028_contactos_antecedentes.sql
+aplicado: migrations/20261028_tickets_responsable.sql
+init.sql SHA-256 antes=d4e71a576baaab8192e9482eb7304d9f69bacc82d3c1be361830cee0c8e78f68 después=d4e71a576baaab8192e9482eb7304d9f69bacc82d3c1be361830cee0c8e78f68 SIN CAMBIOS
+BD aislada lista en 127.0.0.1:55710/emergen_aud_test
+Uso: node bd-aislada.mjs up|down

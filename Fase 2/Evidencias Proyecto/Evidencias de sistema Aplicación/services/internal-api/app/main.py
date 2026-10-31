@@ -7,6 +7,8 @@ from app.api.routes import internal_v1
 from app.core.config import settings
 from app.core.scheduler import lifespan
 from app.core.errors import register_error_handlers
+from app.api.health import router as health_router
+from app.core.security import RequestBounds
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
 
@@ -21,11 +23,13 @@ app = FastAPI(
     openapi_url="/openapi.json" if docs else None,
 )
 
+app.add_middleware(RequestBounds, max_bytes=settings.max_body_bytes)
 if settings.cors_list:
     app.add_middleware(CORSMiddleware, allow_origins=settings.cors_list, allow_methods=["*"], allow_headers=["*"])
 
 register_error_handlers(app)
 app.include_router(internal_v1)
+app.include_router(health_router)
 
 
 @app.get("/health", tags=["técnico"])

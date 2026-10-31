@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { readEnv } from '../../config/env';
-import { requestExternal } from '../http-client';
+import { boundedExternalBody, requestExternal } from '../http-client';
 
 const INTEGRATION = 'jsReport';
 const DEFAULT_URL = 'http://localhost:5488';
@@ -68,7 +68,7 @@ export class JsreportService {
     );
 
     return {
-      content: Buffer.from(await response.arrayBuffer()),
+      content: Buffer.from(await boundedExternalBody(response, 16_777_216)),
       contentType: response.headers.get('content-type') ?? 'application/pdf',
     };
   }

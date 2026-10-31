@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PRIORIDADES } from '@repo/ui/mocks';
-import { Modal, NumerosEmergencia } from '@repo/ui/wireframe';
+import { Modal } from '@repo/ui/wireframe';
+import NumerosEmergenciaMovil from './NumerosEmergenciaMovil';
 import { consultarSos, enviarSos, errorSos, estadoWhatsapp, finalidadPerfil, type Alerta } from '../lib/sos';
 import { obtenerUbicacionSos } from '../lib/ubicacion-sos';
 
@@ -15,6 +16,7 @@ const AlertaSos: React.FC<{
   }));
   const [alerta, setAlerta] = useState<Alerta | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [intentoIniciado, setIntentoIniciado] = useState(false);
   const [error, setError] = useState('');
   const [avisoUbicacion, setAvisoUbicacion] = useState('');
   const contenido = useRef<{ clave: string; ubicacion?: string } | null>(null);
@@ -55,6 +57,7 @@ const AlertaSos: React.FC<{
 
   async function enviar() {
     if (enviando) return;
+    setIntentoIniciado(true);
     setEnviando(true);
     setError('');
     try {
@@ -103,6 +106,9 @@ const AlertaSos: React.FC<{
             {avisoUbicacion || 'No se pudo obtener tu ubicación.'} La alerta se registró sin ella.
           </p>
         )}
+        <div className="mobile-sos-numeros">
+          <NumerosEmergenciaMovil />
+        </div>
       </Modal>
     );
 
@@ -141,6 +147,11 @@ const AlertaSos: React.FC<{
           </select>
         </label>
       </div>
+      {enviando && (
+        <p role="status">
+          Enviando SOS… El estado de WhatsApp aparecerá cuando se registre la alerta.
+        </p>
+      )}
       {error && (
         <p role="alert" className="wf-message wf-message--error">
           {error}
@@ -164,9 +175,11 @@ const AlertaSos: React.FC<{
           {enviando ? 'Enviando…' : 'Enviar SOS'}
         </button>
       </div>
-      <div className="mobile-sos-numeros">
-        <NumerosEmergencia />
-      </div>
+      {intentoIniciado && (
+        <div className="mobile-sos-numeros">
+          <NumerosEmergenciaMovil />
+        </div>
+      )}
     </Modal>
   );
 };

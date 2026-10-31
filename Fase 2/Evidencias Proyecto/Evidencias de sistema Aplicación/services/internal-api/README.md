@@ -1,15 +1,21 @@
 # internal-api (FastAPI)
 
-Servicio separado del Compose: SOS y soporte en `/internal/v1`, puerto 8000, sobre el mismo PostgreSQL de Docker. Contrato: [readme.apis.internas.md](../../readme.apis.internas.md).
+Servicio FastAPI para SOS y soporte en /internal/v1, como proceso local o servicio internal-api de Compose, sobre el mismo PostgreSQL que NestJS. Contrato: [readme.apis.internas.md](../../readme.apis.internas.md).
 
-Requiere Python 3.12+ (verificado 3.12.10), las versiones exactas de requirements.txt y Node 24.21.0 con las dependencias del monorepo instaladas. La verificación PIN invoca `scripts/pin-bcrypt.cjs` con JSON por stdin para reutilizar bcrypt 6.0.0 del backend; no pasa PIN por argumentos ni usa shell.
+Requiere Python 3.12 y requirements.txt para desarrollo. El verificador usa bcrypt Python 5.0.0 y admite los hashes producidos por Nest/bcrypt 6; no necesita Node ni scripts/pin-bcrypt.cjs dentro de FastAPI. La imagen Linux/Python 3.12 instala locks/requirements-linux-py312.lock con --require-hashes; se regenera con Dockerfile.lock, no congelando el venv Windows.
 
-Desde esta carpeta, si el entorno virtual aún no existe:
+Desde esta carpeta (services/internal-api), crear el venv propio solo si falta y actualizar sus requisitos también después de incorporar cambios:
 
 ```powershell
-python -m venv .venv
+if (-not (Test-Path -LiteralPath '.\.venv\Scripts\python.exe')) {
+    python -m venv .venv
+}
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
+
+Alternativa con activación en PowerShell: .\.venv\Scripts\Activate.ps1 y luego python -m pip install -r requirements.txt desde esta misma carpeta. Si la activación está bloqueada, usar el intérprete directo anterior; no cambiar políticas globales. No copiar .venv ni instalar globalmente.
+
+requirements.txt corresponde al desarrollo local Windows/Python 3.12 e incluye pruebas; el lock con hashes corresponde al runtime Linux/Python 3.12 usado por Docker. En un venv propio Linux: source .venv/bin/activate y python -m pip install --require-hashes -r locks/requirements-linux-py312.lock. No aplicar ese lock a Windows. scripts/pin-bcrypt.cjs se conserva como legado sin consumidores de código actuales, fuera de FastAPI.
 
 Arranque local sobre el Compose existente:
 
@@ -38,3 +44,5 @@ Crear un SOS también vincula la ficha médica del emisor y registra un `ENVIO_A
 El histórico ya se conserva en PostgreSQL: `GET /internal/v1/alertas` incluye las alertas finalizadas al omitir el filtro `estado`; `GET /internal/v1/alertas/{id}` devuelve el estado persistido. Son consultas informativas de solo lectura. Cerrar un SOS actualiza el mismo registro y conserva sus transiciones en `historial_alerta`; reiniciar la API no borra ese historial.
 
 Para consultar desde Swagger, abre `http://localhost:8000/docs`, pulsa **Authorize** y pega únicamente el JWT `access_token` de NestJS, sin `Bearer` ni comillas. Confirma **Authorize → Close** y ejecuta el GET. El esquema `SesionEMERGEN` añade la cabecera automáticamente. Si tenías Swagger abierto antes de este cambio, usa **Ctrl+F5**.
+
+Producción/staging exige DB_SSLMODE explícito y CA si verify-full. Docs está desactivado por defecto en distribución. Los límites/slots y pasos operativos están en [OPERACION_SEGURA.md](../../docs/OPERACION_SEGURA.md). No ejecutar pytest completo sobre la BD local para verificar cambios: python-config y los casos aislados registrados no usan conftest ni .env.

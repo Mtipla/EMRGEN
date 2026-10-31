@@ -1,5 +1,27 @@
 # Consultar y probar la API de alertas SOS
 
+## Números de emergencia en el móvil (0.2.3)
+
+El Home muestra los números entre **Características de tu cuenta** y **Alertas**, incluso sin plan. En **Alerta rápida** aparecen desde que se pulsa **Enviar SOS**, durante la obtención de ubicación y el registro, y se conservan tanto ante un error como junto al estado de WhatsApp. No es necesario esperar al despacho de los mensajes para abrir el marcador.
+
+En Android se utiliza `ACTION_DIAL` con el número seleccionado: se abre la aplicación Teléfono y el usuario decide si inicia la llamada. No se solicita el permiso `CALL_PHONE`. Si no se puede abrir el marcador, la app conserva los números y muestra una alternativa manual. En la versión web se mantienen enlaces `tel:`.
+
+Prueba manual pendiente de confirmación del usuario:
+
+1. Comprueba el apartado y su descripción en el Home.
+2. Abre **Alerta rápida en la APP**: los números todavía no deben aparecer dentro del modal.
+3. Pulsa **Enviar SOS** con tus contactos de prueba. Comprueba que aparecen los números y que permanecen junto al resultado y el estado de WhatsApp.
+4. Toca un número y confirma que se abre el marcador con el número elegido escrito. Para esta comprobación no pulses el botón que inicia la llamada.
+5. Vuelve a EMERGEN y prueba también el acceso del Home. Finaliza la alerta de prueba con tu PIN.
+
+Validación automatizada de esta versión: 51 pruebas móviles aprobadas, ESLint de los archivos móviles modificados aprobado y APK `0.2.3-lan-debug` compilado e instalado mediante actualización. La apertura real del marcador y la recepción de WhatsApp se confirman mediante la prueba manual; las comprobaciones automáticas no envían SOS.
+
+En el teléfono USB se confirmó `versionCode 6`, el registro del plugin `EmergencyDialer` y la conexión de la WebView con ambas APIs. El entorno LAN utiliza NestJS local en el puerto 3000 y FastAPI en el 8000; ambos superaron las comprobaciones CORS de `https://localhost`.
+
+En la prueba del usuario del 29 de octubre se confirmó la incorporación de los números, pero el SOS **#269** quedó con un envío pendiente. La primera instalación del APK apuntaba al backend Docker del puerto 3001, que tenía WhatsApp deshabilitado; el backend local con la sesión vinculada no estaba ejecutándose. Se restableció NestJS local en el puerto 3000 y se recompiló el APK con esa dirección. La sesión de WhatsApp volvió a `open` con el emisor esperado y el despachador procesó el envío existente **#306**: **1 enviado, 0 pendientes, 0 fallidos**, sin crear otra alerta. El usuario confirmó la recepción por el contacto y el funcionamiento de la finalización. Para estas pruebas debe mantenerse iniciado el backend local; el backend Docker necesita su propia configuración y vinculación si se decide utilizarlo como emisor.
+
+La preparación y traslado de entornos ahora cuentan con comprobaciones de disponibilidad real, configuración y conservación de datos; seguir [Entornos y despliegue](DESPLIEGUE.md).
+
 ## Ver alertas desde el panel administrativo
 
 Inicia sesión como Admin y abre **Alertas SOS** en el menú. La sección consulta automáticamente cada 3 segundos mientras permanece abierta y permite actualizar manualmente, filtrar por estado o ID de usuario, recorrer páginas y ver el detalle. Usa la sesión del panel; no necesitas copiar tokens. Los SOS creados desde el móvil aparecen en el listado y su estado cambia al finalizarlos.

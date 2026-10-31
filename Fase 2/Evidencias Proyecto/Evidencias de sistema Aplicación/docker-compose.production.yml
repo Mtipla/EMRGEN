@@ -1,0 +1,142 @@
+# Standalone production reference: never merge automatically over active local Compose.
+# Ingress/TLS and managed jsReport are supplied by the operator, not started here.
+x-logs: &logs
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }
+x-hardening: &hardening
+  restart: unless-stopped
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 256
+  logging: *logs
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    # Bootstrap identity is never supplied to either API. Existing ownership is not changed.
+    environment:
+      POSTGRES_USER: ${DB_BOOTSTRAP_USER:?Set bootstrap identity}
+      POSTGRES_PASSWORD: ${DB_BOOTSTRAP_PASSWORD:?Set bootstrap credential privately}
+      POSTGRES_DB: ${DB_NAME:?Set database name}
+    volumes:
+      - database:/var/lib/postgresql/data
+    networks: [data]
+    # No host publication; operator restores/provisions explicitly, never automatic init/seed.
+    mem_limit: 1g
+    cpus: 1.0
+    pids_limit: 256
+    logging: *logs
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  backend:
+    <<: *hardening
+    image: ${BACKEND_IMAGE:?Build immutable image identified by reviewed SHA}
+    environment:
+      EMERGEN_ENVIRONMENT: production
+      EMERGEN_DEPLOYMENT_ID: ${EMERGEN_DEPLOYMENT_ID:?Set deployment identity}
+      HOST: 0.0.0.0
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:?Set database name}
+      DB_USER: ${APP_DB_USER:?Provision restricted application role separately}
+      DB_PASSWORD: ${APP_DB_PASSWORD:?Set application credential privately}
+      DB_SSLMODE: ${DB_SSLMODE:?Explicit disable or verify-full policy required}
+      DB_SSL_CA_FILE: ${DB_SSL_CA_FILE:-}
+      DB_POOL_MAX: ${DB_POOL_MAX:-10}
+      DB_STATEMENT_TIMEOUT_MS: ${DB_STATEMENT_TIMEOUT_MS:-30000}
+      JWT_SECRET: ${JWT_SECRET:?Set shared API signing credential privately}
+      JWT_SESSION_HOURS: ${JWT_SESSION_HOURS:-2}
+      MEDICAL_DATA_KEYS: ${MEDICAL_DATA_KEYS:?Preserve keys of existing records}
+      CORS_ORIGINS: ${CORS_ORIGINS:?Exact public HTTPS and native origins}
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
+      JSREPORT_URL: ${JSREPORT_URL:?Managed HTTPS report service independent of development PC}
+      JSREPORT_USERNAME: ${JSREPORT_USERNAME:?Set report identity privately}
+      JSREPORT_PASSWORD: ${JSREPORT_PASSWORD:?Set report credential privately}
+      WHATSAPP_ENABLED: "true"
+      WHATSAPP_AUTH_DIR: /app/apps/backend/auth_info_baileys
+      WHATSAPP_SENDER_PHONE: ${WHATSAPP_SENDER_PHONE:?Set sender privately}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:?Set Firebase project}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      PAYPAL_MODE: ${PAYPAL_MODE:?Explicit sandbox or live}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
+      PAYPAL_SECRET: ${PAYPAL_SECRET:-}
+      DOLAR_CLP_RESPALDO: ${DOLAR_CLP_RESPALDO:-}
+      API_MAX_BODY_BYTES: ${API_MAX_BODY_BYTES:-16384}
+      API_LOGIN_PER_MINUTE: ${API_LOGIN_PER_MINUTE:-10}
+      API_IDENTITY_PER_15_MINUTES: ${API_IDENTITY_PER_15_MINUTES:-10}
+      API_AUX_PER_MINUTE: ${API_AUX_PER_MINUTE:-30}
+      API_EXPORT_PER_MINUTE: ${API_EXPORT_PER_MINUTE:-4}
+      API_EXPORT_CONCURRENCY: ${API_EXPORT_CONCURRENCY:-2}
+      API_PURCHASE_PER_MINUTE: ${API_PURCHASE_PER_MINUTE:-20}
+      API_PUBLIC_PRICE_PER_MINUTE: ${API_PUBLIC_PRICE_PER_MINUTE:-60}
+      API_REPORT_MAX_ROWS: ${API_REPORT_MAX_ROWS:-2000}
+    volumes:
+      - whatsapp:/app/apps/backend/auth_info_baileys
+      - ${CA_DIRECTORY:?Dedicated directory with public CA files only}:/run/emergen-ca:ro
+    ports: ["127.0.0.1:3001:3000"]
+    networks: [edge, data]
+    mem_limit: 1g
+    cpus: 1.0
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 8s
+      retries: 5
+
+  internal-api:
+    <<: *hardening
+    image: ${INTERNAL_API_IMAGE:?Build immutable Python image identified by reviewed SHA}
+    environment:
+      EMERGEN_ENVIRONMENT: production
+      EMERGEN_DEPLOYMENT_ID: ${EMERGEN_DEPLOYMENT_ID:?Set deployment identity}
+      HOST: 0.0.0.0
+      PORT: 8000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:?Set database name}
+      DB_USER: ${APP_DB_USER:?Provision application role separately}
+      DB_PASSWORD: ${APP_DB_PASSWORD:?Set application credential privately}
+      DB_SSLMODE: ${DB_SSLMODE:?Explicit TLS policy required}
+      DB_SSL_CA_FILE: ${DB_SSL_CA_FILE:-}
+      DB_STATEMENT_TIMEOUT_MS: ${DB_STATEMENT_TIMEOUT_MS:-30000}
+      JWT_SECRET: ${JWT_SECRET:?Set same API signing credential privately}
+      CORS_ORIGINS: ${CORS_ORIGINS:?Exact origins}
+      INTERNAL_API_DOCS_ENABLED: "false"
+      INTERNAL_API_MAX_BODY_BYTES: ${API_MAX_BODY_BYTES:-16384}
+      INTERNAL_API_DB_REGULAR_CONNECTIONS: ${INTERNAL_API_DB_REGULAR_CONNECTIONS:-8}
+      INTERNAL_API_DB_SOS_CONNECTIONS: ${INTERNAL_API_DB_SOS_CONNECTIONS:-4}
+      INTERNAL_API_TICKETS_PER_15_MINUTES: ${INTERNAL_API_TICKETS_PER_15_MINUTES:-10}
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-}
+    volumes:
+      - ${CA_DIRECTORY:?Dedicated public CA directory}:/run/emergen-ca:ro
+    ports: ["127.0.0.1:8000:8000"]
+    networks: [data]
+    mem_limit: 512m
+    cpus: 1.0
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
+      interval: 20s
+      timeout: 8s
+      retries: 5
+
+volumes:
+  database:
+    external: true
+    name: ${PRODUCTION_DB_VOLUME:?Operator must provision destination volume; never default to development data}
+  whatsapp:
+    external: true
+    name: ${PRODUCTION_WHATSAPP_VOLUME:?Operator must prepare persistent sender state}
+networks:
+  data: { internal: true }
+  edge: {}

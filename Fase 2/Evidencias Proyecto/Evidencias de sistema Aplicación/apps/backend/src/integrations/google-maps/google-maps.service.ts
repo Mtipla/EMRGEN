@@ -52,11 +52,9 @@ export class GoogleMapsService {
     // La Geocoding API responde HTTP 200 incluso con errores; el estado real viene en `status`.
     if (body.status === 'ZERO_RESULTS') return [];
     if (body.status !== 'OK') {
-      this.logger.error(
-        `Geocoding respondió ${body.status}: ${body.error_message ?? ''}`,
-      );
+      this.logger.error({ event: 'geocoding_rejected', integration: INTEGRATION });
       throw new BadGatewayException(
-        `${INTEGRATION} rechazó la solicitud (${body.status}).`,
+        `${INTEGRATION} rechazó la solicitud.`,
       );
     }
 

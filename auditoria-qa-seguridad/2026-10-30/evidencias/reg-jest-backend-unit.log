@@ -1,0 +1,134 @@
+== jest-backend-unit: node scripts/security-run.mjs jest
+(node:1836) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL src/admin/admin-tickets.service.spec.ts
+  ● Informe de tickets cerrados › incluye emisor, descripción, solución y autor en pdf sin límite de página
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /\bLIMIT\b|\bOFFSET\b/i
+    Received string:      "
+          SELECT t.ticket_soporte_id AS ticket_id, e.estado_ticket AS estado,
+                 t.usuario_id, u.nombre_usuario, u.correo_usuario,
+                 c.nombre_categoria AS categoria, t.desc_ticket AS descripcion,
+                 s.solucion_caso AS solucion, s.trabajador_id,
+                 s.trabajador_nombre, s.trabajador_correo
+          FROM ticket_soporte t
+          JOIN estado_ticket e USING (estado_ticket_id)
+          JOIN categoria_soporte c USING (categoria_soporte_id)
+          LEFT JOIN soporte s USING (ticket_soporte_id)
+          LEFT JOIN usuario u ON u.usuario_id = t.usuario_id
+          WHERE UPPER(e.estado_ticket) = 'CERRADO'
+          ORDER BY t.ticket_soporte_id DESC LIMIT $1
+        "
+
+    [0m [90m 33 |[39m     [36mconst[39m sql [33m=[39m query[33m.[39mmock[33m.[39mcalls[[35m0[39m][[35m0[39m] [36mas[39m string[33m;[39m
+     [90m 34 |[39m     expect(sql)[33m.[39mtoMatch([35m/WHERE UPPER\(e.estado_ticket\) = 'CERRADO'/[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 35 |[39m     expect(sql)[33m.[39mnot[33m.[39mtoMatch([35m/\bLIMIT\b|\bOFFSET\b/i[39m)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 36 |[39m     [36mconst[39m [plantilla[33m,[39m datos] [33m=[39m renderInline[33m.[39mmock[33m.[39mcalls[[35m0[39m][33m;[39m
+     [90m 37 |[39m     expect(plantilla)[33m.[39mtoMatchObject(formato [33m===[39m [32m'xlsx'[39m
+     [90m 38 |[39m       [33m?[39m { recipe[33m:[39m [32m'html-to-xlsx'[39m }[0m
+
+      at src/admin/admin-tickets.service.spec.ts:35:21
+
+  ● Informe de tickets cerrados › incluye emisor, descripción, solución y autor en xlsx sin límite de página
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /\bLIMIT\b|\bOFFSET\b/i
+    Received string:      "
+          SELECT t.ticket_soporte_id AS ticket_id, e.estado_ticket AS estado,
+                 t.usuario_id, u.nombre_usuario, u.correo_usuario,
+                 c.nombre_categoria AS categoria, t.desc_ticket AS descripcion,
+                 s.solucion_caso AS solucion, s.trabajador_id,
+                 s.trabajador_nombre, s.trabajador_correo
+          FROM ticket_soporte t
+          JOIN estado_ticket e USING (estado_ticket_id)
+          JOIN categoria_soporte c USING (categoria_soporte_id)
+          LEFT JOIN soporte s USING (ticket_soporte_id)
+          LEFT JOIN usuario u ON u.usuario_id = t.usuario_id
+          WHERE UPPER(e.estado_ticket) = 'CERRADO'
+          ORDER BY t.ticket_soporte_id DESC LIMIT $1
+        "
+
+    [0m [90m 33 |[39m     [36mconst[39m sql [33m=[39m query[33m.[39mmock[33m.[39mcalls[[35m0[39m][[35m0[39m] [36mas[39m string[33m;[39m
+     [90m 34 |[39m     expect(sql)[33m.[39mtoMatch([35m/WHERE UPPER\(e.estado_ticket\) = 'CERRADO'/[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 35 |[39m     expect(sql)[33m.[39mnot[33m.[39mtoMatch([35m/\bLIMIT\b|\bOFFSET\b/i[39m)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 36 |[39m     [36mconst[39m [plantilla[33m,[39m datos] [33m=[39m renderInline[33m.[39mmock[33m.[39mcalls[[35m0[39m][33m;[39m
+     [90m 37 |[39m     expect(plantilla)[33m.[39mtoMatchObject(formato [33m===[39m [32m'xlsx'[39m
+     [90m 38 |[39m       [33m?[39m { recipe[33m:[39m [32m'html-to-xlsx'[39m }[0m
+
+      at src/admin/admin-tickets.service.spec.ts:35:21
+
+
+Summary of all failing tests
+FAIL src/admin/admin-tickets.service.spec.ts
+  ● Informe de tickets cerrados › incluye emisor, descripción, solución y autor en pdf sin límite de página
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /\bLIMIT\b|\bOFFSET\b/i
+    Received string:      "
+          SELECT t.ticket_soporte_id AS ticket_id, e.estado_ticket AS estado,
+                 t.usuario_id, u.nombre_usuario, u.correo_usuario,
+                 c.nombre_categoria AS categoria, t.desc_ticket AS descripcion,
+                 s.solucion_caso AS solucion, s.trabajador_id,
+                 s.trabajador_nombre, s.trabajador_correo
+          FROM ticket_soporte t
+          JOIN estado_ticket e USING (estado_ticket_id)
+          JOIN categoria_soporte c USING (categoria_soporte_id)
+          LEFT JOIN soporte s USING (ticket_soporte_id)
+          LEFT JOIN usuario u ON u.usuario_id = t.usuario_id
+          WHERE UPPER(e.estado_ticket) = 'CERRADO'
+          ORDER BY t.ticket_soporte_id DESC LIMIT $1
+        "
+
+    [0m [90m 33 |[39m     [36mconst[39m sql [33m=[39m query[33m.[39mmock[33m.[39mcalls[[35m0[39m][[35m0[39m] [36mas[39m string[33m;[39m
+     [90m 34 |[39m     expect(sql)[33m.[39mtoMatch([35m/WHERE UPPER\(e.estado_ticket\) = 'CERRADO'/[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 35 |[39m     expect(sql)[33m.[39mnot[33m.[39mtoMatch([35m/\bLIMIT\b|\bOFFSET\b/i[39m)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 36 |[39m     [36mconst[39m [plantilla[33m,[39m datos] [33m=[39m renderInline[33m.[39mmock[33m.[39mcalls[[35m0[39m][33m;[39m
+     [90m 37 |[39m     expect(plantilla)[33m.[39mtoMatchObject(formato [33m===[39m [32m'xlsx'[39m
+     [90m 38 |[39m       [33m?[39m { recipe[33m:[39m [32m'html-to-xlsx'[39m }[0m
+
+      at src/admin/admin-tickets.service.spec.ts:35:21
+
+  ● Informe de tickets cerrados › incluye emisor, descripción, solución y autor en xlsx sin límite de página
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /\bLIMIT\b|\bOFFSET\b/i
+    Received string:      "
+          SELECT t.ticket_soporte_id AS ticket_id, e.estado_ticket AS estado,
+                 t.usuario_id, u.nombre_usuario, u.correo_usuario,
+                 c.nombre_categoria AS categoria, t.desc_ticket AS descripcion,
+                 s.solucion_caso AS solucion, s.trabajador_id,
+                 s.trabajador_nombre, s.trabajador_correo
+          FROM ticket_soporte t
+          JOIN estado_ticket e USING (estado_ticket_id)
+          JOIN categoria_soporte c USING (categoria_soporte_id)
+          LEFT JOIN soporte s USING (ticket_soporte_id)
+          LEFT JOIN usuario u ON u.usuario_id = t.usuario_id
+          WHERE UPPER(e.estado_ticket) = 'CERRADO'
+          ORDER BY t.ticket_soporte_id DESC LIMIT $1
+        "
+
+    [0m [90m 33 |[39m     [36mconst[39m sql [33m=[39m query[33m.[39mmock[33m.[39mcalls[[35m0[39m][[35m0[39m] [36mas[39m string[33m;[39m
+     [90m 34 |[39m     expect(sql)[33m.[39mtoMatch([35m/WHERE UPPER\(e.estado_ticket\) = 'CERRADO'/[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 35 |[39m     expect(sql)[33m.[39mnot[33m.[39mtoMatch([35m/\bLIMIT\b|\bOFFSET\b/i[39m)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 36 |[39m     [36mconst[39m [plantilla[33m,[39m datos] [33m=[39m renderInline[33m.[39mmock[33m.[39mcalls[[35m0[39m][33m;[39m
+     [90m 37 |[39m     expect(plantilla)[33m.[39mtoMatchObject(formato [33m===[39m [32m'xlsx'[39m
+     [90m 38 |[39m       [33m?[39m { recipe[33m:[39m [32m'html-to-xlsx'[39m }[0m
+
+      at src/admin/admin-tickets.service.spec.ts:35:21
+
+
+Test Suites: 1 failed, 29 passed, 30 total
+Tests:       2 failed, 262 passed, 264 total
+Snapshots:   0 total
+Time:        25.073 s
+Ran all test suites.
+exit=1

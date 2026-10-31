@@ -19,7 +19,8 @@ import type {
   WhatsappPairingCodeResponse,
   WhatsappStatusResponse,
 } from '@repo/api-types';
-import { createHttpClient } from './http';
+import { ApiError, createHttpClient } from './http';
+const retired = (): never => { throw new ApiError(410, { statusCode: 410, message: 'Integracion generica retirada; utiliza el flujo de negocio autorizado.' }); };
 
 const bearer = (accessToken: string) => ({ Authorization: `Bearer ${accessToken}` });
 
@@ -33,17 +34,10 @@ export function createEmergenApi(baseUrl: string) {
   const http = createHttpClient(baseUrl);
 
   return {
+    /** @deprecated Usar compras: precio, propiedad y reserva del servidor. */
     paypal: {
-      createOrder: (request: CreatePaypalOrderRequest) =>
-        http.json<PaypalOrderResponse>('/payments/paypal/orders', {
-          method: 'POST',
-          body: JSON.stringify(request),
-        }),
-      captureOrder: (orderId: string) =>
-        http.json<CapturePaypalOrderResponse>(
-          `/payments/paypal/orders/${encodeURIComponent(orderId)}/capture`,
-          { method: 'POST' },
-        ),
+      createOrder: async (_request: CreatePaypalOrderRequest): Promise<PaypalOrderResponse> => retired(),
+      captureOrder: async (_orderId: string): Promise<CapturePaypalOrderResponse> => retired(),
     },
 
     /**
@@ -86,28 +80,29 @@ export function createEmergenApi(baseUrl: string) {
         }),
     },
 
+    /** @deprecated Usar las rutas autorizadas de reporte de negocio. */
     reports: {
-      /** Devuelve el PDF como Blob; usar `downloadBlob` para guardarlo. */
-      generate: (request: GenerateReportRequest) =>
-        http.blob('/reports', { method: 'POST', body: JSON.stringify(request) }),
+      generate: async (_request: GenerateReportRequest): Promise<Blob> => retired(),
     },
 
     maps: {
-      geocode: (address: string) =>
-        http.json<GeocodeResult[]>(`/maps/geocode?${new URLSearchParams({ address })}`),
-      reverseGeocode: ({ lat, lng }: GeoPoint) =>
+      geocode: (accessToken: string, address: string) =>
+        http.json<GeocodeResult[]>(`/maps/geocode?${new URLSearchParams({ address })}`, { headers: bearer(accessToken) }),
+      reverseGeocode: (accessToken: string, { lat, lng }: GeoPoint) =>
         http.json<GeocodeResult[]>(
           `/maps/reverse-geocode?${new URLSearchParams({ lat: String(lat), lng: String(lng) })}`,
+          { headers: bearer(accessToken) },
         ),
     },
 
     indicators: {
       /** Valores del día de todos los indicadores (UF, dólar, euro, UTM, etc.). */
-      today: () => http.json<EconomicIndicator[]>('/indicators'),
+      today: (accessToken: string) => http.json<EconomicIndicator[]>('/indicators', { headers: bearer(accessToken) }),
       /** Serie de un indicador; con `date` (dd-mm-yyyy) devuelve solo ese día. */
-      get: (code: IndicatorCode, date?: string) =>
+      get: (accessToken: string, code: IndicatorCode, date?: string) =>
         http.json<EconomicIndicator>(
           `/indicators/${code}${date ? `?${new URLSearchParams({ date })}` : ''}`,
+          { headers: bearer(accessToken) },
         ),
     },
 

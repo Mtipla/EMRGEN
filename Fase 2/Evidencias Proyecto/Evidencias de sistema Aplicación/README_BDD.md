@@ -25,11 +25,7 @@ La recreación de desarrollo fue autorizada y ejecutada una vez. La reanudación
 
 ## Fixtures explícitos de desarrollo
 
-Una instalación nueva tiene catálogos, el producto adicional 1 (1000 CLP, máximo 5) y el plan base 2 (5000 CLP, una unidad por cuenta), pero no usuarios. Después de instalar las dependencias exactas con `npm ci --engine-strict=false`, el procedimiento de desarrollo es:
-
-```powershell
-node scripts/seed-dev.cjs
-```
+Las fixtures descritas abajo son opcionales y solo corresponden a una BD local **nueva**, independiente y explícita con sufijo _dev/_test. Si ya tienes datos, no ejecutar seed, renombrar la BD o reinicializar volúmenes al incorporar cambios. La configuración estándar EMERGEN_BDD se rechaza intencionalmente. Instalar con `npm ci --no-audit --no-fund` y seguir el bloque PowerShell completo y los requisitos de destino de [README §6.3](README.md#63-datos-de-desarrollo-y-panel-administrativo); no usar este documento como una orden de sembrar la instalación existente.
 
 El script usa bcrypt 12 para contraseña y PIN, IDs del motor y una transacción. Inserta cuentas faltantes y conserva las existentes (solo asigna el PIN de fixture a una cuenta existente que no tenga ninguno); no restablece contraseñas, compras ni cupos de cuentas ya existentes. Para regenerar hashes de fixtures, usarlo en una instalación de desarrollo vacía expresamente autorizada; no borrar volúmenes con datos que se deban preservar.
 

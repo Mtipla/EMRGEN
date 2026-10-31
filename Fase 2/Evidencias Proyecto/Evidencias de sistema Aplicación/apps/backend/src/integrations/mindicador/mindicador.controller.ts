@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../login/jwt-auth.guard';
 import type { EconomicIndicator } from '@repo/api-types';
 import {
   IndicatorParamDto,
@@ -7,6 +8,7 @@ import {
 import { MindicadorService } from './mindicador.service';
 
 @Controller('indicators')
+@UseGuards(JwtAuthGuard)
 export class MindicadorController {
   constructor(private readonly mindicadorService: MindicadorService) {}
 
