@@ -35,7 +35,7 @@ export function buildEmergencyAlertText({
   const lines = [
     'MENSAJE MEDIANTE APLICACIÓN EMERGEN',
     '------------------------------------',
-    `El usuario ${senderName ?? 'de EMERGEN'} de correo ${senderEmail ?? 'no informado'} ha generado una alerta`,
+    `El usuario ${senderName ?? 'de EMERGEN'}, de correo ${senderEmail ?? 'no informado'}, ha generado una alerta`,
     '------------------------------------',
     `TIPO DE EMERGENCIA: ${emergencyType ?? 'No informado'}`,
     `FECHA/HORA: ${date} (America/Santiago)`,
@@ -69,7 +69,7 @@ export function buildFinalizedAlertText({
   return [
     'MENSAJE MEDIANTE APLICACIÓN EMERGEN',
     '------------------------------------',
-    `La alerta reciente del usuario ${senderName ?? 'de EMERGEN'} de correo ${senderEmail ?? 'no informado'}, ha sido FINALIZADA`,
+    `La alerta reciente del usuario ${senderName ?? 'de EMERGEN'}, de correo ${senderEmail ?? 'no informado'}, ha sido FINALIZADA`,
   ].join('\n');
 }
 
