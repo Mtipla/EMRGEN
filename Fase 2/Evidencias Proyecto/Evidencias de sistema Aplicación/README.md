@@ -74,7 +74,7 @@ Evidencias de sistema Aplicación/
 ├── scripts/              Carga de datos de desarrollo y comprobaciones de base de datos
 ├── docs/                 Guías de pruebas e informes de integración
 ├── Dockerfile            Construcción de la imagen del backend NestJS
-├── docker-compose.yml    PostgreSQL y backend NestJS
+├── docker-compose.yml    PostgreSQL, backend NestJS y FastAPI
 ├── init.sql              Esquema y catálogos para una base de datos nueva
 ├── example.env           Referencia para preparar la configuración local
 ├── .env.docker           URL pública de NestJS para el modo docker de Vite
@@ -328,18 +328,18 @@ FastAPI expone `/internal/v1/alertas` y `/internal/v1/tickets-soporte`. También
 
 ## 7. Trabajar con Docker y jsReport
 
-### 7.1 Iniciar y comprobar NestJS y PostgreSQL
+### 7.1 Iniciar y comprobar NestJS, FastAPI y PostgreSQL
 
 Con Docker Desktop en ejecución y `.env` configurado:
 
 ```powershell
 docker compose up --build -d
 docker compose ps
-docker compose logs --tail 30 db backend
+docker compose logs --tail 30 db backend internal-api
 curl.exe http://localhost:3001
 ```
 
-Los contenedores son `postgres_emergen_db` y `nestjs_emergen_backend`. La ruta raíz de NestJS responde `Hello World!`. Si no responde, revisa los logs antes de iniciar los frontends.
+Los contenedores son `postgres_emergen_db`, `nestjs_emergen_backend` y `fastapi_emergen_internal`. La ruta raíz de NestJS responde `Hello World!`. Si no responde, revisa los logs antes de iniciar los frontends.
 
 El Dockerfile construye el backend en varias etapas con `node:24.21.0-alpine`. `turbo prune backend --docker` selecciona sus dependencias y la imagen final conserva las de producción, ejecutándose con el usuario `node`. Mantén `.dockerignore`: excluye dependencias del equipo, entornos virtuales y archivos privados del contexto de construcción.
 
@@ -348,7 +348,7 @@ El Dockerfile construye el backend en varias etapas con `node:24.21.0-alpine`. `
 jsReport se ejecuta en un contenedor independiente. Para crearlo por primera vez:
 
 ```powershell
-docker run -d --name jsreport -p 5488:5488 jsreport/jsreport
+docker run -d --name jsreport -p 127.0.0.1:5488:5488 jsreport/jsreport
 ```
 
 Si el contenedor ya existe y está detenido:
@@ -365,7 +365,7 @@ El editor queda en `http://localhost:5488`. En `.env`, utiliza `JSREPORT_URL=htt
 docker compose down
 ```
 
-Este comando conserva el volumen de PostgreSQL (`volumen_emergen_postgres_data`) y el de la sesión de WhatsApp (`volumen_emergen_whatsapp_auth`). jsReport se detiene por separado con `docker stop jsreport`; FastAPI y los procesos locales se detienen con `Ctrl+C` en sus terminales.
+Este comando conserva el volumen de PostgreSQL (`volumen_emergen_postgres_data`) y el de la sesión de WhatsApp (`volumen_emergen_whatsapp_auth`). También detiene el contenedor de FastAPI. jsReport se detiene por separado con `docker stop jsreport`; los procesos iniciados fuera de Docker, incluido FastAPI local, se detienen con `Ctrl+C` en sus terminales.
 
 ### 7.4 Inicialización y recreación de la base de datos
 
@@ -395,7 +395,7 @@ Ejecuta estos comandos desde la raíz del monorepo, una vez instaladas las depen
 
 El backend usa **oxlint `1.85.0` con información de tipos**; las interfaces usan **ESLint `10.11.0`**. El formato se mantiene con **Prettier `3.9.6`**. Las suites de Node utilizan Jest `30.5.2`, Vitest `4.1.11` y Cypress `13.17.0`, según el workspace. El escritorio no tiene un script de pruebas propio declarado actualmente.
 
-Las pruebas de Cypress apuntan a `http://localhost:5173`, según `apps/mobile/cypress.config.ts`: inicia el frontend móvil en ese puerto o ajusta `baseUrl` para que coincida con su dirección. Las pruebas de FastAPI requieren PostgreSQL y los datos de desarrollo; ejecútalas desde `services/internal-api`:
+Las pruebas de Cypress apuntan a `http://localhost:5173`, según `apps/mobile/cypress.config.ts`: inicia el frontend móvil en ese puerto o ajusta `baseUrl` para que coincida con su dirección. Las pruebas de FastAPI requieren una base de desarrollo nueva y desechable, con sus datos de prueba (sección 6.3). No las ejecutes contra `EMERGEN_BDD` ni contra otra base con datos que debas conservar. Con esa base configurada, ejecútalas desde `services/internal-api`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
@@ -415,7 +415,7 @@ Las suites de NestJS que prueban la base real se habilitan con `DB_E2E=1`; las d
 | El frontend apunta al backend equivocado                   | Comprueba el modo de Vite: desarrollo local para 3000 y modo `docker` para 3001.                                                                                  |
 | Error de CORS o «sin respuesta del backend»                | Verifica que la API responda, comprueba el origen de Vite y agrégalo a la lista CORS del servicio correspondiente.                                                |
 | Puerto 5175 ocupado                                        | Cierra el proceso que lo utiliza antes de abrir el escritorio. El panel no cambia de puerto automáticamente.                                                      |
-| La web abre, pero SOS o soporte no responden               | Inicia FastAPI en 8000 y revisa `VITE_INTERNAL_API_URL`. Compose no inicia ese servicio.                                                                          |
+| La web abre, pero SOS o soporte no responden               | Inicia FastAPI en 8000, con Compose o de forma local, y revisa `VITE_INTERNAL_API_URL`.                                                                           |
 | FastAPI responde, pero rechaza la sesión                   | Comprueba el vencimiento del JWT y que NestJS y FastAPI usen el mismo `JWT_SECRET` y la misma base de datos.                                                      |
 | Fallan las descargas de reportes                           | Comprueba jsReport en 5488, la URL vista desde NestJS y las credenciales si hay autenticación.                                                                    |
 | WhatsApp queda en `waiting_for_link`                       | Vincula el número emisor por QR o código. Si la sesión está abierta en otra instancia, deja una sola activa.                                                      |
@@ -434,7 +434,7 @@ Para reparar una instalación local, comienza por `npm ci --no-audit --no-fund` 
 - [README de FastAPI](services/internal-api/README.md): configuración y operación del servicio de SOS y soporte.
 - [Guía de integraciones](readme-apis.md): credenciales, vinculación de WhatsApp y uso de los clientes de servicios. Para las sesiones de EMERGEN, usa el flujo JWT de NestJS descrito en este README y en el contrato interno.
 - [Pruebas de SOS](docs/PRUEBAS_SOS.md) y [pruebas de compra de planes](docs/PRUEBAS_COMPRA_PLAN.md): recorridos para comprobar las funciones principales.
-- [Informe de integración de la base de datos](docs/INTEGRACION_BDD_2026-10-21.md) y [estado de integración](ESTADO_INTEGRACION_BDD.md): decisiones y evidencias de la integración.
+- [Informe de integración de la base de datos](docs/INTEGRACION_BDD_2026-10-21.md): decisiones y evidencias de la integración.
 
 Este README toma la especificación como contexto y describe el uso que reflejan el código, los scripts y la configuración actual del proyecto.
 
@@ -446,7 +446,7 @@ Para preparar el equipo de otro integrante con una IA, copia el [prompt actualiz
 
 Esta entrega prueba las funciones existentes **con la app abierta**: login, PIN, perfil, cuentas, contactos, soporte, SOS con ubicación disponible y finalización con PIN. FastAPI registra el SOS; NestJS procesa los envíos de WhatsApp en el servidor. No se necesita Vite para abrir el APK: los archivos compilados están dentro de la aplicación.
 
-Desde `0.2.0`, la secuencia utiliza **teclas físicas de volumen**, se guarda en el dispositivo por perfil y permite activar/desactivar un servicio nativo desde la app. Requiere habilitar Accesibilidad para esas teclas y mantener una notificación del servicio. El código nativo consulta la prioridad guardada y registra el SOS sin confirmación adicional. El usuario confirmó el funcionamiento de `0.2.1`, incluida ubicación y uso con pantalla apagada tras retirar la app de Recientes. `0.2.2` organiza la tarjeta en cuatro secciones, simplifica los textos y establece dos horas de sesión por defecto. Los pasos y límites están en [SOS por volumen](docs/SOS_VOLUMEN_ANDROID.md). Las notificaciones push y una cola de SOS sin conexión siguen pendientes. Los ajustes de batería e inicio automático pueden limitar la recuperación del servicio. Forzar detención o reiniciar el teléfono requiere activarlo de nuevo.
+Desde `0.2.0`, la secuencia utiliza **teclas físicas de volumen**, se guarda en el dispositivo por perfil y permite activar/desactivar un servicio nativo desde la app. Requiere habilitar Accesibilidad para esas teclas y mantener una notificación del servicio. El código nativo consulta la prioridad guardada y registra el SOS sin confirmación adicional. El usuario confirmó el funcionamiento de `0.2.1`, incluida ubicación y uso con pantalla apagada tras retirar la app de Recientes. `0.2.2` organiza la tarjeta en cuatro secciones, simplifica los textos y establece dos horas de sesión por defecto. `0.2.3` ajusta la digitación de los números de emergencia ([pruebas de SOS](docs/PRUEBAS_SOS.md)). Los pasos y límites están en [SOS por volumen](docs/SOS_VOLUMEN_ANDROID.md). Las notificaciones push y una cola de SOS sin conexión siguen pendientes. Los ajustes de batería e inicio automático pueden limitar la recuperación del servicio. Forzar detención o reiniciar el teléfono requiere activarlo de nuevo.
 
 Versiones comprobadas durante esta preparación (28-10-2026):
 
@@ -466,7 +466,7 @@ Versiones comprobadas durante esta preparación (28-10-2026):
 
 El teléfono necesita Android compatible, WebView actualizado y acceso a la misma LAN que el servidor. Instalar Platform 36 en el PC no exige que el teléfono tenga exactamente Android 16: el mínimo lo fija `minSdkVersion`. Tener solo Platform 37 instalada tampoco sustituye Platform 36 para esta plantilla.
 
-La identidad provisional estable es `com.emergen.mobile`. La variante debug se identifica como **EMERGEN LAN**, versión `0.2.2-lan-debug`, `versionCode 5`. Incluye secuencia física de volumen, ubicación fusionada y recuperación del servicio, con la tarjeta reorganizada y textos breves; conserva la corrección de soporte de `0.1.1`. Mantén el identificador para futuras actualizaciones; incrementa `versionCode` al distribuir versiones sucesivas. La fecha de construcción y las dos URL públicas están en `assets/public/android-build.json` dentro del APK. El hash SHA-256 del archivo identifica exactamente el artefacto probado.
+La identidad provisional estable es `com.emergen.mobile`. La variante debug se identifica como **EMERGEN LAN**, versión `0.2.3-lan-debug`, `versionCode 6`. Incluye secuencia física de volumen, ubicación fusionada y recuperación del servicio, con la tarjeta reorganizada y textos breves; conserva la corrección de soporte de `0.1.1`. Mantén el identificador para futuras actualizaciones; incrementa `versionCode` al distribuir versiones sucesivas. La fecha de construcción y las dos URL públicas están en `assets/public/android-build.json` dentro del APK. El hash SHA-256 del archivo identifica exactamente el artefacto probado.
 
 ### 11.2 SDK, JDK y rutas locales
 
@@ -546,7 +546,7 @@ node scripts/migrate-tickets-responsable.cjs
 node scripts/cifrar-fichas.cjs
 ```
 
-Consulta [README_BDD.md](README_BDD.md) y [SOS por WhatsApp](docs/WHATSAPP_SOS.md) antes de preparar una base anterior. No vuelvas a cargar fixtures sobre una cuenta personal para intentar corregir su plan o PIN. `verify-schema.cjs` compara estrictamente con `init.sql`: actualmente puede informar columnas adicionales legítimas de las migraciones de contactos y responsables de soporte. Esa diferencia no se resuelve recreando la base ni cambiando el archivo protegido.
+Consulta [README_BDD.md](README_BDD.md) y [SOS por WhatsApp](docs/WHATSAPP_SOS.md) antes de preparar una base anterior. No vuelvas a cargar fixtures sobre una cuenta personal para intentar corregir su plan o PIN. `verify-schema.cjs` compara la base con `init.sql` más las migraciones: si informa columnas distintas, revisa primero si falta aplicar alguna. Esa diferencia no se resuelve recreando la base ni cambiando el archivo protegido.
 
 En `.env` raíz conserva los orígenes web y agrega el origen Android:
 
@@ -559,8 +559,8 @@ Comprueba que `apps/backend/.env.local`, `services/internal-api/.env` o el entor
 Arranque principal, desde la raíz, en terminales separadas:
 
 ```powershell
-# Terminal 1: omite stop si no existe backend de Docker en ejecución.
-docker compose stop backend
+# Terminal 1: omite stop si no hay APIs de Docker en ejecución.
+docker compose stop backend internal-api
 docker compose up -d db
 $env:HOST = '0.0.0.0'
 npm run start:dev --workspace=backend
@@ -581,7 +581,7 @@ Pop-Location
 
 Si la API interna ya fue iniciada por el script del panel, puedes reiniciar **esa instancia identificada** con `.\scripts\restart-panel-internal-api.ps1 -ListenHost 0.0.0.0`. No inicies otra en el mismo puerto. NestJS ahora escucha explícitamente en `HOST` o `0.0.0.0`. Esta dirección es de **escucha**, nunca la pongas como URL del teléfono.
 
-Alternativa Docker: después de preparar la base y la configuración, `docker compose up --build -d backend` publica NestJS en 3001; no ejecutes además el NestJS local para esta modalidad. FastAPI continúa ejecutándose fuera de Compose en 8000. Mantén **una sola instancia** utilizando una misma sesión emisora de WhatsApp.
+Alternativa Docker: después de preparar la base y la configuración, `docker compose up --build -d backend` publica NestJS en 3001; no ejecutes además el NestJS local para esta modalidad. FastAPI puede ejecutarse fuera de Compose o con `docker compose up --build -d internal-api`, pero ambos usan el puerto 8000: elige uno. Mantén **una sola instancia** utilizando una misma sesión emisora de WhatsApp.
 
 WhatsApp requiere `WHATSAPP_ENABLED=true` y una sesión realmente vinculada y abierta. Desde el panel o una consulta autenticada de administrador, comprueba `GET /notifications/whatsapp/status`; habilitar la variable no demuestra conexión. Nunca copies tokens, PIN, claves médicas ni `auth_info_baileys` a la documentación, al APK o a Git. Las pruebas automáticas de esta preparación no crean SOS ni envían mensajes a contactos.
 

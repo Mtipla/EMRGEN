@@ -1,6 +1,6 @@
 # Compra de plan Premium y cupos
 
-El catálogo define el plan base 2 “PLAN BASE DEMOSTRACION” a **5000 CLP** y el cupo adicional 1 a **1000 CLP**. `init.sql` los incluye para instalaciones nuevas; en una BD existente se aplica `migraciones/002_precio_plan_base.sql`. La migración actualiza el precio y admite reservas de plan con cero cupos, conservando los datos existentes.
+El catálogo define el plan base 2 “PLAN BASE DEMOSTRACION” a **5000 CLP** y el cupo adicional 1 a **1000 CLP**. `init.sql` los incluye para instalaciones nuevas; en una BD existente se aplica `migrations/002_precio_plan_base.sql`. La migración actualiza el precio y admite reservas de plan con cero cupos, conservando los datos existentes.
 
 ## Comprobación en la web
 

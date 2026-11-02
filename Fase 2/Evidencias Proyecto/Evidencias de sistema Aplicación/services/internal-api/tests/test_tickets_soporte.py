@@ -17,7 +17,6 @@ def test_autor_de_solucion_desde_sesion_y_conservado_al_cerrar(client, db, crear
 
     esperado = {"trabajador_id": trabajador, "trabajador_nombre": "Trabajadora prueba", "trabajador_correo": correo}
     assert autor() == esperado
-    # Cerrar sin cambiar la solución conserva a quien respondió.
     assert client.patch(f"{URL}/{tid}", headers=token(admin), json={"estado": "CERRADO", "confirmar_cierre": True}).status_code == 200
     assert autor() == esperado
     assert client.patch(f"{URL}/{tid}", headers=token(trabajador), json={"solucion": "Cambio no permitido"}).status_code == 403
@@ -26,7 +25,6 @@ def test_autor_de_solucion_desde_sesion_y_conservado_al_cerrar(client, db, crear
     assert autor() == esperado
     db.execute("DELETE FROM usuario WHERE usuario_id=%s", (trabajador,))
     assert autor() == {**esperado, "trabajador_id": None}
-    # Una nueva solución administrativa queda atribuida a su autor real.
     assert client.patch(f"{URL}/{tid}", headers=token(admin), json={"solucion": "Solución revisada"}).status_code == 200
     assert autor()["trabajador_id"] == admin
     assert autor()["trabajador_nombre"] == "Pytest"
@@ -93,7 +91,6 @@ def test_verificacion_cierre_y_permisos_actualizados(client, crear_usuario, db):
     antes = db.execute("SELECT * FROM ticket_soporte WHERE ticket_soporte_id=%s", (tid,)).fetchone()
     en_proceso = db.execute("SELECT estado_ticket_id FROM estado_ticket WHERE estado_ticket='EN PROCESO'").fetchone()["estado_ticket_id"]
     assert client.patch(f"{URL}/{tid}", headers=token(soporte), json={"verificacion_solicitada": True}).status_code == 400
-    # Sin cambiar manualmente estado ni solución: siempre queda EN PROCESO.
     r = client.patch(f"{URL}/{tid}", headers=token(soporte), json={"enviar_verificacion": True})
     assert r.status_code == 200, r.text
     assert r.json()["estado"] == "EN PROCESO"

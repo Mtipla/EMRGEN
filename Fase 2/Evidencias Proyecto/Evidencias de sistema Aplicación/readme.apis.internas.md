@@ -14,7 +14,7 @@ El panel de escritorio ofrece **Alertas SOS** con la sesión Admin existente y a
 
 | Método/ruta | Contrato |
 |---|---|
-| POST /internal/v1/alertas | Usuario autenticado. UUID `clave_idempotencia` y `prioridad_id` 1–4 obligatorios; `ubicacion` opcional (1–150), `mensaje` opcional (1–200, solo acceso completo). |
+| POST /internal/v1/alertas | Usuario autenticado. UUID `clave_idempotencia` y `prioridad_id` 1–4 obligatorios; `ubicacion` opcional (1–150), `mensaje` opcional (1–160, solo acceso completo). |
 | GET /internal/v1/alertas | Propias; personal completo puede consultar todas o filtrar por `usuario_id`. Filtro opcional `estado`: ACTIVA, FINALIZADA o EXPIRADA, aplicado antes de paginar. `limit` 1–100, `offset` >=0. |
 | GET /internal/v1/alertas/{id} | Propietario o personal completo; ajena devuelve 404. |
 | POST /internal/v1/alertas/{id}/cerrar | Emisor o su principal vinculado. Body `{"pin":"0007"}`; cadena de cuatro dígitos. No admite ID de tutor. |

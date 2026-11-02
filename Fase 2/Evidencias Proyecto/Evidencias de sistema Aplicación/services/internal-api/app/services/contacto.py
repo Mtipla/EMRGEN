@@ -2,10 +2,9 @@
 import psycopg
 from fastapi import HTTPException
 
-# Estado de todo mensaje nuevo y estado al que pasa cuando el personal responde.
+
 ESTADO_INICIAL = "PENDIENTE"
 ESTADO_RESPONDIDO = "REVISADO"
-# Antispam persistente: mensajes por correo en la ventana (el límite por IP está en la ruta).
 MAXIMO_POR_CORREO = 3
 VENTANA_POR_CORREO_MIN = 60
 
@@ -34,7 +33,6 @@ def _estado_id(conn: psycopg.Connection, nombre: str) -> int | None:
 def crear(conn: psycopg.Connection, nombre: str, correo: str, mensaje: str, tipo_id: int) -> int:
     if not conn.execute("SELECT 1 FROM tipo_contacto WHERE tipo_contacto_id=%s", (tipo_id,)).fetchone():
         raise HTTPException(400, "El tipo de contacto no existe")
-    # El lock serializa envíos simultáneos del mismo correo para que el conteo no se salte.
     conn.execute("SELECT pg_advisory_xact_lock(hashtext(lower(%s)))", (correo,))
     enviados = conn.execute("""SELECT count(*) AS n FROM mensaje_contacto
         WHERE lower(correo_remitente)=lower(%s) AND fecha_contacto > now() - make_interval(mins => %s)""",

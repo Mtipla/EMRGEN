@@ -65,8 +65,6 @@ def test_dos_bajas_ultimo_administrador(db,crear_usuario,operation):
 @pytest.mark.parametrize("ending",["cierre","borrado"])
 def test_insert_compite_con_cierre_o_borrado(client,db,crear_usuario,operation,ending):
     uid=crear_usuario();aid=create(client,uid)["alerta_id"]
-    # Esta prueba prepara un envío nuevo que compite con el cierre/borrado;
-    # elimina primero el envío que ahora registra automáticamente la creación del SOS.
     if operation=="envio":
         db.execute("DELETE FROM envio_alerta WHERE alerta_id=%s",(aid,))
     cid=db.execute("SELECT contacto_emergencia_id FROM contacto_emergencia WHERE usuario_id=%s",(uid,)).fetchone()["contacto_emergencia_id"]
@@ -148,7 +146,6 @@ def test_ventas_concurrentes_total_al_commit(db,crear_usuario):
         db.execute("INSERT INTO detalle_venta(venta_id,plan_id,tipo_compra,cantidad,precio_uni,cupos_otorgados) VALUES (%s,2,'CUPOS',1,1000,1)",(sid,))
     def update(price):
         def action(conn):
-            # Cada operación toma la cabecera primero; el total se verifica al COMMIT.
             conn.execute("UPDATE venta SET total_venta=%s WHERE venta_id=%s",(price,sid))
             conn.execute("UPDATE detalle_venta SET precio_uni=%s WHERE venta_id=%s",(price,sid))
             return "ok"

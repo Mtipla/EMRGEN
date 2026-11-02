@@ -1,6 +1,6 @@
 import { isIP } from "node:net";
 
-/** Evita empaquetar silenciosamente localhost, valores de ejemplo o una API sin configurar. */
+
 export function androidLanUrls(env) {
   const urls = {};
   for (const key of ["VITE_API_URL", "VITE_INTERNAL_API_URL"]) {

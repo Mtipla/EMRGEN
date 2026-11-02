@@ -50,7 +50,6 @@ const Home: React.FC = () => {
   useEffect(() => {
     if (!visible) return;
     const peticion = new AbortController();
-    // Actualiza el plan al volver al Home; la sesión guardada puede anteceder una compra.
     void apiFetch<SessionUser>('/usuarios/me', { signal: peticion.signal })
       .then((actual) => {
         if (!peticion.signal.aborted) {

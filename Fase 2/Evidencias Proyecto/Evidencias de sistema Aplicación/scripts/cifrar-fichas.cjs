@@ -1,4 +1,4 @@
-// CA-11.1: lleva una BD existente a ANTECEDENTE_MEDICO cifrada. En una sola transacción
+// Lleva una BD existente a ANTECEDENTE_MEDICO cifrada. En una sola transacción
 // cambia donante_organos a text y cifra con MEDICAL_DATA_KEYS las filas aún en claro.
 // Repetible: omite valores ya cifrados. Instalación nueva (init.sql) no lo necesita.
 //   node scripts/cifrar-fichas.cjs
@@ -9,7 +9,7 @@ const { parseEnv } = require('node:util');
 
 const CAMPOS = ['tipo_sangre', 'alergias', 'enfermedades_cronicas', 'medicamentos_actuales', 'discapacidad_presente', 'donante_organos'];
 
-// Mismo formato y AAD que apps/backend/src/perfil/cifrado-medico.ts (lo comprueba su spec).
+
 function claves(texto) {
   return new Map((texto ?? '').split(',').map((par) => {
     const [id, base64] = par.trim().split(':');
@@ -43,7 +43,6 @@ async function main() {
     for (const fila of rows) {
       if (CAMPOS.every((c) => yaCifrado(fila[c], mapa))) continue;
       const valores = CAMPOS.map((c) => {
-        // ::text de un boolean da 'true'/'false', lo mismo que String(boolean) en el backend.
         return yaCifrado(fila[c], mapa) ? fila[c] : cifrar(fila[c], `antecedente_medico:${fila.usuario_id}:${c}`, mapa);
       });
       await db.query(

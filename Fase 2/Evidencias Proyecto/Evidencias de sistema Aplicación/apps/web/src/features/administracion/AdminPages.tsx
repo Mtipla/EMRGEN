@@ -22,7 +22,7 @@ const apiPlanes: ApiPlanes = {
 }
 export function AdminPlanesPage() { return <AdminPlanes api={apiPlanes} /> }
 
-/** Listado de GET /admin/usuarios (rol Administrador) y acciones que lo recargan al terminar. */
+/** Listado de usuarios y acciones que lo recargan al terminar. */
 function useAdminUsuarios(ruta = '/admin/usuarios') {
   const { data, cargando, error, recargar } = useRemote(() => apiFetch<UsuarioAdminFila[]>(ruta), [])
 
@@ -40,7 +40,7 @@ function useAdminUsuarios(ruta = '/admin/usuarios') {
   return { usuarios: data, cargando, error, conRecarga, cambiarAcceso }
 }
 
-/** Componente común para SOPORTE (= Trabajador) y ADMINISTRADOR; acciones según la matriz de permisos. */
+/** Componente común para SOPORTE y ADMINISTRADOR */
 export function AdminCuentasPage({ perfil }: { perfil: Perfil | null }) {
   const { usuarios, cargando, error, conRecarga, cambiarAcceso } = useAdminUsuarios()
   const editar = puede(perfil, 'admin.cuentas.editar')
@@ -96,7 +96,7 @@ export function AdminTrabajadoresPage() {
   )
 }
 
-/** Función documentada de SOPORTE (ERS/HU-18): responder tickets y cambiar su estado. */
+/** Función documentada de SOPORTE: responder tickets y cambiar su estado. */
 const listarTickets = (consulta: { estado: string; limit: number; offset: number }, signal: AbortSignal) => {
   const params = new URLSearchParams({ limit: String(consulta.limit), offset: String(consulta.offset) })
   if (consulta.estado) params.set('estado', consulta.estado)
@@ -118,7 +118,7 @@ export function AdminTicketsPage({ perfil }: { perfil: Perfil | null }) {
     descargarInforme={perfil === 'ADMINISTRADOR' ? descargarInformeTickets : undefined} />
 }
 
-/** Mensajes del formulario público (MENSAJE_CONTACTO): ADMINISTRADOR y SOPORTE responden y cambian el estado. */
+/** Mensajes del formulario público: ADMINISTRADOR y SOPORTE responden y cambian el estado. */
 const apiContacto = {
   listar: (consulta: { estado: string; limit: number }, signal: AbortSignal) => {
     const params = new URLSearchParams({ limit: String(consulta.limit) })

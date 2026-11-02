@@ -1,8 +1,13 @@
 import { afterEach, expect, test, vi } from 'vitest';
-const native = vi.hoisted(() => ({ syncSession: vi.fn().mockResolvedValue({}), clearSession: vi.fn().mockResolvedValue(undefined) }));
-vi.mock('@capacitor/core', () => ({ Capacitor: { getPlatform: () => 'android' }, registerPlugin: () => native }));
 import { clearSession, saveSession, type SessionUser } from './session';
+
+
+const native = vi.hoisted(() => ({ syncSession: vi.fn().mockResolvedValue({}), clearSession: vi.fn().mockResolvedValue(undefined) }));
+
+vi.mock('@capacitor/core', () => ({ Capacitor: { getPlatform: () => 'android' }, registerPlugin: () => native }));
+
 const user: SessionUser = { usuario_ID: 7, nombre_usuario: 'Synthetic', correo_usuario: null, requiere_pin: false };
+
 afterEach(() => { localStorage.clear(); vi.clearAllMocks(); });
 
 test('otra identidad sin token nuevo no hereda JWT y solicita limpiar sesión nativa', () => {

@@ -19,7 +19,6 @@ export interface CompraAdmin {
   apadrinadoId: string;
   valor: number;
   boleta: string;
-  /** Catálogo ESTADO_PAGO de init.sql. */
   estado: (typeof ESTADOS_PAGO)[number];
 }
 
@@ -89,7 +88,7 @@ export const MOCK_CUENTAS_VINCULADAS: CuentaVinculada[] = [
   { nombre: "Nombre de usuario 3", informacion: "Información de usuario 3" },
 ];
 
-/** Catálogo PRIORIDAD de init.sql ("Finalidad" en los wireframes). Sin endpoint de lectura aún. */
+
 export const PRIORIDADES = [
   { id: 1, nombre: "MEDICO" },
   { id: 2, nombre: "URBANO" },
@@ -97,7 +96,7 @@ export const PRIORIDADES = [
   { id: 4, nombre: "ADULTO MAYOR" },
 ] as const;
 
-/** Catálogo ESTADO_PAGO de init.sql. */
+
 export const ESTADOS_PAGO = [
   "PENDIENTE",
   "PAGADO",
@@ -106,11 +105,11 @@ export const ESTADOS_PAGO = [
   "REVISION",
 ] as const;
 
-/** RF7: máximo de contactos por cuenta; CONTACTO_EMERGENCIA: nombre ≤ 20, número E.164. */
+
 export const MAX_CONTACTOS = 5;
 export const NUMERO_E164 = /^[+][1-9][0-9]{1,14}$/;
 
-/** HU-17 / RF14: números oficiales de emergencia de Chile. */
+
 export const NUMEROS_EMERGENCIA = [
   { numero: "131", servicio: "Ambulancia (SAMU)" },
   { numero: "132", servicio: "Bomberos" },

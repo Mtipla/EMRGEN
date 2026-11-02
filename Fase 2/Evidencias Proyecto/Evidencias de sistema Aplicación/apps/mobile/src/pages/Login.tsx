@@ -28,7 +28,7 @@ type LoginResponse = {
 
 const soloDigitos = (value: unknown) => String(value ?? '').replace(/\D/g, '').slice(0, 4);
 
-/** "Inicio de sesión": POST /usuarios/login, igual que la web. */
+
 const Login: React.FC = () => {
   const router = useIonRouter();
   const [correo, setCorreo] = useState('');
@@ -64,8 +64,6 @@ const Login: React.FC = () => {
         data = await login();
       } catch (cause) {
         if ((cause as { status?: number }).status !== 401 || paso !== 'credenciales') throw cause;
-        // Puede ser una contraseña recién restablecida con el correo de Firebase: si Firebase la
-        // acepta, se copia a la BD y se reintenta. Si no, se muestra el error original.
         const sesion = await firebaseAuth.signIn(correo.trim(), password).catch(() => null);
         if (!sesion) throw cause;
         await apiFetch('/usuarios/password/firebase', {
@@ -87,7 +85,6 @@ const Login: React.FC = () => {
       }
       if (!data.usuario || !data.access_token) throw new Error('Respuesta de inicio de sesión inesperada');
       saveSession(data.usuario, data.access_token);
-      // Una principal sin PIN aún recibe sesión con requiere_pin y lo crea en /pin.
       router.push(data.usuario.requiere_pin ? '/pin' : '/home', 'root', 'replace');
     } catch (cause) {
       setError(errorText(cause));
@@ -104,7 +101,6 @@ const Login: React.FC = () => {
     if (!email) return setAviso('Escribe tu correo electrónico y vuelve a presionar este enlace.');
     setCargando(true);
     try {
-      // Mismo mensaje exista o no la cuenta, para no revelar qué correos están registrados.
       await firebaseAuth.sendPasswordReset(email).catch((cause) => {
         if (!(cause instanceof FirebaseAuthError && cause.code === 'EMAIL_NOT_FOUND')) throw cause;
       });

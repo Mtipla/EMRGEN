@@ -8,7 +8,7 @@ type Mode = 'login' | 'registro' | 'verificacion'
 
 /**
  * Cuenta tipo Netflix: correo y contraseña de la principal, elegir perfil y su PIN; si es un PIN
- * temporal (apadrinado con acceso completo), cambio obligatorio antes de entrar.
+ * temporal, cambio obligatorio antes de entrar.
  */
 type PasoIngreso = 'credenciales' | 'perfil' | 'pin' | 'cambio'
 
@@ -16,24 +16,20 @@ type Perfil = { usuario_ID: number; nombre_usuario: string; tipo: 'PRINCIPAL' | 
 
 type FirebaseSession = Awaited<ReturnType<typeof firebaseAuth.signUp>>
 
-/** Cuenta de Firebase que espera la confirmación del correo antes de guardarse en la BD. */
+
 type PendingAccount = {
   session: FirebaseSession
-  /** true si la cuenta de Firebase se creó en este intento (se puede borrar al cancelar). */
   created: boolean
 }
 
 export type AuthenticatedUser = {
   usuario_ID: number
   nombre_usuario: string
-  /** null en cuentas apadrinadas (entran con la cuenta principal). */
   correo_usuario: string | null
   requiere_pin: boolean
-  /** Opcionales: el backend los añadió el 2026-10-21; las sesiones guardadas antes no los traen. */
   rol_ID?: number
   estado_ID?: number
   usuario_principal_ID?: number | null
-  /** Premium (plan propio o del principal); solo en login y GET /usuarios/me. */
   plan_efectivo?: boolean
 }
 
@@ -55,7 +51,7 @@ const FIREBASE_ERRORS: Record<string, string> = {
 const firebaseErrorMessage = (code: string) =>
   FIREBASE_ERRORS[code] ?? 'No se pudo crear la cuenta en Firebase. Inténtalo nuevamente.'
 
-/** Lee el claim `email_verified` del ID token. Solo decide la UI: el backend lo verifica con la firma. */
+
 function isEmailVerified(idToken: string) {
   try {
     const payload = idToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
@@ -130,7 +126,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     avisar('exito', texto)
   }
 
-  /** Crea el usuario en la BD; el backend exige un ID token con el correo ya confirmado. */
+
   async function completeRegistration({ session, created }: PendingAccount) {
     try {
       await postUsuarios(
@@ -139,8 +135,6 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
         session.idToken,
       )
     } catch (cause) {
-      // Si el backend rechazó el alta, se borra la cuenta de Firebase creada en este intento
-      // para no dejarla huérfana. Una cuenta previa (p. ej. ya registrada) nunca se borra.
       if (created && !(cause instanceof TypeError)) {
         await firebaseAuth.deleteAccount(session.idToken).catch(() => undefined)
       }
@@ -155,16 +149,14 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     informar('Correo confirmado y cuenta creada. Ahora inicia sesión con tu correo y contraseña.')
   }
 
-  /** Crea (o retoma) la cuenta en Firebase y envía el correo de confirmación. */
+  /** Crea la cuenta en Firebase y envía el correo de confirmación. */
   async function startRegistration() {
     const email = correo.trim()
-    // Primero el backend: si rechaza el correo o los datos, no se crea nada en Firebase.
     await postUsuarios('registro/validar', { nombre_usuario: nombre, correo_usuario: correo, password })
     let account: PendingAccount
     try {
       account = { session: await firebaseAuth.signUp(email, password), created: true }
     } catch (cause) {
-      // Un registro anterior sin terminar: se retoma iniciando sesión con la misma contraseña.
       if (!(cause instanceof FirebaseAuthError && cause.code === 'EMAIL_EXISTS')) throw cause
       account = { session: await firebaseAuth.signIn(email, password), created: false }
     }
@@ -173,9 +165,6 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
       await completeRegistration(account)
       return
     }
-    // CA-01.1: antes de enviar la confirmación se pregunta al backend. Con un correo ya
-    // registrado responde 409 (se borra la cuenta de Firebase recién creada); un 403 solo
-    // significa que falta confirmar el correo, y se sigue con la verificación.
     try {
       await postUsuarios(
         'registro',
@@ -195,7 +184,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
     setMode('verificacion')
   }
 
-  /** Obtiene un ID token nuevo: el claim `email_verified` solo cambia al refrescarlo. */
+  /** Obtiene un ID token nuevo */
   async function refreshPending(account: PendingAccount): Promise<PendingAccount> {
     const session = await firebaseAuth.refresh(account.session.refreshToken)
     const updated = { ...account, session: { ...session, email: account.session.email } }
@@ -251,8 +240,6 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
         data = await login()
       } catch (cause) {
         if ((cause as { status?: number }).status !== 401 || paso !== 'credenciales') throw cause
-        // Puede ser una contraseña recién restablecida con el correo de Firebase: si Firebase la
-        // acepta, se copia a la BD y se reintenta. Si no, se muestra el error original.
         const session = await firebaseAuth.signIn(correo.trim(), password).catch(() => null)
         if (!session) throw cause
         await postUsuarios('password/firebase', { password }, session.idToken)
@@ -275,7 +262,6 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   }
 
   if (mode === 'verificacion' && pending) {
-    // Mismo marco que login y registro (auth-layout, barra EMERGEN), con las clases de index.css.
     return (
       <div className="auth-layout">
         <header className="auth-navbar">
@@ -555,9 +541,7 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
                   avisar('info', 'Escribe tu correo electrónico y vuelve a presionar este enlace.')
                   return
                 }
-                // Firebase guarda la contraseña nueva; el primer login con ella la copia a la BD.
                 void run(async () => {
-                  // Mismo mensaje exista o no la cuenta, para no revelar qué correos están registrados.
                   await firebaseAuth.sendPasswordReset(correo.trim()).catch((cause) => {
                     if (!(cause instanceof FirebaseAuthError && cause.code === 'EMAIL_NOT_FOUND')) throw cause
                   })

@@ -1,6 +1,6 @@
 import type { AxiosAdapter } from 'axios'
 
-/** Permite probar el cliente real del panel con las respuestas HTTP simuladas de estas pruebas. */
+
 export const desktopFetchAdapter: AxiosAdapter = async (config) => {
   const url = new URL(`${config.baseURL?.replace(/\/$/, '')}/${config.url?.replace(/^\//, '')}`)
   for (const [key, value] of Object.entries(config.params ?? {})) {

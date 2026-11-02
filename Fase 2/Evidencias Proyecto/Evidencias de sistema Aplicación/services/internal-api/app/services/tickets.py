@@ -61,7 +61,6 @@ def actualizar(conn: psycopg.Connection, ticket_id: int, estado: str | None, sol
         state = estado_canonico(conn, estado)
         if state is None:
             raise HTTPException(400, "El estado no existe en ESTADO_TICKET")
-        # CERRADO también representa una petición rechazada: reabrirla exige explicar el motivo.
         if row["estado_ticket_id"] == estado_canonico(conn, "CERRADO") != state and solucion is None:
             raise HTTPException(400, "Para reabrir un ticket CERRADO indica el motivo en la solución")
         conn.execute("UPDATE ticket_soporte SET estado_ticket_id=%s WHERE ticket_soporte_id=%s", (state,ticket_id))

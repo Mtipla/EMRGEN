@@ -13,10 +13,10 @@ import type { ResumenCompraApadrinados } from '@repo/api-client';
 import { apadrinadosApi, GestionApadrinados } from '@repo/ui/cuentas-apadrinadas';
 import { apiFetch, errorText } from '../lib/session';
 
-// Fuera del componente: GestionApadrinados recarga cuando cambia `api`.
+
 const apadrinados = apadrinadosApi(apiFetch);
 
-/** "Administrar Cuentas" del principal: cupos de GET /compras/apadrinados y cuentas reales. */
+/** "Administrar Cuentas" del principal: cupos y cuentas reales. */
 const Cuentas: React.FC = () => {
   const [presentAlert] = useIonAlert();
   const [cupos, setCupos] = useState<{ total: number | null; aviso: string }>();

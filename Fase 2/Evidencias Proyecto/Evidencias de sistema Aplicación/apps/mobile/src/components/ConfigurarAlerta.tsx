@@ -20,7 +20,7 @@ type Captura = {
   invalid: boolean;
 };
 
-/** La configuración solo recibe teclas nativas; estas pruebas nunca registran un SOS. */
+
 const ConfigurarAlerta: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [paso, setPaso] = useState<Paso>("inicio");
   const [keys, setKeys] = useState<VolumeKey[]>([]);

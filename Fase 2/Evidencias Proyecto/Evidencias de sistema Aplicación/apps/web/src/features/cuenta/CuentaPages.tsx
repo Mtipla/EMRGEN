@@ -10,10 +10,10 @@ import { NumerosEmergencia } from '@repo/ui/wireframe'
 import type { AuthenticatedUser } from '../auth/AuthForm'
 import { apiFetch, internalFetch, useCupos, useRemote } from './session'
 
-// Fuera de los componentes: GestionApadrinados recarga cuando cambia `api`.
+
 const apadrinados = apadrinadosApi(apiFetch)
 
-/** Home con sesión: accesos según perfil y números de emergencia. */
+
 export function HomePage({ user }: { user: AuthenticatedUser }) {
   const disponible = (accion: Accion) => visible(user, accion)
 
@@ -44,7 +44,7 @@ export function HomePage({ user }: { user: AuthenticatedUser }) {
   )
 }
 
-/** Informe con alertas y actividad; el servidor determina qué cuentas incluye. */
+
 export function DescargarInforme({ esPrincipal }: { esPrincipal: boolean }) {
   const [formato, setFormato] = useState<'pdf' | 'xlsx'>('pdf')
   const [estado, setEstado] = useState({ cargando: false, error: '' })
@@ -90,10 +90,10 @@ type ProfilePageProps = {
   onUserUpdated: (user: AuthenticatedUser) => void
 }
 
-// Fuera del componente: PerfilForm recarga cuando cambia `api`.
+
 const perfilDatos = perfilApi(apiFetch)
 
-/** "Modificar Usuario": nombre y correo con PATCH /usuarios/me; datos de emergencia con /usuarios/me/perfil y /contactos. */
+/** "Modificar Usuario": nombre y correo; datos de emergencia*/
 export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
   const perfil = perfilDe(user)
 
@@ -116,7 +116,6 @@ export function ProfilePage({ user, onUserUpdated }: ProfilePageProps) {
         onUserUpdated(updated)
       }}
       variante={perfil === 'ADMINISTRADOR' ? 'administrador' : perfil === 'SOPORTE' ? 'soporte' : 'usuario'}
-      // Sesiones antiguas sin estado_ID no se tratan como parciales; el backend decide igual.
       accesoParcial={user.estado_ID !== undefined && !accesoCompleto(user)}
       onGuardar={guardar}
       api={perfilDatos}
@@ -157,7 +156,7 @@ function CuentasPrincipal() {
 const aCatalogo = (filas: { categoria_id: number; nombre: string }[]): Catalogo[] =>
   filas.map((f) => ({ id: f.categoria_id, nombre: f.nombre }))
 
-/** HU-18 / RF18: solicitud de soporte (internal-api). */
+
 export function SoportePage() {
   const categorias = useRemote(
     () => internalFetch<{ categoria_id: number; nombre: string }[]>('/tickets-soporte/categorias').then(aCatalogo),

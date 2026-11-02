@@ -26,13 +26,13 @@ Guía para el equipo sobre las seis integraciones externas del proyecto: para qu
 | `packages/ui` | Componentes React `MapView` y `PaypalButton`. |
 | `apps/{web,mobile,desktop}/src/lib/api.ts` | Instancia `api` y objeto `env` con las variables `VITE_*` de cada app. |
 | `apps/backend/src/config/env.ts` | Carga del `.env` y helpers `readEnv()`/`requireEnv()`. |
-| `Fase 2/Evidencias Proyecto/Evidencias de documentación/4.4 Docker/.env` | Plantilla con todas las variables y marcadores `<INSERT_..._HERE>`. (No hay `.env.example` en la raíz del monorepo.) |
+| `example.env` | Plantilla de las variables, con marcadores `<INSERT_..._HERE>`. |
 
 ---
 
 ## 1. Configurar las variables de entorno
 
-Hay **un solo `.env`**, en la raíz del monorepo. Lo leen:
+La configuración principal está en el **`.env` de la raíz del monorepo**. Algunos procesos también leen archivos locales que pueden reemplazar sus valores ([README principal, sección 4.4](README.md#44-qué-archivo-de-configuración-lee-cada-servicio)). El `.env` raíz lo leen:
 
 - el backend con `npm run start:dev --workspace=backend` (`main.ts` busca `../../.env`);
 - Docker Compose, que pasa las variables al contenedor del backend;
@@ -40,13 +40,13 @@ Hay **un solo `.env`**, en la raíz del monorepo. Lo leen:
 
 ### 1.1 Crear o completar el `.env`
 
-Si todavía no tienes `.env`, copia la plantilla (en la raíz del monorepo no existe `.env.example`):
+Si todavía no tienes `.env`, copia la plantilla:
 
 ```powershell
-Copy-Item "..\Evidencias de documentación\4.4 Docker\.env" .env
+Copy-Item example.env .env
 ```
 
-Si ya tienes uno, **no lo sobrescribas**. Abre la plantilla de `4.4 Docker` y copia a tu `.env` las claves que te falten (`PAYPAL_MODE`, `FIREBASE_PROJECT_ID`, `JSREPORT_*`, `MINDICADOR_API_URL`, `CORS_ORIGINS`, `WHATSAPP_*`, `VITE_*`).
+Si ya tienes uno, **no lo sobrescribas**. Abre `example.env` y copia a tu `.env` las claves que te falten (`PAYPAL_MODE`, `FIREBASE_PROJECT_ID`, `JSREPORT_*`, `MINDICADOR_API_URL`, `CORS_ORIGINS`, `WHATSAPP_*`, `VITE_*`).
 
 Luego reemplaza cada marcador `<INSERT_..._HERE>` por el valor real (secciones 2 a 6). Si un valor se deja con el marcador, se trata igual que una variable vacía: la integración responde `503` en vez de enviar el texto del marcador al proveedor.
 
@@ -462,7 +462,7 @@ Estados (`state`): `disabled` · `connecting` · `waiting_for_link` (falta escan
 {
   "recipients": ["912345678", "+56987654321"],   // 1 a 5; 9 dígitos sin "+" → se antepone 56
   "senderName": "Ana Pérez",                     // opcional
-  "message": "Me caí y no puedo levantarme",     // máx. 200 (USUARIO_MENSAJE_PERSONALIZADO)
+  "message": "Me caí y no puedo levantarme",     // máx. 200 en este envío manual; el mensaje guardado y el SOS admiten 160
   "location": { "lat": -33.4378, "lng": -70.6504, "address": "Plaza de Armas, Santiago" },
   "medicalInfo": {                               // opcional
     "summary": "Diabética tipo 1. Alergia a la penicilina.",

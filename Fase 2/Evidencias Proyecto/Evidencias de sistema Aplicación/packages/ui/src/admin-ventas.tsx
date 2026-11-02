@@ -40,7 +40,6 @@ const fecha = new Intl.DateTimeFormat("es-CL", {
 });
 const columnas: Column<VentaAdmin>[] = [
   { header: "Número de boleta", render: (v) => `#${v.venta_id}` },
-  // Junto a la boleta: al final quedaba fuera de la pantalla.
   { header: "Estado", render: (v) => v.estado },
   {
     header: "Fecha (Chile)",

@@ -1,4 +1,4 @@
-// Fixed JSON protocol on stdin: no PIN in argv, shell, logs or responses.
+// Fixed JSON protocol on stdin
 const { createRequire } = require('node:module');
 const { resolve } = require('node:path');
 const bcrypt = createRequire(resolve(__dirname, '../apps/backend/package.json'))('bcrypt');

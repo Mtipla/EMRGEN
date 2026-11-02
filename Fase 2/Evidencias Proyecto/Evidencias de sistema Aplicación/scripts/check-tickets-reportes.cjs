@@ -51,7 +51,6 @@ async function main() {
     const { rows: [autor] } = await db.query('SELECT trabajador_id,trabajador_nombre FROM soporte WHERE ticket_soporte_id=$1', [ticket.ticket_id]);
     assert.equal(autor.trabajador_id, trabajador.usuario_id, 'Cerrar sin respuesta no debe cambiar al autor');
     assert.equal(autor.trabajador_nombre, 'Soporte & María');
-    // Supera la página de 20 y agrega estados que deben quedar fuera del informe.
     const { rows: fixtures } = await db.query(`
       INSERT INTO ticket_soporte(desc_ticket,usuario_id,categoria_soporte_id,estado_ticket_id)
       SELECT 'Fixture informe ' || n,$1,1,e.estado_ticket_id

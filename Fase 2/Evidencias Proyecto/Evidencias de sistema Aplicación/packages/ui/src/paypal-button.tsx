@@ -7,7 +7,6 @@ type PaypalButtonProps = RenderPaypalButtonsOptions;
 export const PaypalButton = ({ api, clientId, order, onPaid, onCancel, onError }: PaypalButtonProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string>();
-  // Los callbacks se leen desde una ref para no recrear los botones en cada render.
   const callbacks = useRef({ onPaid, onCancel, onError });
   callbacks.current = { onPaid, onCancel, onError };
 

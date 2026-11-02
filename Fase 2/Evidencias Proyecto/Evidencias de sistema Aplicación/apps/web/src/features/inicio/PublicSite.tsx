@@ -8,16 +8,19 @@ const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 type PublicSiteProps = {
   view: PublicView
   isAuthenticated: boolean
-  onNavigate: (view: PublicView) => void
-  /** "Iniciar sesión" (sin sesión) o "Mi cuenta" (con sesión). */
+  onNavigate: (view: PublicView) => VoidFunction
   onAccount: () => void
-  /** Solo se llama con sesión activa: abre el flujo de compra existente. */
   onBuy: () => void
 }
 
+type PublicNavProps = Pick<PublicSiteProps, 'view' | 'isAuthenticated' | 'onNavigate' | 'onAccount'>
+
+type LandingProps = Pick<PublicSiteProps, 'onNavigate' | 'onAccount' | 'isAuthenticated'>
+
+type CuentaProps = Pick<PublicSiteProps, 'isAuthenticated' | 'onAccount'>
+
 /** Páginas públicas de EMERGEN: se ven sin iniciar sesión. */
 export function PublicSite({ view, isAuthenticated, onNavigate, onAccount, onBuy }: PublicSiteProps) {
-  // Las vistas comparten el componente, así que el router no reinicia el scroll al cambiar de página.
   useEffect(() => {
     document.documentElement.scrollTop = 0
   }, [view])
@@ -40,7 +43,6 @@ export function PublicSite({ view, isAuthenticated, onNavigate, onAccount, onBuy
   )
 }
 
-type PublicNavProps = Pick<PublicSiteProps, 'view' | 'isAuthenticated' | 'onNavigate' | 'onAccount'>
 
 const SECCIONES: [PublicView, string][] = [
   ['como-funciona', '¿Cómo funciona?'],
@@ -73,7 +75,7 @@ function PublicNav({ view, isAuthenticated, onNavigate, onAccount }: PublicNavPr
   )
 }
 
-/** Íconos de trazo simple; heredan el color del texto. */
+
 const ICONOS: Record<string, ReactNode> = {
   alerta: <path d="M12 3 2 20h20L12 3Zm0 6v5m0 3v.5" />,
   ubicacion: <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Zm0-8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />,
@@ -91,7 +93,7 @@ function Icono({ nombre }: { nombre: keyof typeof ICONOS }) {
   )
 }
 
-/** Finalidades del Acta de constitución: definen qué se envía en cada alerta. */
+
 const TIPOS_EMERGENCIA = [
   { nombre: 'Urbano', detalle: 'Robos, asaltos o accidentes en la vía pública. Envía tu ubicación y tu mensaje personalizado.' },
   { nombre: 'Emergencia', detalle: 'Incidentes domésticos o situaciones de riesgo general. Envía tu ubicación y tu mensaje personalizado.' },
@@ -99,7 +101,7 @@ const TIPOS_EMERGENCIA = [
   { nombre: 'Adulto mayor', detalle: 'Ubicación, mensaje y antecedentes médicos, con una configuración de la app móvil simplificada.' },
 ]
 
-type LandingProps = Pick<PublicSiteProps, 'onNavigate' | 'onAccount' | 'isAuthenticated'>
+
 
 function Landing({ onNavigate, onAccount, isAuthenticated }: LandingProps) {
   return (
@@ -169,7 +171,6 @@ function Landing({ onNavigate, onAccount, isAuthenticated }: LandingProps) {
         <TiposEmergencia />
       </section>
 
-      {/* RF14 / HU-17: los números oficiales también se ven sin iniciar sesión. */}
       <NumerosEmergencia />
 
       <section className="public-cta">
@@ -188,7 +189,7 @@ function Landing({ onNavigate, onAccount, isAuthenticated }: LandingProps) {
   )
 }
 
-/** Ilustración de la app móvil: el botón SOS en un teléfono (solo decorativa). */
+
 function TelefonoSos() {
   return (
     <div className="public-phone" role="img" aria-label="Pantalla de la app móvil con el botón SOS">
@@ -212,7 +213,7 @@ function TiposEmergencia() {
   )
 }
 
-/** Explicación de la cuenta compartida; se usa en Cómo funciona y en Premium. */
+
 function CuentaCompartida() {
   return (
     <>
@@ -256,7 +257,7 @@ function CuentaCompartida() {
   )
 }
 
-type CuentaProps = Pick<PublicSiteProps, 'isAuthenticated' | 'onAccount'>
+
 
 function ComoFunciona({ isAuthenticated, onAccount }: CuentaProps) {
   return (
@@ -497,17 +498,17 @@ function PreguntasFrecuentes({ onNavigate }: Pick<PublicSiteProps, 'onNavigate'>
   )
 }
 
-/** Etiquetas de TIPO_CONTACTO para el visitante. */
+
 const TIPOS_CONTACTO: Record<string, string> = { CONSULTA: 'Consulta', SUGERENCIA: 'Sugerencia', RECLAMO: 'Reclamo' }
 
-/** Contacto sin sesión: guarda en MENSAJE_CONTACTO (POST /internal/v1/mensajes-contacto); el personal responde desde su panel. */
+/** Contacto sin sesión */
 function PreguntaVisitante() {
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
   const [ticket, setTicket] = useState<number | null>(null)
   const [tipos, setTipos] = useState<{ id: number; nombre: string }[]>([])
 
-  // Catálogo público; sin él no se puede enviar (el tipo es obligatorio en la tabla).
+  // Catálogo público; sin él no se puede enviar 
   useEffect(() => {
     internalFetch<{ id: number; nombre: string }[]>('/mensajes-contacto/tipos').then(setTipos, () =>
       setError('No pudimos cargar el formulario. Inténtalo más tarde.'),
@@ -591,7 +592,7 @@ function PremiumInfo({ isAuthenticated, onBuy, onAccount }: PremiumInfoProps) {
   const [warning, setWarning] = useState(false)
   const [precios, setPrecios] = useState<{ precioUnitario: number; precioPlan: number } | null>(null)
 
-  // GET /compras/precio es público; si falla, la página sigue sin mostrar el precio.
+
   useEffect(() => {
     fetch(`${API_URL}/compras/precio`)
       .then((response) => (response.ok ? response.json() : null))
@@ -712,7 +713,7 @@ type LoginRequiredModalProps = {
   onLogin?: () => void
 }
 
-/** Aviso al intentar comprar sin sesión. Solo informa: no toca la sesión ni redirige. */
+
 export function LoginRequiredModal({ onClose, onLogin }: LoginRequiredModalProps) {
   return (
     <div className="purchase-overlay" onKeyDown={(event) => event.key === 'Escape' && onClose()}>

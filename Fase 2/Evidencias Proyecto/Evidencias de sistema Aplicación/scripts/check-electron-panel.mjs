@@ -5,7 +5,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, realpa
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Run only against a security-check desktop build. Never starts an API or reads .env.
+
 const root = fileURLToPath(new URL('../', import.meta.url));
 const json = (file) => JSON.parse(readFileSync(join(root, file), 'utf8'));
 const expected = json('apps/desktop/package.json').devDependencies.electron;
@@ -62,7 +62,6 @@ try {
     console.log(JSON.stringify(evidence));
   }
 } finally {
-  // Only the newly created, marked profile under this project's cache can be removed.
   const resolvedProfile = realpathSync(profile);
   assert.ok(resolvedProfile.startsWith(realpathSync(cache) + sep));
   assert.ok(resolvedProfile.split(sep).at(-1).startsWith('electron-panel-profile-'));

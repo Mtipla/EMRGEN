@@ -1,6 +1,6 @@
 const pending = new Map<string, Promise<void>>();
 
-/** Inserta un <script> una sola vez por URL y espera a que cargue. */
+
 export function loadScript(src: string): Promise<void> {
   let promise = pending.get(src);
   if (!promise) {

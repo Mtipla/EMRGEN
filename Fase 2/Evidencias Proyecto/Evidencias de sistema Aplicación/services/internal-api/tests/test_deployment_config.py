@@ -11,7 +11,6 @@ def production():
 
 def test_production_requires_explicit_configuration():
     config = production()
-    # Los alias de entorno son también los nombres usados en el constructor.
     values = {"EMERGEN_ENVIRONMENT": config.pop("environment"), "EMERGEN_DEPLOYMENT_ID": config.pop("deployment_id"),
               "DB_HOST": config.pop("db_host"), "DB_PORT": config.pop("db_port"), "DB_USER": config.pop("db_user"),
               "DB_PASSWORD": config.pop("db_password"), "DB_NAME": config.pop("db_name"),

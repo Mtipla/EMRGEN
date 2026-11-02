@@ -17,10 +17,10 @@ import { env, firebaseAuth } from '../lib/api';
 
 type Sesion = Awaited<ReturnType<typeof firebaseAuth.signUp>>;
 
-/** Cuenta de Firebase a la espera de confirmar el correo; `creada` indica si se creó en este intento. */
+
 type Pendiente = { sesion: Sesion; creada: boolean };
 
-// Mismos mensajes que la web (AuthForm.tsx).
+
 const MENSAJES_FIREBASE: Record<string, string> = {
   EMAIL_EXISTS: 'Ya existe una cuenta con ese correo.',
   INVALID_LOGIN_CREDENTIALS:
@@ -30,7 +30,7 @@ const MENSAJES_FIREBASE: Record<string, string> = {
   TOO_MANY_ATTEMPTS_TRY_LATER: 'Demasiados intentos. Espera unos minutos.',
 };
 
-/** Lee el claim email_verified; solo decide la UI, el backend verifica la firma del token. */
+
 function correoConfirmado(idToken: string) {
   try {
     const payload = idToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -64,7 +64,7 @@ function describirError(causa: unknown) {
   return causa instanceof Error ? causa.message : 'Ocurrió un error inesperado';
 }
 
-/** "Registrar usuario": mismo flujo que la web: Firebase, correo de confirmación y POST /usuarios/registro. */
+
 const Registro: React.FC = () => {
   const router = useIonRouter();
   const [nombre, setNombre] = useState('');
@@ -93,7 +93,7 @@ const Registro: React.FC = () => {
     }
   }
 
-  /** Crea el usuario en la BD. Si el backend lo rechaza, borra la cuenta de Firebase creada en este intento. */
+
   async function completar(cuenta: Pendiente) {
     try {
       await registrarEnBackend(nombre.trim(), correo.trim(), password, cuenta.sesion.idToken);
@@ -110,20 +110,18 @@ const Registro: React.FC = () => {
 
   async function iniciarRegistro() {
     const email = correo.trim();
-    // Primero el backend: si rechaza el correo o los datos, no se crea nada en Firebase.
     await registrarEnBackend(nombre.trim(), email, password);
     let cuenta: Pendiente;
     try {
       cuenta = { sesion: await firebaseAuth.signUp(email, password), creada: true };
     } catch (causa) {
-      // Registro anterior sin terminar: se retoma con la misma contraseña.
       if (!(causa instanceof FirebaseAuthError && causa.code === 'EMAIL_EXISTS')) throw causa;
       cuenta = { sesion: await firebaseAuth.signIn(email, password), creada: false };
     }
 
     if (correoConfirmado(cuenta.sesion.idToken)) return completar(cuenta);
 
-    // Con el correo sin confirmar el backend responde 403; cualquier otro error cancela el alta.
+
     try {
       await registrarEnBackend(nombre.trim(), email, password, cuenta.sesion.idToken);
     } catch (causa) {
@@ -138,7 +136,7 @@ const Registro: React.FC = () => {
     setPendiente(cuenta);
   }
 
-  /** El claim email_verified solo cambia al refrescar el ID token. */
+
   async function refrescar(cuenta: Pendiente): Promise<Pendiente> {
     const sesion = await firebaseAuth.refresh(cuenta.sesion.refreshToken);
     const actualizada = { ...cuenta, sesion: { ...sesion, email: cuenta.sesion.email } };
@@ -208,7 +206,6 @@ const Registro: React.FC = () => {
           </>
         ) : (
           <form onSubmit={enviar}
-            // IonButton no es un botón nativo: sin esto, Enter en un campo no envía el formulario.
             onKeyDown={(event) => {
               if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
                 event.preventDefault();

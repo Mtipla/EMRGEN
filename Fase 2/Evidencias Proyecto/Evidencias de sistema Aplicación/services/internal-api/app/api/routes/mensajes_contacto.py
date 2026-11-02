@@ -11,7 +11,7 @@ from app.services import contacto
 
 router = APIRouter(prefix="/mensajes-contacto", tags=["Mensajes de contacto"])
 
-# Rutas sin sesión: las usa el formulario de la web pública (visitantes).
+
 RUTAS_PUBLICAS = {("/internal/v1/mensajes-contacto/tipos", "get"), ("/internal/v1/mensajes-contacto", "post")}
 
 
@@ -20,17 +20,15 @@ def listar_tipos(db: psycopg.Connection = Depends(get_db)):
     return contacto.tipos(db)
 
 
-# Antispam por IP (además del límite por correo en el servicio): 5 envíos cada 15 minutos.
+
 limite_por_ip = LimiteVentana(maximo=5, segundos=15 * 60)
 
 
 @router.post("", response_model=MensajeContactoCreado, status_code=201,
              summary="Enviar un mensaje sin sesión (público; 429 al superar 5 por IP cada 15 min o 3 por correo cada hora)")
 def crear_mensaje(datos: MensajeContactoCrear, request: Request, db: psycopg.Connection = Depends(get_db)):
-    # shortcut: detrás de un proxy inverso client.host es la IP del proxy; leer X-Forwarded-For de un proxy confiable al desplegar.
     if not limite_por_ip.permitir(request.client.host if request.client else "desconocido"):
         raise HTTPException(429, "Enviaste demasiados mensajes seguidos. Inténtalo nuevamente en unos minutos.")
-    # Solo devuelve el número: el visitante no puede consultar mensajes.
     return {"mensaje_contacto_id": transaction(db, lambda: contacto.crear(
         db, datos.nombre, datos.correo, datos.mensaje, datos.tipo_id))}
 

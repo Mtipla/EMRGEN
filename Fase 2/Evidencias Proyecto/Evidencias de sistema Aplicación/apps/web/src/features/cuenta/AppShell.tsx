@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ETIQUETA_PERFIL, MENSAJE_BLOQUEO, perfilDe, visible, type Accion, type Bloqueo } from '@repo/ui/permisos'
 import type { AuthenticatedUser } from '../auth/AuthForm'
-import '@repo/ui/wireframe' // carga los estilos wf-* compartidos
+import '@repo/ui/wireframe' 
 
 type AppShellProps = {
   user: AuthenticatedUser
@@ -10,14 +10,14 @@ type AppShellProps = {
   children: ReactNode
 }
 
-/** Menú web: las funciones administrativas se ofrecen solo en apps/desktop. */
+/** Menú web: las funciones administrativas. */
 const MENU: { to: string; label: string; accion: Accion }[] = [
   { to: '/perfil', label: 'Modificar usuario', accion: 'perfil.editar' },
   { to: '/cuentas', label: 'Administrar cuentas', accion: 'cuentas.informe' },
   { to: '/soporte', label: 'Solicitar soporte', accion: 'soporte.solicitar' },
 ]
 
-/** Cabecera EMERGEN con el menú de usuario; el backend sigue siendo quien autoriza cada acción. */
+
 export function AppShell({ user, onLogout, children }: AppShellProps) {
   const perfil = perfilDe(user)
   const [open, setOpen] = useState(false)
@@ -64,7 +64,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
   )
 }
 
-/** Página para un perfil sin permiso en la UI. El backend rechaza igual la llamada (403/409). */
+
 export function SinPermiso({ motivo = 'permiso' }: { motivo?: Bloqueo }) {
   return (
     <section className="wf-card">

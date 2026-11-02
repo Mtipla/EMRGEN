@@ -11,7 +11,6 @@ class MensajeContactoCrear(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     nombre: str = Field(min_length=1, max_length=100)
-    # Mismo patrón que c_mensaje_contacto_02.
     correo: str = Field(max_length=100, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
     mensaje: str = Field(min_length=1, max_length=500)
     tipo_id: int = Field(gt=0, description="ID de TIPO_CONTACTO (RECLAMO, SUGERENCIA o CONSULTA).")

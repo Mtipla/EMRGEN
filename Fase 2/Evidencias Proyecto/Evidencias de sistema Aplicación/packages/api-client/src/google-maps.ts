@@ -36,30 +36,27 @@ interface GoogleMapsNamespace {
 }
 
 export interface CreateMapOptions {
-  /** Key de NAVEGADOR (restringida por dominio), normalmente `import.meta.env.VITE_GOOGLE_MAPS_API_KEY`. */
   apiKey: string;
   center: GeoPoint;
   zoom?: number;
-  /** Map ID de Google Cloud; obligatorio para marcadores avanzados. "DEMO_MAP_ID" sirve para desarrollo. */
   mapId?: string;
 }
 
 /** Centro de Santiago de Chile, útil como posición por defecto. */
 export const SANTIAGO: GeoPoint = { lat: -33.4489, lng: -70.6693 };
 
-/** Carga la Maps JavaScript API una sola vez y devuelve el namespace `google.maps`. */
+
 export async function loadGoogleMaps(apiKey: string): Promise<GoogleMapsNamespace> {
   const params = new URLSearchParams({ key: apiKey, v: 'weekly', loading: 'async' });
   await loadScript(`https://maps.googleapis.com/maps/api/js?${params}`);
 
   const maps = (window as unknown as { google?: { maps?: GoogleMapsNamespace } }).google?.maps;
   if (!maps) throw new Error('Google Maps no se inicializó: revisa VITE_GOOGLE_MAPS_API_KEY.');
-  // Con loading=async, importLibrary puede no estar listo justo en el evento load.
   await waitFor(() => typeof maps.importLibrary === 'function');
   return maps;
 }
 
-/** Crea un mapa dentro de `container`. */
+
 export async function createMap(container: HTMLElement, options: CreateMapOptions): Promise<GoogleMap> {
   const maps = await loadGoogleMaps(options.apiKey);
   const { Map } = await maps.importLibrary('maps');
@@ -70,7 +67,7 @@ export async function createMap(container: HTMLElement, options: CreateMapOption
   });
 }
 
-/** Agrega un marcador al mapa (ej. la ubicación de una alerta). */
+/** Agrega un marcador al mapa  */
 export async function addMarker(
   apiKey: string,
   map: GoogleMap,

@@ -20,7 +20,7 @@ function errorNativo(cause: unknown): string {
   return "El dispositivo no pudo determinar tu ubicación. Comprueba la ubicación y los servicios de Google Play.";
 }
 
-/** Android usa permisos nativos; web conserva navigator. La espera total incluye el diálogo de permiso. */
+
 export async function obtenerUbicacionSos(
   onUnavailable?: (reason: string) => void,
 ): Promise<string | undefined> {
@@ -47,7 +47,6 @@ export async function obtenerUbicacionSos(
   }
   return new Promise((resolve) => {
     let completed = false;
-    // También limita la espera mientras el navegador solicita el permiso.
     const timer = setTimeout(() => finish(undefined, TIMEOUT_MESSAGE), 10_000);
     const finish = (value?: string, reason?: string) => {
       if (completed) return;
@@ -78,7 +77,6 @@ export async function obtenerUbicacionSos(
             finish(undefined, errorNativo({ code: "OS-PLUG-GLOC-0003" }));
             return;
           }
-          // Android puede conceder solo aproximada: el plugin respeta esa decisión.
           const { coords } = await Geolocation.getCurrentPosition({
             enableHighAccuracy: true,
             timeout: 10_000,

@@ -2,7 +2,7 @@ import type { CapturePaypalOrderResponse, CreatePaypalOrderRequest } from '@repo
 import type { EmergenApi } from './emergen-api';
 import { loadScript } from './load-script';
 
-/* Tipos mínimos del PayPal JavaScript SDK (botones de pago). */
+
 interface PaypalButtonsOptions {
   createOrder: () => Promise<string>;
   onApprove: (data: { orderID: string }) => Promise<void>;

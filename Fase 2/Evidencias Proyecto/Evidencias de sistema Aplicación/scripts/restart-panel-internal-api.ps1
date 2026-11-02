@@ -23,8 +23,6 @@ if (@($hijosPanel | Where-Object { $_.CommandLine -notmatch '-m uvicorn app\.mai
 function Stop-PanelProcess([int]$apiProcessId) {
   try { Stop-Process -Id $apiProcessId -ErrorAction Stop }
   catch {
-    # El lanzador Python puede terminar al cerrarse su hijo. Si ya salió, continuar.
-    # Un proceso que siga vivo (p. ej., acceso denegado) conserva el error original.
     if (Get-Process -Id $apiProcessId -ErrorAction SilentlyContinue) { throw }
   }
 }

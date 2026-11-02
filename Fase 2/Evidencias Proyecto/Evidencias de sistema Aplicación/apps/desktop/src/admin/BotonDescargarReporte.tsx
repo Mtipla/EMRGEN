@@ -12,7 +12,7 @@ type Props = {
   onDescargado?: (formato: FormatoReporte) => void
 }
 
-/** Conserva el botón de cada sección y comparte la elección y descarga del formato. */
+
 export function BotonDescargarReporte({
   nombre,
   descargar,

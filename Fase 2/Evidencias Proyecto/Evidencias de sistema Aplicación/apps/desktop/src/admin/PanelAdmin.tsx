@@ -31,7 +31,7 @@ function mensajeErrorInicioSesion(error: unknown): string {
   return 'No se pudo iniciar sesión. Verifica tus datos e inténtalo nuevamente.'
 }
 
-/** Panel administrativo y vistas de SOPORTE: cada sección consume sus endpoints con Axios. */
+
 export function PanelAdmin() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -50,7 +50,6 @@ export function PanelAdmin() {
       if (perfil !== 'ADMINISTRADOR' && perfil !== 'SOPORTE') {
         throw new Error('El panel requiere una cuenta de administrador o soporte.')
       }
-      // Confirma también el acceso completo mediante una consulta autorizada por el servidor.
       await adminApi.listarUsuarios()
       setSesion(nueva)
       setPassword('')

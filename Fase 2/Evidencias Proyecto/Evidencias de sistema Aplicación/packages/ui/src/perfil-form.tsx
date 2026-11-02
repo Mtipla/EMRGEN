@@ -8,7 +8,6 @@ import { PerfilPersonal, type DatosPerfilPersonal } from "./perfil-personal";
 interface PerfilFormProps {
   onGuardarPersonal?: (datos: DatosPerfilPersonal) => Promise<void>;
   nombreUsuario: string;
-  /** null en cuentas apadrinadas: usan el correo y la contraseña de la principal. */
   correo: string | null;
   /**
    * "usuario": finalidad, contactos, mensaje y ficha médica.
@@ -16,13 +15,9 @@ interface PerfilFormProps {
    * "administrador": nombre de usuario y PIN propio.
    */
   variante?: "usuario" | "soporte" | "administrador";
-  /** Acceso parcial: el backend rechaza PATCH /usuarios/me (403); se pide autorización del principal. */
   accesoParcial?: boolean;
-  /** PATCH /usuarios/me (nombre_usuario y correo_usuario); con acceso parcial, más el PIN del principal (HU-10). */
   onGuardar: (nombreUsuario: string, correo: string, pinPrincipal?: string) => Promise<void>;
-  /** Variante "usuario": guarda finalidad, contactos, mensaje y ficha médica. Sin ella solo viven en el formulario. */
   api?: PerfilApi;
-  /** PATCH /usuarios/me/password (HU-15). Sin ella el cambio de contraseña sigue pendiente. */
   onCambiarPassword?: (actual: string, nueva: string) => Promise<void>;
 }
 
@@ -49,7 +44,7 @@ function validarNombreContacto(nombre: string): Validacion {
 }
 
 /**
- * CA-03.1: lleva el número a E.164 igual que el backend (ContactoDto): acepta "+56 9 1234 5678",
+ *  lleva el número a E.164 igual que el backend (ContactoDto): acepta "+56 9 1234 5678",
  * "(9) 1234-5678" o "912345678", con Chile por defecto. Si no se reconoce, solo quita espacios.
  */
 export function normalizarTelefono(valor: string): string {
@@ -57,11 +52,11 @@ export function normalizarTelefono(valor: string): string {
   return numero?.isPossible() ? numero.number : valor.replace(/\s/g, "");
 }
 
-/** CA-05.1: máximo del mensaje personalizado (backend @MaxLength y CHECK en la BD). */
+
 const MAX_MENSAJE = 160;
 
 const NUMERO_DUPLICADO = "Ese número ya está en tu lista de contactos de emergencia";
-/** Texto de CA-04.1; el backend responde lo mismo (PerfilService.eliminarContacto). */
+
 const UNICO_CONTACTO =
   "Debe mantener al menos un contacto activo en su red de auxilio. Se recomienda editar el contacto activo";
 
@@ -95,7 +90,7 @@ export interface FichaMedica {
   donante_organos: boolean;
 }
 
-/** Respuesta de GET /usuarios/me/perfil y de cada escritura. */
+
 export interface PerfilEmergencia {
   prioridad_ID: number | null;
   mensaje: string | null;
@@ -106,7 +101,7 @@ export interface PerfilEmergencia {
 type Fetcher = <T>(path: string, init?: RequestInit) => Promise<T>;
 type DatosContacto = Omit<ContactoEmergencia, "contacto_emergencia_ID">;
 
-/** CRUD de /usuarios/me/perfil y /usuarios/me/contactos con el fetch autenticado de cada app. */
+/** CRUD de perfil y contactos con el fetch autenticado de cada app. */
 export function perfilApi(fetcher: Fetcher) {
   const enviar = (method: string, path: string, body?: unknown) =>
     fetcher<PerfilEmergencia>(path, {
@@ -131,7 +126,7 @@ export type PerfilApi = ReturnType<typeof perfilApi>;
 const mensajeDe = (causa: unknown) =>
   causa instanceof Error ? causa.message : "Error al comunicarse con el servidor.";
 
-/** Columnas de ANTECEDENTE_MEDICO (init.sql) salvo donante_organos, que es booleano. */
+/** Columnas de ANTECEDENTE_MEDICO (init.sql)  */
 const CAMPOS_MEDICOS = [
   ["tipo_sangre", "Tipo de sangre"],
   ["alergias", "Alergias"],
@@ -143,7 +138,7 @@ const CAMPOS_MEDICOS = [
 type Modal =
   "autorizacion" | "autorizacion-pendiente" | null;
 
-/** Pantalla "Modificar Usuario" de los wireframes, con los campos del modelo de datos. */
+
 export const PerfilForm = (props: PerfilFormProps) =>
   props.variante === "soporte" || props.variante === "administrador"
     ? <PerfilPersonal {...props} variante={props.variante} />
@@ -237,7 +232,7 @@ const PerfilUsuario = ({
     }
   }
 
-  /** Crea o, si `editando`, actualiza el contacto; con `api` se guarda al instante. */
+  /** Crea o actualiza el contacto; con `api`  */
   async function guardarContacto() {
     const datos = {
       nombre_contacto: nuevo.nombre.trim(),
@@ -285,7 +280,7 @@ const PerfilUsuario = ({
     setEditando(null);
   }
 
-  /** CA-04.1: el único contacto no se borra (aviso inmediato); los demás piden confirmación. */
+  /**  un único contacto que no se borra, los demás piden confirmación. */
   function pedirBorrado(contacto: ContactoEmergencia) {
     if (contactos.length <= 1) {
       setErrorContacto(UNICO_CONTACTO);
@@ -505,7 +500,6 @@ const PerfilUsuario = ({
                 <button
                   type="button"
                   className="wf-button wf-button--secondary"
-                  // CA-03.1: un número inválido o repetido bloquea el guardado.
                   disabled={
                     (editando === null && contactos.length >= MAX_CONTACTOS) ||
                     validacionNumero?.ok === false
@@ -623,7 +617,6 @@ const PerfilUsuario = ({
           confirmar={false}
           onClose={() => setModal(null)}
           onSubmit={async (pin) => {
-            // HU-10: el backend verifica el PIN del principal; el error (incorrecto o bloqueo) queda en el diálogo.
             await onGuardar(usuario.trim(), email.trim(), pin);
             const texto = "Nombre de usuario y correo actualizados con la autorización de la cuenta principal.";
             setEstado({ ok: true, texto });
@@ -644,7 +637,7 @@ const PerfilUsuario = ({
   );
 };
 
-/** HU-15 / RF3: cambio de contraseña verificando la actual; marca en vivo si la nueva es válida. */
+
 const CambioPassword = ({
   bloqueado,
   onCambiar,

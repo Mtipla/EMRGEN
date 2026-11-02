@@ -4,8 +4,7 @@ import { createEmergenApi, createFirebaseAuth, initFirebase } from '@repo/api-cl
  * Configuración pública del frontend. Vite lee el .env de la raíz del monorepo (envDir)
  * y solo expone las variables con prefijo VITE_: nunca poner secretos con ese prefijo.
  *
- * En un teléfono real "localhost" es el propio teléfono: define VITE_API_URL con la IP
- * del PC en la red local (ej. http://192.168.1.20:3000).
+ * En un teléfono real "localhost" es el propio teléfono
  */
 export const env = {
   apiUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:3000',
@@ -20,7 +19,7 @@ export const api = createEmergenApi(env.apiUrl);
 /** Registro, inicio de sesión y refresco de tokens con Firebase Authentication. */
 export const firebaseAuth = createFirebaseAuth(env.firebaseApiKey);
 
-/** SDK web de Firebase (app + Auth). Analytics: `initFirebaseAnalytics(firebase.app)`. */
+
 export const firebase = initFirebase({
   apiKey: env.firebaseApiKey,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,

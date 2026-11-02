@@ -13,7 +13,7 @@ _creaciones = LimiteVentana(settings.tickets_per_15_minutes, 900)
 router = APIRouter(prefix="/tickets-soporte", tags=["Tickets de soporte"])
 
 
-# Las rutas fijas van antes de /{ticket_id}.
+
 @router.get("/categorias", response_model=list[Categoria], summary="Catálogo CATEGORIA_SOPORTE")
 def listar_categorias(_: UsuarioSesion = Depends(usuario_actual), db: psycopg.Connection = Depends(get_db)):
     return tickets.categorias(db)

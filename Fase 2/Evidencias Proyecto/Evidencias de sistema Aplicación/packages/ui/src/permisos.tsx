@@ -3,8 +3,7 @@
  * la autoridad es el backend (RolesGuard en NestJS, `solo_staff` en internal-api).
  * Fuentes: init.sql (ROL 1 ADMINISTRADOR, 2 SOPORTE, 3 USUARIO; ESTADO_USUARIO 1 completo,
  * 2 parcial), ERS RF3/RF25 y decisión del equipo (2026-10-21): todo lo que documentos y mockups
- * atribuyen a "Trabajador" corresponde al rol SOPORTE ("web y escritorio.pdf", págs. 10-23).
- * (Extensión .tsx porque el mapa `exports` de @repo/ui solo expone ./src/*.tsx.)
+ * atribuyen a "Trabajador" corresponde al rol SOPORTE.
  */
 
 export const ROL = { ADMINISTRADOR: 1, SOPORTE: 2, USUARIO: 3 } as const;
@@ -16,11 +15,10 @@ export interface UsuarioConRol {
   rol_ID?: number;
   estado_ID?: number;
   usuario_principal_ID?: number | null;
-  /** Premium: plan propio o del principal (login y GET /usuarios/me). */
   plan_efectivo?: boolean;
 }
 
-/** null si la sesión aún no trae el rol (respuesta antigua del backend). */
+
 export function perfilDe(u: UsuarioConRol): Perfil | null {
   if (u.rol_ID === ROL.ADMINISTRADOR) return "ADMINISTRADOR";
   if (u.rol_ID === ROL.SOPORTE) return "SOPORTE";
@@ -32,7 +30,7 @@ export function perfilDe(u: UsuarioConRol): Perfil | null {
 export const accesoCompleto = (u: UsuarioConRol) =>
   u.estado_ID === ACCESO.COMPLETO;
 
-/** Solo si la sesión lo informa: sesiones antiguas sin el dato no se bloquean (decide el backend). */
+
 export const sinPremium = (u: UsuarioConRol) => u.plan_efectivo === false;
 const accesoParcial = (u: UsuarioConRol) =>
   u.estado_ID !== undefined && !accesoCompleto(u);
@@ -69,7 +67,6 @@ export const PERMISOS: Record<
   Accion,
   { perfiles: Perfil[]; fuente: string; premium?: true; soloCompleto?: true }
 > = {
-    // PATCH /usuarios/me: 403 con acceso parcial (LoginService.actualizarPropio).
     "perfil.editar": {
       perfiles: TODOS,
       fuente: "PATCH /usuarios/me (solo acceso completo)",
@@ -79,7 +76,6 @@ export const PERMISOS: Record<
       perfiles: ["ADMINISTRADOR"],
       fuente: "PATCH /usuarios/me (PIN propio, solo ADMINISTRADOR)",
     },
-    // ComprasService.titular: solo principal con acceso completo y plan.
     "cuentas.apadrinadas": {
       perfiles: ["USUARIO"],
       fuente: "GET /compras/apadrinados (409 sin plan base)",
@@ -116,13 +112,11 @@ export const PERMISOS: Record<
       perfiles: ["ADMINISTRADOR"],
       fuente: "GET /internal/v1/alertas (es_staff)",
     },
-    // El parcial puede emitir, pero solo con el mensaje configurado (403 si envía otro).
     "alertas.emitir": {
       perfiles: TODOS,
       fuente: "POST /internal/v1/alertas (409 sin plan del principal)",
       premium: true,
     },
-    // SOPORTE solo consulta cuentas y compras; las escrituras son exclusivas del administrador.
     "admin.cuentas.ver": {
       perfiles: PERSONAL,
       fuente: "mockup págs. 13-18; GET /admin/usuarios",
@@ -166,7 +160,7 @@ export function puede(perfil: Perfil | null, accion: Accion): boolean {
 
 export type Bloqueo = "permiso" | "parcial" | "premium";
 
-/** Motivo por el que la UI bloquea la acción a este usuario, o null si está disponible. */
+
 export function bloqueo(u: UsuarioConRol, accion: Accion): Bloqueo | null {
   const regla = PERMISOS[accion];
   if (!puede(perfilDe(u), accion)) return "permiso";
@@ -191,7 +185,7 @@ export const MENSAJE_BLOQUEO: Record<Bloqueo, string> = {
   premium: "Esta funcionalidad requiere Premium.",
 };
 
-/** Funciones básicas que comparten usuario principal y apadrinados (resumen de cuenta). */
+/** Funciones básicas que comparten usuario principal y apadrinados  */
 export const FUNCIONES_BASICAS: { accion: Accion; etiqueta: string }[] = [
   { accion: "perfil.editar", etiqueta: "Modificar perfil" },
   { accion: "soporte.solicitar", etiqueta: "Solicitar soporte" },

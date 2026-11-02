@@ -3,7 +3,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter } fr
 import { PinDialog } from '@repo/ui/wireframe';
 import { apiFetch, clearSession, getUser, saveSession } from '../lib/session';
 
-/** Primer inicio de una principal sin PIN: lo crea (POST /usuarios/me/pin). El PIN de cada perfil se verifica en el login. */
+
 const Pin: React.FC = () => {
   const router = useIonRouter();
   const user = getUser();

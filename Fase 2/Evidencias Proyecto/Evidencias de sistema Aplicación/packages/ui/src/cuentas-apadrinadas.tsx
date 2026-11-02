@@ -7,11 +7,8 @@ import { ConfirmDialog, Modal, Notice, Pendiente, PinDialog } from "./wireframe"
 const MAX_APADRINADOS = 5;
 
 interface CuentasApadrinadasProps {
-  /** Cupos comprados (GET /compras/apadrinados → cuposAdquiridos); null si no se pudo leer. */
   cupos: number | null;
-  /** Motivo por el que no se leyeron los cupos (p. ej. cuenta sin plan Premium). */
   aviso?: string;
-  /** "Añadir Cuenta +": abre la compra de cupos existente. */
   onAnadir: () => void;
 }
 
@@ -21,7 +18,7 @@ type Modal =
   | { tipo: "eliminada"; cuenta: CuentaApadrinada }
   | { tipo: "guardar" };
 
-/** Arma un casillero por cupo; el contenido de cada casillero es MOCK TEMPORAL. */
+/** Arma un casillero por cupo */
 function casilleros(cupos: number | null): CuentaApadrinada[] {
   const total = cupos ?? MOCK_CUENTAS_APADRINADAS.length;
   return Array.from(
@@ -203,7 +200,6 @@ export function apadrinadosApi(fetcher: Fetcher) {
     listar: () => fetcher<CuentaVinculada[]>("/usuarios/me/vinculadas"),
     crear: (datos: NuevaCuenta) =>
       enviar("POST", "/usuarios/me/apadrinados", datos),
-    // HU-10: PIN_principal autoriza cada acción crítica; el backend lo verifica y bloquea.
     definirPin: (id: number, PIN: string, PIN_principal: string) =>
       enviar("PUT", `/usuarios/me/apadrinados/${id}/pin`, { PIN, PIN_principal }),
     cambiarAcceso: (id: number, estado_ID: number, PIN_principal: string) =>
@@ -227,16 +223,14 @@ type ModalReal =
     };
 
 interface GestionApadrinadosProps {
-  /** Cupos comprados (GET /compras/apadrinados); null si no se pudieron leer. */
   cupos: number | null;
-  /** Motivo por el que no se leyeron los cupos (p. ej. cuenta sin plan Premium). */
+  /** Motivo por el que no se leyeron los cupos */
   aviso?: string;
   api: ApadrinadosApi;
-  /** "Añadir cuenta +": abre la compra de cupos existente. */
   onAnadir: () => void;
 }
 
-/** "Administrar Cuentas" con datos reales (mockup web págs. 65-74): un casillero por cupo comprado. */
+/** "Administrar Cuentas" con datos reales  */
 export const GestionApadrinados = ({
   cupos,
   aviso,
@@ -439,7 +433,6 @@ export const GestionApadrinados = ({
           confirmar={false}
           onClose={cerrar}
           onSubmit={async (pin) => {
-            // PinDialog muestra dentro el PIN incorrecto o el bloqueo de CA-10.1.
             setCuentas(await modal.accion(pin));
             avisar("exito", modal.exito);
             cerrar();
@@ -481,7 +474,7 @@ const NuevaCuentaDialog = ({
   const [pin, setPin] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  // null = campo vacío (sin color); true/false = válido/inválido.
+  // null = campo vacío (sin color);
   const estados = {
     nombre: nombre ? nombre.trim().length >= 2 : null,
     pin: pin ? /^\d{4}$/.test(pin) : null,

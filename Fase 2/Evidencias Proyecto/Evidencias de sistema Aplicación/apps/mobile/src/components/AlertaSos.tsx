@@ -5,7 +5,7 @@ import NumerosEmergenciaMovil from './NumerosEmergenciaMovil';
 import { consultarSos, enviarSos, errorSos, estadoWhatsapp, finalidadPerfil, type Alerta } from '../lib/sos';
 import { obtenerUbicacionSos } from '../lib/ubicacion-sos';
 
-/** El éxito solo se muestra después de que la API confirma el registro del SOS. */
+
 const AlertaSos: React.FC<{
   onClose: () => void;
   onRegistrada: () => void;
@@ -28,7 +28,6 @@ const AlertaSos: React.FC<{
     const controller = new AbortController();
     finalidadPerfil(controller.signal)
       .then((prioridad) => {
-        // No pisa una elección del usuario ni un envío ya iniciado (su clave lleva el tipo original).
         if (prioridad && !elegidoAMano.current && !contenido.current) setSolicitud((s) => ({ ...s, prioridad }));
       })
       .catch(() => {
@@ -61,7 +60,6 @@ const AlertaSos: React.FC<{
     setEnviando(true);
     setError('');
     try {
-      // Un reintento conserva UUID y contenido para no duplicar un envío confirmado por el servidor.
       if (contenido.current?.clave !== solicitud.clave) {
         setAvisoUbicacion('');
         contenido.current = {
