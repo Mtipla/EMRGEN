@@ -12,7 +12,7 @@ import { JsreportService } from './jsreport.service';
 export class JsreportController {
   constructor(private readonly jsreportService: JsreportService) {}
 
-  /** Devuelve el archivo generado (normalmente PDF) como descarga. */
+
   @Post()
   @HttpCode(200)
   async generate(@Body() dto: GenerateReportDto): Promise<StreamableFile> {

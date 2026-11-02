@@ -2,6 +2,7 @@ import { isAbsolute } from 'node:path';
 import { existsSync } from 'node:fs';
 
 type Environment = Record<string, unknown>;
+
 const value = (env: Environment, key: string) => {
   const current = env[key];
   if (typeof current === 'string') return current.trim();
@@ -9,10 +10,11 @@ const value = (env: Environment, key: string) => {
     ? String(current)
     : '';
 };
+
 const missing = (text: string) =>
   !text || /<INSERT_|REEMPLAZAR|CHANGE_ME/i.test(text);
 
-/** Valida antes de abrir conexiones; nunca imprime valores de secretos. */
+
 export function validateRuntimeConfig(env: Environment): Environment {
   const sslMode = value(env, 'DB_SSLMODE') || 'disable';
   if (!['disable', 'verify-full'].includes(sslMode))

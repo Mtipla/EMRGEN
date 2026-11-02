@@ -7,8 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { LoginService } from './login.service';
 
-/** Datos de la sesión. `rol_ID` se lee de la BD en cada petición, no del token. */
-// email nulo en apadrinados: no tienen correo propio.
+
 export type UsuarioSesion = { sub: number; email: string | null; rol_ID: number; estado_ID: number };
 
 export type SolicitudAutenticada = {
@@ -46,7 +45,6 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('La sesión no es válida o expiró');
     }
 
-    // Fuera del try: un fallo de la BD no debe disfrazarse de sesión inválida.
     const usuario = Number.isInteger(payload.sub)
       ? await this.loginService.buscarActivo(payload.sub)
       : null;

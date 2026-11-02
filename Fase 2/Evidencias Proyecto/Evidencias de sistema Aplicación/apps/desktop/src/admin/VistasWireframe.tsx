@@ -15,7 +15,7 @@ const consultarCuenta = async (id: number, signal: AbortSignal) => {
 
 export { VistaCompras } from './VistaCompras'
 
-/** Listado de usuarios con adminApi; cada acción traduce el error de Axios y recarga. */
+
 function useUsuarios(listar = adminApi.listarUsuarios) {
   const [usuarios, setUsuarios] = useState<UsuarioAdmin[]>([])
   const [estado, setEstado] = useState({ cargando: true, error: '' })
@@ -53,7 +53,7 @@ function useUsuarios(listar = adminApi.listarUsuarios) {
   return { usuarios, ...estado, conRecarga, cambiarAcceso: conRecarga(adminApi.cambiarEstado) }
 }
 
-/** Vistas de "web y escritorio.pdf" para ADMINISTRADOR y SOPORTE (= Trabajador), sobre los mismos endpoints del panel. */
+
 export function VistaCuentas({ perfil }: { perfil: Perfil }) {
   const { usuarios, cargando, error, conRecarga, cambiarAcceso } = useUsuarios()
   return (
@@ -71,7 +71,7 @@ export function VistaCuentas({ perfil }: { perfil: Perfil }) {
   )
 }
 
-/** "Modificar Usuario" del personal (mockup págs. 12 y 32) con PATCH /usuarios/me. */
+
 export function VistaPerfil({
   sesion,
   onActualizado,

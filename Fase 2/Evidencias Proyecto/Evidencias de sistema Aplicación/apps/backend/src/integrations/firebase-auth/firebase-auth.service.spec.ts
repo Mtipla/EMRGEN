@@ -8,7 +8,7 @@ import { FirebaseAuthService } from './firebase-auth.service';
 
 const PROJECT_ID = 'emergen-test';
 
-/** Par de claves RSA propio: simula las claves con las que Google firma los ID tokens. */
+
 const keyPair = () =>
   generateKeyPairSync('rsa', {
     modulusLength: 2048,
@@ -52,7 +52,6 @@ describe('FirebaseAuthService', () => {
   beforeEach(() => {
     process.env.FIREBASE_PROJECT_ID = PROJECT_ID;
     service = new FirebaseAuthService();
-    // Reemplaza la descarga del JWKS de Google por la clave pública de prueba.
     getSigningKey = jest
       .spyOn(
         (

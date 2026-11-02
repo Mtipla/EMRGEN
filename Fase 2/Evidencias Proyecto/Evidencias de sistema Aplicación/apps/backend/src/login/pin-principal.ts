@@ -3,17 +3,11 @@ import * as bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
 import { transaction } from '../config/transaction';
 
-/** CA-10.1: tres fallos bloquean la acción 5 minutos (contador en el servidor, por cuenta). */
 const MAX_INTENTOS_PIN = 3;
 const PIN_BLOQUEADO =
   'Por seguridad, se ha bloqueado el intento de acceso por 5 minutos debido a intentos fallidos reiterados';
 
-/**
- * HU-10 / CA-10.1: PIN de la cuenta principal que autoriza una acción crítica (gestionar
- * apadrinados, o que un apadrinado parcial edite su perfil). Los fallos se cuentan en la fila
- * PIN del principal (las mismas columnas que usa el SOS en internal-api); al tercero, 5 min.
- * El error se devuelve y se lanza después del commit, para no deshacer el contador.
- */
+
 export async function verificarPinPrincipal(dataSource: DataSource, principalId: number, pin: string) {
   const error = await transaction(dataSource, async (manager) => {
     const [credencial] = await manager.query(
@@ -30,7 +24,6 @@ export async function verificarPinPrincipal(dataSource: DataSource, principalId:
       ]);
       return null;
     }
-    // Un bloqueo ya vencido reinicia la cuenta, igual que internal-api.
     const intentos = (credencial.bloqueado_hasta ? 0 : credencial.intentos_fallidos) + 1;
     await manager.query(
       `UPDATE pin SET intentos_fallidos = $2::int,

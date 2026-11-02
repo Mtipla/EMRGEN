@@ -33,8 +33,6 @@ describe('Informe de tickets cerrados', () => {
     expect(await service.generarReporte(formato)).toBe(reporte);
     const sql = query.mock.calls[0][0] as string;
     expect(sql).toMatch(/WHERE UPPER\(e.estado_ticket\) = 'CERRADO'/);
-    // PRE-SEC-006: el informe se acota en el servidor; el tope es reportLimit()+1 para detectar
-    // desbordamiento y fallar con 413 en vez de truncar en silencio (ver caso de desbordamiento).
     expect(sql).toMatch(/\bLIMIT\b/i);
     expect(query.mock.calls[0][1]).toEqual([reportLimit() + 1]);
     const [plantilla, datos] = renderInline.mock.calls[0];

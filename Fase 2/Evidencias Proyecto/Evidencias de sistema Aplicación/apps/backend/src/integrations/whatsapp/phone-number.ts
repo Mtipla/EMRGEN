@@ -1,6 +1,6 @@
 import { defaultCountryCode } from './whatsapp.constants';
 
-/** Lo que aceptan los DTOs: solo dígitos (CA-03.1), con "+" opcional. */
+
 export const PHONE_NUMBER = /^\+?\d{8,15}$/;
 
 /**
@@ -25,10 +25,10 @@ export function normalizePhoneNumber(
   return /^[1-9]\d{7,14}$/.test(digits) ? digits : undefined;
 }
 
-/** JID de usuario de WhatsApp a partir de un número normalizado. */
+
 export const toUserJid = (digits: string): string => `${digits}@s.whatsapp.net`;
 
-/** Oculta el número en los logs: "56912345678" → "569*****678". */
+
 export const maskPhoneNumber = (digits: string): string =>
   digits.length <= 6
     ? '***'

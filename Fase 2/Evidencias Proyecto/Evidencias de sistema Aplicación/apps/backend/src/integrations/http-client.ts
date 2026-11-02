@@ -3,16 +3,10 @@ import { BadGatewayException, Logger } from '@nestjs/common';
 const logger = new Logger('ExternalApi');
 
 export interface ExternalRequestInit extends RequestInit {
-  /** Tiempo máximo de espera en ms (por defecto 15 s). */
   timeoutMs?: number;
 }
 
-/**
- * `fetch` hacia un proveedor externo con timeout y manejo de errores uniforme.
- * Solo registra evento, integración y estado HTTP permitidos; omite cuerpo y excepción.
- * Al cliente se le devuelve un 502 genérico para no filtrar información interna.
- * Nunca se registra la URL, porque algunas (Google Maps) llevan la API key.
- */
+
 export async function requestExternal(
   integration: string,
   url: string,
@@ -25,7 +19,6 @@ export async function requestExternal(
       signal: AbortSignal.timeout(timeoutMs),
     });
   } catch {
-    // Allowlist: never log URL, request/response bodies, headers or exception text.
     logger.error({ event: 'provider_unavailable', integration });
     throw new BadGatewayException(
       `${integration}: no se pudo contactar al proveedor.`,
@@ -56,7 +49,7 @@ export async function requestExternalJson<T>(
   }
 }
 
-/** Limit actual response bytes, including chunked provider responses. */
+
 export async function boundedExternalBody(response: Response, maximum: number): Promise<Uint8Array> {
   if (!response.body) return new Uint8Array();
   const reader = response.body.getReader();

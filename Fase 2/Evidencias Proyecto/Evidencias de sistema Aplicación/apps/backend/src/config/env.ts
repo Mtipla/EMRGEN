@@ -1,9 +1,9 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 
-/** Valores de ejemplo de `.env.example` (ej. `<INSERT_YOUR_PAYPAL_CLIENT_ID_HERE>`). */
+
 const PLACEHOLDER = /^<INSERT_.*>$/;
 
-/** Devuelve la variable o `undefined` si está vacía o todavía tiene el marcador de ejemplo. */
+
 export function readEnv(name: string): string | undefined {
   const value = process.env[name]?.trim();
   if (!value || PLACEHOLDER.test(value)) return undefined;

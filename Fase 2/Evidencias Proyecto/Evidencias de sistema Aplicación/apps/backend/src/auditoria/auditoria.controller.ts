@@ -13,13 +13,13 @@ import { ConsultarBitacoraDto, ReporteBitacoraDto } from './dto/consultar-bitaco
 export class AuditoriaController {
   constructor(private readonly auditoriaService: AuditoriaService) {}
 
-  /** JSON; solo depende de la BD. */
+
   @Get()
   listar(@Query() filtros: ConsultarBitacoraDto) {
     return this.auditoriaService.listar(filtros);
   }
 
-  /** PDF o Excel generado por jsReport (502 si jsReport no responde). */
+
   @Get('reporte')
   @Header('Cache-Control', 'no-store')
   async reporte(

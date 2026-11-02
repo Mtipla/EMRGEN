@@ -55,7 +55,6 @@ export class PaypalService {
     request: CreatePaypalOrderRequest,
     requestId: string = randomUUID(),
   ): Promise<PaypalOrderResponse> {
-    // ComprasService calcula el importe y proporciona una clave durable por venta.
     const order = await requestExternalJson<PaypalOrder>(
       INTEGRATION,
       `${this.baseUrl}/v2/checkout/orders`,
@@ -139,7 +138,7 @@ export class PaypalService {
     };
   }
 
-  /** Token OAuth2 (client credentials), reutilizado hasta 1 minuto antes de expirar. */
+
   private async accessToken(): Promise<string> {
     if (this.token && this.token.expiresAt > Date.now())
       return this.token.value;

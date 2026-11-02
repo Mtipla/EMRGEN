@@ -31,20 +31,16 @@ import { ROL } from './roles.decorator';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { LoginDto } from './dto/login.dto';
 
-// rol_ID, estado_ID y usuario_principal_ID solo deciden la navegación del frontend;
-// la autorización sigue en JwtAuthGuard + RolesGuard, que releen la BD en cada petición.
+
 export type UsuarioPublico = Pick<
   Usuario,
   'usuario_ID' | 'nombre_usuario' | 'correo_usuario' | 'rol_ID' | 'estado_ID' | 'usuario_principal_ID'
 > & {
   requiere_pin: boolean;
-  /** Premium: plan propio o del principal. Solo en las respuestas de la propia sesión (login y /usuarios/me). */
   plan_efectivo?: boolean;
 };
 
 const BCRYPT_COSTO = 12;
-// Hash de relleno: si el correo no existe se compara igual, para que el tiempo de
-// respuesta no revele qué correos están registrados.
 const HASH_FICTICIO = bcrypt.hashSync('usuario-inexistente', BCRYPT_COSTO);
 
 @Injectable()
@@ -58,15 +54,11 @@ export class LoginService {
     private readonly dataSource: DataSource,
   ) {}
 
-  /**
-   * Revisa los datos del registro antes de crear la cuenta de Firebase, para no dejar cuentas
-   * sueltas en Firebase cuando el backend las rechazaría. `crear` vuelve a validar todo.
-   */
+
   async validarRegistro(datos: CrearUsuarioDto): Promise<{ valido: true }> {
     if (!this.passwordCabeEnBcrypt(datos.password)) {
       throw new BadRequestException('La contraseña supera el límite de 72 bytes');
     }
-    // Mismo mensaje que `crear`: el registro ya informa duplicados (CA-01.1).
     if (await this.buscarPorCorreo(datos.correo_usuario.trim().toLowerCase())) {
       throw new ConflictException('El correo ingresado es inválido o ya se encuentra registrado');
     }
@@ -78,25 +70,19 @@ export class LoginService {
     firebaseUser: FirebaseAuthUser,
   ): Promise<UsuarioPublico> {
     const correo = datos.correo_usuario.trim().toLowerCase();
-    // El ID token debe pertenecer a la cuenta de Firebase de ese mismo correo.
     if (firebaseUser.email?.toLowerCase() !== correo) {
       throw new ForbiddenException(
         'El correo no coincide con la cuenta de Firebase Authentication',
       );
     }
-    // CA-01.1: el duplicado se informa antes de exigir la confirmación, para que la web lo
-    // detecte apenas crea la cuenta de Firebase (las cuentas de apadrinados y soporte solo
-    // existen en la BD). prepararCuentaPrincipal y el índice único lo vuelven a cubrir.
     if (await this.buscarPorCorreo(correo)) {
       throw new ConflictException('El correo ingresado es inválido o ya se encuentra registrado');
     }
-    // Solo se guarda en la BD cuando el usuario confirmó su correo con el enlace de Firebase.
     if (!firebaseUser.emailVerified) {
       throw new ForbiddenException('Debes confirmar tu correo antes de crear la cuenta');
     }
     const cuenta = await this.prepararCuentaPrincipal(datos);
     try {
-      // Reglas de cuenta principal (rol USUARIO, estado ACTIVO) de UsuariosService.
       const usuario = await this.usuariosService.crearUsuarioPrincipal(cuenta);
       return this.sinPassword(usuario);
     } catch (error) {
@@ -104,10 +90,7 @@ export class LoginService {
     }
   }
 
-  /**
-   * Valida y normaliza los datos de una cuenta principal nueva y hashea su contraseña.
-   * La comparten el registro público y la creación de cuentas de SOPORTE (AdminService).
-   */
+
   async prepararCuentaPrincipal(
     datos: CrearUsuarioDto,
   ): Promise<Pick<Usuario, 'nombre_usuario' | 'correo_usuario' | 'contra_usuario'>> {
@@ -142,7 +125,7 @@ export class LoginService {
     if (!usuario || !passwordValida) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
-    // Modelo de perfiles: los apadrinados entran desde la sesión de su principal.
+
     if (usuario.usuario_principal_ID !== null) {
       throw new ForbiddenException('Ingresa con el correo de la cuenta principal y elige tu perfil');
     }
@@ -165,12 +148,6 @@ export class LoginService {
     return { access_token, usuario: publico };
   }
 
-  /**
-   * Cuenta tipo Netflix: tras la contraseña de la principal se elige un perfil (la principal o
-   * uno de sus apadrinados) y se abre solo con el PIN de ese perfil. Mismo contador y bloqueo de
-   * 5 minutos que verificarPinPrincipal, en la fila PIN del perfil. Un PIN temporal (apadrinado con
-   * acceso completo) solo deja entrar cambiándolo; el del parcial no es temporal y no se cambia.
-   */
   private async elegirPerfil(principal: Usuario, datos: LoginDto) {
     const perfiles = await this.usuarioRepository.find({
       where: [{ usuario_ID: principal.usuario_ID }, { usuario_principal_ID: principal.usuario_ID }],
@@ -285,7 +262,6 @@ export class LoginService {
       }
       if (cambios.PIN !== undefined) throw new ForbiddenException('Esta ruta solo permite cambiar el PIN del administrador');
       if (user?.estado_ID !== 1) {
-        // HU-10: un apadrinado parcial cambia sus datos solo con el PIN de su principal.
         if (!user?.usuario_principal_ID) throw new ForbiddenException('El acceso parcial no permite editar el perfil');
         if (!cambios.PIN_principal) {
           throw new ForbiddenException('Para modificar esta cuenta se necesita el PIN de la cuenta principal');
@@ -302,15 +278,11 @@ export class LoginService {
     }
   }
 
-  /**
-   * Recuperación de contraseña: Firebase envía el enlace y guarda la contraseña nueva; aquí se
-   * copia a la BD, que es la que valida el login. Solo cuentas principales con acceso completo.
-   */
+
   async sincronizarPasswordFirebase(firebaseUser: FirebaseAuthUser, password: string) {
     if (!this.passwordCabeEnBcrypt(password)) {
       throw new BadRequestException('La contraseña supera el límite de 72 bytes');
     }
-    // Un token refrescado conserva auth_time: exigir un ingreso reciente evita reutilizar uno viejo.
     const ingresoReciente = Date.now() / 1000 - (firebaseUser.authTime ?? 0) < 5 * 60;
     if (!firebaseUser.emailVerified || !ingresoReciente || !firebaseUser.email) {
       throw new UnauthorizedException('Vuelve a iniciar sesión con tu nueva contraseña');
@@ -327,7 +299,6 @@ export class LoginService {
     return { mensaje: 'Contraseña actualizada' };
   }
 
-  /** Mismo criterio que actualizarPropio: el acceso parcial no cambia sus credenciales. */
   async cambiarPassword(id: number, actual: string, nueva: string) {
     if (!this.passwordCabeEnBcrypt(nueva)) {
       throw new BadRequestException('La contraseña supera el límite de 72 bytes');
@@ -356,11 +327,6 @@ export class LoginService {
     return { mensaje: 'Contraseña actualizada' };
   }
 
-  /**
-   * Cambia nombre y/o correo con las reglas de la cuenta (correo único entre todas las cuentas).
-   * Recibe el repositorio para poder ejecutarse dentro de la transacción del llamador
-   * (AdminService la usa junto con su entrada de bitácora).
-   */
   async aplicarCambiosDePerfil(
     usuarios: Repository<Usuario>,
     id: number,
@@ -391,32 +357,31 @@ export class LoginService {
     if (nuevoCorreo) {
       campos.correo_usuario = nuevoCorreo;
     }
-    // Actualiza solo el perfil: una edición concurrente nunca restaura un rol revocado.
     if (Object.keys(campos).length) await usuarios.update(id, campos);
     return usuarios.findOneByOrFail({ usuario_ID: id });
   }
 
-  /** El PIN nunca se devuelve ni se incluye en los cambios de auditoría. */
+
   async guardarPin(manager: import('typeorm').EntityManager, usuario: Usuario, valor: string): Promise<void> {
     const repositorio = manager.getRepository(Pin);
     const pin = await repositorio.save(repositorio.create({
       ...(usuario.PIN_ID !== null && { PIN_ID: usuario.PIN_ID }),
       pin_hash: await bcrypt.hash(valor, BCRYPT_COSTO),
     }));
-    // Un PIN nuevo completa la configuración inicial; renovar uno no cambia el acceso.
+ 
     if (usuario.PIN_ID === null) usuario.estado_ID = 1;
     usuario.PIN_ID = pin.PIN_ID;
     await manager.getRepository(Usuario).save(usuario);
     await manager.query('UPDATE pin SET intentos_fallidos=0, bloqueado_hasta=NULL WHERE pin_id=$1', [pin.PIN_ID]);
   }
 
-  /** Usuario vigente de una sesión: existe y conserva sus permisos actuales. */
+
   async buscarActivo(id: number): Promise<Usuario | null> {
     const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: id });
     return usuario ?? null;
   }
 
-  /** Eliminación hecha por un administrador: el borrado y su bitácora van en una transacción. */
+
   async eliminar(id: number, actor: ActorAuditoria): Promise<UsuarioPublico> {
     return this.auditoriaService.auditar(
       {
@@ -425,7 +390,6 @@ export class LoginService {
         tipo: TIPO_ACCION.ELIMINACION,
         entidad: ENTIDAD_AUDITADA.USUARIO,
         usuario_afectado_ID: id,
-        // DELETE /usuarios/:id es la ruta de administración que consume la web.
         aplicacion_ID: APLICACION.WEB,
       },
       async (manager) => {
@@ -438,7 +402,6 @@ export class LoginService {
           await this.auditoriaService.registrar(manager, { actor, accion: `Eliminación del usuario ${id}`, tipo: TIPO_ACCION.ELIMINACION, entidad: ENTIDAD_AUDITADA.USUARIO, usuario_afectado_ID: id, aplicacion_ID: APLICACION.WEB });
           await usuarios.delete(id);
         } catch (error) {
-          // Otras tablas (apadrinados, bitácora, planes...) referencian al usuario.
           if (codigoPostgres(error) === PG_FOREIGN_KEY_VIOLATION) {
             throw new ConflictException(
               'Resuelve los dependientes o compras pendientes antes de eliminar la cuenta',
@@ -466,7 +429,6 @@ export class LoginService {
   }
 
   traducirCorreoDuplicado(error: unknown): unknown {
-    // Índice único ux_usuario_correo (dos registros simultáneos).
     return codigoPostgres(error) === PG_UNIQUE_VIOLATION
       ? new ConflictException('Ya existe una cuenta con ese correo')
       : error;
@@ -481,12 +443,10 @@ export class LoginService {
       rol_ID,
       estado_ID,
       usuario_principal_ID,
-      // Administradores y trabajadores no usan PIN.
       requiere_pin: usuario.rol_ID === ROL.USUARIO && usuario.PIN_ID === null && usuario.usuario_principal_ID === null,
     };
   }
 
-  /** Misma regla que el SOS de internal-api: el apadrinado usa el plan de su principal. */
   private async conPlan(usuario: Usuario): Promise<UsuarioPublico> {
     const titular = usuario.usuario_principal_ID ?? usuario.usuario_ID;
     const filas: unknown[] = await this.dataSource.query(

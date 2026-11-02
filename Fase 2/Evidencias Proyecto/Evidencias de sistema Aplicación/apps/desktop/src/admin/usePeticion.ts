@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { describirError } from './api'
 
-/**
- * Ejecuta una petición y deja su resultado como texto para mostrarlo bajo el formulario.
- * `ejecutar` devuelve los datos, o `null` si la petición falló.
- */
+
 export function usePeticion() {
   const [salida, setSalida] = useState('')
 

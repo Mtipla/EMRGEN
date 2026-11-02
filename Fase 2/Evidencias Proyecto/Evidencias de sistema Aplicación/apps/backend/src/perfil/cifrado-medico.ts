@@ -2,7 +2,7 @@ import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import { requireEnv } from '../config/env';
 import type { FichaMedicaDto } from './dto/perfil.dto';
 
-/** Columnas de ANTECEDENTE_MEDICO, en el orden del INSERT; todas se guardan cifradas (CA-11.1). */
+
 export const CAMPOS_FICHA = [
   'tipo_sangre',
   'alergias',
@@ -14,25 +14,19 @@ export const CAMPOS_FICHA = [
 
 type Campo = (typeof CAMPOS_FICHA)[number];
 
-/**
- * MEDICAL_DATA_KEYS="id:clave_base64,id_antigua:clave_base64". La primera cifra; todas
- * descifran, así se rota la clave agregando una nueva al inicio sin perder fichas.
- * Sin la variable responde 503 (requireEnv) y el guardado se aborta.
- */
+
 function claves(): Map<string, Buffer> {
   const pares = requireEnv('MEDICAL_DATA_KEYS', 'El cifrado de la ficha médica').split(',');
   return new Map(
     pares.map((par) => {
       const [id, base64] = par.trim().split(':');
       const clave = Buffer.from(base64 ?? '', 'base64');
-      // Error genérico: el cliente recibe un 500 estándar, sin detalles de la clave.
       if (!/^[a-z0-9]+$/i.test(id) || clave.length !== 32) throw new Error('MEDICAL_DATA_KEYS mal formada');
       return [id, clave] as const;
     }),
   );
 }
 
-/** AES-256-GCM. El AAD ata el valor a su usuario y columna: copiarlo a otra fila no descifra. */
 export function cifrar(texto: string, aad: string): string {
   const [[id, clave]] = claves();
   const iv = randomBytes(12);

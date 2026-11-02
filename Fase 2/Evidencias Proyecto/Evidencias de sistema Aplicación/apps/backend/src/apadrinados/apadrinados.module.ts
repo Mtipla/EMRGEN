@@ -11,10 +11,10 @@ import { ApadrinadosService } from './apadrinados.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Usuario]),
-    LoginModule, // JwtAuthGuard + LoginService
-    UsuariosModule, // crearUsuarioApadrinado
-    AdminModule, // cambio de acceso y eliminación con bitácora
-    JsreportModule, // informe personal (HU-19)
+    LoginModule, 
+    UsuariosModule, 
+    AdminModule, 
+    JsreportModule, 
   ],
   controllers: [ApadrinadosController],
   providers: [ApadrinadosService],

@@ -5,7 +5,7 @@ import { PerfilService } from './perfil.service';
 
 type Solicitud = { user: UsuarioSesion };
 
-// Siempre la cuenta del token: no hay forma de leer ni editar el perfil de otro usuario.
+
 @Controller('usuarios/me')
 @UseGuards(JwtAuthGuard)
 export class PerfilController {

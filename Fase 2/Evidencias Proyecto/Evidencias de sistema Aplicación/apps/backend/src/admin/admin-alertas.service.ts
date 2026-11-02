@@ -22,13 +22,12 @@ export interface PaginaAlertas {
   activas: number;
 }
 
-/** Consulta las mismas alertas de FastAPI, sin depender de su proceso ni duplicar escrituras SOS. */
+
 @Injectable()
 export class AdminAlertasService {
   constructor(private readonly source: DataSource) {}
 
   async listar(filtros: ConsultarAlertasDto): Promise<PaginaAlertas> {
-    // Una sentencia mantiene el listado y sus contadores en la misma instantánea.
     const [pagina] = await this.source.query<PaginaAlertas[]>(
       `
       WITH filtradas AS (

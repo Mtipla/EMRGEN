@@ -67,7 +67,7 @@ const ESTADOS: Record<number, string> = {
   5: 'REVISION',
 };
 
-/** Solo lectura: consultar o exportar ventas no modifica pagos ni concede planes o cupos. */
+
 @Injectable()
 export class AdminVentasService {
   constructor(
@@ -89,8 +89,7 @@ export class AdminVentasService {
         'La fecha Desde no puede ser posterior a Hasta',
       );
     }
-    // Fechas inclusivas en Chile. Los totales y filas se leen en una única instantánea;
-    // la agregación de líneas no multiplica las ventas ni sus montos.
+
     const [pagina] = await this.source.query<PaginaVentas[]>(
       `
       WITH filtradas AS (
@@ -134,7 +133,6 @@ export class AdminVentasService {
     filtros: FiltrosVentasDto,
     formato: FormatoReporte = 'pdf',
   ): Promise<RenderedReport> {
-    // Completo o error explicito; nunca truncar silenciosamente.
     const pagina = await this.consultar(filtros, reportLimit() + 1);
     completeRows(pagina.ventas);
     const reporte = await this.jsreport.renderInline(

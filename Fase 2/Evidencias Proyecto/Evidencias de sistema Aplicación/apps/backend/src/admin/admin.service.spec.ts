@@ -28,7 +28,6 @@ describe('AdminService', () => {
   let planes: { findOne: jest.Mock; create: jest.Mock; merge: jest.Mock; save: jest.Mock };
   let manager: EntityManager;
   let auditar: jest.Mock;
-  /** Lo que la operación entregó a la bitácora (cambios, tipo, etc.); `null` si falló. */
   let auditado: ResultadoAuditado<unknown> | null;
   let prepararCuentaPrincipal: jest.Mock;
   let aplicarCambiosDePerfil: jest.Mock;
@@ -57,7 +56,6 @@ describe('AdminService', () => {
       getRepository: (entidad: unknown) => (entidad === PlanUsuario ? planes : usuarios),
     } as unknown as EntityManager;
     auditado = null;
-    // Doble de AuditoriaService.auditar: ejecuta la operación con el manager de la transacción.
     auditar = jest.fn(
       async (
         _evento: EventoAuditado,

@@ -1,6 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-/** Valores de BITACORA_SISTEMA.tipo_accion. */
 export const TIPO_ACCION = {
   CONSULTA: 'CONSULTA',
   CREACION: 'CREACION',
@@ -8,17 +7,19 @@ export const TIPO_ACCION = {
   ELIMINACION: 'ELIMINACION',
   EXPORTACION: 'EXPORTACION',
 } as const;
+
 export type TipoAccion = (typeof TIPO_ACCION)[keyof typeof TIPO_ACCION];
 
-/** Valores de BITACORA_SISTEMA.entidad_afectada: tabla sobre la que actuó el administrador. */
+
 export const ENTIDAD_AUDITADA = {
   USUARIO: 'USUARIO',
   PLAN_USUARIO: 'PLAN_USUARIO',
   BITACORA_SISTEMA: 'BITACORA_SISTEMA',
 } as const;
+
 export type EntidadAuditada = (typeof ENTIDAD_AUDITADA)[keyof typeof ENTIDAD_AUDITADA];
 
-/** Valores de BITACORA_SISTEMA.resultado (CHECK en init.sql). */
+
 export const RESULTADO_ACCION = {
   EXITOSA: 'EXITOSA',
   FALLIDA: 'FALLIDA',
@@ -27,10 +28,10 @@ export type ResultadoAccion = (typeof RESULTADO_ACCION)[keyof typeof RESULTADO_A
 
 export type ValorAuditado = string | number | boolean | null;
 
-/** Campo modificado -> valor anterior y posterior. Nunca lleva contraseñas, hashes ni tokens. */
+
 export type CambiosAuditoria = Record<string, { antes: ValorAuditado; despues: ValorAuditado }>;
 
-@Entity('bitacora_sistema') // Nombre exacto de la tabla en PostgreSQL
+@Entity('bitacora_sistema') 
 export class BitacoraSistema {
   @PrimaryGeneratedColumn({ name: 'bitacora_sistema_id' })
   bitacora_sistema_ID: number;
@@ -41,18 +42,18 @@ export class BitacoraSistema {
   @Column({ name: 'fecha_accion', type: 'timestamptz' })
   fecha_accion: Date;
 
-  // Actor: quien ejecutó la acción (el administrador), nunca el usuario afectado.
+
   @Column({ name: 'usuario_id', type: 'int', nullable: true })
   usuario_ID: number | null;
 
   @Column({ name: 'aplicacion_id' })
   aplicacion_ID: number;
 
-  // Rol del actor en el momento de la acción (puede cambiar después).
+
   @Column({ name: 'rol_actor_id', type: 'int', nullable: true })
   rol_actor_ID: number | null;
 
-  // FK SET NULL: se conserva el registro cuando se elimina el afectado.
+
   @Column({ name: 'usuario_afectado_id', type: 'int', nullable: true })
   usuario_afectado_ID: number | null;
 

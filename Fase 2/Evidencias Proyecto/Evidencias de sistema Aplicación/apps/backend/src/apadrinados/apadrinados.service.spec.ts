@@ -15,7 +15,7 @@ describe('ApadrinadosService', () => {
   const filas: Record<number, Partial<Usuario>> = {
     10: { usuario_ID: 10, usuario_principal_ID: null },
     11: { usuario_ID: 11, usuario_principal_ID: 10 },
-    21: { usuario_ID: 21, usuario_principal_ID: 20 }, // apadrinado de otro principal
+    21: { usuario_ID: 21, usuario_principal_ID: 20 }, 
   };
   let usuarios: { findOneBy: jest.Mock; find: jest.Mock };
   let crearUsuarioApadrinado: jest.Mock;
@@ -43,7 +43,6 @@ describe('ApadrinadosService', () => {
     cambiarEstadoUsuario = jest.fn();
     eliminarUsuarioApadrinado = jest.fn();
     credencial = { pin_id: 5, pin_hash: hash1234, intentos_fallidos: 0, bloqueado_hasta: null, bloqueado: false };
-    // Fila PIN del principal para verificarPinPrincipal (SELECT ... FOR UPDATE y UPDATE).
     query = jest.fn((sql: string) => Promise.resolve(sql.trimStart().startsWith('SELECT') ? [credencial] : []));
     obtenerPropio = jest.fn();
     renderInline = jest.fn().mockResolvedValue({ content: Buffer.from('%PDF-1.7'), contentType: 'application/pdf' });
@@ -116,7 +115,6 @@ describe('ApadrinadosService', () => {
     await service.cambiarAcceso(PRINCIPAL, 11, 2, '1234');
     expect(cambiarEstadoUsuario).toHaveBeenCalledWith(11, 2, PRINCIPAL);
     expect(query).toHaveBeenCalledWith(expect.stringContaining('intentos_fallidos = 0'), [5]);
-    // Pasa a parcial: su PIN queda fijo (no temporal).
     expect(query).toHaveBeenLastCalledWith(expect.stringContaining('pin_temporal'), [11, false]);
   });
 

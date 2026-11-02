@@ -28,7 +28,7 @@ import {
 import { ConsultarBitacoraDto } from './dto/consultar-bitacora.dto';
 import { PLANTILLA_BITACORA, PLANTILLA_BITACORA_EXCEL } from './plantilla-bitacora';
 
-/** Largo de BITACORA_SISTEMA.accion_realizada (VARCHAR(150)). */
+
 const LIMITE_POR_DEFECTO = 100;
 
 const FORMATO_CHILE = new Intl.DateTimeFormat('es-CL', {
@@ -50,19 +50,16 @@ export interface ActorAuditoria {
 /** Fila de la bitácora con los nombres del actor, del usuario afectado y de la aplicación. */
 export interface EntradaBitacora {
   bitacora_sistema_ID: number;
-  /** Instante UTC; en JSON se serializa como ISO 8601 ("...Z"). */
   fecha_accion: Date;
   accion_realizada: string;
   tipo_accion: TipoAccion | null;
   entidad_afectada: EntidadAuditada | null;
   resultado: ResultadoAccion;
   cambios: CambiosAuditoria | null;
-  /** Actor. */
   usuario_ID: number | null;
   nombre_usuario: string | null;
   rol_actor_ID: number | null;
   usuario_afectado_ID: number | null;
-  /** `null` si la acción no recae en un usuario o si este ya fue eliminado. */
   nombre_usuario_afectado: string | null;
   aplicacion_ID: number;
   origen_aplicacion: string | null;
@@ -79,10 +76,10 @@ export interface NuevaEntradaBitacora {
   aplicacion_ID?: number;
 }
 
-/** Lo que se sabe de la acción antes de ejecutarla. */
+
 export type EventoAuditado = Omit<NuevaEntradaBitacora, 'cambios' | 'resultado'>;
 
-/** Resultado de una operación auditada; los opcionales completan o precisan el evento. */
+
 export interface ResultadoAuditado<T> {
   valor: T;
   auditoriaRegistrada?: boolean;
@@ -169,7 +166,7 @@ export class AuditoriaService {
       .execute();
   }
 
-  /** Bitácora más reciente primero, con filtros opcionales. */
+
   async listar(filtros: ConsultarBitacoraDto = {}): Promise<EntradaBitacora[]> {
     const consulta = this.bitacoraRepository
       .createQueryBuilder('bitacora')
@@ -181,7 +178,6 @@ export class AuditoriaService {
         'aplicacion.aplicacion_ID = bitacora.aplicacion_ID',
       )
       .select('bitacora.bitacora_sistema_ID', 'bitacora_sistema_ID')
-      // TIMESTAMP guardado en UTC -> TIMESTAMPTZ, para que pg lo lea como instante UTC.
       .addSelect('bitacora.fecha_accion', 'fecha_accion')
       .addSelect('bitacora.accion_realizada', 'accion_realizada')
       .addSelect('bitacora.tipo_accion', 'tipo_accion')
@@ -255,10 +251,7 @@ export class AuditoriaService {
     }
   }
 
-  /**
-   * Reporte de la bitácora generado por jsReport. Si jsReport no está disponible responde 502,
-   * pero el resto del backend (incluido GET /admin/auditoria) sigue funcionando.
-   */
+
   async generarReporte(
     filtros: ConsultarBitacoraDto = {},
     formato: FormatoReporte = 'pdf',
@@ -299,9 +292,8 @@ export class AuditoriaService {
     }
   }
 
-  /** Deja constancia del intento fallido sin tapar el error original de la operación. */
+
   private async registrarFallo(evento: EventoAuditado, error: unknown): Promise<void> {
-    // Solo los mensajes de negocio (4xx/5xx de Nest); nunca el detalle interno de un error.
     const motivo = error instanceof HttpException ? error.message : 'error interno';
     try {
       await this.registrar(this.bitacoraRepository.manager, {
@@ -326,7 +318,7 @@ export class AuditoriaService {
     return `${entrada.usuario_afectado_ID} - ${entrada.nombre_usuario_afectado ?? '(eliminado)'}`;
   }
 
-  /** "campo: anterior → posterior" por cada campo modificado. */
+
   private describirCambios(cambios: CambiosAuditoria | null): string[] {
     const texto = (valor: ValorAuditado) => (valor === null ? '(vacío)' : String(valor));
     return Object.entries(cambios ?? {}).map(

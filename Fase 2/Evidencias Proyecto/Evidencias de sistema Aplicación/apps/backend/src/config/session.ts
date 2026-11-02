@@ -1,4 +1,4 @@
-/** Duración común para sesiones web, móvil y panel; los JWT existentes conservan su exp. */
+
 export function sessionDurationSeconds(raw: string | undefined): number {
   const hours = raw?.trim() || '2';
   if (!/^[1-9]\d*$/.test(hours) || Number(hours) > 168) {

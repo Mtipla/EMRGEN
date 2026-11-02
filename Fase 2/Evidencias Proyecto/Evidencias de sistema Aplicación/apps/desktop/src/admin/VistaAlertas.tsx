@@ -15,7 +15,7 @@ function EstadoAlerta({ estado }: { estado: AlertaAdmin['estado_alerta'] }) {
   )
 }
 
-/** Monitor de solo lectura: reutiliza la sesión Admin y consulta sin solapar peticiones. */
+
 export function VistaAlertas() {
   const [filtros, setFiltros] = useState({ estado: '', usuario_id: '' })
   const [consulta, setConsulta] = useState({

@@ -16,7 +16,7 @@ import { Venta } from './venta.entity';
 type Reserva = { venta_id: number; usuario_id: number; cupos: number; estado: string; actualizada_en: Date; clave_operacion: string };
 const ABIERTAS = ['RESERVADA', 'CREANDO', 'CAPTURANDO', 'INCIERTA'];
 
-/** Reserva -> red -> conciliación. Ninguna llamada externa ocurre dentro de una transacción. */
+
 @Injectable()
 export class ComprasService {
   constructor(
@@ -28,7 +28,7 @@ export class ComprasService {
     @InjectRepository(Usuario) private readonly usuarios: Repository<Usuario>,
     private readonly paypal: PaypalService,
     private readonly mindicador: MindicadorService,
-  ) {}
+  ) { }
 
   private async titular(manager: EntityManager, id: number, lock = false, requierePlan = true) {
     const usuario = await manager.findOne(Usuario, { where: { usuario_ID: id }, ...(lock ? { lock: { mode: 'pessimistic_write' as const } } : {}) });
@@ -50,7 +50,7 @@ export class ComprasService {
     return producto;
   }
 
-  /** Precios vigentes de Premium y cupos para /premium; no revela datos de usuarios. */
+
   async precioPublico() {
     const [producto, base] = await Promise.all([this.producto(), this.producto('PLAN')]);
     return { plan: producto.nombre_plan, precioUnitario: producto.precio_actual, precioPlan: base.precio_actual, maxApadrinados: MAX_APADRINADOS };
@@ -65,18 +65,22 @@ export class ComprasService {
     const { usuario, plan } = await this.titular(this.dataSource.manager, usuarioId, false, false);
     if (plan) return { ...await this.resumen(usuarioId), tipoCompra: 'CUPOS' };
     const producto = await this.producto('PLAN');
-    return { usuario: usuario.nombre_usuario, plan: producto.nombre_plan, tipoCompra: 'PLAN',
+    return {
+      usuario: usuario.nombre_usuario, plan: producto.nombre_plan, tipoCompra: 'PLAN',
       precioUnitario: producto.precio_actual, cuposAdquiridos: 0,
-      maxCantidad: await this.planPendiente(this.dataSource.manager, usuarioId) ? 0 : 1 };
+      maxCantidad: await this.planPendiente(this.dataSource.manager, usuarioId) ? 0 : 1
+    };
   }
 
   async resumen(usuarioId: number): Promise<ResumenCompraApadrinados> {
     const { usuario, plan } = await this.titular(this.dataSource.manager, usuarioId);
     const producto = await this.producto();
     const reservados = await this.reservados(this.dataSource.manager, usuarioId);
-    return { usuario: usuario.nombre_usuario, plan: producto.nombre_plan, precioUnitario: producto.precio_actual,
+    return {
+      usuario: usuario.nombre_usuario, plan: producto.nombre_plan, precioUnitario: producto.precio_actual,
       cuposAdquiridos: plan!.cupos_apadrinados_adq,
-      maxCantidad: Math.max(0, Math.min(producto.limite_compra_max, MAX_APADRINADOS - plan!.cupos_apadrinados_adq - reservados)) };
+      maxCantidad: Math.max(0, Math.min(producto.limite_compra_max, MAX_APADRINADOS - plan!.cupos_apadrinados_adq - reservados))
+    };
   }
 
   async pendientes(usuarioId: number): Promise<CompraPendiente[]> {
@@ -86,7 +90,7 @@ export class ComprasService {
       d.cantidad,(r.estado='RESERVADA' AND v.captura_paypal_id IS NULL) AS "puedeRetomar"
       FROM venta v JOIN reserva_cupos r USING(venta_id)
       JOIN detalle_venta d USING(venta_id)
-      WHERE v.usuario_id=$1 AND r.estado=ANY($2) ORDER BY v.venta_id DESC LIMIT 100`, [usuarioId,ABIERTAS]);
+      WHERE v.usuario_id=$1 AND r.estado=ANY($2) ORDER BY v.venta_id DESC LIMIT 100`, [usuarioId, ABIERTAS]);
   }
 
   async crearOrden(usuarioId: number, cantidad: number, tipo: TipoCompra = 'CUPOS'): Promise<OrdenCompraResponse> {
@@ -105,8 +109,7 @@ export class ComprasService {
       }
       const nueva = await manager.save(Venta, manager.create(Venta, { usuario_ID: usuarioId, metodo_pago_ID: METODO_PAGO_PAYPAL, estado_pago_ID: ESTADO_PAGO.PENDIENTE, total_venta: total, fecha_venta: new Date(), monto_cobrado: monto, moneda_cobrada: MONEDA_PAYPAL }));
       await manager.save(DetalleVenta, manager.create(DetalleVenta, { venta_ID: nueva.venta_ID, plan_ID: tipo === 'PLAN' ? producto.plan_ID : plan!.plan_ID, tipo_compra: tipo, cantidad, cupos_otorgados: tipo === 'PLAN' ? 0 : cantidad, precio_uni: producto.precio_actual }));
-      // Para PLAN la reserva representa una compra única; no otorga cupos de apadrinados.
-      await manager.query('INSERT INTO reserva_cupos (venta_id,usuario_id,cupos) VALUES ($1,$2,$3)', [nueva.venta_ID,usuarioId,tipo === 'PLAN' ? 0 : cantidad]);
+      await manager.query('INSERT INTO reserva_cupos (venta_id,usuario_id,cupos) VALUES ($1,$2,$3)', [nueva.venta_ID, usuarioId, tipo === 'PLAN' ? 0 : cantidad]);
       return nueva;
     });
     return this.crearOrdenExterna(venta);
@@ -118,10 +121,9 @@ export class ComprasService {
       const actual = await manager.findOneOrFail(Venta, { where: { venta_ID: venta.venta_ID }, lock: { mode: 'pessimistic_write' } });
       if (actual.orden_paypal_ID) return { orderId: actual.orden_paypal_ID };
       const [r]: Reserva[] = await manager.query('SELECT * FROM reserva_cupos WHERE venta_id=$1 FOR UPDATE', [venta.venta_ID]);
-      if (['APLICADA','LIBERADA'].includes(r.estado)) throw new ConflictException('La reserva ya terminó');
-      if (r.estado === 'CREANDO' && Date.now()-r.actualizada_en.getTime()<60_000) throw new ConflictException('La orden está en creación; concilia después');
-      // PayPal conserva la clave por tiempo limitado: fuera de ventana requiere revisión manual.
-      if (Date.now()-venta.fecha_venta.getTime()>5*3600_000) throw new ConflictException('Concilia manualmente la orden antigua; su reserva se conserva');
+      if (['APLICADA', 'LIBERADA'].includes(r.estado)) throw new ConflictException('La reserva ya terminó');
+      if (r.estado === 'CREANDO' && Date.now() - r.actualizada_en.getTime() < 60_000) throw new ConflictException('La orden está en creación; concilia después');
+      if (Date.now() - venta.fecha_venta.getTime() > 5 * 3600_000) throw new ConflictException('Concilia manualmente la orden antigua; su reserva se conserva');
       await manager.query("UPDATE reserva_cupos SET estado='CREANDO',actualizada_en=now() WHERE venta_id=$1", [venta.venta_ID]);
       return r;
     });
@@ -190,14 +192,12 @@ export class ComprasService {
       const correcto = captura.amount?.value === venta.monto_cobrado && captura.amount?.currency === venta.moneda_cobrada && !!captura.captureId;
       if (captura.captureStatus === 'COMPLETED' && correcto) {
         const detalle = await manager.findOneByOrFail(DetalleVenta, { venta_ID: ventaId });
-        // El plan se activa únicamente tras confirmar el monto cobrado en PayPal.
         if (detalle.tipo_compra === 'PLAN' && plan) throw new ConflictException('La cuenta ya tiene plan; concilia esta compra antes de habilitarla');
         if (detalle.tipo_compra === 'CUPOS' && !plan) throw new ConflictException('La cuenta ya no tiene un plan para asignar los cupos');
         const asignado = detalle.tipo_compra === 'PLAN'
           ? manager.create(PlanUsuario, { usuario_ID: usuarioId, plan_ID: detalle.plan_ID, cupos_apadrinados_adq: 0 })
           : plan!;
         asignado.cupos_apadrinados_adq += detalle.cupos_otorgados;
-        // Release reservation and grant final capacity atomically; retries cannot double grant.
         await manager.query("UPDATE reserva_cupos SET estado='APLICADA', actualizada_en=now() WHERE venta_id=$1", [ventaId]);
         await manager.save(PlanUsuario, asignado);
         await manager.update(Venta, ventaId, { estado_pago_ID: ESTADO_PAGO.PAGADO, captura_paypal_ID: captura.captureId! });
@@ -211,7 +211,7 @@ export class ComprasService {
     });
   }
 
-  /** Persisted lease covers process failure after the external call. Recovery queries PayPal. */
+
   private async incierta(ventaId: number, captura?: string, creacion = false) {
     await transaction(this.dataSource, async (manager) => {
       const venta = await manager.findOneByOrFail(Venta, { venta_ID: ventaId });
@@ -237,7 +237,7 @@ export class ComprasService {
       await this.titular(manager, usuarioId, true, false);
       const actual = await manager.findOneOrFail(Venta, { where: { venta_ID: venta.venta_ID }, lock: { mode: 'pessimistic_write' } });
       const [r]: Reserva[] = await manager.query('SELECT * FROM reserva_cupos WHERE venta_id=$1 FOR UPDATE', [venta.venta_ID]);
-      if (['CREANDO','CAPTURANDO','INCIERTA'].includes(r.estado) || actual.captura_paypal_ID) throw new ConflictException('Concilia el pago antes de cancelar; no se libera una reserva incierta');
+      if (['CREANDO', 'CAPTURANDO', 'INCIERTA'].includes(r.estado) || actual.captura_paypal_ID) throw new ConflictException('Concilia el pago antes de cancelar; no se libera una reserva incierta');
       if (r.estado === 'RESERVADA') {
         await manager.query("UPDATE reserva_cupos SET estado='LIBERADA', actualizada_en=now() WHERE venta_id=$1", [venta.venta_ID]);
         actual.estado_pago_ID = ESTADO_PAGO.CANCELADO;

@@ -16,7 +16,6 @@ import { ActualizarPerfilDto, ContactoDto, FichaMedicaDto } from './dto/perfil.d
 
 const PG_CHECK_VIOLATION = '23514';
 const PG_UNIQUE_VIOLATION = '23505';
-/** CA-03.1: c_contacto_emergencia_03 UNIQUE (usuario_id, num_emergencia). */
 const NUMERO_DUPLICADO = 'Ese número ya está en tu lista de contactos de emergencia';
 
 export type PerfilEmergencia = {
@@ -26,10 +25,7 @@ export type PerfilEmergencia = {
   ficha_medica: FichaMedicaDto | null;
 };
 
-/**
- * Datos de emergencia de la propia cuenta (principal o apadrinado). Cada perfil tiene los suyos (RF7, RF9).
- * Los límites de 1 a 5 contactos los impone el trigger emergen_contactos; aquí solo se traduce su error.
- */
+
 @Injectable()
 export class PerfilService {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
@@ -67,7 +63,6 @@ export class PerfilService {
         await manager.query('UPDATE usuario SET prioridad_id = $2 WHERE usuario_id = $1', [id, cambios.prioridad_ID]);
       }
       if (cambios.mensaje !== undefined) {
-        // Fila nueva en vez de editar: las alertas ya emitidas siguen apuntando al mensaje que usaron.
         const texto = cambios.mensaje || null;
         const [nuevo] = texto
           ? await manager.query(
@@ -80,7 +75,6 @@ export class PerfilService {
           nuevo?.msj_personalizado_id ?? null,
         ]);
         if (actual.msj_personalizado_id) {
-          // Misma limpieza que emergen_limpiar_credenciales_huerfanas.
           await manager.query(
             `DELETE FROM usuario_mensaje_personalizado WHERE msj_personalizado_id = $1
                AND NOT EXISTS (SELECT 1 FROM usuario WHERE msj_personalizado_id = $1)
@@ -92,7 +86,6 @@ export class PerfilService {
       if (cambios.ficha_medica === null) {
         await manager.query('DELETE FROM antecedente_medico WHERE usuario_id = $1', [id]);
       } else if (cambios.ficha_medica) {
-        // Cifrado dentro de la transacción: si falla, no se guarda nada (CA-11.1).
         const cifrada = cifrarFicha(id, cambios.ficha_medica);
         await manager.query(
           `INSERT INTO antecedente_medico (usuario_id, tipo_sangre, alergias, enfermedades_cronicas,
@@ -126,7 +119,6 @@ export class PerfilService {
 
   async actualizarContacto(usuario: UsuarioSesion, contactoId: number, datos: ContactoDto): Promise<PerfilEmergencia> {
     this.exigirAccesoCompleto(usuario);
-    // CTE: TypeORM devuelve filas solo para SELECT, así se sabe si el contacto era de este usuario.
     return transaction(this.dataSource, async (manager) => {
       const [{ n }] = await this.conLimite(
         manager.query(
@@ -153,7 +145,6 @@ export class PerfilService {
          SELECT count(*)::int AS n FROM c`,
           [contactoId, usuario.sub],
         ),
-        // Texto de CA-04.1.
         'Debe mantener al menos un contacto activo en su red de auxilio. Se recomienda editar el contacto activo',
       );
       if (!n) throw new NotFoundException('No se encontró el contacto');
@@ -162,7 +153,6 @@ export class PerfilService {
     });
   }
 
-  /** Mismo criterio que PATCH /usuarios/me: el acceso parcial no modifica su perfil. */
   private exigirAccesoCompleto(usuario: UsuarioSesion) {
     if (usuario.estado_ID !== ACCESO.COMPLETO) {
       throw new ForbiddenException('El acceso parcial no permite editar el perfil');

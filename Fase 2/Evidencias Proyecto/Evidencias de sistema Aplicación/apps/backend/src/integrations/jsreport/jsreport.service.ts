@@ -5,12 +5,11 @@ import { boundedExternalBody, requestExternal } from '../http-client';
 const INTEGRATION = 'jsReport';
 const DEFAULT_URL = 'http://localhost:5488';
 
-/** Plantilla definida en el propio request (útil desde otros servicios del backend). */
+
 export interface InlineReportTemplate {
   content: string;
   engine?: 'handlebars' | 'jsrender' | 'none';
   recipe?: 'chrome-pdf' | 'html-to-xlsx' | 'html' | 'xlsx' | 'docx';
-  /** Opciones de la receta chrome-pdf (p. ej. hoja horizontal para tablas anchas). */
   chrome?: { landscape?: boolean };
 }
 
@@ -26,7 +25,6 @@ export interface RenderedReport {
  */
 @Injectable()
 export class JsreportService {
-  /** Renderiza una plantilla guardada en el servidor jsReport. */
   renderTemplate(
     templateName: string,
     data: Record<string, unknown>,
@@ -36,7 +34,7 @@ export class JsreportService {
 
   /**
    * Renderiza una plantilla escrita en el código. Solo para uso interno del backend:
-   * nunca pasar aquí HTML recibido del cliente (Chrome lo ejecutaría en el servidor jsReport).
+   * nunca pasar aquí HTML recibido del cliente.
    */
   renderInline(
     template: InlineReportTemplate,
@@ -73,7 +71,7 @@ export class JsreportService {
     };
   }
 
-  /** La autenticación es opcional: solo se usa si el servidor jsReport la tiene activada. */
+
   private authHeader(): Record<string, string> {
     const username = readEnv('JSREPORT_USERNAME');
     const password = readEnv('JSREPORT_PASSWORD');

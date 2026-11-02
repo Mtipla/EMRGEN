@@ -32,7 +32,6 @@ export class EmergencyAlertLocationDto implements EmergencyAlertLocation {
   @IsLongitude()
   lng: number;
 
-  // Mismo largo que UBICACION_ALERTA.ubicacion.
   @IsOptional()
   @IsString()
   @Length(1, 150)
@@ -89,7 +88,6 @@ export class SendEmergencyAlertDto implements SendEmergencyAlertRequest {
   @Length(1, 150)
   locationLabel?: string;
 
-  // Mismo largo que USUARIO_MENSAJE_PERSONALIZADO.mensaje.
   @IsString()
   @Length(1, 200)
   message: string;

@@ -14,5 +14,5 @@ const api: ApiPlanes = {
   guardar: conError(adminApi.guardarPlan),
 }
 
-/** Las modificaciones de cuentas se realizan en Administrar cuentas. */
+
 export function SeccionUsuarios() { return <AdminPlanes api={api} /> }

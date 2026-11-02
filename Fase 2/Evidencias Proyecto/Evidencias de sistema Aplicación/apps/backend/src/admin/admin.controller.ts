@@ -33,7 +33,6 @@ export class AdminController {
     return this.adminService.listarTrabajadores();
   }
 
-  // El rol SOPORTE lo fuerza AdminService: el body no puede elegir rol ni estado.
   @Post('soporte')
   crearSoporte(
     @Req() request: { user: UsuarioSesion },

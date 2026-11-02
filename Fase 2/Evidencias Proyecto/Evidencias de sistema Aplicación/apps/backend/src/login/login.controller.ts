@@ -26,26 +26,22 @@ import { LoginService } from './login.service';
 import { ROL, Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
 
-// Conserva las rutas HTTP que ya consume la web.
+
 @Controller('usuarios')
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
-  // Sin token: se llama antes de crear la cuenta en Firebase.
   @Post('registro/validar')
   validarRegistro(@Body() datos: CrearUsuarioDto) {
     return this.loginService.validarRegistro(datos);
   }
 
-  // Exige el ID token de la cuenta recién creada en Firebase (Authorization: Bearer).
   @UseGuards(FirebaseAuthGuard)
   @Post('registro')
   registrar(@Req() request: FirebaseRequest, @Body() datos: CrearUsuarioDto) {
     return this.loginService.crear(datos, request.firebaseUser!);
   }
 
-  // Tras restablecer la contraseña con el correo de Firebase: el ID token recién emitido con la
-  // contraseña nueva prueba que el dueño del correo la conoce, y se copia a la BD.
   @UseGuards(FirebaseAuthGuard)
   @Post('password/firebase')
   sincronizarPassword(@Req() request: FirebaseRequest, @Body() datos: SincronizarPasswordDto) {
@@ -88,7 +84,6 @@ export class LoginController {
     return this.loginService.actualizarPropio(request.user.sub, cambios);
   }
 
-  // HU-15 / RF3: la contraseña actual es la verificación de identidad.
   @UseGuards(JwtAuthGuard)
   @Patch('me/password')
   cambiarPassword(

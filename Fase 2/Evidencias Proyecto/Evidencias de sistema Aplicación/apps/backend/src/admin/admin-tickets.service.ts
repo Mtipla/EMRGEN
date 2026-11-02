@@ -40,7 +40,6 @@ export class AdminTicketsService {
   ) {}
 
   async generarReporte(formato: FormatoReporte = 'pdf'): Promise<RenderedReport> {
-    // La consulta fija el estado en el servidor y no aplica la paginación de la bandeja.
     const tickets = await this.source.query<TicketCerrado[]>(`
       SELECT t.ticket_soporte_id AS ticket_id, e.estado_ticket AS estado,
              t.usuario_id, u.nombre_usuario, u.correo_usuario,

@@ -7,7 +7,7 @@ import { CambiarAccesoApadrinadoDto, DefinirPinApadrinadoDto, PinPrincipalDto } 
 
 type Solicitud = { user: UsuarioSesion };
 
-// Siempre la cuenta del token: el principal solo ve y modifica a sus propios apadrinados.
+
 @Controller('usuarios/me')
 @UseGuards(JwtAuthGuard)
 export class ApadrinadosController {
@@ -33,7 +33,7 @@ export class ApadrinadosController {
     return this.apadrinados.crear(request.user, datos);
   }
 
-  // HU-10: las tres acciones críticas exigen el PIN del principal (PIN_principal).
+ 
   @Put('apadrinados/:id/pin')
   definirPin(
     @Req() request: Solicitud,

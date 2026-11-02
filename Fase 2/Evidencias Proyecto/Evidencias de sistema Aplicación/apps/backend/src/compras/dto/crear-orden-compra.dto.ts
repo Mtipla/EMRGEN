@@ -7,7 +7,7 @@ export class CrearOrdenCompraDto {
   @IsIn(['PLAN', 'CUPOS'])
   tipo?: TipoCompra;
 
-  /** El límite real (plan y cupos ya comprados) lo valida ComprasService. */
+
   @IsInt()
   @Min(1)
   @Max(MAX_APADRINADOS)
