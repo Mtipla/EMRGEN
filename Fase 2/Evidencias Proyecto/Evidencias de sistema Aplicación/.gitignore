@@ -22,3 +22,7 @@ auth_info_baileys/
 
 # Logs
 npm-debug.log*
+firebase-debug.log*
+
+# Firebase CLI
+.firebase/
