@@ -29,7 +29,6 @@ def test_visitante_envia_y_personal_responde(client, crear_usuario, db):
         assert set(r.json()) == {"mensaje_contacto_id"}
         assert client.post(URL, json={**datos, "correo": "no-es-correo"}).status_code == 400
         assert client.post(URL, json={**datos, "tipo_id": 99999}).status_code == 400
-        # Solo el personal ve la bandeja.
         assert client.get(URL).status_code == 401
         assert client.get(URL, headers=token(usuario)).status_code == 403
         assert client.patch(f"{URL}/{mid}", headers=token(usuario), json={"respuesta": "x"}).status_code == 403
@@ -57,7 +56,7 @@ def test_antispam_por_correo(client, db):
     try:
         for _ in range(3):
             assert client.post(URL, json=_datos(correo)).status_code == 201
-        limite_por_ip.reiniciar()  # aísla el límite por correo del límite por IP
+        limite_por_ip.reiniciar() 
         r = client.post(URL, json=_datos(correo.upper()))
         assert r.status_code == 429, r.text
         assert db.execute("SELECT count(*) n FROM mensaje_contacto WHERE lower(correo_remitente)=%s", (correo,)).fetchone()["n"] == 3
@@ -78,7 +77,7 @@ def test_antispam_por_ip_aunque_cambie_el_correo(client, db):
 def test_limite_ventana_libera_cupo_al_vencer():
     from app.core.limite import LimiteVentana
     limite = LimiteVentana(maximo=2, segundos=0)
-    assert all(limite.permitir("a") for _ in range(3))  # ventana 0: nunca acumula
+    assert all(limite.permitir("a") for _ in range(3))
     limite = LimiteVentana(maximo=2, segundos=60)
     assert limite.permitir("a") and limite.permitir("a") and not limite.permitir("a")
     assert limite.permitir("b")

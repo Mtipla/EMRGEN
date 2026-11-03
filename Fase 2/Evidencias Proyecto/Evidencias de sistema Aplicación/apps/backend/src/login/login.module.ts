@@ -17,7 +17,7 @@ import { RolesGuard } from './roles.guard';
   imports: [
     TypeOrmModule.forFeature([Usuario, Pin]),
     UsuariosModule,
-    AuditoriaModule, // Bitácora de las acciones de administrador (DELETE /usuarios/:id)
+    AuditoriaModule, 
     FirebaseAuthModule,
     JwtModule.registerAsync({
       useFactory: () => {
@@ -41,7 +41,6 @@ import { RolesGuard } from './roles.guard';
   ],
   controllers: [LoginController],
   providers: [LoginService, JwtAuthGuard, RolesGuard],
-  // Otros módulos (Admin) protegen sus rutas con los mismos guards.
   exports: [JwtModule, LoginService, JwtAuthGuard, RolesGuard],
 })
 export class LoginModule {}

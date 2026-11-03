@@ -13,9 +13,7 @@ import type { PaginaVentas } from '@repo/ui/admin-ventas'
  * todo pasa por HTTP hacia la API de NestJS.
  *
  * La URL sale de VITE_API_URL y depende del modo de Vite, sin valor por defecto para que
- * el panel nunca se conecte en silencio a un backend distinto del esperado:
- *   - `dev`        -> .env        -> backend local (npm run start:dev), puerto 3000
- *   - `dev:docker` -> .env.docker -> backend de docker compose, puerto 3001
+ * el panel nunca se conecte en silencio a un backend distinto del esperado
  */
 export const API_URL: string = import.meta.env.VITE_API_URL ?? ''
 export const MODO_API =
@@ -27,7 +25,7 @@ const internalHttp = axios.create({
   timeout: 10000,
 })
 
-// El token vive solo en memoria: se pierde al cerrar o recargar la ventana.
+
 let token = ''
 export function setToken(nuevo: string) {
   token = nuevo
@@ -48,7 +46,6 @@ export const ESTADOS: Record<number, string> = {
 
 export type Sesion = {
   access_token: string
-  // rol_ID/estado_ID: los devuelve el login desde el bloque 2 del changelog (ausentes en backends anteriores).
   usuario: { usuario_ID: number; nombre_usuario: string; correo_usuario: string; rol_ID?: number; estado_ID?: number }
 }
 
@@ -114,7 +111,7 @@ export type EntradaBitacora = {
   origen_aplicacion: string | null
 }
 
-/** Filtros de la bitácora tal como salen de los inputs ('' = sin filtro). */
+
 export type FiltrosBitacora = {
   desde: string
   hasta: string
@@ -126,7 +123,7 @@ export type FiltrosBitacora = {
 
 const datos = <T>(respuesta: Promise<AxiosResponse<T>>) => respuesta.then((r) => r.data)
 
-/** El backend rechaza parámetros vacíos: solo se envían los campos con valor. */
+
 const sinVacios = (campos: Record<string, string>) =>
   Object.fromEntries(Object.entries(campos).filter(([, valor]) => valor !== ''))
 
@@ -211,10 +208,9 @@ export const adminApi = {
   descargarVentas: (filtros: FiltrosVentas, formato: FormatoReporte = 'pdf') =>
     datos(http.get<Blob>('/admin/ventas/reporte', { params: { ...sinVacios(filtros), formato }, responseType: 'blob', timeout: 90000 })),
 
-  // Bitácora / auditoría (solo lectura: las entradas las genera el backend)
+  // Bitácora / auditoría 
   listarBitacora: (filtros: FiltrosBitacora) =>
     datos(http.get<EntradaBitacora[]>('/admin/auditoria', { params: sinVacios(filtros) })),
-  /** PDF o Excel generado por jsReport en el backend. */
   descargarReporte: (filtros: FiltrosBitacora, formato: FormatoReporte = 'pdf') =>
     datos(
       http.get<Blob>('/admin/auditoria/reporte', {
@@ -225,7 +221,7 @@ export const adminApi = {
     ),
 }
 
-/** Mensaje legible de un error de Axios (el backend responde `{ message }`). */
+
 export async function describirError(error: unknown): Promise<string> {
   if (!isAxiosError(error)) return error instanceof Error ? error.message : String(error)
   if (!error.response) {
@@ -237,7 +233,6 @@ export async function describirError(error: unknown): Promise<string> {
   }
 
   let cuerpo: unknown = error.response.data
-  // Con responseType 'blob' (PDF), el JSON del error también llega como Blob.
   if (cuerpo instanceof Blob) {
     cuerpo = await cuerpo
       .text()

@@ -3,7 +3,7 @@ import type { ActorAuditoria } from './auditoria.service';
 import type { TipoAccion } from './bitacora.entity';
 import { APLICACION } from './aplicacion.entity';
 
-/** Guarda el evento junto con la operación, sin valores médicos ni credenciales. */
+
 export async function registrarActividadUsuario(
   manager: EntityManager,
   actor: ActorAuditoria,

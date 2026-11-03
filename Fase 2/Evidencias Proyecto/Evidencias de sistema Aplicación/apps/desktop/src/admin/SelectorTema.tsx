@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-/** Preferencia del panel completo, independiente de la sesión y de sus rutas. */
+
 export function SelectorTema() {
   const [oscuro, setOscuro] = useState(() => document.documentElement.dataset.tema === 'oscuro')
 

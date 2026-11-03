@@ -5,7 +5,6 @@ from collections import defaultdict, deque
 
 
 class LimiteVentana:
-    # shortcut: memoria de un solo proceso; con varios workers o réplicas, cada uno cuenta aparte (usar Redis si se escala).
     def __init__(self, maximo: int, segundos: int, capacidad: int = 10000, reloj=time.monotonic):
         self.maximo, self.segundos = maximo, segundos
         self.capacidad, self._reloj = capacidad, reloj
@@ -16,7 +15,6 @@ class LimiteVentana:
         """Registra el uso y devuelve False si la clave ya agotó su cupo en la ventana."""
         ahora = self._reloj()
         with self._lock:
-            # Finite cardinality and TTL, including IPs that never return.
             for key in list(self._usos):
                 queue = self._usos[key]
                 while queue and ahora - queue[0] >= self.segundos:

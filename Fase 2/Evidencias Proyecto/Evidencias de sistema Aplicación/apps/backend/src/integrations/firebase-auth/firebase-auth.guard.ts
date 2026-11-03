@@ -7,7 +7,7 @@ import {
 import type { FirebaseAuthUser } from '@repo/api-types';
 import { FirebaseAuthService } from './firebase-auth.service';
 
-/** Request con el usuario que deja el guard. */
+
 export interface FirebaseRequest {
   headers: Record<string, string | string[] | undefined>;
   firebaseUser?: FirebaseAuthUser;

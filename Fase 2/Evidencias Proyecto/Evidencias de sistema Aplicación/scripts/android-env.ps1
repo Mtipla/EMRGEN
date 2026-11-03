@@ -36,7 +36,6 @@ $env:ANDROID_HOME = (Resolve-Path -LiteralPath $SdkPath).Path
 $env:PATH = (Join-Path $env:JAVA_HOME 'bin') + ';' + (Join-Path $env:ANDROID_HOME 'platform-tools') + ';' + $env:PATH
 $androidProjectDir = Join-Path $androidRepoRoot 'apps\mobile\android'
 function ConvertTo-AndroidJavaProperty([string]$PropertyPath) {
-  # Properties de Java/Studio: escapar Unicode conserva las rutas con "Aplicación" en Windows.
   -join @($PropertyPath.Replace('\', '/').ToCharArray() | ForEach-Object {
     if ([int]$_ -gt 127) { '\u{0:x4}' -f [int]$_ } else { [string]$_ }
   })
@@ -47,7 +46,6 @@ if (Test-Path -LiteralPath $androidProjectDir) {
     'sdk.dir=' + (ConvertTo-AndroidJavaProperty $env:ANDROID_HOME) + "`n", $androidUtf8)
   $androidGradleLocal = Join-Path $androidProjectDir '.gradle'
   New-Item -ItemType Directory -Force -Path $androidGradleLocal | Out-Null
-  # Android Studio: seleccionar GRADLE_LOCAL_JAVA_HOME como Gradle JDK.
   [IO.File]::WriteAllText((Join-Path $androidGradleLocal 'config.properties'),
     'java.home=' + (ConvertTo-AndroidJavaProperty $env:JAVA_HOME) + "`n", $androidUtf8)
   $androidIdeaDir = Join-Path $androidProjectDir '.idea'

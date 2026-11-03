@@ -12,13 +12,13 @@ export const env = {
   firebaseApiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? '',
 }
 
-/** Cliente del backend: pagos, autenticación, reportes, geocodificación e indicadores económicos. */
+
 export const api = createEmergenApi(env.apiUrl)
 
-/** Registro, inicio de sesión y refresco de tokens con Firebase Authentication. */
+
 export const firebaseAuth = createFirebaseAuth(env.firebaseApiKey)
 
-/** SDK web de Firebase (app + Auth). Analytics: `initFirebaseAnalytics(firebase.app)`. */
+
 export const firebase = initFirebase({
   apiKey: env.firebaseApiKey,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,

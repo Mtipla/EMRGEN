@@ -28,11 +28,9 @@ test('matriz de permisos: perfil por rol y cuenta principal', () => {
 test('matriz de permisos: SOPORTE = Trabajador de los mockups, con menos privilegios que ADMINISTRADOR', () => {
   expect(puede('USUARIO', 'admin.cuentas.ver')).toBe(false);
   expect(puede('APADRINADO', 'cuentas.apadrinadas')).toBe(false);
-  // SOPORTE consulta cuentas y compras, y atiende los tickets de los usuarios.
   for (const accion of ['admin.cuentas.ver', 'admin.compras.ver', 'soporte.gestionarTickets'] as const) {
     expect(puede('SOPORTE', accion)).toBe(true);
   }
-  // Exclusivo del administrador.
   for (const accion of ['admin.cuentas.editar', 'admin.cuentas.eliminar', 'admin.compras.editar', 'admin.compras.eliminar', 'admin.trabajadores', 'perfil.pinTrabajador', 'alertas.verTodas'] as const) {
     expect(puede('SOPORTE', accion)).toBe(false);
     expect(puede('ADMINISTRADOR', accion)).toBe(true);
@@ -60,7 +58,6 @@ test('apadrinados: completo, parcial y sin Premium (cuentas de README_BDD)', () 
   expect(bloqueo(sinPlan, 'perfil.editar')).toBeNull();
   expect(bloqueo(sinPlan, 'soporte.solicitar')).toBeNull();
 
-  // Sesión antigua sin plan_efectivo ni estado_ID: no se bloquea, decide el backend.
   expect(bloqueo({ rol_ID: 3, usuario_principal_ID: null }, 'alertas.emitir')).toBeNull();
   expect(bloqueo({ rol_ID: 3, usuario_principal_ID: 7 }, 'perfil.editar')).toBeNull();
 });

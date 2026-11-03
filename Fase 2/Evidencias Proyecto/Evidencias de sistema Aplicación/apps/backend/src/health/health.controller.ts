@@ -15,7 +15,7 @@ export class HealthController {
     return { status: 'ok', service: 'emergen-backend' };
   }
 
-  /** La API puede aceptar login/vinculación aunque WhatsApp necesite reconectarse. */
+
   @Get('ready')
   async ready() {
     let database = 'up';
@@ -40,7 +40,7 @@ export class HealthController {
     return result;
   }
 
-  /** Monitor de despacho SOS; no es la prueba de vida del contenedor. */
+
   @Get('sos')
   async sos() {
     const result = await this.ready();

@@ -23,9 +23,7 @@ import { SendEmergencyAlertDto } from './dto/send-emergency-alert.dto';
 import { WhatsappAlertService } from './whatsapp-alert.service';
 import { WhatsappConnectionService } from './whatsapp-connection.service';
 
-// Vincular el número emisor de EMERGEN y enviar alertas manuales es tarea de
-// administración: todas las rutas exigen sesión y rol Administrador. Las alertas de los
-// usuarios no pasan por aquí: el módulo de alertas inyecta WhatsappAlertService.
+
 @Controller('notifications/whatsapp')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(ROL.ADMINISTRADOR)
@@ -40,7 +38,7 @@ export class WhatsappController {
     return this.connection.getStatus();
   }
 
-  /** QR vigente como PNG. Caduca cada ~20 s: el panel debe volver a pedirlo. */
+
   @Get('qr')
   @Header('Cache-Control', 'no-store')
   async qr(): Promise<StreamableFile> {
@@ -69,7 +67,6 @@ export class WhatsappController {
     return this.connection.getStatus();
   }
 
-  /** Envío manual (pruebas o soporte). Responde 201 con el resultado por contacto. */
   @Post('alerts')
   sendAlert(@Body() dto: SendEmergencyAlertDto): Promise<EmergencyAlertResult> {
     return this.alerts.sendEmergencyAlert(dto);

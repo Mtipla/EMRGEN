@@ -19,7 +19,7 @@ const ACTIVIDAD = `
     </tr>{{else}}<tr><td colspan="6">Sin acciones registradas.</td></tr>{{/each}}</tbody>
   </table>`;
 
-/** HU-19 / RF22. Plantilla del servidor. */
+
 export const PLANTILLA_INFORME = `<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><style>
   body { font-family: Arial, sans-serif; margin: 24px; font-size: 12px; color: #1f2937; }

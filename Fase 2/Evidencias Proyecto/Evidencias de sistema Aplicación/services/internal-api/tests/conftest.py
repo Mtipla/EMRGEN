@@ -22,7 +22,6 @@ def db():
 
 @pytest.fixture
 def client(db):
-    # Scheduler se verifica aparte; no compite con pruebas que preparan fechas.
     return TestClient(app)
 
 def token(usuario_id: int, **changes) -> dict:

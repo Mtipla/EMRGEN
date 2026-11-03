@@ -18,11 +18,10 @@ import { AdminTicketsService } from './admin-tickets.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Usuario, PlanUsuario]),
-    LoginModule, // JwtAuthGuard + RolesGuard + LoginService (reglas de cuentas)
-    AuditoriaModule, // Bitácora
+    LoginModule, 
+    AuditoriaModule, 
     JsreportModule,
   ],
-  // AuditoriaController (/admin/auditoria) vive aquí porque necesita los guards de LoginModule.
   controllers: [AdminController, AuditoriaController, AdminAlertasController, AdminVentasController, AdminTicketsController],
   providers: [AdminService, AdminAlertasService, AdminVentasService, AdminTicketsService],
   exports: [AdminService],

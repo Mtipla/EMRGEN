@@ -7,7 +7,6 @@ import { whatsappAuthDir } from './whatsapp.constants';
 
 export interface WhatsappAuthState {
   state: AuthenticationState;
-  /** Se llama en cada `creds.update` para persistir las llaves rotadas. */
   saveCreds: () => Promise<void>;
 }
 
@@ -18,11 +17,10 @@ export interface WhatsappAuthState {
  */
 export abstract class WhatsappAuthStateStore {
   abstract load(): Promise<WhatsappAuthState>;
-  /** Borra la sesión: el próximo `load()` empieza sin vincular (nuevo QR). */
   abstract clear(): Promise<void>;
 }
 
-/** Guarda la sesión en archivos JSON dentro de WHATSAPP_AUTH_DIR (por defecto `auth_info_baileys/`). */
+
 @Injectable()
 export class MultiFileAuthStateStore extends WhatsappAuthStateStore {
   private readonly folder = resolve(process.cwd(), whatsappAuthDir());
@@ -32,7 +30,7 @@ export class MultiFileAuthStateStore extends WhatsappAuthStateStore {
     return useMultiFileAuthState(this.folder);
   }
 
-  // Se vacía el contenido y no la carpeta: en Docker es el punto de montaje de un volumen.
+
   async clear(): Promise<void> {
     const entries = await readdir(this.folder).catch(() => []);
     await Promise.all(

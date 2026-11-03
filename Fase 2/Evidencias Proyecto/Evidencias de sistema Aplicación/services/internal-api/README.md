@@ -35,7 +35,7 @@ El ciclo de vida de FastAPI ejecuta el cierre de alertas vencidas al arrancar y 
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Las pruebas requieren PostgreSQL y los fixtures base de README_BDD. Usan transacciones reales y cuentas temporales; la falta de BD es fallo. Ejecutarlas secuencialmente respecto de las suites Nest; la prueba del último administrador restaura roles en finally. No cargar `sql/001_catalogos_soporte.sql`: es histórico, el init vigente contiene los catálogos.
+Las pruebas requieren una BD de desarrollo nueva y desechable con los fixtures base de README_BDD. Usan transacciones reales y cuentas temporales; la falta de BD es fallo. Ejecutarlas secuencialmente respecto de las suites Nest; la prueba del último administrador restaura roles en finally. No cargar `sql/001_catalogos_soporte.sql`: es histórico, el init vigente contiene los catálogos.
 
 El arranque manual local no añade un servicio a Docker. Para disponibilidad de cierre automático, este proceso debe permanecer encendido; al volver a iniciarlo recupera las vencidas.
 
@@ -45,4 +45,4 @@ El histórico ya se conserva en PostgreSQL: `GET /internal/v1/alertas` incluye l
 
 Para consultar desde Swagger, abre `http://localhost:8000/docs`, pulsa **Authorize** y pega únicamente el JWT `access_token` de NestJS, sin `Bearer` ni comillas. Confirma **Authorize → Close** y ejecuta el GET. El esquema `SesionEMERGEN` añade la cabecera automáticamente. Si tenías Swagger abierto antes de este cambio, usa **Ctrl+F5**.
 
-Producción/staging exige DB_SSLMODE explícito y CA si verify-full. Docs está desactivado por defecto en distribución. Los límites/slots y pasos operativos están en [OPERACION_SEGURA.md](../../docs/OPERACION_SEGURA.md). No ejecutar pytest completo sobre la BD local para verificar cambios: python-config y los casos aislados registrados no usan conftest ni .env.
+Producción/staging exige DB_SSLMODE explícito y CA si verify-full. Docs está desactivado por defecto en distribución. Los límites/slots y pasos operativos están en [OPERACION_SEGURA.md](../../docs/OPERACION_SEGURA.md). No ejecutar pytest completo contra `EMERGEN_BDD` ni otra BD con datos que se deban conservar. Para comprobar solo la configuración, python-config y los casos aislados registrados no usan conftest ni .env.

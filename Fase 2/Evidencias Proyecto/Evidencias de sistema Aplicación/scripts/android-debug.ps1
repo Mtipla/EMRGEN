@@ -5,7 +5,6 @@ try {
   . (Join-Path $PSScriptRoot 'android-env.ps1')
   & node (Join-Path $PSScriptRoot 'mobile-android.mjs') prepare
   if ($LASTEXITCODE -ne 0) { throw 'Falló el build web o la sincronización; no se compiló un dist anterior.' }
-  # La primera preparación puede haber creado android/ después de android-env.
   . (Join-Path $PSScriptRoot 'android-env.ps1')
   Push-Location -LiteralPath (Join-Path $androidBuildRoot 'apps\mobile\android')
   try {

@@ -2,6 +2,7 @@ import { ConflictException, ForbiddenException, HttpException, NotFoundException
 import * as bcrypt from 'bcrypt';
 import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { AdminService } from '../admin/admin.service';
+import { reportLimit } from '../config/security';
 import type { UsuarioSesion } from '../login/jwt-auth.guard';
 import type { JsreportService } from '../integrations/jsreport/jsreport.service';
 import { LoginService } from '../login/login.service';
@@ -14,7 +15,7 @@ describe('ApadrinadosService', () => {
   const filas: Record<number, Partial<Usuario>> = {
     10: { usuario_ID: 10, usuario_principal_ID: null },
     11: { usuario_ID: 11, usuario_principal_ID: 10 },
-    21: { usuario_ID: 21, usuario_principal_ID: 20 }, // apadrinado de otro principal
+    21: { usuario_ID: 21, usuario_principal_ID: 20 }, 
   };
   let usuarios: { findOneBy: jest.Mock; find: jest.Mock };
   let crearUsuarioApadrinado: jest.Mock;
@@ -42,7 +43,6 @@ describe('ApadrinadosService', () => {
     cambiarEstadoUsuario = jest.fn();
     eliminarUsuarioApadrinado = jest.fn();
     credencial = { pin_id: 5, pin_hash: hash1234, intentos_fallidos: 0, bloqueado_hasta: null, bloqueado: false };
-    // Fila PIN del principal para verificarPinPrincipal (SELECT ... FOR UPDATE y UPDATE).
     query = jest.fn((sql: string) => Promise.resolve(sql.trimStart().startsWith('SELECT') ? [credencial] : []));
     obtenerPropio = jest.fn();
     renderInline = jest.fn().mockResolvedValue({ content: Buffer.from('%PDF-1.7'), contentType: 'application/pdf' });
@@ -67,7 +67,7 @@ describe('ApadrinadosService', () => {
         usuario: { nombre: 'P', acceso: 'Completo', premium: 'Sí' },
         apadrinados: [{ nombre: 'H', acceso: 'Parcial', pin: 'Sin PIN' }],
       });
-      expect(query.mock.calls.map((call) => call[1])).toEqual([[[10, 11]], [[10, 11]]]);
+      expect(query.mock.calls.map((call) => call[1])).toEqual([[[10, 11], reportLimit() + 1], [[10, 11], reportLimit() + 1]]);
     });
 
     it('un apadrinado solo recibe su propia cuenta, nunca la de su principal', async () => {
@@ -75,7 +75,7 @@ describe('ApadrinadosService', () => {
       await service.informe({ ...PRINCIPAL, sub: 11 });
       expect(usuarios.find).not.toHaveBeenCalled();
       expect(renderInline.mock.calls[0][1]).toMatchObject({ principal: false, apadrinados: [] });
-      expect(query.mock.calls.map((call) => call[1])).toEqual([[[11]], [[11]]]);
+      expect(query.mock.calls.map((call) => call[1])).toEqual([[[11], reportLimit() + 1], [[11], reportLimit() + 1]]);
     });
 
     it('genera Excel con alertas y acciones de la sesión y valida la firma del archivo', async () => {
@@ -115,7 +115,6 @@ describe('ApadrinadosService', () => {
     await service.cambiarAcceso(PRINCIPAL, 11, 2, '1234');
     expect(cambiarEstadoUsuario).toHaveBeenCalledWith(11, 2, PRINCIPAL);
     expect(query).toHaveBeenCalledWith(expect.stringContaining('intentos_fallidos = 0'), [5]);
-    // Pasa a parcial: su PIN queda fijo (no temporal).
     expect(query).toHaveBeenLastCalledWith(expect.stringContaining('pin_temporal'), [11, false]);
   });
 

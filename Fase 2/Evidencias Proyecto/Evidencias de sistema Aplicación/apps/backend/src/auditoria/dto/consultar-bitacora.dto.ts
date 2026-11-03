@@ -5,27 +5,27 @@ import { IsIn, IsInt, IsISO8601, IsOptional, Matches, Max, Min } from 'class-val
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
 const MENSAJE_FECHA = 'debe ser una fecha AAAA-MM-DD (UTC)';
 
-/** Filtros de GET /admin/auditoria y /admin/auditoria/reporte (query string). */
+
 export class ConsultarBitacoraDto {
   @IsOptional()
   @Matches(FECHA, { message: `desde ${MENSAJE_FECHA}` })
   @IsISO8601({ strict: true }, { message: `desde ${MENSAJE_FECHA}` })
   desde?: string;
 
-  /** Inclusivo: abarca todo el día indicado. */
+
   @IsOptional()
   @Matches(FECHA, { message: `hasta ${MENSAJE_FECHA}` })
   @IsISO8601({ strict: true }, { message: `hasta ${MENSAJE_FECHA}` })
   hasta?: string;
 
-  /** Usuario que realizó la acción (el administrador en las acciones del panel). */
+  /** Usuario que realizó la acción  */
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   usuario_ID?: number;
 
-  /** Usuario sobre el que recayó la acción. */
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()

@@ -29,7 +29,6 @@ export function usePremiumPurchase(onPurchased?: () => Promise<void>) {
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [notice, setNotice] = useState('')
-  // Orden cuyo resultado no se pudo confirmar (se cortó la conexión o quedó PENDING).
   const [unconfirmedOrderId, setUnconfirmedOrderId] = useState<string>()
   const [modal, setModal] = useState<PurchaseModal>()
   const busy = useRef(false)
@@ -53,7 +52,7 @@ export function usePremiumPurchase(onPurchased?: () => Promise<void>) {
     void load()
   }, [token, reloads])
 
-  /** Botón "Método de pago": muestra los botones de PayPal (la orden se crea al pulsarlos). */
+  /** Botón "Método de pago": muestra los botones de PayPal. */
   function openCheckout() {
     setNotice('')
     setOrder(undefined)
@@ -70,14 +69,13 @@ export function usePremiumPurchase(onPurchased?: () => Promise<void>) {
       setOrder(created)
       return created.orderId
     } catch (error) {
-      // El SDK de PayPal envuelve el error al pasarlo a onError: se guarda el original.
       orderError.current = error
       loadSummary()
       throw error
     }
   }
 
-  /** Callback onApprove: el comprador aprobó en PayPal; el backend cobra y confirma. */
+  /** el comprador aprobó en PayPal; el backend cobra y confirma. */
   async function confirm(orderId: string) {
     if (busy.current) return
     busy.current = true
@@ -103,7 +101,6 @@ export function usePremiumPurchase(onPurchased?: () => Promise<void>) {
     } catch (error) {
       setCheckoutOpen(false)
       if (error instanceof TypeError || (error instanceof ApiError && error.status >= 500)) {
-        // Sin respuesta: el cobro pudo hacerse. Reintentar es seguro (el backend no cobra dos veces).
         setUnconfirmedOrderId(orderId)
         setNotice('Se perdió la conexión y no pudimos confirmar tu pago. Pulsa "Verificar pago".')
       } else {
@@ -117,7 +114,7 @@ export function usePremiumPurchase(onPurchased?: () => Promise<void>) {
     }
   }
 
-  /** Cerrar la ventana no prueba que no haya cobro: la base confirma la cancelación. */
+
   async function paymentCancelled() {
     setCheckoutOpen(false)
     if (!order) { setNotice('Ventana cerrada. Revisa tus compras si hubo un error al crear la orden.'); return }
@@ -131,7 +128,7 @@ export function usePremiumPurchase(onPurchased?: () => Promise<void>) {
     }
   }
 
-  /** onError del SDK (no se pudo crear la orden o PayPal falló antes de cobrar). */
+
   function paymentFailed(sdkError: unknown) {
     const error = orderError.current ?? sdkError
     setCheckoutOpen(false)
@@ -142,7 +139,7 @@ export function usePremiumPurchase(onPurchased?: () => Promise<void>) {
     setModal({ type: 'error', detail: specificMessage(error) })
   }
 
-  /** Botón "Cancelar Compra": cierra una orden sin pagar y sale de la pantalla. */
+
   async function cancelPurchase() {
     if (order && !unconfirmedOrderId) {
       await paymentCancelled()
@@ -218,7 +215,7 @@ function errorMessage(error: unknown): string {
   return 'Ocurrió un error inesperado.'
 }
 
-/** Detalle extra para el modal de error, solo si el backend dio un motivo para el usuario. */
+/** Detalle extra para el modal de error */
 function specificMessage(error: unknown): string | undefined {
   if (error instanceof ApiError && error.status >= 400) return errorMessage(error)
   if (error instanceof TypeError) return errorMessage(error)

@@ -12,7 +12,7 @@ import type {
 import { CreatePaypalOrderDto } from './dto/create-paypal-order.dto';
 import { PaypalService } from './paypal.service';
 
-/** Los ids de orden de PayPal son alfanuméricos en mayúsculas (ej. "5O190127TN364715T"). */
+
 const ORDER_ID = /^[A-Z0-9]{5,36}$/;
 
 @Controller('payments/paypal')

@@ -6,7 +6,6 @@ from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SERVICE_DIR = Path(__file__).resolve().parents[2]
-# parent es estable también al empaquetar el servicio solo en /app (sin monorepo).
 MONOREPO_DIR = SERVICE_DIR.parent.parent
 
 
@@ -31,7 +30,6 @@ class Settings(BaseSettings):
 
     mensaje_predeterminado: str = Field("Necesito ayuda inmediata en mi ubicación.", min_length=1, max_length=160)
     intervalo_cierre_segundos: int = Field(30, ge=1, le=300)
-    # PORT del proveedor se respeta; PORT del .env raíz pertenece a NestJS.
     port: int = Field(default_factory=lambda: int(os.environ.get("PORT", "8000")), ge=1, le=65535)
     environment: str = Field("development", validation_alias="EMERGEN_ENVIRONMENT")
     deployment_id: str = Field("local", validation_alias="EMERGEN_DEPLOYMENT_ID")
@@ -54,7 +52,7 @@ class Settings(BaseSettings):
     db_sslmode: str = Field("disable", validation_alias="DB_SSLMODE")
     db_ssl_ca_file: str | None = Field(None, validation_alias="DB_SSL_CA_FILE")
 
-    # Debe ser el mismo JWT_SECRET del backend NestJS: internal-api verifica sus tokens.
+
     jwt_secret: str | None = Field(None, validation_alias="JWT_SECRET")
 
     @model_validator(mode="after")

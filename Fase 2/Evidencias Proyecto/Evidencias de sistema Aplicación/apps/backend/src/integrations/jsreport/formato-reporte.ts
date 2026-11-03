@@ -13,7 +13,7 @@ export function plantillaReporte(
     : { content: pdf, chrome: { landscape: true } };
 }
 
-/** Evita descargar un error HTML o un documento con una extensión incorrecta. */
+
 export function validarReporte(
   reporte: RenderedReport,
   formato: FormatoReporte,

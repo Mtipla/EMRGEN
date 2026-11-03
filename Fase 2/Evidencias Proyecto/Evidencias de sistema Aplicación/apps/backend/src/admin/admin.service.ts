@@ -43,7 +43,7 @@ export type UsuarioListado = Usuario & {
   alertas_generadas: number;
 };
 
-/** Datos de una cuenta que el panel puede mostrar; nunca incluye el hash de la contraseña. */
+
 export type ResumenUsuario = Pick<
   Usuario,
   'usuario_ID' | 'nombre_usuario' | 'correo_usuario' | 'rol_ID' | 'estado_ID'
@@ -58,7 +58,7 @@ export interface ExpedienteUsuario {
   alertas: AlertaCuenta[];
 }
 
-/** Campos cuyo valor cambió, con su valor anterior y posterior (para la bitácora). */
+
 function diferencias<C extends string>(
   antes: Record<C, ValorAuditado> | null,
   despues: Record<C, ValorAuditado>,
@@ -106,7 +106,7 @@ export class AdminService {
     private readonly loginService: LoginService,
   ) {}
 
-  // READ: Obtener todos los usuarios del sistema para la tabla del panel Electron
+
   async listarUsuarios(): Promise<UsuarioListado[]> {
     return this.usuarioRepository.query<UsuarioListado[]>(`
       SELECT u.usuario_id AS "usuario_ID", u.nombre_usuario,
@@ -140,7 +140,7 @@ export class AdminService {
     return filas.length > 0;
   }
 
-  // READ: Expediente de un usuario (cuenta, plan y apadrinados). La consulta queda registrada.
+
   async obtenerExpedienteUsuario(idUsuario: number, actor: ActorAuditoria): Promise<ExpedienteUsuario> {
     return this.auditoriaService.auditar(
       {
@@ -152,7 +152,6 @@ export class AdminService {
       },
       async (manager) => {
         const usuarios = manager.getRepository(Usuario);
-        // contra_usuario tiene select: false, así que el hash no sale de la BD.
         const usuario = await usuarios.findOneBy({ usuario_ID: idUsuario });
         if (!usuario) {
           throw new NotFoundException('El usuario no existe en la base de datos');
@@ -225,7 +224,7 @@ export class AdminService {
     );
   }
 
-  // UPDATE: Modificar el estado de una cuenta (Acceso completo / parcial).
+
   async cambiarEstadoUsuario(idUsuario: number, nuevoEstadoId: number, actor: ActorAuditoria): Promise<Usuario> {
     return this.auditoriaService.auditar(
       {
@@ -236,7 +235,6 @@ export class AdminService {
         usuario_afectado_ID: idUsuario,
       },
       async (manager) => {
-        // Igual que al eliminar: un administrador no puede cambiar su propio nivel de acceso.
         if (idUsuario === actor.sub) {
           throw new BadRequestException('No puedes cambiar el estado de tu propia cuenta');
         }
@@ -247,7 +245,6 @@ export class AdminService {
           throw new NotFoundException('El usuario no existe en la base de datos');
         }
 
-        // Solo las cuentas de usuario usan PIN; administradores y trabajadores no.
         if (nuevoEstadoId === 1 && usuario.rol_ID === ROL.USUARIO && usuario.PIN_ID === null) {
           throw new BadRequestException('Configura el PIN propio antes de habilitar acceso completo');
         }
@@ -274,7 +271,6 @@ export class AdminService {
       },
       async (manager) => {
         const usuarios = manager.getRepository(Usuario);
-        // Bloqueo de fila: dos administradores no asignan el plan del mismo usuario a la vez.
         const usuario = await usuarios.findOne({
           where: { usuario_ID: idUsuario },
           lock: { mode: 'pessimistic_write' },
@@ -288,7 +284,7 @@ export class AdminService {
           );
         }
 
-        // Los cupos utilizados no se digitan: son los apadrinados que ya existen.
+
         const utilizados = await usuarios.countBy({ usuario_principal_ID: idUsuario });
         if (datos.cupos_apadrinados_adq < utilizados) {
           throw new BadRequestException(
@@ -302,7 +298,6 @@ export class AdminService {
           plan_ID: datos.plan_ID,
           cupos_apadrinados_adq: datos.cupos_apadrinados_adq,
         };
-        // Se calcula antes de guardar: `merge` modifica `existente`.
         const cambios = diferencias(existente, nuevo, [
           'plan_ID',
           'cupos_apadrinados_adq',
@@ -332,7 +327,7 @@ export class AdminService {
     });
   }
 
-  // DELETE: Eliminar un trabajador (rol SOPORTE)
+  // DELETE: Eliminar un trabajador 
   async eliminarTrabajadorSoporte(idUsuario: number, actor: ActorAuditoria): Promise<void> {
     return this.eliminarCuenta(idUsuario, actor, 'trabajador', (usuario) => {
       if (usuario.rol_ID !== ROL.SOPORTE) {
@@ -369,7 +364,6 @@ export class AdminService {
           await this.auditoriaService.registrar(manager, { actor, accion, tipo: TIPO_ACCION.ELIMINACION, entidad: ENTIDAD_AUDITADA.USUARIO, usuario_afectado_ID: idUsuario });
           await usuarios.delete(idUsuario);
         } catch (error) {
-          // Otras tablas (contactos, alertas, tickets...) referencian a la cuenta.
           if (codigoPostgres(error) === PG_FOREIGN_KEY_VIOLATION) {
             throw new ConflictException(
               `Resuelve los registros pendientes antes de eliminar el ${tipoCuenta}`,
@@ -380,7 +374,6 @@ export class AdminService {
         return {
           valor: undefined,
           auditoriaRegistrada: true,
-          // La cuenta deja de existir: la bitácora conserva quién era y de quién dependía.
           cambios: {
             nombre_usuario: { antes: usuario.nombre_usuario, despues: null },
             usuario_principal_ID: { antes: usuario.usuario_principal_ID, despues: null },
@@ -407,7 +400,6 @@ export class AdminService {
 
         let usuarioGuardado: Usuario;
         try {
-          // Se fuerza el rol SOPORTE; el personal no usa PIN, así que nace habilitado.
           usuarioGuardado = await usuarios.save(
             usuarios.create({ ...cuenta, rol_ID: ROL.SOPORTE, estado_ID: 1, usuario_principal_ID: null }),
           );
@@ -484,7 +476,6 @@ export class AdminService {
 
   // READ: Visualización de Planes y Cupos
   async obtenerEstadoPlanUsuario(idUsuarioPrincipal: number): Promise<PlanUsuario & { cupos_ocupados: number; cupos_disponibles: number }> {
-    // Extrae el control de cupos adquiridos y utilizados desde la tabla PLAN_USUARIO
     const plan = await this.planUsuarioRepository.findOne({
       where: { usuario_ID: idUsuarioPrincipal }
     });

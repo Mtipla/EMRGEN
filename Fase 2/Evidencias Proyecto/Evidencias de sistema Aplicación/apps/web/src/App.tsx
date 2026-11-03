@@ -14,7 +14,7 @@ import { AccountsPage, HomePage, ProfilePage, SoportePage } from './features/cue
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
-/** Sesión guardada solo si hay token y usuario válidos; si el usuario está corrupto, se borra todo. */
+
 function leerSesionGuardada(): AuthenticatedUser | null {
   const savedUser = localStorage.getItem('emergen.user')
   if (!savedUser || !localStorage.getItem('emergen.token')) return null
@@ -132,9 +132,7 @@ function App() {
 
   const perfil = user && perfilDe(user)
   const esSoporte = perfil === 'SOPORTE'
-  // Las cuentas del personal usan el panel de escritorio para las funciones administrativas.
   const esPersonal = perfil === 'ADMINISTRADOR' || esSoporte
-  // El apadrinado usa el plan de su principal: POST /compras/apadrinados/ordenes le responde 403.
   const sinCompra = esSoporte || perfil === 'APADRINADO'
 
   /** Páginas de los wireframes: exigen sesión con PIN y, si se indica, un permiso de la matriz (rol, acceso y Premium). */

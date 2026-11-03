@@ -14,7 +14,7 @@ export class ActualizarMiUsuarioDto {
   correo_usuario?: string;
 }
 
-/** PATCH /usuarios/me. Solo aquí (no en /admin): un apadrinado parcial autoriza con el PIN de su principal (HU-10). */
+
 export class ActualizarMiUsuarioPropioDto extends ActualizarMiUsuarioDto {
   @ValidateIf((_obj, valor) => valor !== undefined)
   @Matches(/^\d{4}$/, { message: 'El PIN debe tener exactamente 4 dígitos' })

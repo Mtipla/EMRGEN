@@ -28,7 +28,7 @@ export function validateStructure(value: unknown, maxDepth = 8, maxNodes = 1024)
   }
 }
 
-/** Bounded real stream, including chunked input; no reliance on Content-Length. */
+
 export function boundedJson(maxBytes = securityNumber('API_MAX_BODY_BYTES', 16_384, 1_048_576)) {
   return (req: Request, res: Response, next: NextFunction) => {
     const fail = (status: number, message: string) => {
@@ -69,7 +69,7 @@ export function boundedJson(maxBytes = securityNumber('API_MAX_BODY_BYTES', 16_3
   };
 }
 
-/** Per-process fixed windows with TTL and finite cardinality. No account lockouts. */
+
 export class WindowBudget {
   private readonly entries = new Map<string, { until: number; count: number }>();
   private lastSweep = 0;
@@ -118,7 +118,7 @@ export class OperationLimitsInterceptor implements NestInterceptor {
     } else if (req.method === 'POST' && path.startsWith('/compras/')) {
       operation = 'purchase'; maximum = securityNumber('API_PURCHASE_PER_MINUTE', 20);
     }
-    // Deliberately no global quota and no quota on SOS/closing/PIN/health/preflight.
+
     if (!operation) return next.handle();
     const identity = req.user ? `user:${req.user.sub}` : `peer:${req.ip || req.socket.remoteAddress}`;
     if (!this.budget.allow(`${operation}:${identity}`, maximum, window)) {

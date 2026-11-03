@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm';
 
-/** Catálogo APLICACION (sembrado en init.sql): origen de cada acción de la bitácora. */
+
 @Entity('aplicacion')
 export class Aplicacion {
   @PrimaryColumn({ name: 'aplicacion_id' })
@@ -10,7 +10,7 @@ export class Aplicacion {
   origen_aplicacion: string;
 }
 
-/** IDs fijos de APLICACION (sembrados en init.sql). */
+
 export const APLICACION = {
   WEB: 1,
   MOVIL: 2,

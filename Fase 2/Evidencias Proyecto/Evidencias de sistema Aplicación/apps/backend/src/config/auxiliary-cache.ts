@@ -1,4 +1,4 @@
-/** Bounded cache of non-sensitive economic indicators, never location/medical data. */
+
 export class AuxiliaryCache {
   private readonly items = new Map<string, { expires: number; value: Promise<unknown> }>();
   get<T>(key: string, load: () => Promise<T>): Promise<T> {

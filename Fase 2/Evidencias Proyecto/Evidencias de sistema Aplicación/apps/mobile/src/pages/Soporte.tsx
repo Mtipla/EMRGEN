@@ -16,7 +16,7 @@ import {
 import { SolicitudSoporte, type Ticket } from "@repo/ui/soporte";
 import { errorText, internalFetch } from "../lib/session";
 
-/** "Solicitar soporte": categorías y tickets propios de internal-api (GET/POST /internal/v1/tickets-soporte). */
+
 const Soporte: React.FC = () => {
   const [categorias, setCategorias] = useState<
     { id: number; nombre: string }[]

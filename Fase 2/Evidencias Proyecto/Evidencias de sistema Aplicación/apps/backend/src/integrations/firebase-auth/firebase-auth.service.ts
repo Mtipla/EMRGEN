@@ -5,7 +5,7 @@ import { JwksClient } from 'jwks-rsa';
 import { requireEnv } from '../../config/env';
 
 const INTEGRATION = 'Firebase Authentication';
-/** Claves públicas con las que Firebase firma los ID tokens (rotan cada pocas horas). */
+
 const JWKS_URL =
   'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 
@@ -18,9 +18,9 @@ interface FirebaseTokenPayload extends JwtPayload {
 }
 
 /**
- * Firebase Authentication del lado del servidor: verifica el ID token (JWT RS256)
+ * Firebase Authentication del lado del servidor: verifica el ID token 
  * que el frontend obtiene al iniciar sesión, sin firebase-admin ni cuenta de servicio.
- * Solo requiere el Project ID (FIREBASE_PROJECT_ID).
+ * Solo requiere el Project ID.
  */
 @Injectable()
 export class FirebaseAuthService {
@@ -31,7 +31,6 @@ export class FirebaseAuthService {
   });
 
   async verifyIdToken(idToken: string): Promise<FirebaseAuthUser> {
-    // TODO: INSERT_API_KEY_HERE -> definir FIREBASE_PROJECT_ID en el .env
     const projectId = requireEnv('FIREBASE_PROJECT_ID', INTEGRATION);
 
     const payload = await new Promise<FirebaseTokenPayload>(

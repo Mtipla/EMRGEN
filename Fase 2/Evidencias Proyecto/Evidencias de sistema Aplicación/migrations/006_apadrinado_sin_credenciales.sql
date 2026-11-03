@@ -1,7 +1,7 @@
 -- Las cuentas apadrinadas son perfiles de la principal: entran con el correo y la contraseña
 -- de la principal y su PIN. No guardan correo ni contraseña propios. Repetible.
 --
---   Get-Content migraciones/006_apadrinado_sin_credenciales.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+--   Get-Content migrations/006_apadrinado_sin_credenciales.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 
 BEGIN;
 ALTER TABLE public.usuario ALTER COLUMN correo_usuario DROP NOT NULL;

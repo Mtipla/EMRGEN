@@ -6,7 +6,6 @@ export class CambiarPasswordDto {
   @MaxLength(72)
   password_actual!: string;
 
-  // Mismas reglas que el registro (CrearUsuarioDto).
   @IsString()
   @MinLength(8)
   @MaxLength(72)

@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { api } from '../../lib/api'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
-/** FastAPI internal-api (alertas y tickets); requiere INTERNAL_API_CORS_ORIGINS con el origen de la web. */
+
 export const INTERNAL_API_URL = import.meta.env.VITE_INTERNAL_API_URL ?? 'http://localhost:8000'
 
-/** fetch al backend con el token de la sesión; lanza Error con el `message` (o `detail`) del backend. */
+
 export async function apiFetch<T>(path: string, init: RequestInit = {}, base = API_URL): Promise<T> {
   const response = await fetch(`${base}${path}`, {
     ...init,
@@ -15,10 +15,9 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}, base = A
       ...init.headers,
     },
   }).catch(() => {
-    // fetch solo rechaza por red/CORS: "Failed to fetch" no le dice nada al usuario.
     throw new Error('Error al comunicarse con el servidor. Inténtalo nuevamente.')
   })
-  // El cuerpo de los archivos solo se lee como JSON si es un error.
+
   const accept = new Headers(init.headers).get('Accept')
   if (response.ok && (accept === 'application/pdf' || accept === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
     return (await response.blob()) as T
@@ -35,7 +34,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}, base = A
 export const internalFetch = <T>(path: string, init?: RequestInit) =>
   apiFetch<T>(`/internal/v1${path}`, init, INTERNAL_API_URL)
 
-/** GET una vez al montar; `recargar` vuelve a pedir. */
+
 export function useRemote<T>(load: () => Promise<T>, initial: T) {
   const [data, setData] = useState<T>(initial)
   const [estado, setEstado] = useState({ cargando: true, error: '' })
@@ -54,14 +53,12 @@ export function useRemote<T>(load: () => Promise<T>, initial: T) {
     return () => {
       active = false
     }
-    // `load` es una función nueva en cada render; solo se recarga con `version`.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [version])
 
   return { data, ...estado, recargar: () => setVersion((v) => v + 1) }
 }
 
-/** Cupos de apadrinados (GET /compras/apadrinados); null si la cuenta no puede comprar. */
+/** Cupos de apadrinados */
 export function useCupos() {
   const token = localStorage.getItem('emergen.token') ?? ''
   const { data, cargando, error } = useRemote<number | null>(

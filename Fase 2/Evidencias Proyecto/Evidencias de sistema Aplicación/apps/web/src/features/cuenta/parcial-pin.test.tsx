@@ -30,7 +30,7 @@ test('E-08 / HU-10: el parcial guarda nombre y correo solo tras ingresar el PIN 
   fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
   await waitFor(() => expect(onGuardar).toHaveBeenLastCalledWith('Hijo Nuevo', 'h@emergen.test', '1234'))
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
-  expect(api.guardar).not.toHaveBeenCalled() // sus datos de emergencia siguen en solo lectura
+  expect(api.guardar).not.toHaveBeenCalled() 
 })
 
 test('regresión: con acceso completo se guarda sin pedir PIN', async () => {

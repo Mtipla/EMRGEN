@@ -8,12 +8,9 @@ export class Usuario {
   @Column({ name: 'nombre_usuario', length: 50 })
   nombre_usuario: string;
 
-  // Nulos en apadrinados: entran con las credenciales de su principal.
   @Column({ name: 'correo_usuario', type: 'varchar', length: 100, nullable: true })
   correo_usuario: string | null;
 
-  // Hash bcrypt. select: false => las consultas no lo cargan (ni lo devuelven por HTTP)
-  // salvo que lo pidan explícitamente, como hace el login.
   @Column({ name: 'contra_usuario', type: 'varchar', length: 255, nullable: true, select: false })
   contra_usuario: string | null;
 

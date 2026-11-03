@@ -10,7 +10,6 @@ const { client, bcrypt } = require('./db-dev.cjs');
     const password = await bcrypt.hash('EmergenDev123!', 12);
     const pin = await bcrypt.hash('0007', 12);
     const childPin = await bcrypt.hash('1234', 12);
-    // PIN fijo del apadrinado parcial: no es temporal y no puede cambiarlo (pin_temporal = false).
     const partialPin = await bcrypt.hash('5678', 12);
     const fixtures = [
       ['admin','Administrador Demo',1,1,null,pin],
@@ -23,13 +22,11 @@ const { client, bcrypt } = require('./db-dev.cjs');
     ];
     const ids = {};
     for (const [name,label,role,state,parent,hash] of fixtures) {
-      // Los apadrinados no tienen correo ni contraseña: se identifican por nombre dentro de su principal.
       const email = parent ? null : name+'@emergen.test';
       let row = (await db.query(parent
         ? 'SELECT usuario_id, pin_id FROM usuario WHERE usuario_principal_id=$2 AND nombre_usuario=$1'
         : 'SELECT usuario_id, pin_id FROM usuario WHERE correo_usuario=$1', parent ? [label, ids[parent]] : [email])).rows[0];
       if (row && row.pin_id === null && hash) {
-        // Instalaciones sembradas antes de que el parcial tuviera PIN: solo se completa el que falta.
         const pinId = (await db.query('INSERT INTO pin(pin_hash) VALUES ($1) RETURNING pin_id',[hash])).rows[0].pin_id;
         await db.query('UPDATE usuario SET pin_id=$2 WHERE usuario_id=$1',[row.usuario_id,pinId]);
       }

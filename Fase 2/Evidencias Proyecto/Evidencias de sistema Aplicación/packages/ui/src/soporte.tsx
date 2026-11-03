@@ -6,7 +6,7 @@ import { moduloSugerido, type EdicionTicket, type ModuloTicket } from "./derivac
 
 /**
  * Soporte y alertas (internal-api /internal/v1). No aparecen en los PDF: salen del ERS
- * (RF18, HU-14, HU-18) y de readme.apis.internas.md. Solo presentan; cada app hace las llamadas.
+ *  y de readme.apis.internas.md. Solo presentan; cada app hace las llamadas.
  */
 
 export interface Catalogo {
@@ -14,7 +14,6 @@ export interface Catalogo {
   nombre: string;
 }
 
-/** Respuesta de GET /internal/v1/tickets-soporte. */
 export interface Ticket {
   ticket_id: number;
   usuario_id: number;
@@ -34,7 +33,6 @@ export interface CambiosTicket {
   confirmar_cierre?: boolean;
 }
 
-/** Respuesta de GET /internal/v1/alertas. */
 export interface Alerta {
   alerta_id: number;
   usuario_id: number | null;
@@ -180,7 +178,7 @@ interface SolicitudSoporteProps extends Carga {
   onCrear: (descripcion: string, categoriaId: number) => Promise<unknown>;
 }
 
-/** HU-18 / RF18: el usuario abre un ticket y ve los suyos. */
+/** el usuario abre un ticket y ve los suyos. */
 export const SolicitudSoporte = ({
   categorias,
   tickets,
@@ -198,7 +196,6 @@ export const SolicitudSoporte = ({
 
   async function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // El <select> muestra la primera categoría aunque el estado siga en 0.
     const categoriaId = categoria || categorias[0]?.id;
     if (!categoriaId || !descripcion.trim() || enviando) return;
     setEnviando(true);
@@ -287,16 +284,14 @@ interface GestionTicketsProps extends Carga {
   onDerivar?: (edicion: EdicionTicket, modulo: ModuloTicket) => void;
   tickets: Ticket[];
   estados: Catalogo[];
-  /** PATCH /internal/v1/tickets-soporte/{id}; solo SOPORTE y ADMINISTRADOR (solo_staff). */
   onActualizar: (
     ticketId: number,
     cambios: CambiosTicket,
   ) => Promise<unknown>;
-  /** Filtros que se muestran bajo el título. */
   filtros?: ReactNode;
 }
 
-/** Gestión de tickets del personal (función documentada del rol SOPORTE). */
+/** Gestión de tickets del personal */
 export const GestionTickets = ({
   esAdministrador = false,
   edicionInicial,
@@ -495,7 +490,7 @@ const prioridad = (id: number) =>
 const fecha = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString("es-CL") : "—";
 
-/** Historial de alertas para el personal (GET /internal/v1/alertas, solo lectura). */
+/** Historial de alertas para el personal */
 export const AlertasTabla = ({
   alertas,
   cargando,

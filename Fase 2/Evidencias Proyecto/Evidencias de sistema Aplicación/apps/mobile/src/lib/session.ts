@@ -5,21 +5,18 @@
 import { sincronizarSesionNativa } from "./volumen-nativo";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-/** FastAPI internal-api (alertas SOS y tickets). En un teléfono real usa la IP del PC. */
+
 const INTERNAL_API_URL =
   import.meta.env.VITE_INTERNAL_API_URL ?? "http://localhost:8000";
 
 export type SessionUser = {
   usuario_ID: number;
   nombre_usuario: string;
-  /** null en cuentas apadrinadas (entran con la cuenta principal). */
   correo_usuario: string | null;
   requiere_pin: boolean;
-  /** Opcionales: los añadió el backend el 2026-10-21. */
   rol_ID?: number;
   estado_ID?: number;
   usuario_principal_ID?: number | null;
-  /** Premium (plan propio o del principal); solo en login y GET /usuarios/me. */
   plan_efectivo?: boolean;
 };
 
@@ -34,7 +31,6 @@ export function getUser(): SessionUser | null {
 }
 
 export function saveSession(user: SessionUser, token?: string) {
-  // A profile refresh may preserve its token; a different identity must never inherit it.
   if (!token && getUser()?.usuario_ID !== user.usuario_ID) localStorage.removeItem("emergen.token");
   if (token) localStorage.setItem("emergen.token", token);
   localStorage.setItem("emergen.user", JSON.stringify(user));

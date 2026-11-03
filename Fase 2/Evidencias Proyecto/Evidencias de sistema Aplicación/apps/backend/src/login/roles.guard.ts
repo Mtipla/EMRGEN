@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import type { SolicitudAutenticada } from './jwt-auth.guard';
 import { ROLES_KEY } from './roles.decorator';
 
-/** Compara el rol leído de la BD por JwtAuthGuard con los permitidos por @Roles. */
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}

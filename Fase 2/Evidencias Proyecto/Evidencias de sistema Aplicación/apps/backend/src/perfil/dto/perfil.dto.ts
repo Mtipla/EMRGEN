@@ -17,17 +17,12 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 const recortar = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
-/**
- * CA-03.1: lleva el número a E.164 para que dos escrituras del mismo número sean iguales
- * ("+56 9 1234 5678", "(9) 1234-5678", "912345678" con Chile por defecto). Si no se reconoce,
- * solo quita espacios y @Matches lo rechaza. Misma regla que packages/ui/perfil-form.tsx.
- */
+
 export function normalizarTelefono(valor: string): string {
   const numero = parsePhoneNumberFromString(valor, 'CL');
   return numero?.isPossible() ? numero.number : valor.replace(/\s/g, '');
 }
 
-/** Fila de CONTACTO_EMERGENCIA (init.sql: nombre ≤ 20, número E.164). */
 export class ContactoDto {
   @Transform(recortar)
   @IsString()
@@ -48,7 +43,7 @@ export class ContactoDto {
   compartir_antecedentes?: boolean;
 }
 
-/** Columnas de ANTECEDENTE_MEDICO; los textos son NOT NULL pero pueden ir vacíos. */
+/** Columnas de ANTECEDENTE_MEDICO*/
 export class FichaMedicaDto {
   @IsString() @MaxLength(200) tipo_sangre!: string;
   @IsString() @MaxLength(500) alergias!: string;
@@ -58,7 +53,6 @@ export class FichaMedicaDto {
   @IsBoolean() donante_organos!: boolean;
 }
 
-/** Solo cambia lo que se envía; `null` borra (prioridad, mensaje o ficha). */
 export class ActualizarPerfilDto {
   @IsOptional()
   @IsInt()

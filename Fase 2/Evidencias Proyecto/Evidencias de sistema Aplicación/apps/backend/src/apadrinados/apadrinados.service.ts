@@ -33,7 +33,7 @@ const FECHA_CHILE = new Intl.DateTimeFormat('es-CL', {
 });
 const acceso = (estado_ID?: number) => (estado_ID === ACCESO.COMPLETO ? 'Completo' : 'Parcial');
 
-/** Cuenta vinculada visible para la sesión. Acceso y PIN solo los ve el principal (RF9). */
+
 export type CuentaVinculada = {
   usuario_ID: number;
   nombre_usuario: string;
@@ -43,7 +43,7 @@ export type CuentaVinculada = {
 };
 
 /**
- * "Administrar cuentas" del usuario principal (RF8, RF24, RF25, HU-09, HU-10).
+ * "Administrar cuentas" del usuario principal.
  * Cambio de acceso y eliminación reutilizan AdminService para dejar la misma bitácora,
  * con el principal como actor y tras comprobar que el apadrinado es suyo.
  */
@@ -58,11 +58,10 @@ export class ApadrinadosService {
     private readonly jsreport: JsreportService,
   ) {}
 
-  /** El alcance sale de la sesión y de los vínculos actuales, nunca de IDs enviados por el cliente. */
+
   async informe(sesion: UsuarioSesion, formato: FormatoReporte = 'pdf'): Promise<RenderedReport> {
     const yo = await this.loginService.obtenerPropio(sesion.sub);
     const principal = yo.usuario_principal_ID === null;
-    // Un apadrinado ve solo su cuenta: vinculadas() le devolvería la de su principal.
     const apadrinados = principal ? await this.vinculadas(sesion) : [];
     const ids = [sesion.sub, ...apadrinados.map((a) => a.usuario_ID)];
     const [alertas, acciones] = await Promise.all([
@@ -106,7 +105,6 @@ export class ApadrinadosService {
         principal,
         usuario: {
           nombre: yo.nombre_usuario,
-          // Un apadrinado no tiene correo propio.
           correo: yo.correo_usuario ?? 'Sin correo (usa el de la cuenta principal)',
           tipo: principal ? 'Cuenta principal' : 'Cuenta apadrinada',
           acceso: acceso(yo.estado_ID),
@@ -150,7 +148,7 @@ export class ApadrinadosService {
       }));
     }
 
-    // Apadrinado: su principal y los demás apadrinados del mismo principal, solo con el nombre.
+
     const familia = await this.usuarios.find({
       where: [{ usuario_ID: yo.usuario_principal_ID }, { usuario_principal_ID: yo.usuario_principal_ID }],
       order: { usuario_ID: 'ASC' },
@@ -167,7 +165,6 @@ export class ApadrinadosService {
   async crear(sesion: UsuarioSesion, datos: CrearApadrinadoDto): Promise<CuentaVinculada[]> {
     await this.exigirPrincipal(sesion);
     try {
-      // El trigger emergen_validar_vinculo comprueba plan y cupos dentro de la misma escritura.
       await this.usuariosService.crearUsuarioApadrinado(sesion.sub, {
         nombre_usuario: datos.nombre_usuario,
         estado_ID: datos.acceso_completo ? ACCESO.COMPLETO : ACCESO.PARCIAL,
@@ -184,7 +181,7 @@ export class ApadrinadosService {
     return this.vinculadas(sesion);
   }
 
-  /** PIN de primer ingreso que el principal define para su apadrinado (mockup web págs. 68-73). */
+
   async definirPin(sesion: UsuarioSesion, id: number, pin: string, pinPrincipal: string): Promise<CuentaVinculada[]> {
     await this.exigirPropio(sesion, id);
     await this.verificarPinPrincipal(sesion, pinPrincipal);
@@ -195,7 +192,6 @@ export class ApadrinadosService {
       if (!apadrinado || apadrinado.usuario_principal_ID !== sesion.sub) {
         throw new NotFoundException('No se encontró la cuenta apadrinada');
       }
-      // Completo: PIN de primer acceso que debe cambiar. Parcial: PIN fijo que no puede cambiar.
       const pin_temporal = apadrinado.estado_ID === ACCESO.COMPLETO;
       if (apadrinado.PIN_ID !== null) {
         await manager.update(Pin, { PIN_ID: apadrinado.PIN_ID }, { pin_hash: pinHash, pin_temporal });
@@ -214,7 +210,6 @@ export class ApadrinadosService {
     await this.exigirPropio(sesion, id);
     await this.verificarPinPrincipal(sesion, pinPrincipal);
     await this.adminService.cambiarEstadoUsuario(id, estadoId, sesion);
-    // Al pasar a completo el PIN dado por la principal pasa a ser de primer acceso; al pasar a parcial, fijo.
     await this.dataSource.query(
       'UPDATE pin SET pin_temporal = $2 FROM usuario u WHERE u.pin_id = pin.pin_id AND u.usuario_id = $1',
       [id, estadoId === ACCESO.COMPLETO],
@@ -229,12 +224,10 @@ export class ApadrinadosService {
     return this.vinculadas(sesion);
   }
 
-  /** HU-10 / CA-10.1: el PIN del principal (la sesión) autoriza la acción; bloqueo en login/pin-principal. */
   private verificarPinPrincipal(sesion: UsuarioSesion, pin: string) {
     return verificarPinPrincipal(this.dataSource, sesion.sub, pin);
   }
 
-  /** Mismo criterio que ComprasService.titular: solo el principal con acceso completo gestiona cuentas. */
   private async exigirPrincipal(sesion: UsuarioSesion) {
     const yo = await this.usuarios.findOneBy({ usuario_ID: sesion.sub });
     if (!yo || yo.usuario_principal_ID !== null || sesion.estado_ID !== ACCESO.COMPLETO) {

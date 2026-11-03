@@ -20,7 +20,7 @@ interface GeocodeApiResponse {
  * Google Maps Platform (Geocoding API) desde el servidor, con la key de servidor.
  * Convierte direcciones en coordenadas y coordenadas GPS (app móvil) en direcciones
  * legibles para las alertas. El renderizado del mapa se hace en el frontend con la
- * key de navegador (VITE_GOOGLE_MAPS_API_KEY).
+ * key de navegador .
  */
 @Injectable()
 export class GoogleMapsService {
@@ -49,7 +49,7 @@ export class GoogleMapsService {
       url.toString(),
     );
 
-    // La Geocoding API responde HTTP 200 incluso con errores; el estado real viene en `status`.
+   
     if (body.status === 'ZERO_RESULTS') return [];
     if (body.status !== 'OK') {
       this.logger.error({ event: 'geocoding_rejected', integration: INTEGRATION });

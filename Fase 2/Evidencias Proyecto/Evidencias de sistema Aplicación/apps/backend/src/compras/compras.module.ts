@@ -14,7 +14,7 @@ import { Venta } from './venta.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Venta, DetalleVenta, Plan, PlanUsuario, Usuario]),
-    LoginModule, // JwtAuthGuard
+    LoginModule, 
     PaypalModule,
     MindicadorModule,
   ],

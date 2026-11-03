@@ -56,7 +56,6 @@ for (const collision of [false, true]) {
       assert.equal(calls.length, 2);
       assert.ok(calls[0].includes('pg_dump') && calls[1].includes('pg_restore'));
     } finally {
-      // Delete only known files in the newly-created temporary directory; no recursive removal.
       for (const file of fs.readdirSync(directory)) {
         const path = join(directory, file);
         assert.ok(fs.lstatSync(path).isFile());

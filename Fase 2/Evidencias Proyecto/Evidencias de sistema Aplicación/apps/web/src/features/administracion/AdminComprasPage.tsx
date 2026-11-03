@@ -7,7 +7,7 @@ const ESTADOS = ['PENDIENTE', 'PAGADO', 'RECHAZADO', 'CANCELADO', 'REVISION']
 const clp = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' })
 const LIMITE = 20
 
-/** Consulta las ventas reales; no ofrece operaciones de escritura sobre compras. */
+
 export function AdminComprasPage() {
   const [filtros, setFiltros] = useState(SIN_FILTROS)
   const [consulta, setConsulta] = useState({ filtros: SIN_FILTROS, offset: 0 })

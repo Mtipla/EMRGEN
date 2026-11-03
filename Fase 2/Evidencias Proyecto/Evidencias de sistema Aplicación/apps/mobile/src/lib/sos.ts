@@ -13,7 +13,7 @@ export type Alerta = {
   whatsapp_cierre?: { pendientes: number; enviados: number; fallidos: number };
 };
 
-// La app móvil no cobra: los planes y cupos se compran solo en la web.
+
 export const MENSAJE_REQUIERE_PLAN = 'Esta es una opción que requiere un plan. Puedes contratarlo desde la web de EMERGEN.';
 
 export const listarActivas = (usuarioId: number, signal: AbortSignal) =>
@@ -22,7 +22,7 @@ export const listarActivas = (usuarioId: number, signal: AbortSignal) =>
     cache: 'no-store',
   });
 
-/** Finalidad del perfil (GET /usuarios/me/perfil): tipo inicial del SOS. */
+
 export const finalidadPerfil = (signal: AbortSignal) =>
   apiFetch<{ prioridad_ID: number | null }>('/usuarios/me/perfil', { signal }).then((p) => p.prioridad_ID);
 

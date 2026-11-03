@@ -48,7 +48,7 @@ const Contexto = createContext<{
 
 export const useDerivacionTickets = () => useContext(Contexto);
 
-/** Solo memoria: navegar fuera del recorrido invalida el contexto, también al usar el historial. */
+
 export function DerivacionTicketsProvider({
   rutaActual,
   esAdministrador,
@@ -62,7 +62,6 @@ export function DerivacionTicketsProvider({
 }) {
   const [recorrido, setRecorrido] = useState<RecorridoTicket | null>(null);
   const vigente = esAdministrador && recorrido?.ruta === rutaActual ? recorrido : null;
-  // Se descarta antes de mostrar la nueva ruta; el historial no puede recuperar una selección antigua.
   if (recorrido && !vigente) setRecorrido(null);
 
   return (

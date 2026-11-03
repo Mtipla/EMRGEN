@@ -28,7 +28,7 @@ ${TABLA}
 <p>Los casos antiguos sin autor registrado se indican como «Sin trabajador registrado».</p>
 </body></html>`;
 
-// Cada ticket ocupa una fila, con celdas de texto para conservar el contenido ingresado.
+
 export const PLANTILLA_TICKETS_EXCEL = `<!doctype html><html lang="es"><head><meta charset="utf-8">
 <style>
   td, th { font: 11px Calibri, sans-serif; padding: 5px; border: 1px solid #cbd5e1; width: 180px; vertical-align: top; white-space: pre-wrap; }

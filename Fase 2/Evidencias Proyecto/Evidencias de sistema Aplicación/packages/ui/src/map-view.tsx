@@ -2,10 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { addMarker, createMap, type GeoPoint, type GoogleMarker } from "@repo/api-client";
 
 interface MapViewProps {
-  /** Key de navegador de Google Maps (VITE_GOOGLE_MAPS_API_KEY). */
   apiKey: string;
   center: GeoPoint;
-  /** Marcadores a dibujar (ej. ubicaciones de alertas). */
   markers?: Array<GeoPoint & { title?: string }>;
   zoom?: number;
   mapId?: string;
@@ -15,7 +13,6 @@ interface MapViewProps {
 export const MapView = ({ apiKey, center, markers = [], zoom, mapId, style }: MapViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string>();
-  // Dependencias por valor: el mapa no se recrea si el padre pasa objetos nuevos con los mismos datos.
   const centerKey = JSON.stringify(center);
   const markersKey = JSON.stringify(markers);
 

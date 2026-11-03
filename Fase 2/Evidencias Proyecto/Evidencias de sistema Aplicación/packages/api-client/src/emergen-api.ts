@@ -73,7 +73,6 @@ export function createEmergenApi(baseUrl: string) {
     },
 
     auth: {
-      /** Valida el ID token de Firebase en el backend y devuelve el usuario. */
       me: (idToken: string) =>
         http.json<FirebaseAuthUser>('/auth/me', {
           headers: { Authorization: `Bearer ${idToken}` },
@@ -96,9 +95,7 @@ export function createEmergenApi(baseUrl: string) {
     },
 
     indicators: {
-      /** Valores del día de todos los indicadores (UF, dólar, euro, UTM, etc.). */
       today: (accessToken: string) => http.json<EconomicIndicator[]>('/indicators', { headers: bearer(accessToken) }),
-      /** Serie de un indicador; con `date` (dd-mm-yyyy) devuelve solo ese día. */
       get: (accessToken: string, code: IndicatorCode, date?: string) =>
         http.json<EconomicIndicator>(
           `/indicators/${code}${date ? `?${new URLSearchParams({ date })}` : ''}`,
@@ -112,7 +109,6 @@ export function createEmergenApi(baseUrl: string) {
         http.json<WhatsappStatusResponse>('/notifications/whatsapp/status', {
           headers: bearer(accessToken),
         }),
-      /** QR vigente como PNG (404 si no hay vinculación pendiente). Caduca cada ~20 s. */
       qr: (accessToken: string) =>
         http.blob('/notifications/whatsapp/qr', { headers: bearer(accessToken) }),
       requestPairingCode: (accessToken: string, phoneNumber: string) =>

@@ -3,7 +3,7 @@
 -- Si ya hay duplicados, falla sin cambiar nada; encontrarlos con:
 --   SELECT usuario_id, num_emergencia, count(*) FROM contacto_emergencia GROUP BY 1, 2 HAVING count(*) > 1;
 --
---   Get-Content migraciones/003_contacto_unico.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+--   Get-Content migrations/003_contacto_unico.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 
 BEGIN;
 ALTER TABLE public.contacto_emergencia DROP CONSTRAINT IF EXISTS c_contacto_emergencia_03;

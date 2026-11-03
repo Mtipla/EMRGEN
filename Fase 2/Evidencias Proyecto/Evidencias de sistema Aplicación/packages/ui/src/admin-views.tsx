@@ -15,7 +15,6 @@ import {
  * las alimenta con su propio cliente HTTP. Una acción sin callback queda deshabilitada.
  */
 
-/** Fila de GET /admin/usuarios (rol_ID: 1 admin, 2 soporte, 3 usuario; estado_ID: 1 completo, 2 parcial). */
 export interface UsuarioAdminFila {
   usuario_ID: number;
   nombre_usuario: string;
@@ -28,7 +27,7 @@ export interface UsuarioAdminFila {
 }
 
 
-/** Mockup págs. 15 y 22: aviso + PIN de trabajador antes de eliminar (solo SOPORTE). */
+/** aviso + PIN de trabajador antes de eliminar (solo SOPORTE). */
 const PinTrabajador = ({
   nombre,
   onOk,
@@ -58,11 +57,10 @@ const clp = new Intl.NumberFormat("es-CL", {
 interface AdminComprasProps {
   titulo: string;
   puedeEditar: boolean;
-  /** SOPORTE: pide el PIN de trabajador antes de eliminar. */
   pinParaEliminar?: boolean;
 }
 
-/** "Administrar Compras" (mockup págs. 19-23 y 52-55). MOCK TEMPORAL: no hay endpoint de ventas para el personal. */
+/** "Administrar Compras" */
 export const AdminCompras = ({
   titulo,
   puedeEditar,

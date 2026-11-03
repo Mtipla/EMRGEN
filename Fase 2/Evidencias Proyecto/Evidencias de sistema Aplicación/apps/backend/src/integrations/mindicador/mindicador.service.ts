@@ -35,7 +35,7 @@ export class MindicadorService {
     return (readEnv('MINDICADOR_API_URL') ?? DEFAULT_URL).replace(/\/+$/, '');
   }
 
-  /** Valor del día de todos los indicadores. */
+
   async today(): Promise<EconomicIndicator[]> {
     return this.cache.get('today', () => this.loadToday());
   }
@@ -59,7 +59,7 @@ export class MindicadorService {
     });
   }
 
-  /** Serie del último mes, o solo el día indicado (`date` en dd-mm-yyyy). */
+
   async get(code: IndicatorCode, date?: string): Promise<EconomicIndicator> {
     return this.cache.get(`${code}:${date || ''}`, () => this.loadIndicator(code, date));
   }

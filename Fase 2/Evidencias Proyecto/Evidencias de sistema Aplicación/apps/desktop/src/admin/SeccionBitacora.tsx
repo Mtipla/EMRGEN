@@ -52,7 +52,7 @@ const COLUMNAS: Column<EntradaBitacora>[] = [
   },
 ]
 
-/** Auditoría de solo lectura: las entradas las genera el backend al ejecutar cada acción. */
+
 export function SeccionBitacora() {
   const { salida, ejecutar } = usePeticion()
   const [filtros, setFiltros] = useState(SIN_FILTROS)

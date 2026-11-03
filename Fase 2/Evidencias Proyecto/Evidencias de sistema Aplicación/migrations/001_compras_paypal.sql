@@ -3,7 +3,7 @@
 -- init.sql solo corre al crear el volumen; este script lleva una BD existente al mismo
 -- esquema. Solo agrega (no borra ni modifica datos) y puede ejecutarse más de una vez.
 --
---   Get-Content migraciones/001_compras_paypal.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+--   Get-Content migrations/001_compras_paypal.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 
 BEGIN;
 

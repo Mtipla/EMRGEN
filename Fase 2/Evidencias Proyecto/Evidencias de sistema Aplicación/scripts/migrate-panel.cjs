@@ -6,8 +6,8 @@ async function main() {
   const db = client();
   await db.connect();
   try {
-    await db.query(readFileSync(resolve(__dirname, '../migraciones/005_panel_administrativo.sql'), 'utf8'));
-    await db.query(readFileSync(resolve(__dirname, '../migraciones/006_usuario_solo_roles.sql'), 'utf8'));
+    await db.query(readFileSync(resolve(__dirname, '../migrations/005_panel_administrativo.sql'), 'utf8'));
+    await db.query(readFileSync(resolve(__dirname, '../migrations/006_usuario_solo_roles.sql'), 'utf8'));
     console.log('Migración del panel administrativo aplicada.');
   } catch (error) {
     await db.query('ROLLBACK');

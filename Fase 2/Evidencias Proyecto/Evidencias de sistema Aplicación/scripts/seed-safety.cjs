@@ -1,4 +1,4 @@
-/** Check before importing a DB client or reading any env file. */
+
 function assertSeedTarget(env) {
   const stage = env.EMERGEN_ENVIRONMENT;
   const suffix = stage === 'development' ? '_dev' : stage === 'test' ? '_test' : null;

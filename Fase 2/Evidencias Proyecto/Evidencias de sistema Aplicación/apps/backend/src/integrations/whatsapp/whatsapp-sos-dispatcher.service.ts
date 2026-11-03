@@ -27,7 +27,7 @@ interface PendingDelivery {
   fecha_creacion: Date;
 }
 
-/** Consume la cola que FastAPI confirma junto con el SOS; no necesita credenciales HTTP. */
+
 @Injectable()
 export class WhatsappSosDispatcher
   implements OnApplicationBootstrap, OnModuleDestroy
@@ -140,7 +140,6 @@ export class WhatsappSosDispatcher
     try {
       return { record: descifrarFicha(row.usuario_id, row.ficha_cifrada) };
     } catch {
-      // Un fallo de la ficha no impide el SOS ni expone el contenido o las claves en logs.
       this.logger.warn(
         `No se pudieron obtener los antecedentes médicos del SOS ${row.alerta_id}.`,
       );

@@ -120,7 +120,6 @@ async function checkPanel() {
       await evaluate('document.querySelector("a[href=\\"#/administracion/tickets\\"]").click()');
       await waitFor('document.body.textContent.includes("SYNTHETIC_TICKET_CATEGORY")');
       assert.ok(calls.some((call) => call.path === '/internal/v1/tickets-soporte' && call.authorized));
-      // Wait for Chromium to paint the React update before capturing a hidden window.
       await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
       const capture = await window.webContents.capturePage();
       fs.writeFileSync(path.join(root, 'node_modules/.cache/electron-panel-check.png'), capture.toPNG());

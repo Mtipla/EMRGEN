@@ -7,7 +7,6 @@ import { registrarActividadUsuario } from '../auditoria/actividad-usuario';
 import { Pin } from './pin.entity';
 import { Usuario } from './usuarios.entity';
 
-/** Límite estricto de cuentas apadrinadas (y de cupos) por cuenta principal. */
 export const MAX_APADRINADOS = 5;
 
 @Injectable()
@@ -26,8 +25,8 @@ export class UsuariosService {
 
     const nuevoUsuario = this.usuarioRepository.create({
       ...datosUsuario,
-      rol_ID: 3, // Rol USUARIO
-      estado_ID: 2, // Completa la configuración del PIN antes de habilitar acceso completo
+      rol_ID: 3, 
+      estado_ID: 2, 
       usuario_principal_ID: null,
     } as Usuario);
 
@@ -60,7 +59,6 @@ export class UsuariosService {
       throw new NotFoundException('Usuario no encontrado.');
     }
 
-    // Tipado explícito de la lista para resolver noImplicitAny
     let dependientes: Partial<Usuario>[] = [];
 
     if (usuario.usuario_principal_ID === null) {

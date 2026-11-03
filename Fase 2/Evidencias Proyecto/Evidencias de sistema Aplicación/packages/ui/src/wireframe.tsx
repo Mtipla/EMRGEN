@@ -45,7 +45,7 @@ interface NoticeProps {
   onClose: () => void;
 }
 
-/** Mensaje informativo, de éxito o de error con un único botón "Ok, entiendo". */
+/** Mensaje informativo, de éxito o de error */
 export const Notice = ({ title, message, tone, onClose }: NoticeProps) => (
   <Modal
     title={title}
@@ -113,15 +113,13 @@ const soloDigitos = (valor: string) => valor.replace(/\D/g, "").slice(0, 4);
 
 interface PinDialogProps {
   title: string;
-  /** Si se indica, primero se muestra este aviso y luego el formulario. */
   info?: ReactNode;
-  /** false: verificación de un PIN existente (un solo campo, sin confirmación). */
   confirmar?: boolean;
   onSubmit: (pin: string) => Promise<void> | void;
   onClose: () => void;
 }
 
-/** Flujo "Crear PIN" (PIN + confirmación) o "Ingresar PIN" (confirmar=false), con aviso opcional. */
+
 export const PinDialog = ({
   title,
   info,
@@ -234,11 +232,10 @@ export const Pendiente = ({ children }: { children?: ReactNode }) => (
 export interface Column<T> {
   header: string;
   render: (row: T) => ReactNode;
-  /** Valor para la descarga CSV cuando `render` no devuelve texto. */
   value?: (row: T) => string | number;
 }
 
-/** CSV (separador ;) de las filas visibles; solo usa datos ya cargados en pantalla. */
+/** CSV (separador ;) de las filas visibles */
 export function aCsv<T>(columns: Column<T>[], rows: T[]): string {
   const celda = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const valor = (c: Column<T>, row: T) => {
@@ -252,8 +249,8 @@ export function aCsv<T>(columns: Column<T>[], rows: T[]): string {
   return [columns.map((c) => celda(c.header)).join(";"), ...filas].join("\r\n");
 }
 
+// BOM para que Excel abra el CSV como UTF-8.
 function descargarCsv(nombre: string, contenido: string) {
-  // BOM para que Excel abra el CSV como UTF-8.
   const url = URL.createObjectURL(
     new Blob(["﻿" + contenido], { type: "text/csv;charset=utf-8" }),
   );
@@ -269,12 +266,10 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   rows: T[];
   rowKey: (row: T) => string | number;
-  /** Texto contra el que filtra el buscador; sin él no hay buscador. */
   searchText?: (row: T) => string;
   selectedKey?: string | number;
   onSelect?: (row: T) => void;
   empty?: string;
-  /** Nombre del archivo: muestra el botón "Descargar" (CSV de las filas visibles). */
   descarga?: string;
 }
 
@@ -361,7 +356,7 @@ export function DataTable<T>({
   );
 }
 
-/** HU-17 / RF14: acceso directo a los números oficiales de emergencia. */
+/** acceso directo a los números oficiales de emergencia. */
 export const NumerosEmergencia = ({
   descripcion,
   onSeleccionar,

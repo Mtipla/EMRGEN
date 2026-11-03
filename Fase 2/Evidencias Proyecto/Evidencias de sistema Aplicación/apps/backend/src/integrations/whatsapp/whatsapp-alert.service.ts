@@ -14,27 +14,17 @@ import { maskPhoneNumber, normalizePhoneNumber } from './phone-number';
 import { withRetry } from './retry';
 import { WhatsappConnectionService } from './whatsapp-connection.service';
 
-/** Esperas entre reintentos ante un error temporal (CA-08.1): 3 intentos en total. */
+
 export const RETRY_DELAYS_MS = [500, 1_500] as const;
 
-/**
- * API de notificaciones de emergencia por WhatsApp para el resto del backend.
- * Envía a todos los contactos en paralelo (HU-08) un texto con el mensaje, la ubicación
- * y los antecedentes médicos, seguido del pin de ubicación nativo, si hay coordenadas.
- *
- * No consulta la BD: el despachador SOS resuelve los números
- * desde CONTACTO_EMERGENCIA y registra el resultado en la bitácora.
- */
+
 @Injectable()
 export class WhatsappAlertService {
   private readonly logger = new Logger(WhatsappAlertService.name);
 
   constructor(private readonly connection: WhatsappConnectionService) {}
 
-  /**
-   * Lanza 503 si no hay sesión de WhatsApp. Si la hay, nunca lanza por un contacto:
-   * el resultado de cada uno viene en `deliveries`.
-   */
+
   async sendEmergencyAlert(
     alert: SendEmergencyAlertRequest,
   ): Promise<EmergencyAlertResult> {
@@ -125,7 +115,7 @@ export class WhatsappAlertService {
       };
     }
 
-    // El texto ya incluye el link de Maps: si el pin falla, la alerta igual llegó.
+
     if (!location) return { phoneNumber, status: 'sent', messageIds };
     try {
       const locationId = await this.connection.send(jid, location);

@@ -1,6 +1,6 @@
 import type { ApiErrorResponse } from '@repo/api-types';
 
-/** Error lanzado cuando el backend responde con un código HTTP de error. */
+
 export class ApiError extends Error {
   readonly status: number;
   readonly body?: ApiErrorResponse;

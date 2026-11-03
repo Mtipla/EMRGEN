@@ -37,7 +37,6 @@ def listar_alertas(
     usuario: UsuarioSesion = Depends(usuario_actual),
     db: psycopg.Connection = Depends(get_db),
 ):
-    # Un usuario común solo ve las suyas; el personal ve todas o las de un usuario.
     filtro = usuario_id if usuario.es_staff else usuario.id
     return alertas.listar(db, filtro, limit, offset, estado)
 
@@ -49,7 +48,6 @@ def obtener_alerta(
     db: psycopg.Connection = Depends(get_db),
 ):
     alerta = alertas.obtener(db, alerta_id)
-    # 404 también para alertas ajenas: no revela que existen.
     if not alerta or (alerta["usuario_id"] != usuario.id and not usuario.es_staff):
         raise HTTPException(404, "La alerta no existe")
     return alerta

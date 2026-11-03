@@ -73,7 +73,7 @@ export function buildFinalizedAlertText({
   ].join('\n');
 }
 
-/** Acepta el formato que guarda el móvil; nunca inventa coordenadas. */
+
 export function parseAlertLocation(
   value: string | null,
 ): EmergencyAlertLocation | undefined {
@@ -86,7 +86,7 @@ export function parseAlertLocation(
   return Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : undefined;
 }
 
-/** Pin de ubicación nativo de WhatsApp. */
+
 export const buildLocationMessage = (
   location: EmergencyAlertLocation,
 ): AnyMessageContent => ({

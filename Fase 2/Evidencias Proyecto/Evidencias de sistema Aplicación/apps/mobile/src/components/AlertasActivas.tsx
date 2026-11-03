@@ -3,7 +3,7 @@ import { PRIORIDADES } from '@repo/ui/mocks';
 import { PinDialog } from '@repo/ui/wireframe';
 import { errorSos, estadoWhatsapp, finalizarSos, listarActivas, type Alerta } from '../lib/sos';
 
-/** Solo muestra SOS propios; salir del Home desmonta el monitor y cancela la consulta. */
+
 export default function AlertasActivas({
   usuarioId,
   version,

@@ -1,7 +1,7 @@
 import { DataSource, EntityManager } from 'typeorm';
 import { codigoPostgres } from './postgres-error';
 
-/** Only database work belongs here. External payment calls must stay outside retries. */
+
 export async function transaction<T>(source: DataSource, operation: (manager: EntityManager) => Promise<T>): Promise<T> {
   for (let attempt = 0; ; attempt++) {
     try {

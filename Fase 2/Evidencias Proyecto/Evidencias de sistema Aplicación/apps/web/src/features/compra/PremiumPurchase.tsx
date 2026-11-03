@@ -12,7 +12,21 @@ type PremiumPurchaseProps = {
   onPurchased?: () => Promise<void>
 }
 
-/** Pantalla "Comprar Cuenta Premium". Solo presenta: la lógica está en usePremiumPurchase. */
+
+type PaypalCheckoutProps = {
+  createOrder: () => Promise<string>
+  onApprove: (orderId: string) => Promise<void>
+  onCancel: () => Promise<void>
+  onError: (error: unknown) => void
+}
+
+type ResultModalProps = {
+  modal: PurchaseModal
+  boleta?: number
+  onClose: () => void
+}
+
+/** Pantalla "Comprar Cuenta Premium" */
 export function PremiumPurchase({ onClose, onPurchased }: PremiumPurchaseProps) {
   const purchase = usePremiumPurchase(onPurchased)
   const { summary, order, cantidad, processing, checkoutOpen } = purchase
@@ -166,18 +180,12 @@ export function PremiumPurchase({ onClose, onPurchased }: PremiumPurchaseProps) 
   )
 }
 
-type PaypalCheckoutProps = {
-  createOrder: () => Promise<string>
-  onApprove: (orderId: string) => Promise<void>
-  onCancel: () => Promise<void>
-  onError: (error: unknown) => void
-}
+
 
 /** Botones del SDK de PayPal (ventana emergente). El Client ID es público; el secreto no sale del backend. */
 function PaypalCheckout(props: PaypalCheckoutProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [loadError, setLoadError] = useState('')
-  // Callbacks por ref para no recrear los botones de PayPal en cada render.
   const callbacks = useRef(props)
   useEffect(() => {
     callbacks.current = props
@@ -219,11 +227,7 @@ function PaypalCheckout(props: PaypalCheckoutProps) {
 
 }
 
-type ResultModalProps = {
-  modal: PurchaseModal
-  boleta?: number
-  onClose: () => void
-}
+
 
 function ResultModal({ modal, boleta, onClose }: ResultModalProps) {
   const success = modal.type === 'success'

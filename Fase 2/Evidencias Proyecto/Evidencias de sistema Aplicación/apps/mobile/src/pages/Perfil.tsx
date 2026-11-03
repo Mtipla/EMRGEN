@@ -3,10 +3,10 @@ import { PerfilForm, perfilApi } from '@repo/ui/perfil-form';
 import { accesoCompleto } from '@repo/ui/permisos';
 import { apiFetch, getUser, saveSession, type SessionUser } from '../lib/session';
 
-// Fuera del componente: PerfilForm recarga cuando cambia `api`.
+
 const perfilDatos = perfilApi(apiFetch);
 
-/** "Modificar Usuario": nombre y correo con PATCH /usuarios/me; datos de emergencia con /usuarios/me/perfil y /contactos. */
+/** "Modificar Usuario": nombre y correo; datos de emergencia. */
 const Perfil: React.FC = () => {
   const user = getUser();
 

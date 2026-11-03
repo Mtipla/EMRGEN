@@ -22,7 +22,6 @@ export class IndicatorParamDto {
 }
 
 export class IndicatorQueryDto {
-  /** Fecha en formato dd-mm-yyyy (el formato que exige mindicador.cl). */
   @IsOptional()
   @Matches(/^\d{2}-\d{2}-\d{4}$/, {
     message: 'date debe tener formato dd-mm-yyyy',

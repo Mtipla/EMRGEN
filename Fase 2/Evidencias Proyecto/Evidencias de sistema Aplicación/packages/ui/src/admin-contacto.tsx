@@ -3,7 +3,7 @@ import { avisar, mensajeError } from "./avisos";
 import type { Catalogo } from "./soporte";
 import { DataTable } from "./wireframe";
 
-/** Respuesta de GET /internal/v1/mensajes-contacto (formulario de la web pública). */
+/** Respuesta de mensajes-contacto (formulario de la web pública). */
 export interface MensajeContacto {
   mensaje_contacto_id: number;
   nombre: string;
@@ -31,7 +31,7 @@ const LIMITE = 100;
 
 const fecha = (iso: string) => new Date(iso).toLocaleString("es-CL");
 
-/** Redacción de Gmail con destinatario y asunto; el cuerpo va al portapapeles para pegarlo. */
+
 const redactarEnGmail = (m: MensajeContacto) =>
   `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(m.correo)}&su=${encodeURIComponent(
     "Respuesta a tu mensaje en EMERGEN",
@@ -45,7 +45,6 @@ const cuerpoCorreo = (m: MensajeContacto, texto: string) =>
  * (en escritorio, Electron deriva window.open https al navegador del sistema).
  */
 function enviarPorGmail(m: MensajeContacto, texto: string) {
-  // La copia se inicia antes de abrir la pestaña: después el documento pierde el foco y el navegador la rechaza.
   const copia = navigator.clipboard?.writeText(cuerpoCorreo(m, texto)) ?? Promise.reject(new Error("sin portapapeles"));
   window.open(redactarEnGmail(m), "_blank", "noopener");
   copia.then(
@@ -54,7 +53,7 @@ function enviarPorGmail(m: MensajeContacto, texto: string) {
   );
 }
 
-/** Bandeja de mensajes de visitantes (MENSAJE_CONTACTO) para ADMINISTRADOR y SOPORTE. */
+/** Bandeja de mensajes de visitantes para ADMINISTRADOR y SOPORTE. */
 export function AdminContacto({ listar, listarEstados, actualizar }: AdminContactoProps) {
   const [filtro, setFiltro] = useState("");
   const [version, setVersion] = useState(0);
@@ -95,7 +94,6 @@ export function AdminContacto({ listar, listarEstados, actualizar }: AdminContac
     if (!seleccion) return;
     const cambios: CambiosMensaje = {};
     if (respuesta.trim()) cambios.respuesta = respuesta.trim();
-    // Sin respuesta, solo cambia el estado; con respuesta, el backend la deja REVISADO salvo que se elija otro.
     if (estado !== seleccion.estado) cambios.estado = estado;
     if (!cambios.respuesta && !cambios.estado) return avisar("info", "No hay cambios que guardar.");
     setGuardando(true);

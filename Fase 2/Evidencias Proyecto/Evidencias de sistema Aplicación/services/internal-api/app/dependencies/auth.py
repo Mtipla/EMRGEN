@@ -14,12 +14,11 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.core.config import settings
 from app.core.db import get_db
 
-# IDs fijos de ROL y ESTADO_USUARIO (init.sql; apps/backend/src/login/roles.decorator.ts).
+
 ROL_ADMINISTRADOR = 1
 ROL_SOPORTE = 2
 
-# Esquema de seguridad real: Swagger añade Authorization mediante Authorize.
-# auto_error=False conserva la respuesta 401 propia cuando faltan credenciales.
+
 sesion_bearer = HTTPBearer(
     scheme_name="SesionEMERGEN",
     bearerFormat="JWT",
@@ -31,7 +30,7 @@ sesion_bearer = HTTPBearer(
 @dataclass(frozen=True)
 class UsuarioSesion:
     id: int
-    email: str | None  # None en apadrinados: no tienen correo propio
+    email: str | None  
     rol_id: int
     estado_id: int
 
@@ -56,7 +55,6 @@ def usuario_actual(
             algorithms=["HS256"],
             issuer="emergen-api",
             audience="emergen-web",
-            # NestJS firma `sub` como número; PyJWT por defecto exige texto.
             options={"verify_sub": False, "require": ["exp", "sub"]},
         )
     except jwt.PyJWTError:

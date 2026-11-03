@@ -1,6 +1,6 @@
 # Base de datos de desarrollo — contrato integrado
 
-El modelo vigente es `init.sql`, basado en el SQL propuesto y el Excel actualizado, con las decisiones consolidadas del 21-10-2026. El informe y las pruebas están en [docs/INTEGRACION_BDD_2026-10-21.md](docs/INTEGRACION_BDD_2026-10-21.md); el avance de la reanudación, en [ESTADO_INTEGRACION_BDD.md](ESTADO_INTEGRACION_BDD.md).
+El modelo vigente es `init.sql`, basado en el SQL propuesto y el Excel actualizado, con las decisiones consolidadas del 21-10-2026. El informe y las pruebas están en [docs/INTEGRACION_BDD_2026-10-21.md](docs/INTEGRACION_BDD_2026-10-21.md).
 
 ## Arranque y conservación de datos
 
@@ -10,16 +10,16 @@ Desde esta carpeta se mantiene:
 docker compose up --build -d
 ```
 
-PostgreSQL se publica en localhost:5433 y Nest en localhost:3001. Se conserva PostgreSQL 15-alpine (versión verificada 15.19), Node 24.21.0, npm 11.19.0 y TypeORM con `synchronize: false`. FastAPI sigue separado en localhost:8000.
+PostgreSQL se publica en localhost:5433 y Nest en localhost:3001. Se conserva PostgreSQL 15-alpine (versión verificada 15.19), Node 24.21.0, npm 11.19.0 y TypeORM con `synchronize: false`. Compose también inicia FastAPI en localhost:8000; si lo ejecutas fuera de Docker, deja una sola instancia en ese puerto.
 
-El entrypoint ejecuta `init.sql` solamente al crear un volumen vacío. Cambiar este archivo no actualiza un volumen existente. El script rechaza una base que ya tenga tablas del modelo. No ejecutar los scripts históricos de `migraciones/`, `apps/backend/migrations/` o el catálogo Python sobre esta instalación.
+El entrypoint ejecuta `init.sql` solamente al crear un volumen vacío. Cambiar este archivo no actualiza un volumen existente. El script rechaza una base que ya tenga tablas del modelo. No ejecutar en bloque los scripts `001` a `006` de `migrations/` ni el catálogo Python sobre esta instalación: `001` es histórico y los demás se aplican uno a uno, solo cuando un procedimiento documentado lo indique.
 
 Cambios posteriores al init consolidado. Una instalación nueva ya los trae en `init.sql`; un volumen existente los aplica una vez (ambos son repetibles):
 
 - CA-11.1, ficha médica cifrada: definir `MEDICAL_DATA_KEYS` en `.env` (ver `example.env`) y ejecutar `node scripts/cifrar-fichas.cjs`.
-- CA-03.1, contacto sin número repetido: `Get-Content migraciones/003_contacto_unico.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'`.
-- CA-05.1, mensaje personalizado de hasta 160 caracteres: igual, con `migraciones/004_mensaje_160.sql`.
-- Apadrinados sin correo ni contraseña propios (entran con la cuenta principal y su PIN): igual, con `migraciones/006_apadrinado_sin_credenciales.sql`. Borra las credenciales que tuvieran los apadrinados existentes.
+- CA-03.1, contacto sin número repetido: `Get-Content migrations/003_contacto_unico.sql | docker exec -i postgres_emergen_db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'`.
+- CA-05.1, mensaje personalizado de hasta 160 caracteres: igual, con `migrations/004_mensaje_160.sql`.
+- Apadrinados sin correo ni contraseña propios (entran con la cuenta principal y su PIN): igual, con `migrations/006_apadrinado_sin_credenciales.sql`. Borra las credenciales que tuvieran los apadrinados existentes.
 
 La recreación de desarrollo fue autorizada y ejecutada una vez. La reanudación conservó los volúmenes; no requiere volver a ejecutar `down -v`. Para cualquier base anterior cuyos datos deban conservarse se necesita una migración explícita y un respaldo verificado; este init no es esa migración.
 
@@ -38,7 +38,7 @@ El script usa bcrypt 12 para contraseña y PIN, IDs del motor y una transacción
 | Apadrinado Completo (sin correo) | Apadrinado completo del principal | PIN propio 1234; usa plan del principal |
 | Apadrinado Parcial (sin correo) | Apadrinado parcial del principal | PIN fijo 5678 (no se cambia); cierre de SOS también con PIN del principal 0007 |
 
-**Contraseña común exclusivamente de estas cuentas locales: `EmergenDev123!`.** Son valores de prueba, no secretos externos de configuración. Los contactos se rotulan ficticios y tienen formato internacional +56; las pruebas no envían mensajes. El plan base 2 “PLAN BASE DEMOSTRACION” cuesta 5000 CLP y puede comprarse con PayPal. Se activa con cero cupos; los cupos adicionales se compran por separado. Para una BD existente, aplicar `migraciones/002_precio_plan_base.sql` sin recrear el volumen. Ver [pruebas del flujo de compra](docs/PRUEBAS_COMPRA_PLAN.md).
+**Contraseña común exclusivamente de estas cuentas locales: `EmergenDev123!`.** Son valores de prueba, no secretos externos de configuración. Los contactos se rotulan ficticios y tienen formato internacional +56; las pruebas no envían mensajes. El plan base 2 “PLAN BASE DEMOSTRACION” cuesta 5000 CLP y puede comprarse con PayPal. Se activa con cero cupos; los cupos adicionales se compran por separado. Para una BD existente, aplicar `migrations/002_precio_plan_base.sql` sin recrear el volumen. Ver [pruebas del flujo de compra](docs/PRUEBAS_COMPRA_PLAN.md).
 
 Login real:
 
@@ -48,7 +48,7 @@ $auth = @{ Authorization = "Bearer " + $sesion.access_token }
 Invoke-RestMethod -Uri http://localhost:3001/usuarios/me -Headers $auth
 ```
 
-El registro público conserva la verificación de correo Firebase. Ingreso tipo Netflix: se inicia sesión con el correo y la contraseña de la cuenta principal, se elige un perfil (la principal o uno de sus apadrinados) y se abre con el PIN de ese perfil. Los apadrinados no tienen correo ni contraseña propios: la principal los crea solo con nombre, PIN y tipo de acceso (completo o parcial). El apadrinado con acceso completo recibe un PIN de primer acceso que debe cambiar al entrar; el parcial recibe un PIN fijo que no puede cambiar (`pin.pin_temporal`, migraciones/005_pin_temporal.sql). Una cuenta principal recién registrada queda parcial hasta configurar su PIN mediante `POST /usuarios/me/pin` con `{"PIN":"0007"}`. No se admiten números que pierdan ceros iniciales. La creación interna de apadrinados completos exige PIN propio y lo hashea; no se añadió una nueva UI de alta de apadrinados.
+El registro público conserva la verificación de correo Firebase. Ingreso tipo Netflix: se inicia sesión con el correo y la contraseña de la cuenta principal, se elige un perfil (la principal o uno de sus apadrinados) y se abre con el PIN de ese perfil. Los apadrinados no tienen correo ni contraseña propios: la principal los crea solo con nombre, PIN y tipo de acceso (completo o parcial). El apadrinado con acceso completo recibe un PIN de primer acceso que debe cambiar al entrar; el parcial recibe un PIN fijo que no puede cambiar (`pin.pin_temporal`, migrations/005_pin_temporal.sql). Una cuenta principal recién registrada queda parcial hasta configurar su PIN mediante `POST /usuarios/me/pin` con `{"PIN":"0007"}`. No se admiten números que pierdan ceros iniciales. La creación interna de apadrinados completos exige PIN propio y lo hashea; no se añadió una nueva UI de alta de apadrinados.
 
 ## Reglas operativas
 
@@ -58,14 +58,14 @@ El registro público conserva la verificación de correo Firebase. Ingreso tipo 
 - Las reservas de compra se persisten antes de llamar a PayPal. No hay llamadas externas dentro de transacciones reintentables. Una captura confirmada concede cupos una sola vez; un resultado incierto conserva la reserva y su referencia externa.
 - La web recupera compras pendientes desde `GET /compras/apadrinados/ventas/pendientes`; `POST /compras/apadrinados/ventas/:id/conciliar` consulta/reconcilia su resultado. Tras cinco horas una creación sin ID externo requiere revisión manual con PayPal; no se recrea ni libera automáticamente. La ventana es una política conservadora de esta integración, no una garantía universal del proveedor.
 - SOS exige plan efectivo y contacto propio, no PIN para emitirlo. El cierre manual usa PIN propio o del principal vinculado si el emisor es apadrinado parcial. Cinco fallos bloquean la verificación de ese PIN durante 15 minutos; falta de PIN devuelve 409. El job de FastAPI recupera al arrancar y cada 30 segundos las alertas con 24 horas transcurridas, incluso sin PIN; cierra a FINALIZADA con hora real. EXPIRADA queda reservado.
-- SQL conserva integridad, históricos y limpieza; no autentica, aprueba pagos, cifra fichas ni envía mensajes. ENVIO_ALERTA, ENLACE_MEDICO y ANTECEDENTE_MEDICO se prueban solo a nivel SQL; transporte y servicios médicos siguen diferidos.
+- SQL conserva integridad, históricos y limpieza; no autentica, aprueba pagos, cifra fichas ni envía mensajes. NestJS despacha ENVIO_ALERTA por WhatsApp y gestiona ANTECEDENTE_MEDICO cifrado. ENLACE_MEDICO se prueba solo a nivel SQL, porque el servicio público de enlaces médicos no está implementado.
 - Bitácora conserva once columnas, instante con zona y actor/afectado anulables al borrar. El evento se registra antes del borrado, en la misma transacción; las FK mantienen rol histórico. SET NULL no anonimiza textos libres.
 
 ## Validación reproducible
 
 La ampliación de WhatsApp distingue `ACTIVACION` y `FINALIZACION` con `envio_alerta.tipo_notificacion` y un aviso único por alerta, contacto y tipo. Para actualizar una instalación existente, detén NestJS y FastAPI, ejecuta `node scripts/migrate-whatsapp.cjs` y reinicia ambos con el código actualizado. La migración conserva los envíos previos y está incluida en `init.sql` para bases nuevas. `scripts/verify-excel.py` reconoce esta columna adicional al modelo de referencia. Detalles y verificación con proveedor simulado: [SOS por WhatsApp](docs/WHATSAPP_SOS.md).
 
-Ejecutar las suites de base **secuencialmente**, en el único entorno de desarrollo con fixtures ya existentes. Las pruebas usan cuentas temporales, hacen COMMIT en carreras reales y limpian sus cuentas; algunas evidencias históricas/auditorías de prueba permanecen por diseño. La prueba de último administrador cambia transitoriamente roles de fixtures y los restaura en finally: no ejecutarla mientras se usa el panel.
+Ejecutar las suites de base **secuencialmente**, en una BD de desarrollo nueva y desechable con fixtures ([README §6.3](README.md#63-datos-de-desarrollo-y-panel-administrativo)); no usar `EMERGEN_BDD` ni otra base con datos que se deban conservar. Las pruebas usan cuentas temporales, hacen COMMIT en carreras reales y limpian sus cuentas; algunas evidencias históricas/auditorías de prueba permanecen por diseño. La prueba de último administrador cambia transitoriamente roles de fixtures y los restaura en finally: no ejecutarla mientras se usa el panel.
 
 ```powershell
 node scripts/verify-schema.cjs

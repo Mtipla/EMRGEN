@@ -11,7 +11,7 @@ import {
 const siNo = (valor: boolean | undefined) =>
   valor === undefined ? "Sin información" : valor ? "Sí" : "No";
 
-/** Tipo de cuenta y funciones básicas disponibles/bloqueadas según la matriz de permisos (web y móvil). */
+/** Tipo de cuenta y funciones básicas */
 export const ResumenCuenta = ({ user }: { user: UsuarioConRol }) => {
   const perfil = perfilDe(user);
 

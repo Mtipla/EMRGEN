@@ -28,7 +28,6 @@ async def _http_error(_: Request, exc: HTTPException) -> JSONResponse:
 
 
 async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
-    # Lista de mensajes, como ValidationPipe de NestJS.
     msgs = []
     for e in exc.errors():
         campo = ".".join(str(p) for p in e["loc"][1:])

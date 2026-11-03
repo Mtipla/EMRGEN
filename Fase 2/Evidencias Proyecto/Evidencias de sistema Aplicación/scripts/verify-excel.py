@@ -20,7 +20,7 @@ def physical(s):
     return "".join(c for c in unicodedata.normalize("NFD",s.strip().split("(")[0]) if not unicodedata.combining(c)).strip().lower()
 with zipfile.ZipFile(path) as z:
     strings=["".join(x.itertext()) for x in E.fromstring(z.read("xl/sharedStrings.xml")).findall("m:si",ns)]
-    for sheet in range(1,10):  # Las dos hojas finales están expresamente fuera de alcance.
+    for sheet in range(1,10): 
         cells={}
         for cell in E.fromstring(z.read(f"xl/worksheets/sheet{sheet}.xml")).findall(".//m:c",ns):
             value=cell.find("m:v",ns)
@@ -37,11 +37,12 @@ with zipfile.ZipFile(path) as z:
                 rawtype=cells.get(chr(ord(col)+1)+str(n),"").lower()
                 dtype=re.match(r"(integer|varchar\s*\(\d+\)|numeric\(\d+,\d+\)|timestamptz|boolean|text|uuid|jsonb)",rawtype).group(0).replace(" ","")
                 model[(table,physical(name))]=(dtype,cells.get(chr(ord(col)+2)+str(n))=="NULL","identity" in rawtype,"(pk" in rawtype,"(fk" in rawtype,"unique" in rawtype)
-# Excepciones explícitas del prompt consolidado.
+
+
 model[("pin","pin_hash")]=("varchar(255)",False,False,False,False,False)
 del model[("pin","pin")]
 model[("bitacora_sistema","usuario_id")]=("integer",True,False,False,True,False)
-# CA-11.1 del merge: los seis datos clínicos almacenan AES-GCM como texto.
+
 for field in ("tipo_sangre","alergias","enfermedades_cronicas","medicamentos_actuales","discapacidad_presente","donante_organos"):
     model[("antecedente_medico",field)]=("text",False,False,False,False,False)
 extras={("venta",n) for n in ("orden_paypal_id","captura_paypal_id","monto_cobrado","moneda_cobrada")}
@@ -67,7 +68,6 @@ with connect() as db:
     failures=[]
     for key,expected in model.items():
         found=actual.get(key)
-        # UNIQUE puede reforzarse además del Excel; los UNIQUE explícitos sí deben existir.
         if not found or found[:5]!=expected[:5] or (expected[5] and not found[5]):
             failures.append((key,expected,found))
     unplanned=[k for k in actual if k not in model and k not in extras and k[0]!="reserva_cupos"]
