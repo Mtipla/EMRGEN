@@ -12,6 +12,7 @@
     "android:prepare": "node ../../scripts/mobile-android.mjs prepare",
     "android:open": "node ../../scripts/mobile-android.mjs open",
     "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File ../../scripts/android-debug.ps1",
+    "android:download": "npm run android:apk && node ../../scripts/publish-android-apk.mjs",
     "preview": "vite preview --config vite.config.ts",
     "test.e2e": "cypress run",
     "test.unit": "vitest --config vite.config.ts",

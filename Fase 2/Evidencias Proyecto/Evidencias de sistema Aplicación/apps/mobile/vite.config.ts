@@ -26,7 +26,7 @@ export default defineConfig(({ mode, command }) => {
                   source: JSON.stringify(
                     {
                       mode,
-                      version: "0.2.3",
+                      version: "0.2.4",
                       builtAt: new Date().toISOString(),
                       deployment:
                         (mode === "security-check" ? process.env : loadEnv(mode, "../../", "VITE_")).VITE_DEPLOYMENT_ID ||
