@@ -466,7 +466,7 @@ Versiones comprobadas durante esta preparación (28-10-2026):
 
 El teléfono necesita Android compatible, WebView actualizado y acceso a la misma LAN que el servidor. Instalar Platform 36 en el PC no exige que el teléfono tenga exactamente Android 16: el mínimo lo fija `minSdkVersion`. Tener solo Platform 37 instalada tampoco sustituye Platform 36 para esta plantilla.
 
-La identidad provisional estable es `com.emergen.mobile`. La variante debug se identifica como **EMERGEN LAN**, versión `0.2.3-lan-debug`, `versionCode 6`. Incluye secuencia física de volumen, ubicación fusionada y recuperación del servicio, con la tarjeta reorganizada y textos breves; conserva la corrección de soporte de `0.1.1`. Mantén el identificador para futuras actualizaciones; incrementa `versionCode` al distribuir versiones sucesivas. La fecha de construcción y las dos URL públicas están en `assets/public/android-build.json` dentro del APK. El hash SHA-256 del archivo identifica exactamente el artefacto probado.
+La identidad provisional estable es `com.emergen.mobile`. La variante debug se identifica como **EMERGEN LAN**, versión `0.2.4-lan-debug`, `versionCode 7`. Incluye el ícono de EMERGEN con fondo blanco y descarga desde la web para teléfonos Android, además de secuencia física de volumen, ubicación fusionada y recuperación del servicio. Mantén el identificador para futuras actualizaciones; incrementa `versionCode` al distribuir versiones sucesivas. La fecha de construcción y las dos URL públicas están en `assets/public/android-build.json` dentro del APK. El hash SHA-256 del archivo identifica exactamente el artefacto probado.
 
 ### 11.2 SDK, JDK y rutas locales
 
@@ -643,6 +643,18 @@ npm run android:apk --workspace=mobile
 ```
 
 Este script prepara el entorno, reconstruye la web en modo LAN, sincroniza Capacitor, muestra la JVM real del Wrapper y ejecuta `assembleDebug`. Ante un fallo se detiene: no continúa con un `dist` anterior. Imprime la ruta y el SHA-256 del APK.
+
+Para compilar y preparar también la descarga desde `/descargar`:
+
+```powershell
+npm run android:download --workspace=mobile
+```
+
+El comando copia la APK a `apps/web/public/downloads/emergen.apk` y genera `android-build.json` con versión, URLs y SHA-256. Ambos son archivos generados e ignorados por Git: vuelve a ejecutar el comando en un clon limpio o cuando cambien el ícono, la app o las URLs. Si vas a generar un build de la web, hazlo después de preparar la descarga para incluir estos archivos. El botón aparece solo en teléfonos Android; iPhone conserva el aviso de iOS y los computadores no muestran el enlace.
+
+La web de desarrollo escucha en el puerto 5173 de las interfaces de red. Desde el teléfono, en la misma Wi-Fi, abre `http://IP-DEL-PC:5173/descargar`; el firewall debe permitir TCP 5173 en la red privada. La APK de prueba usa las URLs y `VITE_DEPLOYMENT_ID` de `.env.android-lan.local`; si cambia la IP del PC, actualiza ese archivo y recompila. Descargar e instalar desde el navegador no requiere USB ni depuración.
+
+El original del ícono está en `apps/mobile/resources/icon.png`. Para regenerar sus 15 tamaños Android después de cambiar ese archivo, ejecuta `.\scripts\generate-android-icons.ps1` antes de compilar la APK.
 
 Alternativa manual, después de `android:prepare` y de activar el entorno:
 

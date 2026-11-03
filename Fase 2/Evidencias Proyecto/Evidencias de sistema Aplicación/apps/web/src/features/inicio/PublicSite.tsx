@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 type PublicSiteProps = {
   view: PublicView
   isAuthenticated: boolean
-  onNavigate: (view: PublicView) => VoidFunction
+  onNavigate: (view: PublicView) => void
   onAccount: () => void
   onBuy: () => void
 }
@@ -346,6 +346,9 @@ function ComoFunciona({ isAuthenticated, onAccount }: CuentaProps) {
 }
 
 function Descargar({ isAuthenticated, onAccount }: CuentaProps) {
+  const androidPhone = /Android/i.test(navigator.userAgent) && /Mobile/i.test(navigator.userAgent)
+  const iphone = /iPhone|iPod/i.test(navigator.userAgent)
+
   return (
     <>
       <section className="public-section public-section--first">
@@ -358,7 +361,18 @@ function Descargar({ isAuthenticated, onAccount }: CuentaProps) {
               Es donde activas el botón SOS. Desde ella también revisas y finalizas tus alertas,
               ingresas con tu PIN y ves los números de emergencia.
             </p>
-            <p className="public-pending">Próximamente en Android e iOS.</p>
+            {androidPhone ? (
+              <>
+                <a className="primary-button" href="/downloads/emergen.apk" download="EMERGEN.apk">
+                  Descargar APK para Android
+                </a>
+                <p className="public-pending">Versión de prueba para Android. Descarga el archivo y ábrelo para instalar EMERGEN.</p>
+              </>
+            ) : (
+              <p className="public-pending">
+                {iphone ? 'Próximamente en iOS.' : 'Abre esta página desde tu teléfono Android para descargar la app.'}
+              </p>
+            )}
           </article>
           <article className="public-card">
             <h3>Sitio web</h3>

@@ -34,7 +34,7 @@ describe('buildEmergencyAlertText', () => {
 
     expect(text).toContain('MENSAJE MEDIANTE APLICACIÓN EMERGEN');
     expect(text).toContain(
-      'El usuario Ana de correo ana@emergen.test ha generado una alerta',
+      'El usuario Ana, de correo ana@emergen.test, ha generado una alerta',
     );
     expect(text).toContain('"Me caí y no puedo levantarme"');
     expect(text).toContain('UBICACIÓN: Plaza de Armas, Santiago');
@@ -120,7 +120,7 @@ test('el cierre tiene exactamente el formato solicitado, sin ubicación ni datos
       senderEmail: 'ana@emergen.test',
     }),
   ).toBe(
-    'MENSAJE MEDIANTE APLICACIÓN EMERGEN\n------------------------------------\nLa alerta reciente del usuario Ana de correo ana@emergen.test, ha sido FINALIZADA',
+    'MENSAJE MEDIANTE APLICACIÓN EMERGEN\n------------------------------------\nLa alerta reciente del usuario Ana, de correo ana@emergen.test, ha sido FINALIZADA',
   );
 });
 
