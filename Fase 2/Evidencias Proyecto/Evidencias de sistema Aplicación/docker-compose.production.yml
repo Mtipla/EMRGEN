@@ -1,5 +1,5 @@
 # Standalone production reference: never merge automatically over active local Compose.
-# Ingress/TLS and managed jsReport are supplied by the operator, not started here.
+# Cloudflare Tunnel publishes both APIs without opening ports; jsReport stays on the private ingress network.
 x-logs: &logs
   driver: json-file
   options: { max-size: "10m", max-file: "3" }
@@ -55,8 +55,8 @@ services:
       JWT_SESSION_HOURS: ${JWT_SESSION_HOURS:-2}
       MEDICAL_DATA_KEYS: ${MEDICAL_DATA_KEYS:?Preserve keys of existing records}
       CORS_ORIGINS: ${CORS_ORIGINS:?Exact public HTTPS and native origins}
-      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
-      JSREPORT_URL: ${JSREPORT_URL:?Managed HTTPS report service independent of development PC}
+      TRUSTED_PROXY_CIDRS: 172.30.0.2
+      JSREPORT_URL: http://jsreport:5488
       JSREPORT_USERNAME: ${JSREPORT_USERNAME:?Set report identity privately}
       JSREPORT_PASSWORD: ${JSREPORT_PASSWORD:?Set report credential privately}
       WHATSAPP_ENABLED: "true"
@@ -80,8 +80,7 @@ services:
     volumes:
       - whatsapp:/app/apps/backend/auth_info_baileys
       - ${CA_DIRECTORY:?Dedicated directory with public CA files only}:/run/emergen-ca:ro
-    ports: ["127.0.0.1:3001:3000"]
-    networks: [edge, data]
+    networks: [edge, data, ingress]
     mem_limit: 1g
     cpus: 1.0
     depends_on:
@@ -115,11 +114,10 @@ services:
       INTERNAL_API_DB_REGULAR_CONNECTIONS: ${INTERNAL_API_DB_REGULAR_CONNECTIONS:-8}
       INTERNAL_API_DB_SOS_CONNECTIONS: ${INTERNAL_API_DB_SOS_CONNECTIONS:-4}
       INTERNAL_API_TICKETS_PER_15_MINUTES: ${INTERNAL_API_TICKETS_PER_15_MINUTES:-10}
-      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-}
+      FORWARDED_ALLOW_IPS: 172.30.0.3
     volumes:
       - ${CA_DIRECTORY:?Dedicated public CA directory}:/run/emergen-ca:ro
-    ports: ["127.0.0.1:8000:8000"]
-    networks: [data]
+    networks: [data, ingress]
     mem_limit: 512m
     cpus: 1.0
     depends_on:
@@ -129,6 +127,41 @@ services:
       interval: 20s
       timeout: 8s
       retries: 5
+
+  jsreport:
+    <<: *hardening
+    image: jsreport/jsreport:4.13.0
+    environment:
+      extensions_authentication_admin_username: ${JSREPORT_USERNAME:?Set report identity privately}
+      extensions_authentication_admin_password: ${JSREPORT_PASSWORD:?Set report credential privately}
+      extensions_authentication_cookieSession_secret: ${JSREPORT_COOKIE_SECRET:?Set report session secret privately}
+    networks: [ingress]
+    mem_limit: 1g
+    cpus: 1.0
+
+  # Túneles temporales: la URL se mantiene mientras viva el contenedor y cambia si se recrea.
+  # Cada API confía únicamente en la IP fija de su propio túnel para leer X-Forwarded-*.
+  cloudflared-api:
+    <<: *hardening
+    image: cloudflare/cloudflared:2025.11.1
+    command: [tunnel, --no-autoupdate, --url, "http://backend:3000"]
+    networks:
+      edge: {}
+      ingress: { ipv4_address: 172.30.0.2 }
+    mem_limit: 256m
+    cpus: 0.5
+    depends_on: [backend]
+
+  cloudflared-internal:
+    <<: *hardening
+    image: cloudflare/cloudflared:2025.11.1
+    command: [tunnel, --no-autoupdate, --url, "http://internal-api:8000"]
+    networks:
+      edge: {}
+      ingress: { ipv4_address: 172.30.0.3 }
+    mem_limit: 256m
+    cpus: 0.5
+    depends_on: [internal-api]
 
 volumes:
   database:
@@ -140,3 +173,9 @@ volumes:
 networks:
   data: { internal: true }
   edge: {}
+  ingress:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+          ip_range: 172.30.0.128/25

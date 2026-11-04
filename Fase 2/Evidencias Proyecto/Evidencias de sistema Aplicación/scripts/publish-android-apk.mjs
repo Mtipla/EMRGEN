@@ -9,7 +9,7 @@ const output = resolve(root, 'apps/web/public/downloads');
 const apk = await readFile(apkPath);
 if (apk.readUInt32LE(0) !== 0x04034b50) throw new Error('El archivo no es una APK válida.');
 const metadata = JSON.parse(await readFile(resolve(root, 'apps/mobile/android/app/src/main/assets/public/android-build.json'), 'utf8'));
-if (metadata.mode !== 'android-lan') throw new Error('La descarga de prueba requiere una compilación android-lan.');
+if (!['android-lan', 'android-production'].includes(metadata.mode)) throw new Error('La descarga requiere una compilación android-lan o android-production.');
 await mkdir(output, { recursive: true });
 await copyFile(apkPath, resolve(output, 'emergen.apk'));
 const download = {

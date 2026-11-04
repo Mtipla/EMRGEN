@@ -363,10 +363,10 @@ function Descargar({ isAuthenticated, onAccount }: CuentaProps) {
             </p>
             {androidPhone ? (
               <>
-                <a className="primary-button" href="/downloads/emergen.apk" download="EMERGEN.apk">
+                <a className="primary-button" href="https://drive.google.com/drive/folders/1DYAqGoE5k_knEJDwF-uZSYC8Tn5CleUg" target="_blank" rel="noreferrer">
                   Descargar APK para Android
                 </a>
-                <p className="public-pending">Versión de prueba para Android. Descarga el archivo y ábrelo para instalar EMERGEN.</p>
+                <p className="public-pending">Versión de prueba para Android. Se abrirá una carpeta de Google Drive: descarga la APK y ábrela para instalar EMERGEN.</p>
               </>
             ) : (
               <p className="public-pending">

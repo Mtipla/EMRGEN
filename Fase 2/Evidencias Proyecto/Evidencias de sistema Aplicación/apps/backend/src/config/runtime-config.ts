@@ -53,9 +53,10 @@ export function validateRuntimeConfig(env: Environment): Environment {
   }
   try {
     const report = new URL(value(env, 'JSREPORT_URL'));
-    if (report.protocol !== 'https:' || report.username || report.password ||
-        /^(?:localhost|host\.docker\.internal|127\.|0\.0\.0\.0)/i.test(report.hostname)) throw new Error();
-  } catch { throw new Error('JSREPORT_URL: usa HTTPS del servicio administrado; no admite el equipo de desarrollo.'); }
+    const privateService = report.href === 'http://jsreport:5488/';
+    if (!privateService && (report.protocol !== 'https:' || report.username || report.password ||
+        /^(?:localhost|host\.docker\.internal|127\.|0\.0\.0\.0)/i.test(report.hostname))) throw new Error();
+  } catch { throw new Error('JSREPORT_URL: usa HTTPS del servicio administrado o http://jsreport:5488; no admite el equipo de desarrollo.'); }
   const proxies = value(env, 'TRUSTED_PROXY_CIDRS');
   if (proxies && proxies.split(',').some(p => !/^(?:[0-9a-f:.]+)(?:\/\d{1,3})?$/i.test(p.trim())))
     throw new Error('TRUSTED_PROXY_CIDRS: enumera direcciones/CIDR concretos; no admite confianza global.');

@@ -14,11 +14,11 @@ function openDownload(userAgent: string, width: number) {
   render(<PublicSite view="descargar" isAuthenticated={false} onNavigate={nothing} onAccount={nothing} onBuy={nothing} />)
 }
 
-test('ofrece una APK descargable al visitar desde un teléfono Android', () => {
+test('lleva a la carpeta de Drive con la APK al visitar desde un teléfono Android', () => {
   openDownload('Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36', 390)
   const link = screen.getByRole('link', { name: 'Descargar APK para Android' })
-  expect(link.getAttribute('href')).toBe('/downloads/emergen.apk')
-  expect(link.getAttribute('download')).toBe('EMERGEN.apk')
+  expect(link.getAttribute('href')).toBe('https://drive.google.com/drive/folders/1DYAqGoE5k_knEJDwF-uZSYC8Tn5CleUg')
+  expect(link.getAttribute('target')).toBe('_blank')
 })
 
 test.each([

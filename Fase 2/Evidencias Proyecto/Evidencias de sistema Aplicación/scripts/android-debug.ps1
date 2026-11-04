@@ -1,9 +1,10 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿param([ValidateSet('android-lan', 'android-production')][string]$Mode = 'android-lan')
+$ErrorActionPreference = 'Stop'
 $androidBuildRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 Push-Location -LiteralPath $androidBuildRoot
 try {
   . (Join-Path $PSScriptRoot 'android-env.ps1')
-  & node (Join-Path $PSScriptRoot 'mobile-android.mjs') prepare
+  & node (Join-Path $PSScriptRoot 'mobile-android.mjs') prepare $Mode
   if ($LASTEXITCODE -ne 0) { throw 'Falló el build web o la sincronización; no se compiló un dist anterior.' }
   . (Join-Path $PSScriptRoot 'android-env.ps1')
   Push-Location -LiteralPath (Join-Path $androidBuildRoot 'apps\mobile\android')

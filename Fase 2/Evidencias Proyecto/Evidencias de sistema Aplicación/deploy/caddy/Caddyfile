@@ -1,0 +1,29 @@
+# Dominios y correo: se reciben desde deploy/production.env mediante docker-compose.production.yml.
+{
+	email {$ACME_EMAIL}
+}
+
+(comun) {
+	encode zstd gzip
+	header -Server
+}
+
+{$API_DOMAIN} {
+	import comun
+	reverse_proxy backend:3000
+}
+
+{$INTERNAL_API_DOMAIN} {
+	import comun
+	reverse_proxy internal-api:8000
+}
+
+# jsReport solo responde a contenedores de la red ingress; las plantillas viven en el backend.
+{$REPORTS_DOMAIN} {
+	import comun
+	@interno remote_ip 172.30.0.0/24
+	handle @interno {
+		reverse_proxy jsreport:5488
+	}
+	respond 403
+}

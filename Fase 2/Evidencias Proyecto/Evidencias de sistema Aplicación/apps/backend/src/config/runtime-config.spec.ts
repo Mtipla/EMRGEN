@@ -43,6 +43,13 @@ describe('Configuración antes del arranque', () => {
     ).toThrow('MEDICAL_DATA_KEYS');
     expect(() => validateRuntimeConfig({ PORT: '3000abc' })).toThrow('PORT');
   });
+  it('acepta solo el jsReport privado de Compose como destino HTTP', () => {
+    expect(() =>
+      validateRuntimeConfig({ ...production, JSREPORT_URL: 'http://jsreport:5488' }),
+    ).not.toThrow();
+    for (const JSREPORT_URL of ['http://jsreport:80', 'http://reports.example.invalid', 'http://localhost:5488'])
+      expect(() => validateRuntimeConfig({ ...production, JSREPORT_URL })).toThrow('JSREPORT_URL');
+  });
   it('conserva el desarrollo sin exigir vinculación o credenciales productivas', () => {
     expect(
       validateRuntimeConfig({ EMERGEN_ENVIRONMENT: 'development' }),
