@@ -50,4 +50,3 @@ node --test apps/desktop/electron/main.test.cjs
 
 El build Vite no crea por sí mismo un instalador Electron. Los bundles security-check contienen destinos falsos y no deben distribuirse. Preparar artefactos release y comprobar todos los roles/flujos contra staging es una etapa distinta.
 
-Ver el [cierre de fortalecimiento](../../docs/FORTALECIMIENTO_CIBERSEGURIDAD_EMERGEN.md), la [operación segura](../../docs/OPERACION_SEGURA.md) y el [prompt de revisión precommit](../../docs/PROMPT_CLAUDE_REVISION_PRECOMMIT_EQUIPO.md).

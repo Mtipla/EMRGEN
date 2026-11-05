@@ -48,7 +48,7 @@ La base tecnológica de las aplicaciones es la siguiente:
 | Integración de WhatsApp | `@whiskeysockets/baileys` `7.0.0-rc14`                                                        |
 
 
-Actualización comprobada el 30-10-2026: Electron 44.9.1 instalado en Windows x64 y seis casos del panel aprobados con APIs simuladas; el bloqueo EBUSY quedó cerrado. También se acreditó una instalación limpia del delta en una copia independiente, con lock intacto, preparación explícita del binario oficial y panel 6/6. El ejecutable incluye Node 24.22.0, distinto del Node 24.21.0 usado por npm. La prueba aislada se reproduce desde esta carpeta con `node scripts/security-run.mjs build desktop` y `node scripts/check-electron-panel.mjs`. Véanse [el README del panel](apps/desktop/README.md), [el cierre vigente](docs/FORTALECIMIENTO_CIBERSEGURIDAD_EMERGEN.md) y [el acompañamiento para integrantes](docs/PROMPT_CLAUDE_ACTUALIZACION_EQUIPO_POSTMERGE.md). Falta comprobar la instalación en cada equipo, otras plataformas, distribución firmada y flujos contra servicios reales.
+Actualización comprobada el 30-10-2026: Electron 44.9.1 instalado en Windows x64 y seis casos del panel aprobados con APIs simuladas; el bloqueo EBUSY quedó cerrado. También se acreditó una instalación limpia del delta en una copia independiente, con lock intacto, preparación explícita del binario oficial y panel 6/6. El ejecutable incluye Node 24.22.0, distinto del Node 24.21.0 usado por npm. La prueba aislada se reproduce desde esta carpeta con `node scripts/security-run.mjs build desktop` y `node scripts/check-electron-panel.mjs`. Véanse [el README del panel](apps/desktop/README.md), [el cierre vigente](docs/FORTALECIMIENTO_CIBERSEGURIDAD_EMERGEN.md) y [el acompañamiento para integrantes]. Falta comprobar la instalación en cada equipo, otras plataformas, distribución firmada y flujos contra servicios reales.
 
 Las dependencias de Node se detallan en los `package.json` y en el único `package-lock.json` del monorepo. Las de Python están fijadas en [requirements.txt](services/internal-api/requirements.txt).
 
@@ -437,10 +437,6 @@ Para reparar una instalación local, comienza por `npm ci --no-audit --no-fund` 
 - [Informe de integración de la base de datos](docs/INTEGRACION_BDD_2026-10-21.md): decisiones y evidencias de la integración.
 
 Este README toma la especificación como contexto y describe el uso que reflejan el código, los scripts y la configuración actual del proyecto.
-
-## 11. APK Android de depuración: preparación local y pruebas en red LAN
-
-Para preparar el equipo de otro integrante con una IA, copia el [prompt actualizado para Claude Code](docs/PROMPT_CLAUDE_CODE_ANDROID_LAN.md). Incluye el entorno LAN, instalación, permisos, secuencia física de volumen, segundo plano y sesión de dos horas. El prompt utiliza los scripts existentes y deja los envíos reales a cargo del integrante.
 
 ### 11.1 Alcance y versiones
 
