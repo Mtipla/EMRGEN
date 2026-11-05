@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="volume_sos_accessibility_label">EMERGEN · Secuencia de volumen</string>
+    <string name="volume_sos_accessibility_description">Reconoce únicamente las teclas de volumen para tu secuencia SOS cuando activas la función en EMERGEN. No lee pantallas, texto ni contenido de otras apps. Puedes desactivarla desde EMERGEN.</string>
+    <string name="app_name">EMERGEN</string>
+    <string name="title_activity_main">EMERGEN</string>
+    <string name="package_name">com.emergen.mobile</string>
+    <string name="custom_url_scheme">com.emergen.mobile</string>
+</resources>

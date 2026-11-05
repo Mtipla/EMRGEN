@@ -1,0 +1,85 @@
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { transaction } from '../config/transaction';
+import { registrarActividadUsuario } from '../auditoria/actividad-usuario';
+import { Pin } from './pin.entity';
+import { Usuario } from './usuarios.entity';
+
+export const MAX_APADRINADOS = 5;
+
+@Injectable()
+export class UsuariosService {
+  constructor(
+    @InjectRepository(Usuario)
+    private usuarioRepository: Repository<Usuario>,
+  ) {}
+
+  // CREAR USUARIO PRINCIPAL
+  async crearUsuarioPrincipal(datosUsuario: Partial<Usuario>): Promise<Usuario> {
+    const existe = await this.usuarioRepository.findOneBy({ correo_usuario: datosUsuario.correo_usuario ?? undefined });
+    if (existe) {
+      throw new BadRequestException('El correo ya está registrado.');
+    }
+
+    const nuevoUsuario = this.usuarioRepository.create({
+      ...datosUsuario,
+      rol_ID: 3, 
+      estado_ID: 2, 
+      usuario_principal_ID: null,
+    } as Usuario);
+
+    return await this.usuarioRepository.save(nuevoUsuario);
+  }
+
+  // CREAR USUARIO APADRINADO
+  // Sin correo ni contraseña: el apadrinado entra con las credenciales de su principal y su PIN.
+  async crearUsuarioApadrinado(idPadre: number, datos: { nombre_usuario: string; estado_ID: 1 | 2; pin?: string }): Promise<Usuario> {
+    if (!/^\d{4}$/.test(datos.pin ?? '')) throw new BadRequestException('El perfil apadrinado requiere un PIN de cuatro dígitos');
+    const pinHash = datos.pin ? await bcrypt.hash(datos.pin, 12) : undefined;
+    return transaction(this.usuarioRepository.manager.connection, async (manager) => {
+      const usuarios = manager.getRepository(Usuario);
+      const padre = await usuarios.findOne({ where: { usuario_ID: idPadre }, lock: { mode: 'pessimistic_write' } });
+      if (!padre) throw new NotFoundException('La cuenta principal no existe');
+      if (padre.usuario_principal_ID !== null) throw new BadRequestException('Un apadrinado no puede apadrinar');
+      const pin = pinHash ? await manager.save(Pin, manager.create(Pin, { pin_hash: pinHash, pin_temporal: datos.estado_ID === 1 })) : null;
+      const creado = await usuarios.save(usuarios.create({ nombre_usuario: datos.nombre_usuario.trim(), correo_usuario: null, contra_usuario: null,
+        rol_ID: 3, estado_ID: datos.estado_ID, usuario_principal_ID: idPadre, PIN_ID: pin?.PIN_ID ?? null }));
+      await registrarActividadUsuario(manager, { sub: idPadre, rol_ID: padre.rol_ID }, 'Creó una cuenta apadrinada', 'CREACION', creado.usuario_ID);
+      return creado;
+    });
+  }
+
+  // OBTENER PERFIL Y SUS DEPENDIENTES
+  async obtenerPerfilCompleto(idUsuario: number): Promise<any> {
+    const usuario = await this.usuarioRepository.findOneBy({ usuario_ID: idUsuario });
+    
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado.');
+    }
+
+    let dependientes: Partial<Usuario>[] = [];
+
+    if (usuario.usuario_principal_ID === null) {
+      dependientes = await this.usuarioRepository.find({
+        where: { usuario_principal_ID: idUsuario },
+        select: {
+          usuario_ID: true,
+          nombre_usuario: true,
+          prioridad_ID: true,
+        },
+      });
+    }
+
+    return {
+      perfil: {
+        usuario_ID: usuario.usuario_ID,
+        nombre: usuario.nombre_usuario,
+        correo: usuario.correo_usuario,
+        es_principal: usuario.usuario_principal_ID === null,
+      },
+      cuentas_apadrinadas: dependientes,
+    };
+  }
+}

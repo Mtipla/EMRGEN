@@ -1,0 +1,6 @@
+# Versiones exactas, igual que la política del monorepo (.npmrc save-exact=true).
+-r requirements-runtime.txt
+
+# Pruebas
+pytest==9.1.1
+httpx==0.28.1

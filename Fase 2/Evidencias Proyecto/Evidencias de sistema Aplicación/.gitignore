@@ -6,10 +6,23 @@ node_modules/
 dist/
 build/
 out/
+apps/web/public/downloads/*.apk
+apps/web/public/downloads/android-build.json
 
 # Entorno y variables secretas
 .env
 .env.local
+.env.*.local
+.android.local.json
+.android-tools/
+backups/
+
+# Sesión de WhatsApp (Baileys): llaves de la cuenta emisora, equivalen a una contraseña
+auth_info_baileys/
 
 # Logs
 npm-debug.log*
+firebase-debug.log*
+
+# Firebase CLI
+.firebase/

@@ -1,0 +1,35 @@
+param(
+  [ValidateSet('localhost', '0.0.0.0')]
+  [string]$ListenHost = 'localhost'
+)
+
+$ErrorActionPreference = 'Stop'
+$raizAplicacion = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$servicioPanel = Join-Path $raizAplicacion 'services\internal-api'
+$pythonPanel = Join-Path $servicioPanel '.venv\Scripts\python.exe'
+$procesosPanel = @(Get-CimInstance Win32_Process -Filter "Name='python.exe'")
+$lanzadoresPanel = @($procesosPanel | Where-Object {
+  $_.CommandLine -and $_.CommandLine.Contains($pythonPanel) -and
+  $_.CommandLine -match '-m uvicorn app\.main:app' -and $_.CommandLine -match '--port 8000'
+})
+if ($lanzadoresPanel.Count -ne 1) {
+  throw 'No se identificó una única instancia de la API interna de este proyecto; no se detuvo ningún proceso.'
+}
+$lanzadorPanel = $lanzadoresPanel[0]
+$hijosPanel = @($procesosPanel | Where-Object { $_.ParentProcessId -eq $lanzadorPanel.ProcessId })
+if (@($hijosPanel | Where-Object { $_.CommandLine -notmatch '-m uvicorn app\.main:app' }).Count) {
+  throw 'El lanzador tiene procesos inesperados; no se detuvo ningún proceso.'
+}
+function Stop-PanelProcess([int]$apiProcessId) {
+  try { Stop-Process -Id $apiProcessId -ErrorAction Stop }
+  catch {
+    if (Get-Process -Id $apiProcessId -ErrorAction SilentlyContinue) { throw }
+  }
+}
+foreach ($procesoPanel in $hijosPanel) { Stop-PanelProcess $procesoPanel.ProcessId }
+Stop-PanelProcess $lanzadorPanel.ProcessId
+New-Item -ItemType Directory -Force -Path (Join-Path $servicioPanel '.runtime') | Out-Null
+$logPanel = Join-Path $servicioPanel '.runtime\panel-api.log'
+$errorPanel = Join-Path $servicioPanel '.runtime\panel-api-error.log'
+$nuevoPanel = Start-Process -FilePath $pythonPanel -ArgumentList '-m', 'uvicorn', 'app.main:app', '--host', $ListenHost, '--port', '8000' -WorkingDirectory $servicioPanel -WindowStyle Hidden -RedirectStandardOutput $logPanel -RedirectStandardError $errorPanel -PassThru
+Write-Output "API interna reiniciada. PID del lanzador: $($nuevoPanel.Id)"

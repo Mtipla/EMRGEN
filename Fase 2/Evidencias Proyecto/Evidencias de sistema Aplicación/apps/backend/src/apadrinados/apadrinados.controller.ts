@@ -1,0 +1,63 @@
+import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Req, StreamableFile, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard, type UsuarioSesion } from '../login/jwt-auth.guard';
+import { ApadrinadosService } from './apadrinados.service';
+import { CrearApadrinadoDto } from './dto/apadrinado.dto';
+import { InformePersonalDto } from './dto/informe.dto';
+import { CambiarAccesoApadrinadoDto, DefinirPinApadrinadoDto, PinPrincipalDto } from './dto/pin-principal.dto';
+
+type Solicitud = { user: UsuarioSesion };
+
+
+@Controller('usuarios/me')
+@UseGuards(JwtAuthGuard)
+export class ApadrinadosController {
+  constructor(private readonly apadrinados: ApadrinadosService) {}
+
+  @Get('vinculadas')
+  vinculadas(@Req() request: Solicitud) {
+    return this.apadrinados.vinculadas(request.user);
+  }
+
+  @Get('informe')
+  @Header('Cache-Control', 'no-store')
+  async informe(@Req() request: Solicitud, @Query() { formato }: InformePersonalDto) {
+    const reporte = await this.apadrinados.informe(request.user, formato);
+    return new StreamableFile(reporte.content, {
+      type: reporte.contentType,
+      disposition: `attachment; filename="informe-personal-${new Date().toISOString().slice(0, 10)}.${formato}"`,
+    });
+  }
+
+  @Post('apadrinados')
+  crear(@Req() request: Solicitud, @Body() datos: CrearApadrinadoDto) {
+    return this.apadrinados.crear(request.user, datos);
+  }
+
+ 
+  @Put('apadrinados/:id/pin')
+  definirPin(
+    @Req() request: Solicitud,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() { PIN, PIN_principal }: DefinirPinApadrinadoDto,
+  ) {
+    return this.apadrinados.definirPin(request.user, id, PIN, PIN_principal);
+  }
+
+  @Put('apadrinados/:id/estado')
+  cambiarAcceso(
+    @Req() request: Solicitud,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() { estado_ID, PIN_principal }: CambiarAccesoApadrinadoDto,
+  ) {
+    return this.apadrinados.cambiarAcceso(request.user, id, estado_ID, PIN_principal);
+  }
+
+  @Delete('apadrinados/:id')
+  eliminar(
+    @Req() request: Solicitud,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() { PIN_principal }: PinPrincipalDto,
+  ) {
+    return this.apadrinados.eliminar(request.user, id, PIN_principal);
+  }
+}

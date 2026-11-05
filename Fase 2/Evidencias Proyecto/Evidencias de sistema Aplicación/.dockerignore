@@ -1,0 +1,34 @@
+# Nunca copiar dependencias ni compilados del host (Windows) al contenedor Linux
+**/node_modules
+**/.turbo
+**/dist
+**/build
+**/out
+**/coverage
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.runtime
+**/.android-tools
+**/.gradle
+backups
+deploy/
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.pfx
+**/*.key
+
+# Secretos: se inyectan en tiempo de ejecución vía docker-compose
+.env
+.env.*
+**/.env
+**/.env.*
+# Sesión local de WhatsApp: en Docker vive en el volumen emergen_whatsapp_auth
+**/auth_info_baileys
+
+# Varios
+.git
+**/*.log
+**/cypress/videos
+**/cypress/screenshots

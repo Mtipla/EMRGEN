@@ -1,0 +1,23 @@
+{
+  "name": "@repo/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cliente del backend EMERGEN y cargadores de SDKs de navegador (Google Maps, PayPal) y cliente de Firebase Authentication para web, mobile y desktop.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@repo/api-types": "*",
+    "@repo/typescript-config": "*",
+    "typescript": "6.0.3",
+    "jsdom": "22.1.0",
+    "vitest": "4.1.11"
+  },
+  "dependencies": {
+    "firebase": "12.19.0"
+  }
+}

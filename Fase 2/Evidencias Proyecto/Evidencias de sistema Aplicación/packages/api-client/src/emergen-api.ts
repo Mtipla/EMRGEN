@@ -1,0 +1,145 @@
+import type {
+  CapturePaypalOrderResponse,
+  CompraPendiente,
+  CreatePaypalOrderRequest,
+  EconomicIndicator,
+  EmergencyAlertResult,
+  FirebaseAuthUser,
+  GenerateReportRequest,
+  GeocodeResult,
+  GeoPoint,
+  IndicatorCode,
+  OrdenCompraResponse,
+  PaypalOrderResponse,
+  ResultadoCompraResponse,
+  ResumenCompraApadrinados,
+  ResumenCompra,
+  TipoCompra,
+  SendEmergencyAlertRequest,
+  WhatsappPairingCodeResponse,
+  WhatsappStatusResponse,
+} from '@repo/api-types';
+import { ApiError, createHttpClient } from './http';
+const retired = (): never => { throw new ApiError(410, { statusCode: 410, message: 'Integracion generica retirada; utiliza el flujo de negocio autorizado.' }); };
+
+const bearer = (accessToken: string) => ({ Authorization: `Bearer ${accessToken}` });
+
+/**
+ * Cliente tipado de los endpoints de integraciones del backend.
+ * Las credenciales secretas viven solo en el backend; el frontend nunca las ve.
+ *
+ * @param baseUrl URL del backend, normalmente `import.meta.env.VITE_API_URL`.
+ */
+export function createEmergenApi(baseUrl: string) {
+  const http = createHttpClient(baseUrl);
+
+  return {
+    /** @deprecated Usar compras: precio, propiedad y reserva del servidor. */
+    paypal: {
+      createOrder: async (_request: CreatePaypalOrderRequest): Promise<PaypalOrderResponse> => retired(),
+      captureOrder: async (_orderId: string): Promise<CapturePaypalOrderResponse> => retired(),
+    },
+
+    /**
+     * Compra de cuentas apadrinadas. Requiere el JWT del login. El precio y el usuario
+     * los decide el backend; el éxito solo vale si `capture` responde estado PAGADO.
+     */
+    compras: {
+      purchaseSummary: (accessToken: string) =>
+        http.json<ResumenCompra>('/compras/resumen', { headers: bearer(accessToken) }),
+      pending: (accessToken: string) => http.json<CompraPendiente[]>('/compras/apadrinados/ventas/pendientes', { headers: bearer(accessToken) }),
+      summary: (accessToken: string) =>
+        http.json<ResumenCompraApadrinados>('/compras/apadrinados', {
+          headers: bearer(accessToken),
+        }),
+      createOrder: (accessToken: string, cantidad: number, tipo?: TipoCompra) =>
+        http.json<OrdenCompraResponse>('/compras/apadrinados/ordenes', {
+          method: 'POST',
+          headers: bearer(accessToken),
+          body: JSON.stringify({ cantidad, ...(tipo ? { tipo } : {}) }),
+        }),
+      capture: (accessToken: string, orderId: string) =>
+        http.json<ResultadoCompraResponse>(
+          `/compras/apadrinados/ordenes/${encodeURIComponent(orderId)}/captura`,
+          { method: 'POST', headers: bearer(accessToken) },
+        ),
+      reconcile: (accessToken: string, ventaId: number) =>
+        http.json<ResultadoCompraResponse | OrdenCompraResponse>(`/compras/apadrinados/ventas/${ventaId}/conciliar`, { method: 'POST', headers: bearer(accessToken) }),
+      cancel: (accessToken: string, orderId: string) =>
+        http.json<ResultadoCompraResponse>(
+          `/compras/apadrinados/ordenes/${encodeURIComponent(orderId)}/cancelar`,
+          { method: 'POST', headers: bearer(accessToken) },
+        ),
+    },
+
+    auth: {
+      me: (idToken: string) =>
+        http.json<FirebaseAuthUser>('/auth/me', {
+          headers: { Authorization: `Bearer ${idToken}` },
+        }),
+    },
+
+    /** @deprecated Usar las rutas autorizadas de reporte de negocio. */
+    reports: {
+      generate: async (_request: GenerateReportRequest): Promise<Blob> => retired(),
+    },
+
+    maps: {
+      geocode: (accessToken: string, address: string) =>
+        http.json<GeocodeResult[]>(`/maps/geocode?${new URLSearchParams({ address })}`, { headers: bearer(accessToken) }),
+      reverseGeocode: (accessToken: string, { lat, lng }: GeoPoint) =>
+        http.json<GeocodeResult[]>(
+          `/maps/reverse-geocode?${new URLSearchParams({ lat: String(lat), lng: String(lng) })}`,
+          { headers: bearer(accessToken) },
+        ),
+    },
+
+    indicators: {
+      today: (accessToken: string) => http.json<EconomicIndicator[]>('/indicators', { headers: bearer(accessToken) }),
+      get: (accessToken: string, code: IndicatorCode, date?: string) =>
+        http.json<EconomicIndicator>(
+          `/indicators/${code}${date ? `?${new URLSearchParams({ date })}` : ''}`,
+          { headers: bearer(accessToken) },
+        ),
+    },
+
+    /** Administración de la sesión de WhatsApp. Requiere el JWT de un Administrador. */
+    whatsapp: {
+      status: (accessToken: string) =>
+        http.json<WhatsappStatusResponse>('/notifications/whatsapp/status', {
+          headers: bearer(accessToken),
+        }),
+      qr: (accessToken: string) =>
+        http.blob('/notifications/whatsapp/qr', { headers: bearer(accessToken) }),
+      requestPairingCode: (accessToken: string, phoneNumber: string) =>
+        http.json<WhatsappPairingCodeResponse>('/notifications/whatsapp/pairing-code', {
+          method: 'POST',
+          headers: bearer(accessToken),
+          body: JSON.stringify({ phoneNumber }),
+        }),
+      logout: (accessToken: string) =>
+        http.json<WhatsappStatusResponse>('/notifications/whatsapp/logout', {
+          method: 'POST',
+          headers: bearer(accessToken),
+        }),
+      sendAlert: (accessToken: string, request: SendEmergencyAlertRequest) =>
+        http.json<EmergencyAlertResult>('/notifications/whatsapp/alerts', {
+          method: 'POST',
+          headers: bearer(accessToken),
+          body: JSON.stringify(request),
+        }),
+    },
+  };
+}
+
+export type EmergenApi = ReturnType<typeof createEmergenApi>;
+
+/** Descarga un Blob en el navegador (web y desktop). */
+export function downloadBlob(blob: Blob, fileName: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+}

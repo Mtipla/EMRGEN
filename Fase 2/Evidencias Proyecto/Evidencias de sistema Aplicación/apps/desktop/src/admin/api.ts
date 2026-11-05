@@ -1,0 +1,245 @@
+import axios, { isAxiosError, type AxiosResponse } from 'axios'
+import type { CambiosTicket, Catalogo, Ticket } from '@repo/ui/soporte'
+import type { CambiosMensaje, MensajeContacto } from '@repo/ui/admin-contacto'
+import type { ExpedienteCuenta } from '@repo/ui/admin-cuentas'
+import type { UsuarioAdminFila } from '@repo/ui/admin-views'
+import type { DatosPerfilPersonal } from '@repo/ui/perfil-personal'
+import type { CambiosTrabajador } from '@repo/ui/admin-trabajadores'
+export type { PaginaVentas, VentaAdmin } from '@repo/ui/admin-ventas'
+import type { PaginaVentas } from '@repo/ui/admin-ventas'
+
+/**
+ * Cliente Axios del panel de administrador. El renderer de Electron no usa Node.js:
+ * todo pasa por HTTP hacia la API de NestJS.
+ *
+ * La URL sale de VITE_API_URL y depende del modo de Vite, sin valor por defecto para que
+ * el panel nunca se conecte en silencio a un backend distinto del esperado
+ */
+export const API_URL: string = import.meta.env.VITE_API_URL ?? ''
+export const MODO_API =
+  import.meta.env.MODE === 'docker' ? 'backend de Docker' : 'backend local (start:dev)'
+
+const http = axios.create({ baseURL: API_URL })
+const internalHttp = axios.create({
+  baseURL: `${import.meta.env.VITE_INTERNAL_API_URL ?? 'http://localhost:8000'}/internal/v1`,
+  timeout: 10000,
+})
+
+
+let token = ''
+export function setToken(nuevo: string) {
+  token = nuevo
+}
+
+for (const cliente of [http, internalHttp]) cliente.interceptors.request.use((config) => {
+  if (token && !config.headers.has('Authorization')) {
+    config.headers.set('Authorization', `Bearer ${token}`)
+  }
+  return config
+})
+
+export const ROLES: Record<number, string> = { 1: 'ADMINISTRADOR', 2: 'SOPORTE', 3: 'USUARIO' }
+export const ESTADOS: Record<number, string> = {
+  1: 'ACCESO COMPLETO',
+  2: 'ACCESO PARCIAL',
+}
+
+export type Sesion = {
+  access_token: string
+  usuario: { usuario_ID: number; nombre_usuario: string; correo_usuario: string; rol_ID?: number; estado_ID?: number }
+}
+
+export type UsuarioAdmin = UsuarioAdminFila
+
+export type AlertaAdmin = {
+  alerta_id: number
+  usuario_id: number | null
+  nombre_usuario: string | null
+  correo_usuario: string | null
+  estado_alerta: 'ACTIVA' | 'FINALIZADA' | 'EXPIRADA'
+  prioridad_id: number
+  prioridad: string
+  mensaje: string
+  ubicacion: string | null
+  fecha_creacion: string
+  fecha_cierre: string | null
+}
+
+export type PaginaAlertas = {
+  alertas: AlertaAdmin[]
+  total: number
+  activas: number
+}
+
+export type DatosSoporte = { nombre_usuario: string; correo_usuario: string; password: string }
+
+export type FormatoReporte = 'pdf' | 'xlsx'
+
+export type FiltrosVentas = { busqueda: string; estado_pago_id: string; desde: string; hasta: string }
+
+export type PlanUsuario = {
+  plan_usuario_ID: number
+  usuario_ID: number
+  plan_ID: number
+  cupos_apadrinados_adq: number
+  cupos_ocupados: number
+  cupos_disponibles: number
+}
+
+export type DatosPlan = Pick<PlanUsuario, 'plan_ID' | 'cupos_apadrinados_adq'>
+
+export type Expediente = ExpedienteCuenta & {
+  plan: PlanUsuario | null
+}
+
+type Valor = string | number | boolean | null
+
+export type EntradaBitacora = {
+  bitacora_sistema_ID: number
+  fecha_accion: string
+  accion_realizada: string
+  tipo_accion: string | null
+  entidad_afectada: string | null
+  resultado: 'EXITOSA' | 'FALLIDA'
+  cambios: Record<string, { antes: Valor; despues: Valor }> | null
+  usuario_ID: number | null
+  nombre_usuario: string | null
+  rol_actor_ID: number | null
+  usuario_afectado_ID: number | null
+  nombre_usuario_afectado: string | null
+  aplicacion_ID: number
+  origen_aplicacion: string | null
+}
+
+
+export type FiltrosBitacora = {
+  desde: string
+  hasta: string
+  usuario_ID: string
+  usuario_afectado_ID: string
+  aplicacion_ID: string
+  limite: string
+}
+
+const datos = <T>(respuesta: Promise<AxiosResponse<T>>) => respuesta.then((r) => r.data)
+
+
+const sinVacios = (campos: Record<string, string>) =>
+  Object.fromEntries(Object.entries(campos).filter(([, valor]) => valor !== ''))
+
+export const adminApi = {
+  login: (correo_usuario: string, password: string) =>
+    datos(http.post<Sesion>('/usuarios/login', { correo_usuario, password })),
+  actualizarMiUsuario: (cambios: DatosPerfilPersonal) =>
+    datos(http.patch<Sesion['usuario']>('/usuarios/me', cambios)),
+
+  listarTickets: (consulta: { estado: string; limit: number; offset: number }, signal: AbortSignal) =>
+    datos(internalHttp.get<Ticket[]>('/tickets-soporte', {
+      params: { limit: consulta.limit, offset: consulta.offset, ...(consulta.estado && { estado: consulta.estado }) }, signal,
+    })),
+  listarEstadosTickets: (signal: AbortSignal): Promise<Catalogo[]> =>
+    datos(internalHttp.get<{ estado_id: number; nombre: string }[]>('/tickets-soporte/estados', { signal }))
+      .then((filas) => filas.map((f) => ({ id: f.estado_id, nombre: f.nombre }))),
+  actualizarTicket: (id: number, cambios: CambiosTicket) =>
+    datos(internalHttp.patch<Ticket>(`/tickets-soporte/${id}`, cambios)),
+  descargarInformeTickets: (formato: FormatoReporte) =>
+    datos(http.get<Blob>('/admin/tickets/reporte', { params: { formato }, responseType: 'blob', timeout: 90000 })),
+
+  listarMensajesContacto: (consulta: { estado: string; limit: number }, signal: AbortSignal) =>
+    datos(internalHttp.get<MensajeContacto[]>('/mensajes-contacto', {
+      params: { limit: consulta.limit, ...(consulta.estado && { estado: consulta.estado }) }, signal,
+    })),
+  listarEstadosContacto: (signal: AbortSignal) =>
+    datos(internalHttp.get<Catalogo[]>('/mensajes-contacto/estados', { signal })),
+  actualizarMensajeContacto: (id: number, cambios: CambiosMensaje) =>
+    datos(internalHttp.patch<MensajeContacto>(`/mensajes-contacto/${id}`, cambios)),
+
+  listarAlertas: (
+    filtros: {
+      estado: string
+      usuario_id: string
+      limit: number
+      offset: number
+    },
+    signal: AbortSignal,
+  ) =>
+    datos(
+      http.get<PaginaAlertas>('/admin/alertas', {
+        params: {
+          ...sinVacios({
+            estado: filtros.estado,
+            usuario_id: filtros.usuario_id,
+          }),
+          limit: filtros.limit,
+          offset: filtros.offset,
+        },
+        signal,
+        timeout: 10000,
+      }),
+    ),
+
+  // Usuarios
+  listarUsuarios: () => datos(http.get<UsuarioAdmin[]>('/admin/usuarios')),
+  listarTrabajadores: () => datos(http.get<UsuarioAdmin[]>('/admin/usuarios/trabajadores')),
+  listarPlanes: () => datos(http.get<{ plan_ID: number; nombre_plan: string }[]>('/admin/usuarios/planes')),
+  verExpediente: (id: number, signal?: AbortSignal) => datos(http.get<Expediente>(`/admin/usuarios/${id}`, { signal })),
+  actualizarDatos: (id: number, nombre_usuario: string, correo_usuario: string) =>
+    datos(
+      http.patch<UsuarioAdmin>(
+        `/admin/usuarios/${id}`,
+        sinVacios({ nombre_usuario: nombre_usuario.trim(), correo_usuario: correo_usuario.trim() }),
+      ),
+    ),
+  guardarPlan: (id: number, plan: DatosPlan) =>
+    datos(http.put<PlanUsuario>(`/admin/usuarios/${id}/plan`, plan)),
+  cambiarEstado: (id: number, estado_ID: number) =>
+    datos(http.put<UsuarioAdmin>(`/admin/usuarios/${id}/estado`, { estado_ID })),
+  eliminarApadrinado: (id: number) => datos(http.delete<void>(`/admin/usuarios/apadrinado/${id}`)),
+  crearSoporte: (cuenta: DatosSoporte) =>
+    datos(http.post<UsuarioAdmin>('/admin/usuarios/soporte', cuenta)),
+  actualizarTrabajador: (id: number, cambios: CambiosTrabajador) =>
+    datos(http.patch<UsuarioAdmin>(`/admin/usuarios/trabajadores/${id}`, cambios)),
+  eliminarTrabajador: (id: number) =>
+    datos(http.delete<void>(`/admin/usuarios/trabajadores/${id}`)),
+
+  // Ventas registradas y reportes PDF/Excel generados por jsReport con los mismos filtros.
+  listarVentas: (filtros: FiltrosVentas, offset: number, signal: AbortSignal) =>
+    datos(http.get<PaginaVentas>('/admin/ventas', { params: { ...sinVacios(filtros), limit: 20, offset }, signal, timeout: 10000 })),
+  descargarVentas: (filtros: FiltrosVentas, formato: FormatoReporte = 'pdf') =>
+    datos(http.get<Blob>('/admin/ventas/reporte', { params: { ...sinVacios(filtros), formato }, responseType: 'blob', timeout: 90000 })),
+
+  // Bitácora / auditoría 
+  listarBitacora: (filtros: FiltrosBitacora) =>
+    datos(http.get<EntradaBitacora[]>('/admin/auditoria', { params: sinVacios(filtros) })),
+  descargarReporte: (filtros: FiltrosBitacora, formato: FormatoReporte = 'pdf') =>
+    datos(
+      http.get<Blob>('/admin/auditoria/reporte', {
+        params: { ...sinVacios(filtros), formato },
+        responseType: 'blob',
+        timeout: 90000,
+      }),
+    ),
+}
+
+
+export async function describirError(error: unknown): Promise<string> {
+  if (!isAxiosError(error)) return error instanceof Error ? error.message : String(error)
+  if (!error.response) {
+    return (
+      `Sin respuesta de ${API_URL} (${MODO_API}). Revisa que ese backend esté levantado y que ` +
+      `su CORS_ORIGINS incluya ${window.location.origin}. Para usar el otro backend inicia el ` +
+      `panel con el script del otro modo (dev / dev:docker).`
+    )
+  }
+
+  let cuerpo: unknown = error.response.data
+  if (cuerpo instanceof Blob) {
+    cuerpo = await cuerpo
+      .text()
+      .then((texto) => JSON.parse(texto) as unknown)
+      .catch(() => undefined)
+  }
+  const errorApi = cuerpo as { message?: string | string[]; detail?: string } | undefined
+  const mensaje = errorApi?.message ?? errorApi?.detail
+  return `HTTP ${error.response.status}: ${Array.isArray(mensaje) ? mensaje.join(', ') : (mensaje ?? error.message)}`
+}

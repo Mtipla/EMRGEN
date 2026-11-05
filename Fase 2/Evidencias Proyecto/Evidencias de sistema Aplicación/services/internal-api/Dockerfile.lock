@@ -1,0 +1,8 @@
+# Resolve inside target Linux/Python, independently of the Windows developer venv.
+FROM python:3.12-slim AS resolver
+WORKDIR /resolve
+RUN python -m pip install --no-cache-dir pip-tools==7.5.2
+COPY requirements-runtime.txt ./
+RUN pip-compile --resolver=backtracking --generate-hashes --strip-extras --no-emit-index-url --no-emit-trusted-host --output-file=/requirements-linux-py312.lock requirements-runtime.txt
+FROM scratch AS output
+COPY --from=resolver /requirements-linux-py312.lock /
