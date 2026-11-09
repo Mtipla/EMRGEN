@@ -10,7 +10,27 @@
     "dev:web": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dist:win": "npm run build -- --mode production && electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "cl.emergen.panel",
+    "productName": "EMERGEN Panel",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "!electron/*.test.cjs",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
   },
   "dependencies": {
     "@ionic/react": "9.0.4",
