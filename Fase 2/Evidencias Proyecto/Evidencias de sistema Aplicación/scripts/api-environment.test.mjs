@@ -92,6 +92,10 @@ test("mantiene los modos local/Docker explícitos para builds de prueba", () => 
     VITE_INTERNAL_API_URL: "http://localhost:8000",
   };
   assert.deepEqual(publicApiUrls(local, "docker"), local);
+  assert.deepEqual(publicApiUrls(local, "local-pc"), local);
+  for (const base of ["https://api.emergen.cl", "http://192.168.0.8:3001"]) {
+    assert.throws(() => publicApiUrls({ ...local, VITE_API_URL: base }, "local-pc"), /loopback/);
+  }
 });
 test("reproduce la regresión: HTTP disponible pero WhatsApp deshabilitado no permite preparar SOS", async () => {
   await assert.rejects(

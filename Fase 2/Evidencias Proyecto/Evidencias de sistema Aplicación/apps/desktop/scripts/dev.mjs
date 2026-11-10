@@ -1,8 +1,8 @@
 // Desarrollo del panel de escritorio: levanta Vite y abre Electron apuntando a su URL.
 // Al cerrar la ventana se detiene Vite y termina la tarea de Turborepo.
 //
-//   node scripts/dev.mjs                 -> backend local  (VITE_API_URL de .env)
-//   node scripts/dev.mjs --mode docker   -> backend Docker (VITE_API_URL de .env.docker)
+//   node scripts/dev.mjs                 -> servicios del PC (.env.local-pc)
+//   node scripts/dev.mjs --mode docker   -> compatibilidad con .env.docker
 //
 // El resto de los argumentos pasa a Electron (p. ej. --remote-debugging-port=9222).
 import { spawn } from 'node:child_process'
@@ -13,7 +13,7 @@ const argumentos = process.argv.slice(2)
 const indiceModo = argumentos.indexOf('--mode')
 const [, modo] = indiceModo === -1 ? [] : argumentos.splice(indiceModo, 2)
 
-const server = await createServer({ mode: modo })
+const server = await createServer({ mode: modo ?? 'local-pc' })
 await server.listen()
 server.printUrls()
 console.log(`  ➜  API:     ${server.config.env.VITE_API_URL ?? '(VITE_API_URL sin definir)'}`)

@@ -44,6 +44,11 @@ export default defineConfig(({ mode, command }) => {
     ],
     // Un solo .env en la raíz del monorepo; Vite solo expone las variables VITE_*.
     envDir: mode === "security-check" ? false : "../../",
+    server: {
+      host: "127.0.0.1",
+      port: 5174,
+      strictPort: true,
+    },
     test: {
       globals: true,
       environment: "jsdom",

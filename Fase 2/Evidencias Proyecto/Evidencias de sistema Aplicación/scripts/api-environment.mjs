@@ -43,6 +43,9 @@ export function publicApiUrls(env, mode) {
       );
     }
     urls[key] = url.origin;
+    if (mode === "local-pc" && !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) {
+      throw new Error(`${key}: el modo local-pc requiere localhost o una dirección de loopback.`);
+    }
   }
   if (hostedModes.has(mode)) {
     if (!env.VITE_DEPLOYMENT_ID?.trim() || env.VITE_DEPLOYMENT_ID === "local") {

@@ -19,7 +19,7 @@ services:
       - "127.0.0.1:5433:5432"
     volumes:
       - emergen_postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - emergen_network
     healthcheck:
@@ -48,7 +48,7 @@ services:
       - PORT=3000
       - HOST=0.0.0.0
       - EMERGEN_ENVIRONMENT=${EMERGEN_ENVIRONMENT:-development}
-      - EMERGEN_DEPLOYMENT_ID=${EMERGEN_DEPLOYMENT_ID:-docker}
+      - EMERGEN_DEPLOYMENT_ID=${EMERGEN_DEPLOYMENT_ID:-ejecucion-local}
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env}
       - JWT_SESSION_HOURS=${JWT_SESSION_HOURS:-2}
       - CORS_ORIGINS=${CORS_ORIGINS:-}
@@ -75,9 +75,8 @@ services:
       - emergen_whatsapp_auth:/app/apps/backend/auth_info_baileys
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    # PC:contenedor. Dentro del contenedor la API escucha en 3000 (PORT, arriba); en el PC se
-    # publica en 3001 para no chocar con el backend local (npm run start:dev, puerto 3000).
-    # Los frontends lo consumen con el modo docker de Vite (.env.docker -> localhost:3001).
+    # PC:contenedor. Esta rama usa NestJS en Docker: 3001 en el PC, 3000 en el contenedor.
+    # local-pc y docker apuntan a localhost:3001; el APK usa la IPv4 LAN del PC:3001.
     ports:
       - "3001:3000"
     depends_on:
@@ -117,7 +116,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET compartido por ambas APIs}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:5174,http://localhost:5175,https://localhost}
       EMERGEN_ENVIRONMENT: ${EMERGEN_ENVIRONMENT:-development}
-      EMERGEN_DEPLOYMENT_ID: ${EMERGEN_DEPLOYMENT_ID:-docker}
+      EMERGEN_DEPLOYMENT_ID: ${EMERGEN_DEPLOYMENT_ID:-ejecucion-local}
       INTERNAL_API_DOCS_ENABLED: ${INTERNAL_API_DOCS_ENABLED:-true}
       PORT: 8000
       HOST: 0.0.0.0

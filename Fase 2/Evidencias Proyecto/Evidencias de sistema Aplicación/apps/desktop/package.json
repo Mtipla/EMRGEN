@@ -9,6 +9,8 @@
     "dev:docker": "node scripts/dev.mjs --mode docker",
     "dev:web": "vite",
     "build": "tsc -b && vite build",
+    "exe:local": "node scripts/package-windows.mjs",
+    "test:electron": "node --test electron/*.test.cjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

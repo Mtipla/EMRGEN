@@ -8,6 +8,7 @@ if (
   !process.argv.includes("--mode") ||
   ![
     "development",
+    "local-pc",
     "docker",
     "android-lan",
     "production",
@@ -16,7 +17,7 @@ if (
   ].includes(mode)
 ) {
   throw new Error(
-    "Indica --mode development|docker|android-lan|production|android-production|staging.",
+    "Indica --mode local-pc|development|docker|android-lan|production|android-production|staging.",
   );
 }
 try {

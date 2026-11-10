@@ -17,7 +17,7 @@ import type { PaginaVentas } from '@repo/ui/admin-ventas'
  */
 export const API_URL: string = import.meta.env.VITE_API_URL ?? ''
 export const MODO_API =
-  import.meta.env.MODE === 'docker' ? 'backend de Docker' : 'backend local (start:dev)'
+  ['docker', 'local-pc'].includes(import.meta.env.MODE) ? 'servicios locales (Docker)' : 'backend local (start:dev)'
 
 const http = axios.create({ baseURL: API_URL })
 const internalHttp = axios.create({
