@@ -151,24 +151,35 @@ export default function AlertaVolumen({
                 Permite la actividad en segundo plano y evita restricciones de
                 batería.
               </p>
-              {!state?.accessibilityEnabled && (
-                <div className="volume-sos__permission">
-                  <p>
-                    Habilita «EMERGEN · Secuencia de volumen» en Accesibilidad.
-                    Solo accede a las teclas de volumen.
-                  </p>
-                  <button
-                    className="wf-button wf-button--secondary"
-                    type="button"
-                    onClick={() =>
-                      void volumeSos
-                        .openAccessibilitySettings()
-                        .catch((cause) => setError(errorText(cause)))
-                    }
-                  >
-                    Habilitar acceso a los botones
-                  </button>
-                </div>
+              {state &&
+                (!state.accessibilityEnabled ||
+                  !state.accessibilityConnected) && (
+                  <div className="volume-sos__permission">
+                    <p>
+                      {state.accessibilityEnabled
+                        ? "Accesibilidad está habilitada, pero el servicio no está conectado. En Ajustes, desactiva y vuelve a activar «EMERGEN · Secuencia de volumen»; después regresa a la aplicación."
+                        : "Habilita «EMERGEN · Secuencia de volumen» en Accesibilidad. Solo accede a las teclas de volumen."}
+                    </p>
+                    <button
+                      className="wf-button wf-button--secondary"
+                      type="button"
+                      onClick={() =>
+                        void volumeSos
+                          .openAccessibilitySettings()
+                          .catch((cause) => setError(errorText(cause)))
+                      }
+                    >
+                      {state.accessibilityEnabled
+                        ? "Reconectar acceso a los botones"
+                        : "Habilitar acceso a los botones"}
+                    </button>
+                  </div>
+                )}
+              {state && !running && !state.sequence.length && (
+                <p className="volume-sos__hint">
+                  Para habilitar «Activar segundo plano», pulsa «Configurar
+                  alerta», graba tu secuencia y completa las dos pruebas.
+                </p>
               )}
               <div className="volume-sos__actions">
                 <button
