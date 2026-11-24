@@ -23,6 +23,7 @@ describe('AdminService', () => {
     countBy: jest.Mock;
     create: jest.Mock;
     save: jest.Mock;
+    update: jest.Mock;
     delete: jest.Mock;
   };
   let planes: { findOne: jest.Mock; create: jest.Mock; merge: jest.Mock; save: jest.Mock };
@@ -43,6 +44,7 @@ describe('AdminService', () => {
       countBy: jest.fn(),
       create: jest.fn((usuario: Usuario) => usuario),
       save: jest.fn((usuario: Usuario) => Promise.resolve(usuario)),
+      update: jest.fn().mockResolvedValue({ affected: 1 }),
       delete: jest.fn(),
     };
     planes = {
@@ -172,6 +174,7 @@ describe('AdminService', () => {
 
       await expect(service.actualizarTrabajador(7, { rol_ID: nuevo }, ADMIN))
         .resolves.toMatchObject({ rol_ID: nuevo, estado_ID: 1 });
+      expect(usuarios.update).toHaveBeenCalledWith(7, { rol_ID: nuevo });
       expect(auditado?.cambios).toEqual({ rol_ID: { antes: anterior, despues: nuevo } });
     });
 

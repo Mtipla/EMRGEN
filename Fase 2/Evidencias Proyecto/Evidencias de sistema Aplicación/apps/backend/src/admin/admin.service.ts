@@ -437,8 +437,10 @@ export class AdminService {
         } catch (error) { throw this.loginService.traducirCorreoDuplicado(error); }
       }
       if (datos.PIN !== undefined) await this.loginService.guardarPin(manager, usuario, datos.PIN);
-      if (datos.rol_ID !== undefined) usuario.rol_ID = datos.rol_ID;
-      await usuarios.save(usuario);
+      if (datos.rol_ID !== undefined) {
+        await usuarios.update(id, { rol_ID: datos.rol_ID });
+        usuario.rol_ID = datos.rol_ID;
+      }
       return {
         valor: this.resumir(usuario),
         cambios: diferencias(anterior, usuario, ['correo_usuario', 'rol_ID', 'estado_ID']),

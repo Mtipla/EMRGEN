@@ -371,7 +371,11 @@ export class LoginService {
  
     if (usuario.PIN_ID === null) usuario.estado_ID = 1;
     usuario.PIN_ID = pin.PIN_ID;
-    await manager.getRepository(Usuario).save(usuario);
+    // Actualiza solo el vínculo del PIN: la contraseña no se carga en esta entidad.
+    await manager.getRepository(Usuario).update(usuario.usuario_ID, {
+      PIN_ID: usuario.PIN_ID,
+      estado_ID: usuario.estado_ID,
+    });
     await manager.query('UPDATE pin SET intentos_fallidos=0, bloqueado_hasta=NULL WHERE pin_id=$1', [pin.PIN_ID]);
   }
 

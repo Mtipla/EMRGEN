@@ -176,6 +176,27 @@ db(
         .expect(201);
       trabajadorId = alta.body.usuario_ID;
       creados.push(trabajadorId);
+      const [antes] = await source.query(
+        'SELECT contra_usuario,pin_id FROM usuario WHERE usuario_id=$1',
+        [trabajadorId],
+      );
+      expect(antes.pin_id).toBeNull();
+      // Regresión: asignar únicamente el primer PIN conserva la contraseña.
+      await http()
+        .patch('/admin/usuarios/trabajadores/' + trabajadorId)
+        .set(auth(admin))
+        .send({ PIN: '0007' })
+        .expect(200);
+      const [primero] = await source.query(
+        'SELECT u.contra_usuario,p.pin_id,p.pin_hash FROM usuario u JOIN pin p USING(pin_id) WHERE u.usuario_id=$1',
+        [trabajadorId],
+      );
+      expect(primero.contra_usuario).toBe(antes.contra_usuario);
+      expect(await bcrypt.compare('0007', primero.pin_hash)).toBe(true);
+      await http().post('/usuarios/login').send({
+        correo_usuario: 'trabajador.' + sufijo + '@emergen.test',
+        password: 'PruebaPanel123!',
+      }).expect(201);
       await http().get('/admin/usuarios/trabajadores').set(auth(soporte)).expect(403);
       await http().get('/admin/usuarios/trabajadores').set(auth(token(cuentaId))).expect(403);
       const inicial = (await http().get('/admin/usuarios/trabajadores').set(auth(admin)).expect(200)).body;
@@ -206,10 +227,13 @@ db(
         /0042|pin_hash|contra_usuario/,
       );
       const [pin] = await source.query(
-        'SELECT p.pin_hash FROM usuario u JOIN pin p USING(pin_id) WHERE u.usuario_id=$1',
+        'SELECT u.contra_usuario,p.pin_id,p.pin_hash FROM usuario u JOIN pin p USING(pin_id) WHERE u.usuario_id=$1',
         [trabajadorId],
       );
+      expect(pin.contra_usuario).toBe(antes.contra_usuario);
+      expect(pin.pin_id).toBe(primero.pin_id);
       expect(await bcrypt.compare('0042', pin.pin_hash)).toBe(true);
+      expect(await bcrypt.compare('0007', pin.pin_hash)).toBe(false);
       const sesion = token(trabajadorId);
       await http().get('/admin/usuarios').set(auth(sesion)).expect(200);
       await http()
